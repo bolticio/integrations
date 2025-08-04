@@ -8,7 +8,7 @@ Each integration encapsulates its metadata, configuration schemas, documentation
 
 ## 🧩 What are Integrations?
 
-Integrations define how Fynd connects with external platforms such as Shopify, Salesforce, Zoho, etc. Each integration enables secure and configurable data exchange, API access, and automation workflows with third-party services.
+Integrations define how Boltic connects with external platforms such as Shopify, Salesforce, Zoho, etc. Each integration enables secure and configurable data exchange, API access, and automation workflows with third-party services.
 
 ---
 
