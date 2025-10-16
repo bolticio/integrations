@@ -1,0 +1,97 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the email address of the subscriber.",
+                "displayName": "Email",
+                "displayType": "text",
+                "placeholder": "Enter the email"
+            },
+            "name": "email"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Enter the first name of the subscriber.",
+                "displayName": "First Name",
+                "displayType": "text",
+                "placeholder": "Enter the first name"
+            },
+            "name": "fields.name"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Enter the last name of the subscriber.",
+                "displayName": "Last Name",
+                "displayType": "text",
+                "placeholder": "Enter the last name"
+            },
+            "name": "fields.last_name"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Subscriber group Id.",
+                "displayName": "Group ID",
+                "displayType": "text",
+                "placeholder": "Enter group id"
+            },
+            "name": "group_id"
+        }
+    ],
+    "definition": {
+        "url": "https://connect.mailerlite.com/api/subscribers",
+        "body": "{{parameters}}",
+        "method": "post",
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    },
+    "pagination": {
+        "qs": {
+            "cursor": "{{response.meta.next_cursor}}",
+            "per_page": 25
+        },
+        "type": "cursor",
+        "default": {
+            "cursor": null,
+            "per_page": 25
+        },
+        "condition": "{{response.meta.next_cursor}} !== null",
+        "fetch_next": {
+            "url": "https://connect.mailerlite.com/api/subscribers?cursor={{response.meta.next_cursor}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    }
+}

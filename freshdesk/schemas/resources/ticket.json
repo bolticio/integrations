@@ -1,0 +1,121 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "New And My Open",
+                        "value": "new_and_my_open"
+                    },
+                    {
+                        "label": "Watching",
+                        "value": "watching"
+                    },
+                    {
+                        "label": "Spam",
+                        "value": "spam"
+                    },
+                    {
+                        "label": "Deleted",
+                        "value": "deleted"
+                    }
+                ],
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter criteria for listing tickets.",
+                "displayName": "Filter",
+                "displayType": "select"
+            },
+            "name": "filter"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Stats",
+                        "value": "stats"
+                    },
+                    {
+                        "label": "Requester",
+                        "value": "requester"
+                    },
+                    {
+                        "label": "Description",
+                        "value": "description"
+                    }
+                ],
+                "validation": {
+                    "required": false
+                },
+                "description": "Data to include in the response.",
+                "displayName": "Include",
+                "displayType": "select"
+            },
+            "name": "include"
+        }
+    ],
+    "getMoreParameters": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/ticket_fields",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const required=['subject','priority','description','unique_external_id'];const skip=new Set(['requester','company']);const typeMap={text:'text',textarea:'textarea',dropdown:'select',auto_complete:'multitext',multi_select_dropdown:'multiselect',radio:'select',number:'number'};const seen=new Set();const result=[{name:'unique_external_id',meta:{displayName:'Unique External ID',displayType:'text',placeholder:'Enter Unique External ID',validation:{required:true}}},...output.map(ele=>{if(seen.has(ele.name)||skip.has(ele.name)||ele.name==='unique_external_id')return null;seen.add(ele.name);const isReq=required.includes(ele.name);const dt=ele.choices?'select':(typeMap[ele.type]||'text');const obj={name:ele.name,meta:{displayName:ele.label,displayType:dt,placeholder:`${ele.choices?'Select':'Enter'} ${ele.label}`,validation:{required:isReq}}};if(ele.name==='priority'){obj.meta.displayType='select';obj.meta.options=[{label:'Low',value:1},{label:'Medium',value:2},{label:'High',value:3},{label:'Urgent',value:4}];}else if(ele.choices){obj.meta.htmlProps={allowDynamic:true};if(Array.isArray(ele.choices))obj.meta.options=ele.choices.map(c=>({label:c,value:c}));else if(typeof ele.choices==='object')obj.meta.options=Object.entries(ele.choices).map(([k,v])=>({label:v,value:k}));}return obj;}).filter(Boolean)];return result;"
+            }
+        }
+    },
+    "config": {
+        "url": "integrations/parameters",
+        "body": {
+            "name": "freshdesk",
+            "secret": "{{parameters.secret}}",
+            "resource": "ticket",
+            "loadParametersMethod": "getMoreParameters"
+        },
+        "method": "post",
+        "urlType": "parameters"
+    },
+    "definition": {
+        "qs": {
+            "filter": "{{parameters.filter}}",
+            "include": "{{parameters.include}}"
+        },
+        "url": "https://{{secrets.company}}.freshdesk.com/api/v2/tickets.json",
+        "method": "get",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "pagination": {
+            "qs": {
+                "page": "{{pagination.page}} + 1",
+                "per_page": "{{pagination.per_page}}"
+            },
+            "type": "page",
+            "default": {
+                "page": 1,
+                "per_page": 30
+            },
+            "condition": "{{response.data.meta.total}} > 0"
+        }
+    }
+}

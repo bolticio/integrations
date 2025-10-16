@@ -1,0 +1,143 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Reply Token is a required field."
+                    }
+                },
+                "description": "The Reply Token received from webhook.",
+                "displayName": "Reply Token",
+                "displayType": "text",
+                "placeholder": "Enter Reply Token"
+            },
+            "name": "replyToken"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "value": "location",
+                            "options": [
+                                {
+                                    "label": "Location",
+                                    "value": "location"
+                                }
+                            ],
+                            "htmlProps": {
+                                "allowDynamic": true
+                            },
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Message Type is a required field."
+                                }
+                            },
+                            "description": "Type of the message",
+                            "displayName": "Message Type",
+                            "displayType": "select",
+                            "placeholder": "Select message type"
+                        },
+                        "name": "type"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Location title is a required field."
+                                }
+                            },
+                            "description": "Title for the location message Eg. My Location.",
+                            "displayName": "Location Title",
+                            "displayType": "text",
+                            "placeholder": "Enter Location Title"
+                        },
+                        "name": "title"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Address is a required field."
+                                }
+                            },
+                            "description": "Displayed address for the location.",
+                            "displayName": "Address",
+                            "displayType": "textarea",
+                            "placeholder": "Full address of location"
+                        },
+                        "name": "address"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Latitude is a required field."
+                                }
+                            },
+                            "description": "Latitude of the location (e.g., 35.67966).",
+                            "displayName": "Latitude",
+                            "displayType": "number",
+                            "placeholder": "Enter latitude"
+                        },
+                        "name": "latitude"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Longitude is a required field."
+                                }
+                            },
+                            "description": "Longitude of the location (e.g., 139.73669).",
+                            "displayName": "Longitude",
+                            "displayType": "number",
+                            "placeholder": "Enter longitude"
+                        },
+                        "name": "longitude"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "infoDetail": {
+                        "infoMsg": "You can send multiple location messages in a single request."
+                    },
+                    "requiredDetail": {
+                        "errorMsg": "At least one message is a required field."
+                    }
+                },
+                "description": "List of location messages to be sent.",
+                "displayName": "Messages",
+                "displayType": "array",
+                "placeholder": "Enter location messages"
+            },
+            "name": "messages"
+        }
+    ],
+    "definition": {
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "body": {
+            "messages": "{{parameters.messages}}",
+            "replyToken": "{{parameters.replyToken}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

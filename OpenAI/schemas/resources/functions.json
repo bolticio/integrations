@@ -1,0 +1,300 @@
+{
+    "name": "functions",
+    "getModels": {
+        "definition": {
+            "url": "https://api.openai.com/v1/models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "openai",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "functions",
+                        "operation": "functions.auto",
+                        "loadOptionsMethod": "getModels"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "id",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Model is required field."
+                    }
+                },
+                "description": "Select the model to use for the operation",
+                "displayName": "Model",
+                "displayType": "select",
+                "placeholder": "Select a model"
+            },
+            "name": "model"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "value": "user",
+                            "options": [
+                                {
+                                    "label": "User (Message from the user)",
+                                    "value": "user"
+                                },
+                                {
+                                    "label": "Assistant (Message from the assistant)",
+                                    "value": "assistant"
+                                }
+                            ],
+                            "htmlProps": {
+                                "allowDynamic": true
+                            },
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Role is required field."
+                                }
+                            },
+                            "description": "Specify whether the message is sent by the user or the assistant.",
+                            "displayName": "Message Role",
+                            "displayType": "select",
+                            "placeholder": "Choose the role for this message"
+                        },
+                        "name": "role"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Text parts is required field."
+                                }
+                            },
+                            "displayName": "Text parts",
+                            "displayType": "textarea",
+                            "placeholder": "Enter the message parts"
+                        },
+                        "name": "content"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Chat is required field."
+                    }
+                },
+                "description": "Provide the chat history to simulate an ongoing conversation.",
+                "displayName": "Chat History",
+                "displayType": "array"
+            },
+            "name": "chat"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true
+                            },
+                            "displayName": "Function Name",
+                            "displayType": "text",
+                            "placeholder": "Enter the name of the function"
+                        },
+                        "name": "name"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "maxLength": 1000,
+                                "minLength": 1
+                            },
+                            "displayName": "Description",
+                            "displayType": "text",
+                            "placeholder": "Enter the function description"
+                        },
+                        "name": "description"
+                    },
+                    {
+                        "meta": {
+                            "children": [
+                                {
+                                    "meta": {
+                                        "validation": {
+                                            "required": true
+                                        },
+                                        "displayName": "Property Name",
+                                        "displayType": "text",
+                                        "placeholder": "Enter the property name"
+                                    },
+                                    "name": "property_name"
+                                },
+                                {
+                                    "meta": {
+                                        "validation": {
+                                            "required": true,
+                                            "maxLength": 1000,
+                                            "minLength": 1
+                                        },
+                                        "displayName": "Property Description",
+                                        "displayType": "text",
+                                        "placeholder": "Enter the property description"
+                                    },
+                                    "name": "property_description"
+                                },
+                                {
+                                    "meta": {
+                                        "options": [
+                                            {
+                                                "label": "string",
+                                                "value": "string"
+                                            },
+                                            {
+                                                "label": "number",
+                                                "value": "number"
+                                            },
+                                            {
+                                                "label": "boolean",
+                                                "value": "boolean"
+                                            }
+                                        ],
+                                        "htmlProps": {
+                                            "allowDynamic": true
+                                        },
+                                        "validation": {
+                                            "required": true
+                                        },
+                                        "displayName": "Property Data Type",
+                                        "displayType": "select",
+                                        "placeholder": "Select a data type for the property"
+                                    },
+                                    "name": "property_data_type"
+                                },
+                                {
+                                    "meta": {
+                                        "options": [
+                                            {
+                                                "label": "Yes",
+                                                "value": "true"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "false"
+                                            }
+                                        ],
+                                        "htmlProps": {
+                                            "allowDynamic": true
+                                        },
+                                        "validation": {
+                                            "required": false
+                                        },
+                                        "displayName": "Is Required",
+                                        "displayType": "select",
+                                        "placeholder": "Mark if this parameter is required"
+                                    },
+                                    "name": "required"
+                                }
+                            ],
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Define the parameters required by the function.",
+                            "displayName": "Parameters",
+                            "displayType": "array",
+                            "placeholder": "Enter the parameters for the function"
+                        },
+                        "name": "properties"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Provide the function declarations to simulate an ongoing conversation.",
+                "displayName": "Function Declarations",
+                "displayType": "array"
+            },
+            "name": "function_declarations"
+        },
+        {
+            "meta": {
+                "value": 1024,
+                "validation": {
+                    "required": true
+                },
+                "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                "displayName": "Max Output Tokens",
+                "displayType": "number",
+                "placeholder": "Specify the maximum tokens to generate"
+            },
+            "name": "maxOutputTokens"
+        },
+        {
+            "meta": {
+                "max": 2,
+                "min": 0,
+                "step": 0.1,
+                "value": 0.7,
+                "htmlProps": {
+                    "showInfoIcon": true
+                },
+                "validation": {
+                    "required": true,
+                    "infoDetail": {
+                        "infoMsg": "Choose a value between 0(Very Deterministic) and 2 (Highly Random)"
+                    }
+                },
+                "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+                "displayName": "Temperature",
+                "displayType": "slider"
+            },
+            "name": "temperature"
+        }
+    ],
+    "definition": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "body": {
+            "model": "{{parameters.model}}",
+            "tools": "{{parameters.function_declarations}}",
+            "messages": "{{parameters.chat}}",
+            "max_tokens": "{{parameters.maxOutputTokens}}",
+            "temperature": "{{parameters.temperature}}"
+        },
+        "method": "post",
+        "headers": {
+            "content-type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "const updatedBody = { ...body, tools: body.tools?.map(tool => ({ type: 'function', function: { name: tool.name, description: tool.description, parameters: { type: 'object', properties: Object.fromEntries(tool.properties.map(param => [param.property_name, { type: param.property_data_type, description: param.property_description } ])), required: tool.properties.filter(p => p.required === 'true').map(p => p.property_name) } } })) }; return updatedBody;"
+        }
+    }
+}

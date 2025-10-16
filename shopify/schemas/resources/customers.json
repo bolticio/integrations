@@ -1,0 +1,85 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "shopify",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "customers",
+                        "operation": "customers.add_tag",
+                        "loadOptionsMethod": "getCustomers"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "first_name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "The ID of the customer to update.",
+                "displayName": "Customer ID",
+                "displayType": "select",
+                "placeholder": "Enter the customer ID"
+            },
+            "name": "customer_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Tags to be added to the customer.",
+                "displayName": "Tags",
+                "displayType": "text",
+                "placeholder": "Enter tags separated by commas"
+            },
+            "name": "tags"
+        }
+    ],
+    "getCustomers": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/search.json",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-shopify-access-token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.customers}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/{{parameters.customer_id}}.json",
+        "body": {
+            "customer": {
+                "id": "{{parameters.customer_id}}",
+                "tags": "{{parameters.tags}}"
+            }
+        },
+        "method": "put",
+        "headers": {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": "{{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

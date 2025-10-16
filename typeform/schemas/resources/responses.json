@@ -1,0 +1,206 @@
+{
+    "getForms": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.typeform.com/forms",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data.items}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "typeform",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "responses",
+                        "operation": "responses.list",
+                        "loadOptionsMethod": "getForms"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "title",
+                    "valueKey": "id"
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "The unique ID of the form.",
+                "displayName": "Form ID",
+                "displayType": "select",
+                "placeholder": "Select the Form ID",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "secret",
+                            "operator": "NOT_EMPTY"
+                        },
+                        {
+                            "field": "resource",
+                            "value": "responses",
+                            "operator": "EQUALS"
+                        },
+                        {
+                            "field": "operation",
+                            "value": "responses.list",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "form_id"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "views": [
+                        "year",
+                        "month",
+                        "day",
+                        "hours",
+                        "minutes",
+                        "seconds"
+                    ],
+                    "format": "YYYY-MM-DDTHH:mm:ss"
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Retrieve responses since this date.",
+                "displayName": "Since",
+                "displayType": "datetime",
+                "placeholder": "Enter the starting date-time"
+            },
+            "name": "since"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "views": [
+                        "year",
+                        "month",
+                        "day",
+                        "hours",
+                        "minutes",
+                        "seconds"
+                    ],
+                    "format": "YYYY-MM-DDTHH:mm:ss"
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Retrieve responses until this date.",
+                "displayName": "Until",
+                "displayType": "datetime",
+                "placeholder": "Enter the ending date-time"
+            },
+            "name": "until"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "List of specific response IDs to include.",
+                "displayName": "Included Response IDs",
+                "displayType": "multitext",
+                "placeholder": "Enter response IDs to include"
+            },
+            "name": "included_response_ids"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "List of specific response IDs to exclude.",
+                "displayName": "Excluded Response IDs",
+                "displayType": "multitext",
+                "placeholder": "Enter response IDs to exclude"
+            },
+            "name": "excluded_response_ids"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Completed",
+                        "value": "true"
+                    },
+                    {
+                        "label": "Incomplete",
+                        "value": "false"
+                    }
+                ],
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter responses based on completion status.",
+                "displayName": "Completed",
+                "displayType": "select",
+                "placeholder": "Select completed status"
+            },
+            "name": "completed"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter responses based on search query.",
+                "displayName": "Query",
+                "displayType": "text",
+                "placeholder": "Enter search query"
+            },
+            "name": "query"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter responses by specific fields.",
+                "displayName": "Fields",
+                "displayType": "multitext",
+                "placeholder": "Filter responses by specific fields."
+            },
+            "name": "fields"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "query": "{{parameters.query}}",
+            "since": "{{parameters.since}}",
+            "until": "{{parameters.until}}",
+            "fields": "{{parameters.fields}}",
+            "completed": "{{parameters.completed}}",
+            "excluded_response_ids": "{{parameters.excluded_response_ids}}",
+            "included_response_ids": "{{parameters.included_response_ids}}"
+        },
+        "url": "https://api.typeform.com/forms/{{parameters.form_id}}/responses",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.description}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

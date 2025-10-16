@@ -1,0 +1,79 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Conversation ID is required"
+                    }
+                },
+                "description": "Enter the ID of the Conversation given by the Intercom you want to update.",
+                "displayName": "Conversation ID",
+                "displayType": "text",
+                "placeholder": "Enter the Conversation ID"
+            },
+            "name": "id"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "True",
+                        "value": "true",
+                        "description": "true if yes"
+                    },
+                    {
+                        "label": "False",
+                        "value": "false",
+                        "description": "false if no"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Mark a conversation as read within Intercom.",
+                "displayName": "Read",
+                "displayType": "select",
+                "placeholder": "Mark a conversation as read within Intercom."
+            },
+            "name": "read"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Enter the new title of the Conversation.",
+                "displayName": "Update the Conversation Title",
+                "displayType": "text",
+                "placeholder": "Enter the new title of the Conversation."
+            },
+            "name": "title"
+        }
+    ],
+    "definition": {
+        "url": "https://api.intercom.io/conversations/{{parameters.id}}?display_as=plaintext",
+        "body": {
+            "id": "{{parameters.id}}",
+            "read": "{{parameters.read}}",
+            "title": "{{parameters.title}}"
+        },
+        "method": "put",
+        "headers": {
+            "Accept": "application/json",
+            "ContentType": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.errors[0].code}}",
+                "message": "{{response.data.errors[0].message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

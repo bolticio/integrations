@@ -1,0 +1,265 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 100,
+                    "min": 3,
+                    "required": true
+                },
+                "description": "The name of the line item.",
+                "displayName": "Name",
+                "displayType": "text",
+                "placeholder": "Enter line item name"
+            },
+            "name": "name"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 500,
+                    "min": 0,
+                    "required": false
+                },
+                "description": "Full description of the product",
+                "displayName": "Description",
+                "displayType": "textarea",
+                "placeholder": "Enter full product description"
+            },
+            "name": "description"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 50,
+                    "min": 3,
+                    "required": true
+                },
+                "description": "Unique product identifier",
+                "displayName": "SKU",
+                "displayType": "text",
+                "placeholder": "Enter SKU"
+            },
+            "name": "hs_sku"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Recurring billing start date for a line item",
+                "displayName": "Billing start date",
+                "displayType": "date",
+                "placeholder": "Select billing start date"
+            },
+            "name": "hs_recurring_billing_start_date"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Recurring billing end date for a line item",
+                "displayName": "Billing end date",
+                "displayType": "date",
+                "placeholder": "Select billing end date"
+            },
+            "name": "hs_recurring_billing_end_date"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Monthly",
+                        "value": "monthly"
+                    },
+                    {
+                        "label": "Quarterly",
+                        "value": "quarterly"
+                    },
+                    {
+                        "label": "Annually",
+                        "value": "annually"
+                    }
+                ],
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "How often the line item is billed",
+                "displayName": "Billing frequency",
+                "displayType": "select",
+                "placeholder": "Choose frequency"
+            },
+            "name": "recurringbillingfrequency"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 10000,
+                    "min": 1,
+                    "required": true
+                },
+                "description": "Number of units",
+                "displayName": "Quantity",
+                "displayType": "number",
+                "placeholder": "Enter quantity"
+            },
+            "name": "quantity"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "step": 0.01,
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "min": 0,
+                    "required": true
+                },
+                "description": "Cost per unit of the product",
+                "displayName": "Unit price",
+                "displayType": "number",
+                "placeholder": "Enter unit price"
+            },
+            "name": "price"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "min": 0,
+                    "required": true
+                },
+                "description": "Total cost of the line item (quantity × unit price)",
+                "displayName": "Net price",
+                "displayType": "number",
+                "placeholder": "Enter net price"
+            },
+            "name": "amount"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 3,
+                    "min": 3,
+                    "required": true
+                },
+                "description": "Currency code for the line item (e.g. USD)",
+                "displayName": "Currency Code",
+                "displayType": "text",
+                "placeholder": "Currency Code"
+            },
+            "name": "currency"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "The ID of the deal this line item should be associated with",
+                "displayName": "Deal ID",
+                "displayType": "text",
+                "placeholder": "Enter associated deal ID"
+            },
+            "name": "deal_id"
+        }
+    ],
+    "getLineItemProperties": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/line_item",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api.hubapi.com/crm/v3/objects/line_items",
+        "body": {
+            "properties": {
+                "name": "{{parameters.name}}",
+                "price": "{{parameters.price}}",
+                "amount": "{{parameters.amount}}",
+                "hs_sku": "{{parameters.hs_sku}}",
+                "currency": "{{parameters.currency}}",
+                "quantity": "{{parameters.quantity}}",
+                "description": "{{parameters.description}}",
+                "recurringbillingfrequency": "{{parameters.recurringbillingfrequency}}",
+                "hs_recurring_billing_end_date": "{{parameters.hs_recurring_billing_end_date}}",
+                "hs_recurring_billing_start_date": "{{parameters.hs_recurring_billing_start_date}}"
+            },
+            "associations": [
+                {
+                    "to": {
+                        "id": "{{parameters.deal_id}}"
+                    },
+                    "types": [
+                        {
+                            "associationTypeId": 20,
+                            "associationCategory": "HUBSPOT_DEFINED"
+                        }
+                    ]
+                }
+            ]
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

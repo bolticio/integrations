@@ -1,0 +1,71 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token",
+                        "description": "Secure token-based authentication for API access"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the authentication method for connecting to Monday.com",
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://api.monday.com/v2",
+            "body": {
+                "query": "{ me { id name email is_guest created_at name id} }"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Access token is a required field"
+                        }
+                    },
+                    "description": "Refer to the <a href='https://developer.monday.com/api-reference/docs/authentication' target='blank'>Monday.com authenticaton documentation</a> for detailed instructions on getting your access token.",
+                    "displayName": "Access Token",
+                    "displayType": "password",
+                    "placeholder": "Access Token is required field",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
+}

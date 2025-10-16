@@ -1,0 +1,61 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "minimum": 0,
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "AWB number is required field."
+                    }
+                },
+                "description": "AWB number of the shipment.",
+                "displayName": "AWB Number",
+                "displayType": "number",
+                "placeholder": "Enter the AWB number"
+            },
+            "name": "awb_number"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Payment ID is required field."
+                    }
+                },
+                "description": "ID of the payment.",
+                "displayName": "Payment ID",
+                "displayType": "text",
+                "placeholder": "Enter the payment ID"
+            },
+            "name": "payment_id"
+        }
+    ],
+    "definition": {
+        "url": "https://api.scm.fynd.com/tms/service/public/hyperlocal/v1.0/shipments/status",
+        "body": {
+            "data": [
+                {
+                    "event": "cancel",
+                    "awb_number": "{{parameters.awb_number}}",
+                    "payment_meta": {
+                        "payment_id": "{{parameters.payment_id}}"
+                    }
+                }
+            ]
+        },
+        "method": "put",
+        "headers": {
+            "content-type": "application/json",
+            "account-token": "{{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.errors}}",
+                "message": "{{response.data.errors[0]}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

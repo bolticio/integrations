@@ -1,0 +1,84 @@
+{
+    "api_key": {
+        "validate": {
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/tickets",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please enter Domain name (Helpdesk Name) exactly how it appears on Freshdesk. If your Freshdesk URL is 'https://abc.freshdesk.com' then enter 'abc' here",
+                    "displayName": "Company",
+                    "displayType": "text",
+                    "placeholder": "Enter Freshdesk company name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "company"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your API key obtained from FreshDesk",
+                    "displayName": "API Key",
+                    "displayType": "password",
+                    "placeholder": "Enter your API key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "api_key"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "api_key",
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "api_key"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
+}

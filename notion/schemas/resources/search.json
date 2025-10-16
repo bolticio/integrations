@@ -1,0 +1,117 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "value": "",
+                "validation": {
+                    "required": false
+                },
+                "description": "Search text in page or database titles (e.g., 'Marketing Strategy'). If empty, returns all shared pages and databases or those with titles matching the text.",
+                "displayName": "Search Query",
+                "displayType": "text",
+                "placeholder": "Enter the search query",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "operation",
+                            "value": "search.perform",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "query"
+        },
+        {
+            "meta": {
+                "value": "ascending",
+                "options": [
+                    {
+                        "label": "Ascending",
+                        "value": "ascending"
+                    },
+                    {
+                        "label": "Descending",
+                        "value": "descending"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Sort the search results in ascending or descending order based on the last edited time.",
+                "displayName": "Sort Direction",
+                "displayType": "select",
+                "placeholder": "Select sort direction",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "operation",
+                            "value": "search.perform",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "sort"
+        },
+        {
+            "meta": {
+                "value": "page",
+                "options": [
+                    {
+                        "label": "Page",
+                        "value": "page"
+                    },
+                    {
+                        "label": "Database",
+                        "value": "database"
+                    }
+                ],
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter the search results to include only pages or databases.",
+                "displayName": "Object Type Filter",
+                "displayType": "select",
+                "placeholder": "Filter by object type",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "operation",
+                            "value": "search.perform",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "filter"
+        }
+    ],
+    "definition": {
+        "url": "https://api.notion.com/v1/search",
+        "body": {
+            "sort": {
+                "direction": "{{parameters.sort}}",
+                "timestamp": "last_edited_time"
+            },
+            "query": "{{parameters.query}}",
+            "filter": {
+                "value": "{{parameters.filter}}",
+                "property": "object"
+            }
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}",
+            "Notion-Version": "2022-06-28"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

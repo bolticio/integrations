@@ -1,0 +1,184 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities that match the discount code. Use a comma-separated list to specify multiple discount codes.",
+                "displayName": "Discount Code",
+                "displayType": "text",
+                "placeholder": "Enter the discount code or comma-separated list."
+            },
+            "name": "code"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Return only the IDs specified. Use a comma-separated list to get multiple entities.",
+                "displayName": "Discount ID",
+                "displayType": "text",
+                "placeholder": "Enter the discount ID or comma-separated list."
+            },
+            "name": "id"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "ID (ascending)",
+                        "value": "id[ASC]"
+                    },
+                    {
+                        "label": "ID (descending)",
+                        "value": "id[DESC]"
+                    },
+                    {
+                        "label": "Created At (ascending)",
+                        "value": "created_at[ASC]"
+                    },
+                    {
+                        "label": "Created At (descending)",
+                        "value": "created_at[DESC]"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Order returned entities by the specified field and direction ([ASC] or [DESC]). For example, ?order_by=id[ASC].",
+                "displayName": "Order By",
+                "displayType": "select",
+                "placeholder": "Select a response entity"
+            },
+            "name": "order_by"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Active",
+                        "value": "active"
+                    },
+                    {
+                        "label": "Archived",
+                        "value": "archived"
+                    },
+                    {
+                        "label": "Expired",
+                        "value": "expired"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities that match the specified status. Use a comma-separated list to specify multiple status values.",
+                "displayName": "Status",
+                "displayType": "multiselect",
+                "placeholder": "Select status"
+            },
+            "name": "status"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Standard",
+                        "value": "standard"
+                    },
+                    {
+                        "label": "Custom",
+                        "value": "custom"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities that match the specified mode.",
+                "displayName": "Mode",
+                "displayType": "select",
+                "placeholder": "Select mode"
+            },
+            "name": "mode"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities related to the specified discount group. Use a comma-separated list to specify multiple discount group IDs.",
+                "displayName": "Discount Group ID",
+                "displayType": "text",
+                "placeholder": "dsg_01gsz8z1q1n00f12qt82y31smh,dsg_01gsz8z1q1n00f12qt82y31abc"
+            },
+            "name": "discount_group_id"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Discount Group",
+                        "value": "discount_group"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Include related entities in the response. Use a comma-separated list to specify multiple entities.",
+                "displayName": "Include",
+                "displayType": "multiselect",
+                "placeholder": "Select entities to include"
+            },
+            "name": "include"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "id": "{{parameters.id}}",
+            "code": "{{parameters.code}}",
+            "mode": "{{parameters.mode}}",
+            "status": "{{parameters.status}}",
+            "include": "{{parameters.include}}",
+            "order_by": "{{parameters.order_by}}",
+            "discount_group_id": "{{parameters.discount_group_id}}"
+        },
+        "url": "https://{{secrets.environment_url}}/discounts",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data.data}}"
+        },
+        "pagination": {
+            "qs": {
+                "per_page": 50
+            },
+            "type": "url",
+            "default": {
+                "next_url": null,
+                "per_page": 50
+            },
+            "next_url": "{{response.data.meta.pagination.next}}",
+            "condition": "{{response.data.meta.pagination.has_more}} !== false"
+        }
+    }
+}

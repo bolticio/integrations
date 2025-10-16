@@ -1,0 +1,249 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "fireworks-ai",
+                        "value": "fireworks-ai"
+                    },
+                    {
+                        "label": "google/gemma-3-27b-it",
+                        "value": "google/gemma-3-27b-it"
+                    },
+                    {
+                        "label": "google/gemma-3-4b-it",
+                        "value": "google/gemma-3-4b-it"
+                    },
+                    {
+                        "label": "allenai/olmOCR-7B-0225-preview",
+                        "value": "allenai/olmOCR-7B-0225-preview"
+                    },
+                    {
+                        "label": "unsloth/gemma-3-27b-it-GGUF",
+                        "value": "unsloth/gemma-3-27b-it-GGUF"
+                    },
+                    {
+                        "label": "allenai/olmOCR-7B-0225-preview",
+                        "value": "allenai/olmOCR-7B-0225-preview"
+                    },
+                    {
+                        "label": "Qwen/Qwen2.5-VL-7B-Instruct",
+                        "value": "Qwen/Qwen2.5-VL-7B-Instruct"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the model for image-to-text generation.",
+                "displayName": "Models",
+                "displayType": "select",
+                "placeholder": "Select a model"
+            },
+            "name": "models"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Provide the image URL for image to text.",
+                "displayName": "Image URL",
+                "displayType": "text",
+                "placeholder": "Enter the image URL"
+            },
+            "name": "image_url"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Provide the context for image.",
+                "displayName": "Text to describe the Image",
+                "displayType": "text",
+                "placeholder": "Enter the text"
+            },
+            "name": "text"
+        }
+    ],
+    "getModelSegment": {
+        "definition": {
+            "url": "https://huggingface.co/api/models?filter=image-segmentation&sort=trendingScore",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "imagetexttotext": {
+        "definition": {
+            "url": "https://router.huggingface.co/{{parameters.models}}/v1/chat/completions",
+            "body": {
+                "model": "accounts/fireworks/models/llama-v3p2-11b-vision-instruct",
+                "stream": false,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "text": "{{parameters.text}}",
+                                "type": "text"
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": "{{parameters.image_url}}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "max_tokens": 500
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "fireworks-ai",
+                            "value": "fireworks-ai"
+                        },
+                        {
+                            "label": "google/gemma-3-27b-it",
+                            "value": "google/gemma-3-27b-it"
+                        },
+                        {
+                            "label": "google/gemma-3-4b-it",
+                            "value": "google/gemma-3-4b-it"
+                        },
+                        {
+                            "label": "allenai/olmOCR-7B-0225-preview",
+                            "value": "allenai/olmOCR-7B-0225-preview"
+                        },
+                        {
+                            "label": "unsloth/gemma-3-27b-it-GGUF",
+                            "value": "unsloth/gemma-3-27b-it-GGUF"
+                        },
+                        {
+                            "label": "allenai/olmOCR-7B-0225-preview",
+                            "value": "allenai/olmOCR-7B-0225-preview"
+                        },
+                        {
+                            "label": "Qwen/Qwen2.5-VL-7B-Instruct",
+                            "value": "Qwen/Qwen2.5-VL-7B-Instruct"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for image-to-text generation.",
+                    "displayName": "Models",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the image URL for image to text.",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the image URL"
+                },
+                "name": "image_url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the context for image.",
+                    "displayName": "Text to describe the Image",
+                    "displayType": "text",
+                    "placeholder": "Enter the text"
+                },
+                "name": "text"
+            }
+        ]
+    },
+    "getImageClassificationModels": {
+        "definition": {
+            "url": "https://huggingface.co/api/models?filter=image-classification&sort=trendingScore",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://router.huggingface.co/{{parameters.models}}/v1/chat/completions",
+        "body": {
+            "model": "accounts/fireworks/models/llama-v3p2-11b-vision-instruct",
+            "stream": false,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "text": "{{parameters.text}}",
+                            "type": "text"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": "{{parameters.image_url}}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 500
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

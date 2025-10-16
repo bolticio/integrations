@@ -1,0 +1,82 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "ID of the conversation to retrieve",
+                "displayName": "Conversation ID",
+                "displayType": "number",
+                "placeholder": "Enter the Conversation ID"
+            },
+            "name": "conversation_id"
+        }
+    ],
+    "getChannels": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/channels",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.channels}}"
+            }
+        }
+    },
+    "getMoreParameters": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/conversations/fields",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const result = output.map((ele) => { const typeMap = { text: 'text', textarea: 'textarea', dropdown: 'select', auto_complete: 'multitext', multi_select_dropdown: 'multiselect', radio: 'select', number: 'number', }; const newObj = { name: ele.name, meta: { displayName: ele.label, displayType: ele.choices ? 'select' : 'text', placeholder: `${ele.choices ? 'Select' : 'Enter'} ${ele.label}`, validation: { required: ele.required_for_agents, }, }, }; if (ele.choices) { newObj.meta.htmlProps = { allowDynamic: true }; if (!Array.isArray(ele.choices) && Object.keys(ele.choices).length) { newObj.meta.options = Object.keys(ele.choices).map((choice) => ({ label: ele.choices[choice], value: choice, })); } else if (Array.isArray(ele.choices) && ele.choices.length) { newObj.meta.options = Object.keys(ele.choices).map((choice) => ({ label: choice, value: choice, })); } else { newObj.meta.displayType = 'text'; } if (ele.type === 'multi_select_dropdown') { newObj.meta.value = []; } } if (ele.default === false) { newObj.prop = 'custom_field'; } return newObj; }).filter((ele) => ele !== null); let custom_field = { name: 'custom_field', meta: { children: [], displayType: 'object', }, }; const outputWithCustomField = result.reduce((acc, ele) => { if (ele.prop === 'custom_field') { custom_field.meta.children.push(ele); } else { acc.push(ele); } return acc; }, []); if (custom_field.meta.children.length > 0) { outputWithCustomField.push(custom_field); } return outputWithCustomField"
+            }
+        }
+    },
+    "definition": {
+        "qs": {},
+        "url": "https://{{secrets.domain}}.freshchat.com/v2/conversations/{{parameters.conversation_id}}",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.code}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    },
+    "config": {
+        "url": "integrations/parameters",
+        "body": {
+            "name": "freshchat",
+            "secret": "{{parameters.secret}}",
+            "resource": "conversation",
+            "loadParametersMethod": "getMoreParameters"
+        },
+        "method": "post",
+        "urlType": "parameters"
+    }
+}

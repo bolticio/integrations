@@ -1,0 +1,79 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "URLs is required field"
+                    }
+                },
+                "description": "Enter the list of URLs to extract data from.",
+                "displayName": "URLs",
+                "displayType": "multitext",
+                "placeholder": "Enter URLs"
+            },
+            "name": "urls"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Prompt is required field"
+                    }
+                },
+                "description": "Prompt describing the data to extract.",
+                "displayName": "Prompt",
+                "displayType": "textarea",
+                "placeholder": "Extract the Prompt."
+            },
+            "name": "prompt"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "description": "Allow extraction to follow links outside the specified domain.",
+                "displayName": "Enable Web Search",
+                "displayType": "toggle",
+                "placeholder": "Select Enable Web Search"
+            },
+            "name": "enableWebSearch"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "description": "Show sources in the extraction result.",
+                "displayName": "Show Sources",
+                "displayType": "toggle",
+                "placeholder": "Select Show Sources"
+            },
+            "name": "showSources"
+        }
+    ],
+    "definition": {
+        "url": "https://api.firecrawl.dev/v1/extract",
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "const raw = '{{parameters.urls}}'; let url; if (Array.isArray(raw)) { url = raw; } else { url = [raw]; } return { urls: url, prompt: '{{parameters.prompt}}', showSources: '{{parameters.showSources}}' === 'true', enableWebSearch: '{{parameters.enableWebSearch}}' === 'true' };"
+        }
+    }
+}

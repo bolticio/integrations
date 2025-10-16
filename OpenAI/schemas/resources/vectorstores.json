@@ -1,0 +1,158 @@
+{
+    "name": "vectorstores",
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Vector Store ID is required field"
+                    }
+                },
+                "description": "The ID of the vector store to modify.",
+                "displayName": "Vector Store ID",
+                "displayType": "text",
+                "placeholder": "Enter a vector store id"
+            },
+            "name": "vectorStoreId"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "The name of the vector store.",
+                "displayName": "Name",
+                "displayType": "text",
+                "placeholder": "Enter a name for the vector store"
+            },
+            "name": "name"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "value": "last_active_at",
+                            "options": [
+                                {
+                                    "label": "last active at",
+                                    "value": "last_active_at"
+                                }
+                            ],
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": "Anchor is required field"
+                            },
+                            "description": "Anchor timestamp after which the expiration policy applies.",
+                            "displayName": "Anchor",
+                            "displayType": "select",
+                            "dependencies": {
+                                "conditions": [
+                                    {
+                                        "field": "expires_after.anchor",
+                                        "operator": "NOT_EMPTY"
+                                    }
+                                ]
+                            }
+                        },
+                        "name": "anchor"
+                    },
+                    {
+                        "meta": {
+                            "value": 30,
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": "Days is required field"
+                            },
+                            "description": "The number of days after the anchor time that the vector store will expire.",
+                            "displayName": "Days",
+                            "displayType": "number",
+                            "dependencies": {
+                                "conditions": [
+                                    {
+                                        "field": "expires_after.days",
+                                        "operator": "NOT_EMPTY"
+                                    }
+                                ]
+                            }
+                        },
+                        "name": "days"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Expires After is required field"
+                    }
+                },
+                "description": "The expiration policy for a vector store.",
+                "displayName": "Expires After",
+                "displayType": "object"
+            },
+            "name": "expires_after"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "max": 64,
+                                "required": false
+                            },
+                            "displayName": "Key",
+                            "displayType": "text"
+                        },
+                        "name": "key"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "max": 512,
+                                "required": false
+                            },
+                            "displayName": "Value",
+                            "displayType": "text"
+                        },
+                        "name": "value"
+                    }
+                ],
+                "htmlProps": {
+                    "allowAdd": true,
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 16,
+                    "required": false
+                },
+                "description": "OpenAI: Attach up to 16 key-value pairs to store structured metadata on an object for better tracking or categorization.",
+                "displayName": "Metadata",
+                "displayType": "keyvalue",
+                "placeholder": "Enter metadata key-value pairs"
+            },
+            "name": "metadata"
+        }
+    ],
+    "definition": {
+        "url": "https://api.openai.com/v1/vector_stores/{{parameters.vectorStoreId}}",
+        "body": {
+            "name": "{{parameters.name}}",
+            "metadata": "{{parameters.metadata}}",
+            "expires_after": "{{parameters.expiresAfter}}"
+        },
+        "method": "post",
+        "headers": {
+            "OpenAI-Beta": "assistants=v2",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

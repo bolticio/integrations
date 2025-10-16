@@ -1,0 +1,80 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "hugging_face",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "object",
+                        "operation": "object.object_detection",
+                        "loadOptionsMethod": "getObjectDetectionModels"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "modelId",
+                    "valueKey": "modelId"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the model for Object Detection.",
+                "displayName": "Models",
+                "displayType": "autocomplete",
+                "placeholder": "Select a model"
+            },
+            "name": "model"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Provide the URL of the image to analyze for objects.",
+                "displayName": "Image URL",
+                "displayType": "text",
+                "placeholder": "Enter image URL"
+            },
+            "name": "image_url"
+        }
+    ],
+    "getObjectDetectionModels": {
+        "definition": {
+            "url": "https://huggingface.co/api/models?filter=object-detection&sort=downloads",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api-inference.huggingface.co/models/{{parameters.model}}",
+        "body": {
+            "inputs": "{{parameters.image_url}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

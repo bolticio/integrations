@@ -1,0 +1,121 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Employee ID is a required field"
+                    }
+                },
+                "description": "Please provide an employee id",
+                "displayName": "Employee ID",
+                "displayType": "text"
+            },
+            "name": "employeeId"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "keka",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "leaves",
+                        "operation": "leaves.getAllLeaveBalances",
+                        "loadOptionsMethod": "getEveryLeaveTypes"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "identifier"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Please select the leave type.",
+                "displayName": "Leave Types",
+                "displayType": "select"
+            },
+            "name": "leaveTypeId"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Please provide a page number to perform pagination",
+                "displayName": "Page Number",
+                "displayType": "text",
+                "placeholder": "Enter a page number"
+            },
+            "name": "pageNumber"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Please provide a page size to perform pagination",
+                "displayName": "Page Size",
+                "displayType": "text",
+                "placeholder": "Enter a page size"
+            },
+            "name": "pageSize"
+        }
+    ],
+    "getEveryLeaveTypes": {
+        "definition": {
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leavetypes",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "pageSize": 20
+                },
+                "type": "url",
+                "default": {
+                    "next_url": null,
+                    "pageSize": 20
+                },
+                "next_url": "{{response.data.nextPage}}",
+                "condition": "{{response.data.nextPage}} !== null"
+            }
+        },
+        "parameters": []
+    },
+    "definition": {
+        "qs": {
+            "pageSize": "{{parameters.pageSize}}",
+            "pageNumber": "{{parameters.pageNumber}}",
+            "employeeIds": "{{parameters.employeeId}}",
+            "leaveTypeIds": "{{parameters.leaveTypeId}}"
+        },
+        "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leavebalance",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

@@ -1,0 +1,107 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Email is required"
+                    }
+                },
+                "displayName": "Email",
+                "displayType": "text",
+                "placeholder": "Enter customer email"
+            },
+            "name": "email"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "displayName": "Name",
+                "displayType": "text",
+                "placeholder": "Enter the name"
+            },
+            "name": "name"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "pattern": "^(\\+91[\\-\\s]?)?[0]?(91)?[789]\\d{9}$",
+                    "required": false
+                },
+                "displayName": "Phone",
+                "displayType": "phone",
+                "placeholder": "Enter the phone number"
+            },
+            "name": "phone"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false,
+                    "requiredDetail": {
+                        "errorMsg": "Description is required"
+                    }
+                },
+                "displayName": "Description",
+                "displayType": "text",
+                "placeholder": "Enter customer description"
+            },
+            "name": "description"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "displayName": "Address Line 1",
+                "displayType": "text",
+                "placeholder": "Enter address line 1"
+            },
+            "name": "address_line1"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "displayName": "Address Line 2",
+                "displayType": "text",
+                "placeholder": "Enter address line 2"
+            },
+            "name": "address_line2"
+        }
+    ],
+    "definition": {
+        "qs": {},
+        "url": "https://api.stripe.com/v1/customers",
+        "body": {
+            "name": "{{parameters.name}}",
+            "email": "{{parameters.email}}",
+            "phone": "{{parameters.phone}}",
+            "description": "{{parameters.description}}",
+            "address[line1]": "{{parameters.address_line1}}",
+            "address[line2]": "{{parameters.address_line2}}"
+        },
+        "method": "post",
+        "filters": {
+            "body": {
+                "allowEmptyValue": false
+            }
+        },
+        "headers": {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.error.code}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

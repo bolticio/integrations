@@ -1,0 +1,80 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "hugging_face",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "fill_mask",
+                        "operation": "fill_mask.fill",
+                        "loadOptionsMethod": "getModelsFillMask"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "modelId",
+                    "valueKey": "modelId"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the model for Fill mask.",
+                "displayName": "Models",
+                "displayType": "autocomplete",
+                "placeholder": "Select a model"
+            },
+            "name": "models"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The input text containing a mask token to be replaced.Eg. The cat sat on the <mask>.",
+                "displayName": "Input",
+                "displayType": "textarea",
+                "placeholder": "Enter the input text with a <mask> token"
+            },
+            "name": "input"
+        }
+    ],
+    "getModelsFillMask": {
+        "definition": {
+            "url": "https://huggingface.co/api/models?filter=fill-mask&sort=downloads",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api-inference.huggingface.co/models/FacebookAI/xlm-roberta-base",
+        "body": {
+            "inputs": "{{parameters.input}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

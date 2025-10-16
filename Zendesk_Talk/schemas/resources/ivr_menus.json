@@ -1,0 +1,49 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the ID given by Zendesk of the IVR you want to get details of.",
+                "displayName": "IVR ID",
+                "displayType": "text",
+                "placeholder": "Enter IVR ID "
+            },
+            "name": "ivr_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the ID given by Zendesk of the Menu you want to get details of.",
+                "displayName": "Menu ID",
+                "displayType": "text",
+                "placeholder": "Enter Menu ID"
+            },
+            "name": "menu_id"
+        }
+    ],
+    "definition": {
+        "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/ivr/{{parameters.ivr_id}}/menus/{{parameters.menu_id}}",
+        "body": {
+            "data": "{{secrets}}",
+            "ivr_id": "{{parameters.ivr_id}}",
+            "menu_id": "{{parameters.menu_id}}"
+        },
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.description}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

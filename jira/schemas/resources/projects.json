@@ -1,0 +1,31 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "A unique identifier for your jira project.",
+                "displayName": "Project Id or Key",
+                "displayType": "text",
+                "placeholder": "Enter Project Id or Key here"
+            },
+            "name": "projectIdOrKey"
+        }
+    ],
+    "definition": {
+        "url": "https://{{secrets.domain}}/rest/api/3/project/{{parameters.projectIdOrKey}}/statuses",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errorMessages[0]}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

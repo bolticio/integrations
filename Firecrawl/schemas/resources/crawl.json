@@ -1,0 +1,174 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "URL is required field"
+                    }
+                },
+                "description": "Enter the URL you want to crawl.",
+                "displayName": "URL",
+                "displayType": "url",
+                "placeholder": "Enter the URL to crawl"
+            },
+            "name": "url"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "max": 10,
+                    "min": 1,
+                    "required": false,
+                    "requiredDetail": {
+                        "errorMsg": "Page Limit is required field"
+                    }
+                },
+                "description": "Maximum number of pages to crawl.",
+                "displayName": "Page Limit",
+                "displayType": "number",
+                "placeholder": "Enter the Page Limit"
+            },
+            "name": "limit"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Maximum depth to crawl from the base URL.",
+                "displayName": "Max Depth",
+                "displayType": "number",
+                "placeholder": "Enter the maximum depth"
+            },
+            "name": "maxDepth"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Allow crawling of subdomains.",
+                "displayName": "Allow Subdomains",
+                "displayType": "toggle",
+                "placeholder": "Enter Allow Subdomains"
+            },
+            "name": "allowSubdomains"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "description": "Allow following links to external domains.",
+                "displayName": "Allow External Links",
+                "displayType": "toggle",
+                "placeholder": "Enter Allow External Links"
+            },
+            "name": "allowExternalLinks"
+        },
+        {
+            "meta": {
+                "value": [
+                    "markdown"
+                ],
+                "options": [
+                    {
+                        "label": "Markdown",
+                        "value": "markdown"
+                    },
+                    {
+                        "label": "HTML",
+                        "value": "html"
+                    },
+                    {
+                        "label": "Raw HTML",
+                        "value": "rawHtml"
+                    },
+                    {
+                        "label": "Screenshot",
+                        "value": "screenshot"
+                    },
+                    {
+                        "label": "Links",
+                        "value": "links"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Output Formats is required field"
+                    }
+                },
+                "description": "Choose one or more output formats for scraped content.",
+                "displayName": "Output Formats",
+                "displayType": "multiselect",
+                "placeholder": "Select output formats"
+            },
+            "name": "formats"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "description": "Return only the main content of the page (excluding headers, nav, footers, etc.).",
+                "displayName": "Only Main Content",
+                "displayType": "toggle",
+                "placeholder": "Enter Only Main Content"
+            },
+            "name": "onlyMainContent"
+        },
+        {
+            "meta": {
+                "value": 30000,
+                "validation": {
+                    "min": 1000,
+                    "required": false
+                },
+                "description": "Maximum duration in milliseconds to wait for each page.",
+                "displayName": "Timeout (ms)",
+                "displayType": "number",
+                "placeholder": "Enter Timeout"
+            },
+            "name": "timeout"
+        }
+    ],
+    "definition": {
+        "url": "https://api.firecrawl.dev/v1/crawl",
+        "body": {
+            "url": "{{parameters.url}}",
+            "limit": "{{parameters.limit}}",
+            "maxDepth": "{{parameters.maxDepth}}",
+            "scrapeOptions": {
+                "formats": "{{parameters.formats}}",
+                "timeout": "{{parameters.timeout}}",
+                "onlyMainContent": "{{parameters.onlyMainContent}}"
+            },
+            "allowSubdomains": "{{parameters.allowSubdomains}}",
+            "allowExternalLinks": "{{parameters.allowExternalLinks}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "output": "const finalResult = { id: output.id, success: output.success }; return finalResult"
+        }
+    }
+}

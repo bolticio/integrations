@@ -1,0 +1,123 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "posthog",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "projects",
+                        "operation": "projects.get",
+                        "loadOptionsMethod": "getOrganizations"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 40,
+                    "required": true,
+                    "requiredDetails": {
+                        "errorMsg": "Organization is required."
+                    }
+                },
+                "description": "Organization name of which projects you want to fetch",
+                "displayName": "Organization",
+                "displayType": "select",
+                "placeholder": "Select an organization."
+            },
+            "name": "organization_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "min": 1,
+                    "required": false
+                },
+                "description": "The initial index from which to return the results.",
+                "displayName": "Offset Index",
+                "displayType": "number",
+                "placeholder": "Enter the offset index."
+            },
+            "name": "offset"
+        }
+    ],
+    "getProjects": {
+        "definition": {
+            "qs": {},
+            "url": "https://app.posthog.com/api/projects",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://app.posthog.com/api/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "definition": {
+        "qs": {
+            "offset": "{{parameters.offset}}"
+        },
+        "url": "https://app.posthog.com/api/organizations/{{parameters.organization_id}}/projects",
+        "method": "get",
+        "filters": {
+            "body": {
+                "allowEmptyValue": false,
+                "allowEmptyObject": false
+            }
+        },
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.detail}}"
+            },
+            "output": "{{response.data.results}}"
+        },
+        "pagination": {
+            "qs": {
+                "limit": 100
+            },
+            "type": "url",
+            "default": {
+                "limit": 100,
+                "next_url": null
+            },
+            "next_url": "{{response.data.next}}",
+            "condition": "{{response.data.next}} !== null"
+        }
+    }
+}

@@ -1,0 +1,196 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Refund",
+                        "value": "refund"
+                    },
+                    {
+                        "label": "Credit",
+                        "value": "credit"
+                    },
+                    {
+                        "label": "Chargeback",
+                        "value": "chargeback"
+                    },
+                    {
+                        "label": "Chargeback Warning",
+                        "value": "chargeback_warning"
+                    },
+                    {
+                        "label": "Chargeback Reverse",
+                        "value": "chargeback_reverse"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter adjustments by action type.",
+                "displayName": "Action",
+                "displayType": "multiselect",
+                "placeholder": "Select action types"
+            },
+            "name": "action"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities related to the specified customers. Use a comma-separated list to specify multiple customer IDs.",
+                "displayName": "Customer IDs",
+                "displayType": "text",
+                "placeholder": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4,ctm_01hv6y1jedq4p1n0yqn5ba3ky5"
+            },
+            "name": "customer_id"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "ID (ascending)",
+                        "value": "id[ASC]"
+                    },
+                    {
+                        "label": "ID (descending)",
+                        "value": "id[DESC]"
+                    },
+                    {
+                        "label": "Created Date (ascending)",
+                        "value": "created_at[ASC]"
+                    },
+                    {
+                        "label": "Created Date (descending)",
+                        "value": "created_at[DESC]"
+                    },
+                    {
+                        "label": "Updated Date (ascending)",
+                        "value": "updated_at[ASC]"
+                    },
+                    {
+                        "label": "Updated Date (descending)",
+                        "value": "updated_at[DESC]"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Order returned entities by the specified field and direction.",
+                "displayName": "Order By",
+                "displayType": "select",
+                "placeholder": "Select ordering"
+            },
+            "name": "order_by"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Pending Approval",
+                        "value": "pending_approval"
+                    },
+                    {
+                        "label": "Approved",
+                        "value": "approved"
+                    },
+                    {
+                        "label": "Rejected",
+                        "value": "rejected"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities that match the specified status. Use a comma-separated list to specify multiple statuses.",
+                "displayName": "Status",
+                "displayType": "multiselect",
+                "placeholder": "Select status values"
+            },
+            "name": "status"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities related to the specified subscriptions. Use a comma-separated list to specify multiple subscription IDs.",
+                "displayName": "Subscription IDs",
+                "displayType": "text",
+                "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4,sub_01hv6y1jedq4p1n0yqn5ba3ky5"
+            },
+            "name": "subscription_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Return entities related to the specified transactions. Use a comma-separated list to specify multiple transaction IDs.",
+                "displayName": "Transaction IDs",
+                "displayType": "text",
+                "placeholder": "txn_01hv6y1jedq4p1n0yqn5ba3ky4,txn_01hv6y1jedq4p1n0yqn5ba3ky5"
+            },
+            "name": "transaction_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Return only the specified adjustment IDs. Use a comma-separated list to specify multiple adjustment IDs.",
+                "displayName": "Adjustment IDs",
+                "displayType": "text",
+                "placeholder": "adj_01hv6y1jedq4p1n0yqn5ba3ky4,adj_01hv6y1jedq4p1n0yqn5ba3ky5"
+            },
+            "name": "id"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "id": "{{parameters.id}}",
+            "action": "{{parameters.action}}",
+            "status": "{{parameters.status}}",
+            "order_by": "{{parameters.order_by}}",
+            "customer_id": "{{parameters.customer_id}}",
+            "transaction_id": "{{parameters.transaction_id}}",
+            "subscription_id": "{{parameters.subscription_id}}"
+        },
+        "url": "https://{{secrets.environment_url}}/adjustments",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data.data}}"
+        },
+        "pagination": {
+            "qs": {
+                "per_page": 50
+            },
+            "type": "url",
+            "default": {
+                "has_more": false,
+                "next_url": null,
+                "per_page": 50
+            },
+            "next_url": "{{response.data.meta.pagination.next}}",
+            "condition": "{{response.data.meta.pagination.has_more}} === true"
+        }
+    }
+}

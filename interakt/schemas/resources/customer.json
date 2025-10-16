@@ -1,0 +1,98 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "options": [
+                                {
+                                    "label": ">",
+                                    "value": "gt"
+                                },
+                                {
+                                    "label": "<",
+                                    "value": "lt"
+                                },
+                                {
+                                    "label": ">=",
+                                    "value": "gte"
+                                },
+                                {
+                                    "label": "<=",
+                                    "value": "lte"
+                                }
+                            ],
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Comparison operator is a required field"
+                                }
+                            },
+                            "description": "Select an operator from the dropdown",
+                            "displayName": "Select operator",
+                            "displayType": "select"
+                        },
+                        "name": "comparisonOperator"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Created date is a required field"
+                                }
+                            },
+                            "description": "Provide the created date of an user in UTC in following format (e.g. YYYY-MM-DD).",
+                            "displayName": "Created date",
+                            "displayType": "date",
+                            "placeholder": "Enter the created date of a user"
+                        },
+                        "name": "createdDateUtc"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "An array of filters with comparison operators. Each filter must have a operator and date in utc. <b>Please provide exactly 2 filters.</b>",
+                "displayName": "Apply Filter(s)",
+                "displayType": "array"
+            },
+            "name": "filter"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "limit": 100,
+            "offset": 0
+        },
+        "url": "https://api.interakt.ai/v1/public/apis/users/",
+        "body": {
+            "filters": [
+                {
+                    "op": "{{parameters.filter[0].comparisonOperator}}",
+                    "val": "{{parameters.filter[0].createdDateUtc}}",
+                    "trait": "created_at_utc"
+                },
+                {
+                    "op": "{{parameters.filter[1].comparisonOperator}}",
+                    "val": "{{parameters.filter[1].createdDateUtc}}",
+                    "trait": "created_at_utc",
+                    "supr_op": "and"
+                }
+            ]
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

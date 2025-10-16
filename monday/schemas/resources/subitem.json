@@ -1,0 +1,203 @@
+{
+    "getBoard": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.boards}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ boards { id name } }` })"
+            }
+        }
+    },
+    "getUsers": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.users}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ users { id name } }` })"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "monday",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "subitem",
+                        "operation": "subitem.create",
+                        "loadOptionsMethod": "getBoard"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the board of the item where subitem is to be created.",
+                "displayName": "Board",
+                "displayType": "select",
+                "placeholder": "Select a board"
+            },
+            "name": "board_id"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "monday",
+                        "secret": "{{parameters.secret}}",
+                        "board_id": "{{parameters.board_id}}",
+                        "resource": "subitem",
+                        "operation": "subitem.create",
+                        "loadOptionsMethod": "getBoardItems"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id",
+                    "condition": "{{parameters.board_id}}"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the item whose subitem needs to be created.",
+                "displayName": "Item",
+                "displayType": "select",
+                "placeholder": "Select an item",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "board_id",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "parent_item_id"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 50,
+                    "min": 3,
+                    "required": true
+                },
+                "description": "Name of the new Subitem",
+                "displayName": "Subitem Name",
+                "displayType": "text",
+                "placeholder": "Enter the subitem name",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "parent_item_id",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "subitem_name"
+        }
+    ],
+    "getSubitems": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": "{{parameters}}",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.items[0].subitems}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ items (ids: {{parameters.parent_item_id}}) { subitems { id name column_values { value text } } } }` })"
+            }
+        }
+    },
+    "getBoardItems": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": "{{parameters}}",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.boards[0].items_page.items}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ boards (ids: {{parameters.board_id}} ) { name items_page { items { id name } } } }` })"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api.monday.com/v2",
+        "body": {},
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "{{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors[0].message}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "return JSON.stringify({ query: `mutation { create_subitem (parent_item_id: {{parameters.parent_item_id}}, item_name: \"{{parameters.subitem_name}}\") { id board { id } } }` })"
+        }
+    }
+}

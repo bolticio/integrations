@@ -1,0 +1,182 @@
+{
+    "oauth2": {
+        "token": {
+            "url": "https://api.notion.com/v1/oauth/token",
+            "body": {
+                "code": "{{code}}",
+                "grant_type": "authorization_code",
+                "redirect_uri": "{{secrets.redirect_uri}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.client_id}}:{{secrets.client_secret}})",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "validate": {
+            "url": "https://api.notion.com/v1/users/me",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "authorize": {
+            "qs": {
+                "owner": "user",
+                "client_id": "{{secrets.client_id}}",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "response_type": "code"
+            },
+            "url": "https://api.notion.com/v1/oauth/authorize",
+            "method": "get",
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "v1/notion/oauth2/callback",
+                    "validation": {
+                        "required": true
+                    },
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "redirect_uri"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "style": {
+                            "color": "#ffffff",
+                            "height": "40px",
+                            "padding": "16px",
+                            "fontSize": "14px",
+                            "fontWeight": 700,
+                            "backgroundColor": "#ff592f"
+                        },
+                        "variant": "contained"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please connect with Notion first"
+                        }
+                    },
+                    "description": "Click to start the OAuth flow to connect your Notion account.",
+                    "displayName": "Connect Notion Account",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "access_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    },
+                    "displayProps": {
+                        "size": "small",
+                        "variant": "contained"
+                    }
+                },
+                "name": "oauth2"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "color": "success",
+                        "variant": "contained"
+                    },
+                    "displayName": "Notion Account Connected",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "access_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_connected"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Access Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "oauth2",
+                "options": [
+                    {
+                        "label": "OAuth2",
+                        "value": "oauth2"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication to use with Notion.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
+}
