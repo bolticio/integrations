@@ -1,0 +1,95 @@
+{
+    "getBoard": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.boards}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ boards { id name } }` })"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "monday",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "board",
+                        "operation": "board.get_board_values",
+                        "loadOptionsMethod": "getBoard"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the board containing the items and values which needs to be retrieved",
+                "displayName": "Board",
+                "displayType": "select",
+                "placeholder": "Select a board"
+            },
+            "name": "board_id"
+        }
+    ],
+    "getWorkspace": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.workspaces}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ workspaces { id name } }` })"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api.monday.com/v2",
+        "body": "{{parameters}}",
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "{{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors[0].message}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "return JSON.stringify({ query: `query { boards (ids: {{parameters.board_id}}) { name state permissions items_page {items {id name} }  } }` })"
+        }
+    }
+}

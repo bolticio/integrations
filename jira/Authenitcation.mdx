@@ -1,0 +1,464 @@
+{
+    "oauth2": {
+        "token": {
+            "url": "https://auth.atlassian.com/oauth/token",
+            "body": {
+                "code": "{{code}}",
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "authorization_code",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "refresh": {
+            "url": "https://auth.atlassian.com/oauth/token",
+            "body": {
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "refresh_token",
+                "client_secret": "{{secrets.client_secret}}",
+                "refresh_token": "{{secrets.refresh_token}}"
+            },
+            "method": "post",
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error_description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "validate": {
+            "url": "https://api.atlassian.com/me",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "authorize": {
+            "qs": {
+                "scope": "DELETE WRITE READ NONE",
+                "state": "uuidv4()",
+                "prompt": "consent",
+                "audience": "api.atlassian.com",
+                "client_id": "{{secrets.client_id}}",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "response_type": "code"
+            },
+            "url": "https://auth.atlassian.com/authorize",
+            "method": "get",
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Client Id",
+                    "displayType": "text",
+                    "placeholder": "Enter jira app client id",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "client_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Enter Client Secret",
+                    "displayType": "password",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "client_secret"
+            },
+            {
+                "meta": {
+                    "value": "v1/jira/oauth2/callback",
+                    "validation": {
+                        "required": true
+                    },
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "redirect_uri"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "style": {
+                            "color": "#ffffff",
+                            "height": "40px",
+                            "padding": "16px",
+                            "fontSize": "14px",
+                            "fontWeight": 700,
+                            "backgroundColor": "#ff592f"
+                        },
+                        "variant": "contained"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please connect with Jira account to proceed."
+                        }
+                    },
+                    "description": "Add the following callback URL in your application. Supported regions: asia-south1, us-central1<br>https://<b>{{region}}</b>.api.boltic.io/service/webhook/integration/v1/jira/oauth2/callback",
+                    "displayName": "Connect Jira Account",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    },
+                    "displayProps": {
+                        "size": "small",
+                        "variant": "contained"
+                    }
+                },
+                "name": "oauth2"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "color": "success",
+                        "variant": "contained"
+                    },
+                    "displayName": "Jira Account Connected",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "meta.auth_status",
+                                "value": "ACTIVE",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_connected"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "color": "error",
+                        "variant": "contained"
+                    },
+                    "displayName": "Reconnect Jira",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "meta.auth_status",
+                                "value": "REVOKED",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_reconnect"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Refresh Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "refresh_token"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Auth Status",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "meta.auth_status"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Access Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Expires In",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expires_in"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Expiry Date",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expiry_date"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "pattern": "^(?!https?://)[a-zA-Z0-9-]+.atlassian.net$",
+                    "required": true,
+                    "patternDetail": {
+                        "errorMsg": "Please enter a valid Atlassian domain without the protocol (e.g., 'example.atlassian.net')."
+                    },
+                    "requiredDetail": {
+                        "errorMsg": "Domain is required"
+                    }
+                },
+                "description": "Enter your Jira URL. For example, <a href='#' target='_blank'>boltic.atlassian.net</a>.",
+                "displayName": "Domain",
+                "displayType": "text",
+                "placeholder": "boltic.atlassian.net",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "type",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "domain"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://{{secrets.domain}}/rest/api/2/myself",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Email address is required."
+                        }
+                    },
+                    "description": "The email address associated with your user.",
+                    "displayName": "Email",
+                    "displayType": "email",
+                    "placeholder": "no-reply@boltic.io",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Personal access token is required."
+                        }
+                    },
+                    "description": "Refer to the <a href='https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html' target='blank'>Jira authenticaton documentation</a> for detailed instructions on getting your access token.",
+                    "displayName": "Personal Access Token",
+                    "displayType": "password",
+                    "placeholder": "",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
+}

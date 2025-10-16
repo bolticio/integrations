@@ -1,0 +1,203 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "maxRows": 4,
+                    "minRows": 4
+                },
+                "validation": {
+                    "required": true,
+                    "maxLength": 300,
+                    "minLength": 10,
+                    "requiredDetail": {
+                        "errorMsg": "Please enter a custom instruction for the document"
+                    }
+                },
+                "description": "Please provide your Instruction",
+                "displayName": "Custom Instruction",
+                "displayType": "textarea",
+                "placeholder": "Enter your Instruction"
+            },
+            "name": "instruction"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true
+                            },
+                            "displayName": "Property Name",
+                            "displayType": "text",
+                            "placeholder": "Enter the property name"
+                        },
+                        "name": "property_name"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "maxLength": 1000,
+                                "minLength": 1
+                            },
+                            "displayName": "Property Description",
+                            "displayType": "text",
+                            "placeholder": "Enter the property description"
+                        },
+                        "name": "property_description"
+                    },
+                    {
+                        "meta": {
+                            "options": [
+                                {
+                                    "label": "String",
+                                    "value": "string"
+                                },
+                                {
+                                    "label": "Number",
+                                    "value": "number"
+                                },
+                                {
+                                    "label": "Boolean",
+                                    "value": "boolean"
+                                }
+                            ],
+                            "htmlProps": {
+                                "allowDynamic": true
+                            },
+                            "validation": {
+                                "required": true
+                            },
+                            "displayName": "Property Data Type",
+                            "displayType": "select",
+                            "placeholder": "Select a data type for the property"
+                        },
+                        "name": "property_data_type"
+                    },
+                    {
+                        "meta": {
+                            "options": [
+                                {
+                                    "label": "Yes",
+                                    "value": "true"
+                                },
+                                {
+                                    "label": "No",
+                                    "value": "false"
+                                }
+                            ],
+                            "validation": {
+                                "required": false
+                            },
+                            "displayName": "Is Required",
+                            "displayType": "select",
+                            "placeholder": "Mark if this parameter is required"
+                        },
+                        "name": "required"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Define the parameters required by the function.",
+                "displayName": "Template Schema",
+                "displayType": "array",
+                "placeholder": "Enter the parameters for the function"
+            },
+            "name": "templateSchema"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "maxRows": 4,
+                    "minRows": 4
+                },
+                "validation": {
+                    "required": true,
+                    "maxLength": 300,
+                    "minLength": 10,
+                    "requiredDetail": {
+                        "errorMsg": "Please enter a valid URL"
+                    }
+                },
+                "description": "Please provide the URL of the document",
+                "displayName": "URL",
+                "displayType": "text",
+                "placeholder": "Enter the url (Eg: Google Storage url of file)"
+            },
+            "name": "url"
+        }
+    ],
+    "getTemplates": {
+        "definition": {
+            "url": "https://asia-south1.api.boltic.io/service/webhook/idp/templates",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.templates}}"
+            }
+        }
+    },
+    "getMoreParameters": {
+        "definition": {
+            "url": "https://asia-south1.api.boltic.io/service/webhook/idp/template/{{parameters.templateId}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const abc=output.map(e=>{let a={text:'text',textarea:'textarea',url:'url'},r={name:e.name,meta:{displayName: e.label,displayType: a[e.type] || 'text',placeholder: `Enter ${e.label}`,value: e.value,readOnly: true,isDisabled: true,validation: { required: e.required || !1 },htmlProps: { disabled: false, readOnly: false, allowDynamic: false }}};return r}),extraFields=[{name:'templateSchema',meta:{displayName:'Template Schema',displayType:'array',placeholder:'Enter the parameters for the function',description:'Define the parameters required by the function.',validation:{required:false},children:[{name:'property_name',meta:{displayName:'Property Name',displayType:'text',placeholder:'Enter the property name',validation:{required:false}}},{name:'property_description',meta:{displayName:'Property Description',displayType:'text',placeholder:'Enter the property description',validation:{required:false,minLength:1,maxLength:1e3}}},{name:'property_data_type',meta:{displayName:'Property Data Type',displayType:'select',placeholder:'Select a data type for the property',options:[{label:'String',value:'string'},{label:'Number',value:'number'},{label:'Boolean',value:'boolean'},],validation:{required:false},htmlProps:{allowDynamic:!0}}},{name:'required',meta:{displayName:'Is Required',displayType:'select',options:[{label:'Yes',value:'true'},{label:'No',value:'false'},],placeholder:'Mark if this parameter is required',validation:{required:false}}},]}},{name:'url',meta:{displayName:'URL',displayType:'text',placeholder:'Enter the url (Eg: Google Storage url of file)',description:'Please provide the URL of the document',readOnly:false,validation:{required:true,requiredDetail:{errorMsg:'Please enter a valid URL'},minLength:10,maxLength:300},htmlProps:{minRows:4,maxRows:4}}},];abc.push(...extraFields); return abc;"
+            }
+        }
+    },
+    "config": {
+        "url": "integrations/parameters",
+        "body": {
+            "name": "Boltic_IDP",
+            "secret": "{{parameters.secret}}",
+            "resource": "template",
+            "operation": "template.extract_ocr",
+            "templateId": "{{parameters.templateId}}",
+            "loadParametersMethod": "getMoreParameters"
+        },
+        "method": "post",
+        "urlType": "parameters",
+        "condition": "{{parameters.templateId}}"
+    },
+    "definition": {
+        "url": "https://asia-south1.api.boltic.io/service/webhook/idp/custom-instruction",
+        "body": {
+            "file": "{{parameters.url}}",
+            "schema": "{{parameters.templateSchema}}",
+            "instruction": "{{parameters.instruction}}"
+        },
+        "method": "post",
+        "headers": {
+            "Accept": "application/json"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

@@ -1,0 +1,159 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "config": {
+                                "url": "integrations/options",
+                                "body": {
+                                    "secret": "{{parameters.secret}}",
+                                    "resource": "product",
+                                    "operation": "product.find",
+                                    "loadOptionsMethod": "getProductProperties"
+                                },
+                                "method": "post",
+                                "urlType": "options",
+                                "labelKey": "name",
+                                "valueKey": "name"
+                            },
+                            "options": [],
+                            "htmlProps": {
+                                "allowDynamic": true
+                            },
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Select the property using which search needs to be performed.",
+                            "displayName": "Search Property Name",
+                            "displayType": "autocomplete",
+                            "placeholder": "Select a property"
+                        },
+                        "name": "propertyName"
+                    },
+                    {
+                        "meta": {
+                            "config": {
+                                "multiple": false,
+                                "limitTags": 2
+                            },
+                            "options": [
+                                {
+                                    "label": "Less than",
+                                    "value": "LT"
+                                },
+                                {
+                                    "label": "Less than or equal to",
+                                    "value": "LTE"
+                                },
+                                {
+                                    "label": "Greater than",
+                                    "value": "GT"
+                                },
+                                {
+                                    "label": "Greater than or equal to",
+                                    "value": "GTE"
+                                },
+                                {
+                                    "label": "Equal to",
+                                    "value": "EQ"
+                                },
+                                {
+                                    "label": "Not equal to",
+                                    "value": "NEQ"
+                                },
+                                {
+                                    "label": "Contains",
+                                    "value": "CONTAINS_TOKEN"
+                                },
+                                {
+                                    "label": "Starts with",
+                                    "value": "STARTS_WITH"
+                                }
+                            ],
+                            "htmlProps": {
+                                "allowDynamic": false
+                            },
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Select the operator using which search needs to be performed.",
+                            "displayName": "Search Operator",
+                            "displayType": "autocomplete",
+                            "placeholder": "Select an operator"
+                        },
+                        "name": "operator"
+                    },
+                    {
+                        "meta": {
+                            "readOnly": false,
+                            "htmlProps": {
+                                "allowDynamic": true
+                            },
+                            "validation": {
+                                "max": 100,
+                                "min": 1,
+                                "required": true
+                            },
+                            "description": "Value to be searched in products.",
+                            "displayName": "Search Value",
+                            "displayType": "text",
+                            "placeholder": "Enter search value"
+                        },
+                        "name": "value"
+                    }
+                ],
+                "readOnly": true,
+                "htmlProps": {
+                    "allowAdd": true,
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 3
+                },
+                "displayName": "Filters",
+                "displayType": "array"
+            },
+            "name": "filters"
+        }
+    ],
+    "getProductProperties": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/product",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api.hubapi.com/crm/v3/objects/products/search",
+        "body": {
+            "filterGroups": [
+                {
+                    "filters": "{{parameters.filters}}"
+                }
+            ]
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

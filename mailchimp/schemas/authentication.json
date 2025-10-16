@@ -1,0 +1,84 @@
+{
+    "api_key": {
+        "validate": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String(X:{{secrets.api_key}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Refer to <a href='https://mailchimp.com/help/about-api-keys/' target='_blank'>the Mailchimp API authentication documentation</a> for detailed instructions on getting your API key.",
+                    "displayName": "API Key",
+                    "displayType": "password",
+                    "placeholder": "Enter API Key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "api_key"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the server prefix from your API key. It's typically the part after the dash in your API key.",
+                    "displayName": "Data Center",
+                    "displayType": "text",
+                    "placeholder": "Enter Server Prefix (e.g., us1)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "data_center"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "api_key"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
+}

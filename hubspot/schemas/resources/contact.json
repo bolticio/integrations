@@ -1,0 +1,120 @@
+{
+    "parameters": [],
+    "getContactList": {
+        "definition": {
+            "url": "https://api.hubapi.com/contacts/v1/lists",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.lists}}"
+            }
+        }
+    },
+    "getMoreParameters": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/contact",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "const typeMap = {text:'text',textarea:'textarea',dropdown:'select',auto_complete:'multitext',multi_select_dropdown:'multiselect',radio:'select',number:'number'};const result=output.map(ele=>{const newObj={name:ele.name,meta:{displayName:ele.label,displayType:ele.options&&ele.options.length>0?'select':'text',placeholder:`${ele.options&&ele.options.length>0?'Select':'Enter'} ${ele.label}`,validation:{required:ele.required_for_agents}}};if(ele.options&&ele.options.length>0){newObj.meta.htmlProps={allowDynamic:true};newObj.meta.options=ele.options.map(choice=>({label:choice.label||choice,value:choice.value||choice}));if(ele.type==='multi_select_dropdown'){newObj.meta.value=[];}}if(ele.default===false){newObj.prop='custom_field';}return newObj;}).filter(ele=>ele!==null);const custom_field={name:'custom_field',meta:{children:[],displayType:'object'}};const outputWithCustomField=result.reduce((acc,ele)=>{if(ele.prop==='custom_field'){custom_field.meta.children.push(ele);}else{acc.push(ele);}return acc;},[]);if(custom_field.meta.children.length>0){outputWithCustomField.push(custom_field);} return outputWithCustomField;"
+            }
+        }
+    },
+    "getContactProperties": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/contact",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "callsassociatedwithcontact": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v4/objects/contacts/{{parameters.contact_id}}/associations/calls",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 100000000000000000,
+                        "min": 3,
+                        "required": true
+                    },
+                    "description": "Call ID associations of this contact ID would be fetched",
+                    "displayName": "Contact ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Contact ID"
+                },
+                "name": "contact_id"
+            }
+        ]
+    },
+    "definition": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+        "body": "{{parameters}}",
+        "method": "post",
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "const updatedBody = { properties: body }; return updatedBody;"
+        }
+    },
+    "config": {
+        "url": "integrations/parameters",
+        "body": {
+            "secret": "{{parameters.secret}}",
+            "resource": "contact",
+            "loadParametersMethod": "getMoreParameters"
+        },
+        "method": "post",
+        "urlType": "parameters"
+    }
+}

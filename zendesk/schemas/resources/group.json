@@ -1,0 +1,90 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the ID of the group to be updated",
+                "displayName": "Group ID",
+                "displayType": "text",
+                "placeholder": "Enter group ID"
+            },
+            "name": "group_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the name of the group",
+                "displayName": "Name",
+                "displayType": "text",
+                "placeholder": "Enter group name"
+            },
+            "name": "name"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the details about the group.",
+                "displayName": "Details",
+                "displayType": "textarea",
+                "placeholder": "Enter group details"
+            },
+            "name": "description"
+        },
+        {
+            "meta": {
+                "value": false,
+                "description": "Toggle to make the group public/private. To make a group private, you must select the 'Make it private' setting in your Group settings (Only available in Enterprise Account). To learn more about Private Groups, see the <a href='https://support.zendesk.com/hc/en-us/articles/4767122732058-About-private-ticket-groups' target='_blank'>Private Groups documentation.</a>",
+                "displayName": "Public",
+                "displayType": "toggle"
+            },
+            "name": "is_public"
+        },
+        {
+            "meta": {
+                "value": false,
+                "description": "Toggle to make this group as default for the account.",
+                "displayName": "Default Group",
+                "displayType": "toggle"
+            },
+            "name": "default"
+        }
+    ],
+    "definition": {
+        "qs": {},
+        "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups/{{parameters.group_id}}",
+        "body": {
+            "group": {
+                "name": "{{parameters.name}}",
+                "default": "{{parameters.default}}",
+                "is_public": "{{parameters.is_public}}",
+                "description": "{{parameters.description}}"
+            }
+        },
+        "method": "put",
+        "filters": {
+            "body": {
+                "allowEmptyArray": false,
+                "allowEmptyValue": false,
+                "allowEmptyObject": false
+            }
+        },
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

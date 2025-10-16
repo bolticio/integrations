@@ -1,0 +1,134 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Recipient's phone number is required."
+                    }
+                },
+                "description": "Recipient's phone number for the SMS.",
+                "displayName": "To Number",
+                "displayType": "text",
+                "placeholder": "Enter recipient's phone number e.g. 5552229999."
+            },
+            "name": "to"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "twilio",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "message",
+                        "operation": "message.create",
+                        "loadOptionsMethod": "getPhoneNumbers"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "phone_number",
+                    "valueKey": "phone_number"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Sender's phone number is required."
+                    }
+                },
+                "description": "Sender's phone number for the SMS.",
+                "displayName": "From Number",
+                "displayType": "autocomplete",
+                "placeholder": "Select sender's Twilio phone number e.g. +15552229999.",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "message",
+                            "operator": "EQUALS"
+                        },
+                        {
+                            "field": "operation",
+                            "value": "message.create",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "from"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Message is required."
+                    }
+                },
+                "description": "Enter the content of the message",
+                "displayName": "Message",
+                "displayType": "textarea",
+                "placeholder": "Enter message..."
+            },
+            "name": "body"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "The media size limit is 5 MB for supported file types (jpeg, jpg, png, gif). Must be a URL that Twilio can download (so private URLs or files may not work!).",
+                "displayName": "Media Url",
+                "displayType": "multitext",
+                "placeholder": "Enter media url..."
+            },
+            "name": "mediaUrl"
+        }
+    ],
+    "getPhoneNumbers": {
+        "definition": {
+            "qs": {
+                "PageSize": "500"
+            },
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/IncomingPhoneNumbers.json",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.incoming_phone_numbers}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
+        "body": {
+            "To": "{{parameters.to}}",
+            "Body": "{{parameters.body}}",
+            "From": "{{parameters.from}}"
+        },
+        "method": "post",
+        "headers": {
+            "content-type": "application/x-www-form-urlencoded",
+            "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.code}}",
+                "status": "{{response.data.status}}",
+                "message": "{{response.data}}",
+                "more_info": "{{response.data.more_info}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

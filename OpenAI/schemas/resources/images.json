@@ -1,0 +1,598 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Prompt is required field"
+                    }
+                },
+                "description": "The max length is 1000 characters for dall-e-2.",
+                "displayName": "Prompt",
+                "displayType": "textarea",
+                "placeholder": "A text description of the desired image(s)"
+            },
+            "name": "prompt"
+        },
+        {
+            "meta": {
+                "max": 10,
+                "min": 1,
+                "step": 1,
+                "value": 1,
+                "htmlProps": {
+                    "showInfoIcon": true
+                },
+                "validation": {
+                    "required": true,
+                    "infoDetail": {
+                        "infoMsg": "Choose a value between 1 and 10, default is 1."
+                    }
+                },
+                "description": "The number of images to generate.",
+                "displayName": "Number of Images",
+                "displayType": "slider"
+            },
+            "name": "numberOfImages"
+        },
+        {
+            "meta": {
+                "value": "url",
+                "options": [
+                    {
+                        "label": "Url",
+                        "value": "url"
+                    },
+                    {
+                        "label": "base64 JSON",
+                        "value": "b64_json"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "The format in which the generated images are returned.",
+                "displayName": "Response format",
+                "displayType": "select",
+                "placeholder": "Select response format"
+            },
+            "name": "responseFormat"
+        },
+        {
+            "meta": {
+                "value": "1024x1024",
+                "options": [
+                    {
+                        "label": "256x256",
+                        "value": "256x256"
+                    },
+                    {
+                        "label": "512x512",
+                        "value": "512x512"
+                    },
+                    {
+                        "label": "1024x1024",
+                        "value": "1024x1024"
+                    },
+                    {
+                        "label": "1792x1024",
+                        "value": "1792x1024"
+                    },
+                    {
+                        "label": "1024x1792",
+                        "value": "1024x1792"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "The size of the generated images.",
+                "displayName": "Size",
+                "displayType": "select",
+                "placeholder": "Select image size"
+            },
+            "name": "size"
+        }
+    ],
+    "createimage1": {
+        "definition": {
+            "url": "https://api.openai.com/v1/images/generations",
+            "body": {
+                "n": "{{parameters.numberOfImages}}",
+                "size": "{{parameters.size}}",
+                "model": "gpt-image-1",
+                "prompt": "{{parameters.prompt}}",
+                "quality": "{{parameters.quality}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prompt is required field"
+                        }
+                    },
+                    "description": "The max length is 32,000 character characters for gpt-image-1.",
+                    "displayName": "Prompt",
+                    "displayType": "textarea",
+                    "placeholder": "A text description of the desired image(s)"
+                },
+                "name": "prompt"
+            },
+            {
+                "meta": {
+                    "max": 10,
+                    "min": 1,
+                    "step": 1,
+                    "value": 1,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 1 and 10, default is 1."
+                        }
+                    },
+                    "description": "The number of images to generate.",
+                    "displayName": "Number of Images",
+                    "displayType": "slider"
+                },
+                "name": "numberOfImages"
+            },
+            {
+                "meta": {
+                    "value": "medium",
+                    "options": [
+                        {
+                            "label": "Low",
+                            "value": "low"
+                        },
+                        {
+                            "label": "Medium",
+                            "value": "medium"
+                        },
+                        {
+                            "label": "High",
+                            "value": "high"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The quality of the image that will be generated.",
+                    "displayName": "Quality of Images",
+                    "displayType": "select",
+                    "placeholder": "Select image quality"
+                },
+                "name": "quality"
+            },
+            {
+                "meta": {
+                    "value": "1024x1024",
+                    "options": [
+                        {
+                            "label": "256x256",
+                            "value": "256x256"
+                        },
+                        {
+                            "label": "512x512",
+                            "value": "512x512"
+                        },
+                        {
+                            "label": "1024x1024",
+                            "value": "1024x1024"
+                        },
+                        {
+                            "label": "1792x1024",
+                            "value": "1792x1024"
+                        },
+                        {
+                            "label": "1024x1792",
+                            "value": "1024x1792"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The size of the generated images.",
+                    "displayName": "Size",
+                    "displayType": "select",
+                    "placeholder": "Select image size"
+                },
+                "name": "size"
+            }
+        ]
+    },
+    "getAllModels": {
+        "definition": {
+            "url": "https://api.openai.com/v1/models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "createImageEdit": {
+        "definition": {
+            "url": "https://api.openai.com/v1/images/edits",
+            "body": {
+                "n": "{{parameters.numberofimages}}",
+                "size": "{{parameters.size}}",
+                "image": "{{parameters.image}}",
+                "model": "{{parameters.models}}",
+                "style": "{{parameters.style}}",
+                "prompt": "{{parameters.prompt}}",
+                "quality": "{{parameters.quality}}",
+                "response_format": "{{parameters.responseFormat}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "dall-e-2",
+                            "value": "dall-e-2"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "The model to use for image generation. Only dall-e-2 is supported at this time.",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "accept": ".png",
+                        "preview": true,
+                        "maxFiles": 1,
+                        "multiple": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Image file is required field"
+                        }
+                    },
+                    "description": "OpenAI: Upload a square PNG (<4MB) with transparency used as a mask if no separate mask is provided, for image editing tasks.",
+                    "displayName": "Choose file",
+                    "displayType": "file"
+                },
+                "name": "image"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "accept": ".png",
+                        "preview": true,
+                        "maxFiles": 1,
+                        "multiple": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "OpenAI uses an extra PNG (≤4MB) with transparent areas to mark editable regions; it must match the main image’s dimensions.",
+                    "displayName": "Choose file",
+                    "displayType": "file"
+                },
+                "name": "mask"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 1000,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prompt is required field"
+                        }
+                    },
+                    "description": "A text description of the desired image(s). The maximum length is 1000 characters.",
+                    "displayName": "Prompt",
+                    "displayType": "text",
+                    "placeholder": "Enter a prompt text"
+                },
+                "name": "prompt"
+            },
+            {
+                "meta": {
+                    "max": 10,
+                    "min": 1,
+                    "step": 1,
+                    "value": 1,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 1.0 (Highly Random)"
+                        }
+                    },
+                    "description": "The number of images to generate. Must be between 1 and 10.",
+                    "displayName": "Number of Images",
+                    "displayType": "slider"
+                },
+                "name": "numberofimages"
+            },
+            {
+                "meta": {
+                    "value": "1024x1024",
+                    "options": [
+                        {
+                            "label": "256x256",
+                            "value": "256x256"
+                        },
+                        {
+                            "label": "512x512",
+                            "value": "512x512"
+                        },
+                        {
+                            "label": "1024x1024",
+                            "value": "1024x1024"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.",
+                    "displayName": "Size",
+                    "displayType": "select",
+                    "placeholder": "Select image size"
+                },
+                "name": "size"
+            },
+            {
+                "meta": {
+                    "value": "url",
+                    "options": [
+                        {
+                            "label": "Url",
+                            "value": "url"
+                        },
+                        {
+                            "label": "b64 JSON",
+                            "value": "b64_json"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Specifies OpenAI image output format: url (valid for 60 mins) or b64_json.",
+                    "displayName": "Response format",
+                    "displayType": "select",
+                    "placeholder": "Select response format"
+                },
+                "name": "responseFormat"
+            }
+        ]
+    },
+    "createImageVariation": {
+        "definition": {
+            "url": "https://api.openai.com/v1/images/variations",
+            "body": {
+                "n": "{{parameters.numberofimages}}",
+                "size": "{{parameters.size}}",
+                "image": "{{parameters.image}}",
+                "model": "{{parameters.models}}",
+                "response_format": "{{parameters.responseFormat}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "dall-e-2",
+                            "value": "dall-e-2"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "The model to use for image generation. Only dall-e-2 is supported at this time.",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "accept": ".png",
+                        "preview": true,
+                        "maxFiles": 1,
+                        "multiple": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Image file is required field"
+                        }
+                    },
+                    "description": "The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.",
+                    "displayName": "Choose file",
+                    "displayType": "file"
+                },
+                "name": "image"
+            },
+            {
+                "meta": {
+                    "max": 10,
+                    "min": 1,
+                    "step": 1,
+                    "value": 1,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 1 and 10, default is 1."
+                        }
+                    },
+                    "description": "The number of images to generate. Must be between 1 and 10. For dall-e-3, only n=1 is supported.",
+                    "displayName": "Number of Images",
+                    "displayType": "slider"
+                },
+                "name": "numberofimages"
+            },
+            {
+                "meta": {
+                    "value": "url",
+                    "options": [
+                        {
+                            "label": "Url",
+                            "value": "url"
+                        },
+                        {
+                            "label": "b64 JSON",
+                            "value": "b64_json"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "OpenAI: Choose image output format as url or b64_json. URLs expire after 60 minutes.",
+                    "displayName": "Response format",
+                    "displayType": "select",
+                    "placeholder": "Select response format"
+                },
+                "name": "responseFormat"
+            },
+            {
+                "meta": {
+                    "value": "1024x1024",
+                    "options": [
+                        {
+                            "label": "256x256",
+                            "value": "256x256"
+                        },
+                        {
+                            "label": "512x512",
+                            "value": "512x512"
+                        },
+                        {
+                            "label": "1024x1024",
+                            "value": "1024x1024"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.",
+                    "displayName": "Size",
+                    "displayType": "select",
+                    "placeholder": "Select image size"
+                },
+                "name": "size"
+            }
+        ]
+    },
+    "definition": {
+        "url": "https://api.openai.com/v1/images/generations",
+        "body": {
+            "n": "{{parameters.numberOfImages}}",
+            "size": "{{parameters.size}}",
+            "model": "dall-e-2",
+            "prompt": "{{parameters.prompt}}",
+            "response_format": "{{parameters.responseFormat}}"
+        },
+        "method": "post",
+        "headers": {
+            "content-type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

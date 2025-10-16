@@ -1,0 +1,109 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Campaign name is a required field."
+                    }
+                },
+                "description": "Please provide a campaign name.",
+                "displayName": "Campaign Name",
+                "displayType": "text",
+                "placeholder": "Enter a campaign name"
+            },
+            "name": "campaignName"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "interakt",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "campaign",
+                        "operation": "campaign.createCampaign",
+                        "loadOptionsMethod": "getTemplates"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "name"
+                },
+                "options": [],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Template is a required field."
+                    }
+                },
+                "description": "Select a template from a list of approved templates.",
+                "displayName": "Template",
+                "displayType": "select",
+                "placeholder": "Select a template"
+            },
+            "name": "listApprovedTemplates"
+        }
+    ],
+    "getTemplates": {
+        "definition": {
+            "qs": {
+                "approval_status": "APPROVED"
+            },
+            "url": "https://api.interakt.ai/v1/public/track/organization/templates",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results.templates}}"
+            }
+        }
+    },
+    "getAllTemplates": {
+        "definition": {
+            "qs": {
+                "approval_status": "APPROVED"
+            },
+            "url": "https://api.interakt.ai/v1/public/track/organization/templates",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results.templates}}"
+            }
+        },
+        "parameters": []
+    },
+    "definition": {
+        "url": "https://api.interakt.ai/v1/public/create-campaign/",
+        "body": {
+            "campaign_name": "{{parameters.campaignName}}",
+            "campaign_type": "PublicAPI",
+            "language_code": "en",
+            "template_name": "{{parameters.listApprovedTemplates}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

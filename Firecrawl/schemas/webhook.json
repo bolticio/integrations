@@ -1,0 +1,259 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "value": "",
+                "config": {
+                    "url": "/FIRECRAWL?current_page=1&page_size=999",
+                    "method": "get",
+                    "urlType": "secret",
+                    "labelKey": "name",
+                    "valueKey": "_id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "showAddNew": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Your service account credentials are encrypted & can be removed at any time.",
+                "displayName": "Service Account",
+                "displayType": "autocomplete",
+                "placeholder": "Select Service Account"
+            },
+            "name": "secret"
+        },
+        {
+            "meta": {
+                "value": "",
+                "options": [
+                    {
+                        "label": "Webhook",
+                        "value": "webhook"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "displayName": "Resource",
+                "displayType": "select",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "secret",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "resource"
+        },
+        {
+            "meta": {
+                "value": "",
+                "options": [
+                    {
+                        "label": "Data Submission",
+                        "value": "webhook.data_submission"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "",
+                "displayName": "Events",
+                "displayType": "select",
+                "placeholder": "",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "secret",
+                            "operator": "NOT_EMPTY"
+                        },
+                        {
+                            "field": "resource",
+                            "value": "webhook",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "data_submission": {
+        "test": {
+            "form_submission": {
+                "definition": {
+                    "qs": {},
+                    "url": "https://service.com/api/v2/forms/{{parameters.form_id}}",
+                    "method": "get",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Authorization": "Bearer {{secrets.access_token}}"
+                    },
+                    "response": {
+                        "error": {
+                            "code": "{{response.status}}",
+                            "message": "{{response.data.message}}"
+                        },
+                        "output": "{{response.data}}"
+                    },
+                    "transform": {
+                        "output": "const sampleOutput = { triggerType: 'form_submission', payload: { name: output.displayName, siteId: output.siteId, data: {}, submittedAt: new Date().toISOString(), id: 'sample-id-12345', formId: output.id || null, formElementId: output.formElementId, pageId: output.pageId, publishedPath: '/sample-path', output: [] } }; for (const fieldId in output.fields) { const field = output.fields[fieldId]; sampleOutput.payload.data[field.displayName] = field.placeholder || `Sample value for ${field.displayName}`; } return sampleOutput;"
+                    }
+                }
+            }
+        },
+        "attach": {
+            "definition": {
+                "url": "https://service.com/api/v2/sites/{{parameters.site_id}}/webhooks",
+                "body": {
+                    "url": "{{webhook.url}}",
+                    "triggerType": "{{parameters.operation}}"
+                },
+                "method": "post",
+                "headers": {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.code}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            }
+        },
+        "detach": {
+            "definition": {
+                "url": "https://service.com/api/v2/webhooks/{{webhook.id}}",
+                "method": "delete",
+                "headers": {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.code}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            }
+        },
+        "update": {},
+        "getForms": {
+            "definition": {
+                "url": "https://service.com/api/v2/sites/{{parameters.site_id}}/forms",
+                "method": "get",
+                "headers": {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data.forms}}"
+                }
+            }
+        },
+        "getSites": {
+            "definition": {
+                "qs": {
+                    "limit": 100
+                },
+                "url": "https://service.com/api/v2/sites",
+                "method": "get",
+                "headers": {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data.sites}}"
+                }
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the site that you would like to receive notifications from.",
+                    "displayName": "Service Site",
+                    "displayType": "select",
+                    "placeholder": "",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "webhook",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "webhook.data_submission",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "service",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "webhook": true,
+                            "resource": "webhook",
+                            "operation": "webhook.data_submission",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Forms will only show here if they have been published and have received at least 1 submission.",
+                    "displayName": "Data Form",
+                    "displayType": "select",
+                    "placeholder": "",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            }
+        ]
+    }
+}

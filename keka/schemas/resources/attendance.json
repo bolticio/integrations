@@ -1,0 +1,109 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Employee ID(s) is a required field"
+                    }
+                },
+                "description": "Please provide an employee id(s) in comma separated format in case of multiple",
+                "displayName": "Employee ID(s)",
+                "displayType": "text"
+            },
+            "name": "employeeIds"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "format": "YYYY-MM-DD HH:mm:ss.SSSZ",
+                    "disabled": false,
+                    "readOnly": false,
+                    "timeSteps": {
+                        "hours": 1,
+                        "minutes": 5,
+                        "seconds": 5
+                    },
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Please select the <b>from date</b>.",
+                "displayName": "From date",
+                "displayType": "datetime",
+                "placeholder": "YYYY-MM-DD hh:mm:ss"
+            },
+            "name": "from"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "format": "YYYY-MM-DD HH:mm:ss.SSSZ",
+                    "disabled": false,
+                    "readOnly": false,
+                    "timeSteps": {
+                        "hours": 1,
+                        "minutes": 5,
+                        "seconds": 5
+                    },
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Please select the <b>to date</b>.",
+                "displayName": "To date",
+                "displayType": "datetime",
+                "placeholder": "YYYY-MM-DD hh:mm:ss"
+            },
+            "name": "to"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Please provide a page number to perform pagination",
+                "displayName": "Page Number",
+                "displayType": "text",
+                "placeholder": "Enter a page number"
+            },
+            "name": "pageNumber"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Please provide a page size to perform pagination",
+                "displayName": "Page Size",
+                "displayType": "text",
+                "placeholder": "Enter a page size"
+            },
+            "name": "pageSize"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "to": "{{parameters.to}}",
+            "from": "{{parameters.from}}",
+            "pageSize": "{{parameters.pageSize}}",
+            "pageNumber": "{{parameters.pageNumber}}",
+            "employeeIds": "{{parameters.employeeIds}}"
+        },
+        "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/attendance",
+        "method": "get",
+        "headers": {
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

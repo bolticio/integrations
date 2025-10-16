@@ -1,0 +1,232 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "interakt",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "sendTemplate",
+                        "operation": "sendTemplate.sendTemplateMessageNoHeader",
+                        "loadOptionsMethod": "getTemplates"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "display_name",
+                    "valueKey": "name"
+                },
+                "options": [],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Template is a required field."
+                    }
+                },
+                "description": "Select a template which you want to send as a message.",
+                "displayName": "Template",
+                "displayType": "select",
+                "placeholder": "Select a template"
+            },
+            "name": "listApprovedTemplates"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Phone number field is a required field"
+                    }
+                },
+                "description": "Please provide phone number of a customer (e.g. 919998884441)).",
+                "displayName": "Phone Number",
+                "displayType": "text",
+                "placeholder": "Enter the phone number"
+            },
+            "name": "phoneNumber"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Image Url(s) is a required field"
+                    }
+                },
+                "description": "Please provide a list of publically available image urls.",
+                "displayName": "Image Url(s)",
+                "displayType": "multitext",
+                "placeholder": "Enter a list of publically available image urls."
+            },
+            "name": "headerValues"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Template body variables is a required field"
+                    }
+                },
+                "description": "Please provide a list of body variables corresponding to selected template.",
+                "displayName": "Template Body Variable(s)",
+                "displayType": "multitext",
+                "placeholder": "Enter a list of body variables."
+            },
+            "name": "bodyValues"
+        }
+    ],
+    "getTemplates": {
+        "definition": {
+            "qs": {
+                "approval_status": "APPROVED"
+            },
+            "url": "https://api.interakt.ai/v1/public/track/organization/templates",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results.templates}}"
+            }
+        }
+    },
+    "sendTemplateDynamicCTA": {
+        "definition": {
+            "url": "https://api.interakt.ai/v1/public/message/",
+            "body": {
+                "type": "Template",
+                "template": {
+                    "name": "{{parameters.listApprovedTemplates}}",
+                    "bodyValues": "{{parameters.bodyValues}}",
+                    "buttonValues": {
+                        "1": [
+                            "axaxaxa"
+                        ]
+                    },
+                    "headerValues": "{{parameters.headerValues}}",
+                    "languageCode": "en"
+                },
+                "callbackData": "Test callBackData",
+                "fullPhoneNumber": "{{parameters.fullPhoneNumber}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "interakt",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sendTemplate",
+                            "operation": "sendTemplate.sendTemplateMessageNoHeader",
+                            "loadOptionsMethod": "getTemplates"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "display_name",
+                        "valueKey": "name"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Template is a required field."
+                        }
+                    },
+                    "description": "Select a template which you want to send as a message.",
+                    "displayName": "Select Template",
+                    "displayType": "select",
+                    "placeholder": "Select a template"
+                },
+                "name": "listApprovedTemplates"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "readOnly": false,
+                        "continents": [
+                            "NA",
+                            "SA",
+                            "AS",
+                            "OC",
+                            "AF",
+                            "EU"
+                        ],
+                        "defaultCountry": "IN"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Full phone number field is a required field"
+                        }
+                    },
+                    "description": "Full phone number of a customer.",
+                    "displayName": "Full phone number",
+                    "displayType": "phone",
+                    "placeholder": "Enter the full phone number"
+                },
+                "name": "fullPhoneNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Template body variables is a required field"
+                        }
+                    },
+                    "description": "Please provide a list of body variables.",
+                    "displayName": "Template Body Variable",
+                    "displayType": "multitext",
+                    "placeholder": "Enter an array of body variables."
+                },
+                "name": "bodyValues"
+            }
+        ]
+    },
+    "definition": {
+        "url": "https://api.interakt.ai/v1/public/message/",
+        "body": {
+            "type": "Template",
+            "template": {
+                "name": "{{parameters.listApprovedTemplates}}",
+                "bodyValues": "{{parameters.bodyValues}}",
+                "headerValues": "{{parameters.headerValues}}",
+                "languageCode": "en"
+            },
+            "callbackData": "{{parameters.phoneNumber}}",
+            "fullPhoneNumber": "{{parameters.phoneNumber}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

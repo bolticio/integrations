@@ -1,0 +1,88 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Private Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Domain is required"
+                    }
+                },
+                "description": "If your Shopify store address is, for example, xyz.myshopify.com, enter only 'xyz'.",
+                "displayName": "Domain",
+                "displayType": "text",
+                "placeholder": "Enter your Shopify store's subdomain",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "type",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "domain"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2023-01/shop.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Shopify access token for making API requests.",
+                    "displayName": "Private Access Token",
+                    "displayType": "password",
+                    "placeholder": "Enter your Shopify access token",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    },
+                    "requiredDetail": {
+                        "errorMsg": "Access Token is required"
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
+}

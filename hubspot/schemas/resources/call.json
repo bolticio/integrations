@@ -1,0 +1,137 @@
+{
+    "update": {
+        "definition": {},
+        "parameters": []
+    },
+    "getUsers": {
+        "definition": {
+            "url": "https://api.hubapi.com/settings/v3/users",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 100000000000000000,
+                    "min": 3,
+                    "required": true
+                },
+                "description": "Call ID associations of this contact ID would be fetched",
+                "displayName": "Contact ID",
+                "displayType": "number",
+                "placeholder": "Enter Contact ID"
+            },
+            "name": "contact_id"
+        }
+    ],
+    "getMoreParameters": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/calls",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "return ((output || []).filter(ele => ele?.modificationMetadata?.readOnlyValue === false).map(ele => { const isTimestamp = ele.name === 'hs_timestamp'; const newObj = { name: ele.name, meta: { displayName: ele.label, displayType: isTimestamp ? 'datetime' : (ele.options?.length > 0 ? 'select' : 'text'), placeholder: `${ele.options?.length > 0 ? 'Select' : 'Enter'} ${ele.label}`, validation: { required: isTimestamp ? true : ele.required_for_agents } } }; if (ele.options?.length > 0) { newObj.meta.htmlProps = { allowDynamic: true }; newObj.meta.options = ele.options.map(choice => ({ label: choice.label || choice, value: choice.value || choice })); if (ele.type === 'multi_select_dropdown') newObj.meta.value = []; } if (ele.default === false) newObj.prop = 'custom_field'; return newObj; }).filter(ele => ele !== null).reduce((acc, ele) => { const custom_field = acc.find(i => i.name === 'custom_field') || { name: 'custom_field', meta: { children: [], displayType: 'object' } }; if (ele.prop === 'custom_field') { custom_field.meta.children.push(ele); if (!acc.includes(custom_field)) acc.push(custom_field); } else acc.push(ele); return acc; }, []));"
+            }
+        }
+    },
+    "getcallProperties": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/calls",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "callsassociatedwithcontact": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v4/objects/contacts/{{parameters.contact_id}}/associations/calls",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 100000000000000000,
+                        "min": 3,
+                        "required": true
+                    },
+                    "description": "Call ID associations of this contact ID would be fetched",
+                    "displayName": "Contact ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Contact ID"
+                },
+                "name": "contact_id"
+            }
+        ]
+    },
+    "definition": {
+        "url": "https://api.hubapi.com/crm/v4/objects/contacts/{{parameters.contact_id}}/associations/calls",
+        "method": "get",
+        "headers": {
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data.results}}"
+        }
+    },
+    "config": {
+        "url": "integrations/parameters",
+        "body": {
+            "secret": "{{parameters.secret}}",
+            "resource": "call",
+            "loadParametersMethod": "getMoreParameters"
+        },
+        "method": "post",
+        "urlType": "parameters"
+    }
+}

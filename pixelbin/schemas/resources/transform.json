@@ -1,0 +1,196 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "description": "",
+                            "displayName": "PixelBin Zone slug",
+                            "displayType": "text",
+                            "placeholder": "Please add PixelBin Zone slug",
+                            "dependencies": {
+                                "conditions": [
+                                    {
+                                        "field": "resource",
+                                        "value": "transform",
+                                        "operator": "EQUALS"
+                                    }
+                                ]
+                            }
+                        },
+                        "name": "zone"
+                    },
+                    {
+                        "meta": {
+                            "config": {
+                                "url": "integrations/options",
+                                "body": {
+                                    "name": "pixelbin",
+                                    "secret": "{{parameters.secret}}",
+                                    "resource": "transform",
+                                    "operation": "transform.basic",
+                                    "loadOptionsMethod": "getAITransformations"
+                                },
+                                "method": "post",
+                                "urlType": "options",
+                                "labelKey": "displayName",
+                                "valueKey": "name"
+                            },
+                            "options": [],
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Select the transformation you want to apply on image.",
+                            "displayName": "Select transformation",
+                            "displayType": "select",
+                            "placeholder": "Select a transformation",
+                            "dependencies": {
+                                "conditions": [
+                                    {
+                                        "field": "resource",
+                                        "value": "transform",
+                                        "operator": "EQUALS"
+                                    }
+                                ]
+                            }
+                        },
+                        "name": "transformationPattern"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Enter the path of the image location in PixelBin storage, starting after the initial '/'. Example: path/to/image.jpg",
+                            "displayName": "Image path in PixelBin storage",
+                            "displayType": "text",
+                            "placeholder": "Please add path of the Image location in PixelBin storage",
+                            "dependencies": {
+                                "conditions": [
+                                    {
+                                        "field": "resource",
+                                        "value": "transform",
+                                        "operator": "EQUALS"
+                                    }
+                                ]
+                            }
+                        },
+                        "name": "imgPath"
+                    }
+                ],
+                "displayType": "object"
+            },
+            "name": "transformationDetails"
+        }
+    ],
+    "getCloudName": {
+        "definition": {
+            "qs": {},
+            "url": "https://asia-south1.api.boltic.io/apps/v1.0/organization/3f7d3552-afc4-4153-9df1-295be3c37198/d8efd6b8-3ff0-4958-96bc-40a594a135c9-http/cloudname",
+            "method": "get",
+            "headers": {
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "getAITransformations": {
+        "definition": {
+            "qs": {},
+            "url": "https://asia-south1.api.boltic.io/apps/v1.0/organization/3f7d3552-afc4-4153-9df1-295be3c37198/d8efd6b8-3ff0-4958-96bc-40a594a135c9-http/transformation/options?type=ai",
+            "method": "get",
+            "headers": {
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "getBasicTransformations": {
+        "definition": {
+            "qs": {},
+            "url": "https://asia-south1.api.boltic.io/apps/v1.0/organization/3f7d3552-afc4-4153-9df1-295be3c37198/d8efd6b8-3ff0-4958-96bc-40a594a135c9-http/transformation/options?type=basic",
+            "method": "get",
+            "headers": {
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "getAITransformationParams": {
+        "definition": {
+            "url": "https://asia-south1.api.boltic.io/apps/v1.0/organization/3f7d3552-afc4-4153-9df1-295be3c37198/d8efd6b8-3ff0-4958-96bc-40a594a135c9-http/transformation?type=ai",
+            "method": "get",
+            "headers": {
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "getBasicTransformationParams": {
+        "definition": {
+            "url": "https://asia-south1.api.boltic.io/apps/v1.0/organization/3f7d3552-afc4-4153-9df1-295be3c37198/d8efd6b8-3ff0-4958-96bc-40a594a135c9-http/transformation?type=basic",
+            "method": "get",
+            "headers": {
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "config": {
+        "url": "integrations/parameters",
+        "body": {
+            "name": "pixelbin",
+            "secret": "{{parameters.secret}}",
+            "resource": "transform",
+            "loadParametersMethod": "getAITransformationParams"
+        },
+        "method": "post",
+        "urlType": "parameters"
+    },
+    "definition": {
+        "url": "https://asia-south1.api.boltic.io/apps/v1.0/organization/3f7d3552-afc4-4153-9df1-295be3c37198/d8efd6b8-3ff0-4958-96bc-40a594a135c9-http/transformation",
+        "body": "{{parameters}}",
+        "method": "post",
+        "headers": {
+            "Authorization": "{{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

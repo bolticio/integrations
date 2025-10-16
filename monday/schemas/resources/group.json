@@ -1,0 +1,127 @@
+{
+    "getBoard": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.boards}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ boards { id name } }` })"
+            }
+        }
+    },
+    "getGroup": {
+        "definition": {
+            "url": "https://api.monday.com/v2",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data.boards[0].groups}}"
+            },
+            "transform": {
+                "body": "return JSON.stringify({ query: `{ boards (ids: {{parameters.board_id}}) { groups { title id } } }` })"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "monday",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "group",
+                        "operation": "group.archive",
+                        "loadOptionsMethod": "getBoard"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the board containing the group which needs to be archived.",
+                "displayName": "Board",
+                "displayType": "select",
+                "placeholder": "Select a board"
+            },
+            "name": "board_id"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "monday",
+                        "secret": "{{parameters.secret}}",
+                        "board_id": "{{parameters.board_id}}",
+                        "resource": "group",
+                        "operation": "group.archive",
+                        "loadOptionsMethod": "getGroup"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "title",
+                    "valueKey": "id",
+                    "condition": "{{parameters.board_id}}"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the group to archive (items will remain accessible but hidden from view).",
+                "displayName": "Group",
+                "displayType": "select",
+                "placeholder": "Select a Group"
+            },
+            "name": "group_id"
+        }
+    ],
+    "definition": {
+        "url": "https://api.monday.com/v2",
+        "body": {},
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "{{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors[0].message}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "return JSON.stringify({ query: `mutation { archive_group (board_id: {{parameters.board_id}}, group_id: \"{{parameters.group_id}}\") { id archived } }` })"
+        }
+    }
+}

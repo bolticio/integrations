@@ -1,0 +1,136 @@
+{
+    "name": "embeddings",
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "openai",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "embeddings",
+                        "operation": "embeddings.createEmbeddings",
+                        "activity_id": "{{parameters.activity_id}}",
+                        "loadOptionsMethod": "getAllModels"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "id",
+                    "valueKey": "id"
+                },
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Model is required field"
+                    }
+                },
+                "description": "Select the embedding model to use for the operation.",
+                "displayName": "Model",
+                "displayType": "autocomplete",
+                "placeholder": "Select a model"
+            },
+            "name": "modelId"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Input is required field"
+                    }
+                },
+                "description": "Input text to embed, encoded as a string or array. The input must not exceed the max input tokens for the model (8192 tokens for all embedding models) .",
+                "displayName": "Input",
+                "displayType": "multitext",
+                "placeholder": "Enter input text(s)"
+            },
+            "name": "input"
+        },
+        {
+            "meta": {
+                "value": "float",
+                "options": [
+                    {
+                        "label": "float",
+                        "value": "float"
+                    },
+                    {
+                        "label": "base64",
+                        "value": "base64"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "The format to return the embeddings in.",
+                "displayName": "Encoding Format",
+                "displayType": "select",
+                "placeholder": "Select encoding format"
+            },
+            "name": "encodingFormat"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false,
+                    "requiredDetail": {
+                        "errorMsg": "Dimension is required field"
+                    }
+                },
+                "description": "The number of dimensions the resulting output embeddings should have. Only supported in text-embedding-3 and later models.",
+                "displayName": "Dimensions",
+                "displayType": "number",
+                "placeholder": "Enter number of Dimensions"
+            },
+            "name": "dimensions"
+        }
+    ],
+    "getAllModels": {
+        "definition": {
+            "url": "https://api.openai.com/v1/models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{responcse.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "definition": {
+        "url": "https://api.openai.com/v1/embeddings",
+        "body": {
+            "input": "{{parameters.input}}",
+            "model": "{{parameters.modelId}}",
+            "dimensions": "{{parameters.dimensions}}",
+            "encoding_format": "{{parameters.encodingFormat}}"
+        },
+        "method": "post",
+        "headers": {
+            "content-type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

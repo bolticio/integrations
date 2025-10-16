@@ -1,0 +1,105 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "ID (ascending)",
+                        "value": "id[ASC]"
+                    },
+                    {
+                        "label": "ID (descending)",
+                        "value": "id[DESC]"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Order returned entities (only `id` is supported).",
+                "displayName": "Order By",
+                "displayType": "select",
+                "placeholder": "Select ordering"
+            },
+            "name": "order_by"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter by whether a destination is active.",
+                "displayName": "Active",
+                "displayType": "toggle",
+                "placeholder": "false"
+            },
+            "name": "active"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Platform",
+                        "value": "platform"
+                    },
+                    {
+                        "label": "Simulation",
+                        "value": "simulation"
+                    },
+                    {
+                        "label": "All",
+                        "value": "all"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": false
+                },
+                "description": "Filter destinations by traffic source.",
+                "displayName": "Traffic Source",
+                "displayType": "select",
+                "placeholder": "Select source"
+            },
+            "name": "traffic_source"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "active": "{{parameters.active}}",
+            "order_by": "{{parameters.order_by}}",
+            "traffic_source": "{{parameters.traffic_source}}"
+        },
+        "url": "https://{{secrets.environment_url}}/notification-settings",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data.data}}"
+        },
+        "pagination": {
+            "qs": {
+                "per_page": 200
+            },
+            "type": "url",
+            "default": {
+                "next_url": null,
+                "per_page": 200
+            },
+            "next_url": "{{response.data.meta.pagination.next}}",
+            "condition": "{{response.data.meta.pagination.has_more}} !== false"
+        }
+    }
+}

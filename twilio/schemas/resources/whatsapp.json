@@ -1,0 +1,62 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Recipient's WhatsApp number.",
+                "displayName": "To Number",
+                "displayType": "text",
+                "placeholder": "Enter recipient's WhatsApp number"
+            },
+            "name": "to"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Sender's phone number for the whatsapp.",
+                "displayName": "From Number",
+                "displayType": "text",
+                "placeholder": "Select sender's Twilio phone number"
+            },
+            "name": "from"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The message content to send.",
+                "displayName": "Message Body",
+                "displayType": "text",
+                "placeholder": "Enter the message body."
+            },
+            "name": "body"
+        }
+    ],
+    "definition": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
+        "body": {
+            "To": "whatsapp:{{parameters.to}}",
+            "Body": "{{parameters.body}}",
+            "From": "whatsapp:{{parameters.from}}"
+        },
+        "method": "post",
+        "headers": {
+            "content-type": "application/x-www-form-urlencoded",
+            "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.code}}",
+                "status": "{{response.data.status}}",
+                "message": "{{response.data.message}}",
+                "more_info": "{{response.data.more_info}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

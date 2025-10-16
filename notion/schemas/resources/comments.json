@@ -1,0 +1,102 @@
+{
+    "getPages": {
+        "definition": {
+            "url": "https://api.notion.com/v1/search",
+            "body": {
+                "sort": {
+                    "direction": "ascending",
+                    "timestamp": "last_edited_time"
+                },
+                "query": "",
+                "filter": {
+                    "value": "page",
+                    "property": "object"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response?.data?.error?.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "return output.map((page) => { let name = 'Untitled'; const url = page.url; if (url) { const matches = url.match(/https:\\/\\/www\\.notion\\.so\\/(.+)-[a-zA-Z0-9]+$/); if (matches && matches[1]) { name = matches[1].replace(/-/g, ' ').trim(); } } return { id: page.id, name }; });"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "notion",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "comments",
+                        "operation": "comments.retrieve",
+                        "loadOptionsMethod": "getPages"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Selecting a page is required to retrieve comments."
+                    }
+                },
+                "description": "Select a Notion page from which to retrieve comments.",
+                "displayName": "Page",
+                "displayType": "select",
+                "placeholder": "Select a Notion Page"
+            },
+            "name": "block_id"
+        },
+        {
+            "meta": {
+                "value": 100,
+                "validation": {
+                    "range": {
+                        "max": 100,
+                        "min": 1
+                    },
+                    "required": false
+                },
+                "description": "The maximum number of comments to retrieve. Defaults to 100.",
+                "displayName": "Page Size",
+                "displayType": "number",
+                "placeholder": "Enter the number of comments to retrieve"
+            },
+            "name": "page_size"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "block_id": "{{parameters.block_id}}",
+            "page_size": "{{parameters.page_size}}"
+        },
+        "url": "https://api.notion.com/v1/comments",
+        "method": "get",
+        "headers": {
+            "Authorization": "Bearer {{secrets.access_token}}",
+            "Notion-Version": "2022-06-28"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

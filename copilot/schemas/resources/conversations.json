@@ -1,0 +1,100 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {},
+                "description": "ID of the conversation (optional)",
+                "displayName": "ID",
+                "displayType": "text"
+            },
+            "name": "id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Conversation title",
+                "displayName": "Title",
+                "displayType": "text"
+            },
+            "name": "title"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "ID of the user who started the conversation",
+                "displayName": "User ID",
+                "displayType": "text"
+            },
+            "name": "userId"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Key is required"
+                                }
+                            },
+                            "displayName": "key",
+                            "displayType": "text"
+                        },
+                        "name": "key"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Value is required"
+                                }
+                            },
+                            "displayName": "value",
+                            "displayType": "text"
+                        },
+                        "name": "value"
+                    }
+                ],
+                "htmlProps": {
+                    "allowAdd": true
+                },
+                "validation": {
+                    "max": 100
+                },
+                "description": "custom meta info",
+                "displayName": "Meta",
+                "displayType": "keyvalue"
+            },
+            "name": "meta"
+        }
+    ],
+    "definition": {
+        "url": "https://integrations.copilot.live/v1/conversations",
+        "body": {
+            "id": "{{parameters.id}}",
+            "meta": "{{parameters.meta}}",
+            "title": "{{parameters.title}}",
+            "userId": "{{parameters.userId}}"
+        },
+        "method": "post",
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "x-integration-id": "{{secrets.integration_id}}",
+            "x-integration-token": "{{secrets.integration_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

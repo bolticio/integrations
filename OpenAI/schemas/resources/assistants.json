@@ -1,0 +1,267 @@
+{
+    "name": "assistants",
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "openai",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "assistants",
+                        "operation": "assistants.createAssistant",
+                        "activity_id": "{{parameters.activity_id}}",
+                        "loadOptionsMethod": "getAllModels"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "id",
+                    "valueKey": "id"
+                },
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Model is a required field"
+                    }
+                },
+                "description": "Please select a model to create an assistant",
+                "displayName": "Model",
+                "displayType": "autocomplete",
+                "placeholder": "Select a model"
+            },
+            "name": "modelId"
+        },
+        {
+            "meta": {
+                "value": null,
+                "validation": {
+                    "max": 256,
+                    "required": false
+                },
+                "description": "The name of the assistant. The maximum length is 256 characters.",
+                "displayName": "Name",
+                "displayType": "text",
+                "placeholder": "Enter a name for the assistant."
+            },
+            "name": "name"
+        },
+        {
+            "meta": {
+                "value": null,
+                "validation": {
+                    "required": false,
+                    "maxLength": 512
+                },
+                "description": "The description of the assistant. The maximum length is 512 characters.",
+                "displayName": "Description",
+                "displayType": "textarea",
+                "placeholder": "Enter the description for assistant"
+            },
+            "name": "description"
+        },
+        {
+            "meta": {
+                "value": null,
+                "validation": {
+                    "required": false,
+                    "maxLength": 256000
+                },
+                "description": "The system instructions that the assistant uses. The maximum length is 256,000 characters.",
+                "displayName": "Instructions",
+                "displayType": "textarea",
+                "placeholder": "Enter the Instructions."
+            },
+            "name": "instructions"
+        },
+        {
+            "meta": {
+                "value": "file_search",
+                "options": [
+                    {
+                        "label": "File search",
+                        "value": "file_search"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "file search is required field"
+                    }
+                },
+                "description": "Tools can be of type code interpreter.",
+                "displayName": "Type of tool",
+                "displayType": "select",
+                "placeholder": "Select the type of tool"
+            },
+            "name": "tools"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "children": [
+                                {
+                                    "meta": {
+                                        "htmlProps": {
+                                            "allowDynamic": true
+                                        },
+                                        "validation": {
+                                            "required": false
+                                        },
+                                        "description": "The vector store attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.",
+                                        "displayName": "Vector Store IDs",
+                                        "displayType": "multitext",
+                                        "placeholder": "Enter a list of vector store ids"
+                                    },
+                                    "name": "vector_store_ids"
+                                }
+                            ],
+                            "validation": {
+                                "required": false
+                            },
+                            "description": "Resources for the file search tool",
+                            "displayName": "File Search",
+                            "displayType": "object"
+                        },
+                        "name": "file_search"
+                    }
+                ],
+                "validation": {
+                    "required": false
+                },
+                "description": "A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the file_search tool requires a list of vector store IDs.",
+                "displayName": "Tool Resources",
+                "displayType": "object"
+            },
+            "name": "toolResources"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "max": 64,
+                                "required": false
+                            },
+                            "displayName": "Key",
+                            "displayType": "text"
+                        },
+                        "name": "key"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "max": 512,
+                                "required": false
+                            },
+                            "displayName": "Value",
+                            "displayType": "text"
+                        },
+                        "name": "value"
+                    }
+                ],
+                "htmlProps": {
+                    "allowAdd": true,
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 16,
+                    "required": false
+                },
+                "description": "Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.",
+                "displayName": "Metadata",
+                "displayType": "keyvalue",
+                "placeholder": "Enter metadata key-value pairs"
+            },
+            "name": "metadata"
+        },
+        {
+            "meta": {
+                "max": 2,
+                "min": 0,
+                "step": 0.1,
+                "value": 0.7,
+                "htmlProps": {
+                    "showInfoIcon": true
+                },
+                "validation": {
+                    "required": true,
+                    "infoDetail": {
+                        "infoMsg": "Choose a value between 0(Very Deterministic) and 2 (Highly Random)"
+                    }
+                },
+                "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+                "displayName": "Temperature",
+                "displayType": "slider"
+            },
+            "name": "temperature"
+        },
+        {
+            "meta": {
+                "value": 1,
+                "validation": {
+                    "required": false
+                },
+                "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.",
+                "displayName": "Top P",
+                "displayType": "number",
+                "placeholder": "Enter a number for Top P"
+            },
+            "name": "top_p"
+        }
+    ],
+    "getAllModels": {
+        "definition": {
+            "url": "https://api.openai.com/v1/models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "definition": {
+        "url": "https://api.openai.com/v1/assistants",
+        "body": {
+            "name": "{{parameters.name}}",
+            "model": "{{parameters.modelId}}",
+            "tools": [
+                {
+                    "type": "file_search"
+                }
+            ],
+            "top_p": "{{parameters.top_p}}",
+            "metadata": "{{parameters.metadata}}",
+            "description": "{{parameters.description}}",
+            "temperature": "{{parameters.temperature}}",
+            "instructions": "{{parameters.instructions}}",
+            "tool_resources": "{{parameters.toolResources}}"
+        },
+        "method": "post",
+        "headers": {
+            "OpenAI-Beta": "assistants=v2",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

@@ -1,0 +1,79 @@
+{
+    "api_key": {
+        "validate": {
+            "url": "https://api.anthropic.com/v1/messages",
+            "body": {
+                "model": "claude-3-5-sonnet-20241022",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Hello, world"
+                    }
+                ],
+                "max_tokens": 1024
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_token}}",
+                "anthropic-version": "2023-06-01"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API token is required field"
+                        }
+                    },
+                    "description": "Your Anthropic API Key. Refer to the <a href='https://docs.anthropic.com/en/api/getting-started#authentication' target='_blank'>Anthropic API documentation</a> for details.",
+                    "displayName": "API token",
+                    "displayType": "password",
+                    "placeholder": "Enter API token",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "api_token"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "api_key",
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "api_key"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Please select the Authentication type as it can not be empty"
+                    }
+                },
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
+}

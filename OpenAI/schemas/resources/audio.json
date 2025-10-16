@@ -1,0 +1,178 @@
+{
+    "name": "audio",
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "tts-1",
+                        "value": "tts-1"
+                    },
+                    {
+                        "label": "tts-1-hd",
+                        "value": "tts-1-hd"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Model is required field"
+                    }
+                },
+                "description": "One of the available TTS models: tts-1 or tts-1-hd.",
+                "displayName": "Model",
+                "displayType": "select",
+                "placeholder": "Select a model"
+            },
+            "name": "models"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Input text is required field"
+                    }
+                },
+                "description": "The text to generate audio for. The maximum length is 4096 characters.",
+                "displayName": "Input Text",
+                "displayType": "textarea",
+                "placeholder": "Please provide a text input"
+            },
+            "name": "message"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "alloy",
+                        "value": "alloy"
+                    },
+                    {
+                        "label": "echo",
+                        "value": "echo"
+                    },
+                    {
+                        "label": "fable",
+                        "value": "fable"
+                    },
+                    {
+                        "label": "onyx",
+                        "value": "onyx"
+                    },
+                    {
+                        "label": "nova",
+                        "value": "nova"
+                    },
+                    {
+                        "label": "shimmer",
+                        "value": "shimmer"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Voice is required field"
+                    }
+                },
+                "description": "The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer.",
+                "displayName": "Voice",
+                "displayType": "select",
+                "placeholder": "Please select a voice type"
+            },
+            "name": "voice"
+        },
+        {
+            "meta": {
+                "value": "mp3",
+                "options": [
+                    {
+                        "label": "mp3",
+                        "value": "mp3"
+                    },
+                    {
+                        "label": "opus",
+                        "value": "opus"
+                    },
+                    {
+                        "label": "aac",
+                        "value": "aac"
+                    },
+                    {
+                        "label": "flac",
+                        "value": "flac"
+                    },
+                    {
+                        "label": "wav",
+                        "value": "wav"
+                    },
+                    {
+                        "label": "pcm",
+                        "value": "pcm"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Response format specifies the format of the generated audio file..",
+                "displayName": "Response format",
+                "displayType": "select",
+                "placeholder": "Select response format"
+            },
+            "name": "responseFormat"
+        },
+        {
+            "meta": {
+                "max": 4,
+                "min": 0.25,
+                "step": 0.25,
+                "value": 1,
+                "htmlProps": {
+                    "showInfoIcon": true
+                },
+                "validation": {
+                    "required": true,
+                    "infoDetail": {
+                        "infoMsg": "Select a value from 0.25 to 4.0. 1.0 is the default"
+                    }
+                },
+                "description": "The speed of the generated audio.",
+                "displayName": "Speed",
+                "displayType": "slider"
+            },
+            "name": "speed"
+        }
+    ],
+    "definition": {
+        "url": "https://api.openai.com/v1/audio/speech",
+        "body": {
+            "input": "{{parameters.message}}",
+            "model": "{{parameters.models}}",
+            "speed": "{{parameters.speed}}",
+            "voice": "{{parameters.voice}}",
+            "response_format": "{{parameters.responseFormat}}"
+        },
+        "method": "post",
+        "headers": {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

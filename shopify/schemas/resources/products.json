@@ -1,0 +1,91 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The ID of the variant to update.",
+                "displayName": "Variant ID",
+                "displayType": "text",
+                "placeholder": "Enter variant ID"
+            },
+            "name": "variant_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The value of the title for the variant.",
+                "displayName": "Title",
+                "displayType": "text",
+                "placeholder": "Enter title for product variant"
+            },
+            "name": "option1"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The price of the variant.",
+                "displayName": "Price",
+                "displayType": "text",
+                "placeholder": "Enter price"
+            },
+            "name": "price"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The SKU of the variant.(Stock Keeping Unit)",
+                "displayName": "SKU (Stock Keeping Unit)",
+                "displayType": "text",
+                "placeholder": "Enter SKU"
+            },
+            "name": "sku"
+        }
+    ],
+    "getProducts": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/products.json",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.products}}"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/variants/{{parameters.variant_id}}.json",
+        "body": {
+            "variant": {
+                "sku": "{{parameters.sku}}",
+                "price": "{{parameters.price}}",
+                "option1": "{{parameters.option1}}"
+            }
+        },
+        "method": "put",
+        "headers": {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": "{{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

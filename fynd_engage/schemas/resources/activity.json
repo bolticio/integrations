@@ -1,0 +1,260 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The phone number of the customer associated with the activity.",
+                "displayName": "Phone Number",
+                "displayType": "number",
+                "placeholder": "Enter customer's phone number"
+            },
+            "name": "phoneNumber"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Order",
+                        "value": "Order",
+                        "description": "Activity related to an order."
+                    },
+                    {
+                        "label": "Referral",
+                        "value": "Referral",
+                        "description": "Activity related to a referral."
+                    },
+                    {
+                        "label": "Signup",
+                        "value": "Signup",
+                        "description": "Activity related to a signup."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "The name of the activity being logged",
+                "displayName": "Activity Name",
+                "displayType": "select",
+                "placeholder": "e.g., Order"
+            },
+            "name": "activityName"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Unique identifier for the transaction.",
+                "displayName": "Transaction ID",
+                "displayType": "text",
+                "placeholder": "Enter transaction ID",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "activityName",
+                            "value": "Order",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "transactionId"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Total amount of the order.",
+                "displayName": "Order Amount",
+                "displayType": "number",
+                "placeholder": "Enter order amount",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "activityName",
+                            "value": "Order",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "orderAmount"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Identifier for the cart used in the transaction.",
+                "displayName": "Cart ID",
+                "displayType": "text",
+                "placeholder": "Enter cart ID",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "activityName",
+                            "value": "Order",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "cartId"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Identifier for the order placed.",
+                "displayName": "Order ID",
+                "displayType": "text",
+                "placeholder": "Enter order ID",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "activityName",
+                            "value": "Order",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "orderId"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Unique identifier for the item.",
+                            "displayName": "Item ID",
+                            "displayType": "text",
+                            "placeholder": "Enter item ID"
+                        },
+                        "name": "itemId"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Monetary value of the item.",
+                            "displayName": "Amount",
+                            "displayType": "number",
+                            "placeholder": "Enter item amount"
+                        },
+                        "name": "amount"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true
+                            },
+                            "description": "Number of units of the item ordered.",
+                            "displayName": "Quantity",
+                            "displayType": "number",
+                            "placeholder": "Enter quantity"
+                        },
+                        "name": "quantity"
+                    },
+                    {
+                        "meta": {
+                            "description": "Stock Keeping Unit code for the item.",
+                            "displayName": "SKU Code",
+                            "displayType": "text",
+                            "placeholder": "Enter SKU code"
+                        },
+                        "name": "skuCode"
+                    },
+                    {
+                        "meta": {
+                            "description": "European Article Number of the item.",
+                            "displayName": "EAN Identifier",
+                            "displayType": "text",
+                            "placeholder": "Enter EAN identifier"
+                        },
+                        "name": "eanIdentifier"
+                    },
+                    {
+                        "meta": {
+                            "description": "Number of days within which the item can be returned.",
+                            "displayName": "Return Period (days)",
+                            "displayType": "number",
+                            "placeholder": "Enter return period"
+                        },
+                        "name": "returnPeriod"
+                    },
+                    {
+                        "meta": {
+                            "description": "Identifier of the article linked to the item.",
+                            "displayName": "Article ID",
+                            "displayType": "text",
+                            "placeholder": "Enter article ID"
+                        },
+                        "name": "articleId"
+                    },
+                    {
+                        "meta": {
+                            "description": "Currency in which the order is placed.",
+                            "displayName": "Currency",
+                            "displayType": "text",
+                            "placeholder": "e.g., INR"
+                        },
+                        "name": "currency"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "List of items included in the order.",
+                "displayName": "Items",
+                "displayType": "array",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "activityName",
+                            "value": "Order",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "items"
+        }
+    ],
+    "definition": {
+        "qs": {
+            "phoneNumber": "{{parameters.phoneNumber}}"
+        },
+        "url": "https://api.engage.fynd.com/service/platform/v1/activity",
+        "body": {
+            "meta": {
+                "items": "{{parameters.items}}",
+                "cartId": "{{parameters.cartId}}",
+                "orderId": "{{parameters.orderId}}",
+                "orderAmount": "{{parameters.orderAmount}}",
+                "transactionId": "{{parameters.transactionId}}"
+            },
+            "activityName": "{{parameters.activityName}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.code}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

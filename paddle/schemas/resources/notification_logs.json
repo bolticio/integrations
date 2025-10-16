@@ -1,0 +1,47 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Notification ID is required."
+                    }
+                },
+                "description": "Paddle ID of the notification whose logs you want to list.",
+                "displayName": "Notification ID",
+                "displayType": "text",
+                "placeholder": "ntf_01gsz8z1q1n00f12qt82y31smh"
+            },
+            "name": "notification_id"
+        }
+    ],
+    "definition": {
+        "qs": {},
+        "url": "https://{{secrets.environment_url}}/notifications/{{parameters.notification_id}}/logs",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data.data}}"
+        },
+        "pagination": {
+            "qs": {
+                "per_page": 200
+            },
+            "type": "url",
+            "default": {
+                "next_url": null,
+                "per_page": 200
+            },
+            "next_url": "{{response.data.meta.pagination.next}}",
+            "condition": "{{response.data.meta.pagination.has_more}} !== false"
+        }
+    }
+}

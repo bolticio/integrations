@@ -1,0 +1,116 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the ID given by Zendesk of the Route you want to update the details of.",
+                "displayName": "Route ID",
+                "displayType": "text",
+                "placeholder": "Enter Route ID"
+            },
+            "name": "route_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the Menu ID which you want to assign to the IVR Menu.",
+                "displayName": "Menu ID",
+                "displayType": "text",
+                "placeholder": "Enter Menu ID"
+            },
+            "name": "menu_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the ID given by Zendesk of the IVR you want to update the details of.",
+                "displayName": "IVR ID",
+                "displayType": "text",
+                "placeholder": "Enter IVR ID"
+            },
+            "name": "ivr_id"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Voicemail",
+                        "value": "voicemail"
+                    }
+                ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the Action of the IVR Route.",
+                "displayName": "Action",
+                "displayType": "select",
+                "placeholder": "Select the Action"
+            },
+            "name": "action"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the Keypress of the IVR Route.It should be a single character.",
+                "displayName": "Keypress",
+                "displayType": "text",
+                "placeholder": "Enter the Keypress"
+            },
+            "name": "keypress"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the Group ID which given by Zendesk on the Website.",
+                "displayName": "Group ID",
+                "displayType": "text",
+                "placeholder": "Enter the Group ID"
+            },
+            "name": "group_ids"
+        }
+    ],
+    "definition": {
+        "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/ivr/{{parameters.ivr_id}}/menus/{{parameters.menu_id}}/routes/{{parameters.route_id}}",
+        "body": {
+            "data": "{{secrets}}",
+            "ivr_id": "{{parameters.ivr_id}}",
+            "menu_id": "{{parameters.menu_id}}",
+            "route_id": "{{parameters.route_id}}",
+            "ivr_route": {
+                "action": "{{parameters.action}}",
+                "options": {
+                    "group_ids": [
+                        "{{parameters.group_ids}}"
+                    ]
+                },
+                "keypress": "{{parameters.keypress}}"
+            }
+        },
+        "method": "put",
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.description}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

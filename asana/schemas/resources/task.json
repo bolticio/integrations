@@ -1,0 +1,267 @@
+{
+    "getTasks": {
+        "definition": {
+            "qs": {
+                "workspace": "{{parameters.workspace}}",
+                "projects.all": "{{parameters.project}}",
+                "resource_subtype": "default_task"
+            },
+            "url": "https://app.asana.com/api/1.0/workspaces/{{parameters.workspace}}/tasks/search",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getUsers": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/users?workspace={{parameters.workspace}}&limit=100",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "asana",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "task",
+                        "operation": "task.find_task_in_project",
+                        "loadOptionsMethod": "getWorkspaces"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "gid"
+                },
+                "options": [],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the workspace of the task which is to be searched.",
+                "displayName": "Workspace Name",
+                "displayType": "autocomplete",
+                "placeholder": "Select a workspace"
+            },
+            "name": "workspace"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "asana",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "task",
+                        "operation": "task.find_task_in_project",
+                        "workspace": "{{parameters.workspace}}",
+                        "loadOptionsMethod": "getProjects"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "gid",
+                    "condition": "{{parameters.workspace}}"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the project of the task which is to be searched.",
+                "displayName": "Project Name",
+                "displayType": "autocomplete",
+                "placeholder": "Select Projects",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "workspace",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "project"
+        },
+        {
+            "meta": {
+                "readOnly": false,
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 50,
+                    "min": 3,
+                    "required": true
+                },
+                "description": "Tickets with this text would be searched in your project",
+                "displayName": "Search Text",
+                "displayType": "text",
+                "placeholder": "Enter Search Text"
+            },
+            "name": "text"
+        },
+        {
+            "meta": {
+                "value": false,
+                "description": "Only return tickets which are a subtask.",
+                "displayName": "Is Subtask?",
+                "displayType": "toggle"
+            },
+            "name": "subtask"
+        },
+        {
+            "meta": {
+                "value": false,
+                "description": "Only return tickets which are Completed.",
+                "displayName": "Is Completed?",
+                "displayType": "toggle"
+            },
+            "name": "completed"
+        },
+        {
+            "meta": {
+                "value": false,
+                "description": "Only return tickets which have an attachment.",
+                "displayName": "Has Attachment?",
+                "displayType": "toggle"
+            },
+            "name": "attachment"
+        },
+        {
+            "meta": {
+                "value": false,
+                "description": "Filter to incomplete tasks with dependents.",
+                "displayName": "Is Blocking?",
+                "displayType": "toggle"
+            },
+            "name": "blocking"
+        },
+        {
+            "meta": {
+                "value": false,
+                "description": "Filter to tasks with incomplete dependencies.",
+                "displayName": "Is Blocked?",
+                "displayType": "toggle"
+            },
+            "name": "blocked"
+        }
+    ],
+    "getProjects": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/workspaces/{{parameters.workspace}}/projects",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getSections": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}/sections?limit=100",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getWorkspaces": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/workspaces",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getTaskTemplate": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/task_templates?limit=100&project={{parameters.project}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "definition": {
+        "qs": {
+            "text": "{{parameters.text}}",
+            "completed": "{{parameters.completed}}",
+            "workspace": "{{parameters.workspace}}",
+            "is_blocked": "{{parameters.blocked}}",
+            "is_subtask": "{{parameters.subtask}}",
+            "is_blocking": "{{parameters.blocking}}",
+            "projects.all": "{{parameters.project}}",
+            "has_attachment": "{{parameters.attachment}}",
+            "resource_subtype": "default_task"
+        },
+        "url": "https://app.asana.com/api/1.0/workspaces/{{parameters.workspace}}/tasks/search",
+        "method": "get",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors[0].message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}

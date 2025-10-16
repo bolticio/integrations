@@ -1,0 +1,283 @@
+{
+    "getPages": {
+        "definition": {
+            "url": "https://api.notion.com/v1/search",
+            "body": {
+                "query": "",
+                "filter": {
+                    "value": "page",
+                    "property": "object"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "return output.map((page) => { let name = 'Untitled'; const url = page.url; if (url) { const matches = url.match(/https:\\/\\/www\\.notion\\.so\\/(.+)-[a-zA-Z0-9]+$/); if (matches && matches[1]) { name = matches[1].replace(/-/g, ' ').trim(); } } return { id: page.id, name }; });"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "notion",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "pages",
+                        "operation": "pages.update",
+                        "loadOptionsMethod": "getPages"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "You must select a parent page to create a page."
+                    }
+                },
+                "description": "Choose the Notion page where the new page will be created.",
+                "displayName": "Parent Page",
+                "displayType": "select",
+                "placeholder": "Select the parent page"
+            },
+            "name": "page_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "An emoji to represent the page.",
+                "displayName": "Page Icon",
+                "displayType": "text",
+                "placeholder": "Enter an emoji"
+            },
+            "name": "icon"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "A header or banner image URL for the page.",
+                "displayName": "Page Cover",
+                "displayType": "text",
+                "placeholder": "Enter the page cover URL"
+            },
+            "name": "cover"
+        }
+    ],
+    "add_content": {
+        "definition": {
+            "url": "https://api.notion.com/v1/pages",
+            "body": {
+                "json": "{{json}}",
+                "parent": {
+                    "page_id": "{{parameters.page_id}}"
+                },
+                "markdown": "{{markdown}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function processBody(updatedBody) { if (updatedBody.markdown) { var convertMarkdownToBlocks = function () { var lines = updatedBody.markdown.split(\"\\n\"); return lines.map(function (line) { if (line.indexOf(\"# \") === 0) { return { object: \"block\", type: \"heading_1\", heading_1: { rich_text: [ { type: \"text\", text: { content: line.substring(2).trim() } } ] } }; } else if (line.indexOf(\"## \") === 0) { return { object: \"block\", type: \"heading_2\", heading_2: { rich_text: [ { type: \"text\", text: { content: line.substring(3).trim() } } ] } }; } else if (line.indexOf(\"### \") === 0) { return { object: \"block\", type: \"heading_3\", heading_3: { rich_text: [ { type: \"text\", text: { content: line.substring(4).trim() } } ] } }; } else if (line.trim()) { return { object: \"block\", type: \"paragraph\", paragraph: { rich_text: [ { type: \"text\", text: { content: line.trim() } } ] } }; } }).filter(function (block) { return block !== undefined && block !== null; }); }; updatedBody.children = convertMarkdownToBlocks(); } if (!(updatedBody.children instanceof Array) || updatedBody.children.length === 0) { delete updatedBody.children; } delete updatedBody.json; delete updatedBody.markdown; if (!updatedBody.icon || !(updatedBody.icon.emoji)) { delete updatedBody.icon; } if (!updatedBody.cover || !(updatedBody.cover.external && updatedBody.cover.external.url)) { delete updatedBody.cover; } return updatedBody; } var updatedBody = JSON.parse(JSON.stringify(body)); return processBody(updatedBody);"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "pages",
+                            "operation": "pages.add_content",
+                            "loadOptionsMethod": "getPages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "You must select a parent page to create a page."
+                        }
+                    },
+                    "description": "Choose the Notion page where the new page will be created.",
+                    "displayName": "Parent Page",
+                    "displayType": "select",
+                    "placeholder": "Select the parent page"
+                },
+                "name": "page_id"
+            },
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "Markdown",
+                            "value": "markdown"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Content format is required."
+                        }
+                    },
+                    "description": "Choose whether to input content as JSON or Markdown.",
+                    "displayName": "Content Format",
+                    "displayType": "select",
+                    "placeholder": "Select Content Format"
+                },
+                "name": "content_format"
+            },
+            {
+                "meta": {
+                    "value": "[\n  {\n    \"object\": \"block\",\n    \"type\": \"paragraph\",\n    \"paragraph\": {\n      \"rich_text\": [\n        {\n          \"type\": \"text\",\n          \"text\": {\n            \"content\": \"Your paragraph content here.\"\n          }\n        }\n      ]\n    }\n  }\n]",
+                    "htmlProps": {
+                        "size": "lg",
+                        "language": "json",
+                        "fullscreen": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Provide the content blocks. Use JSON for structured blocks. Refer to the <a href='https://developers.notion.com/reference/page#page-property-values' target='_blank'>Notion API Documentation</a>.",
+                    "displayName": "Page Content JSON",
+                    "displayType": "code",
+                    "placeholder": "Enter the content for the page",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "content_format",
+                                "value": "json",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "json"
+            },
+            {
+                "meta": {
+                    "value": "# Main Title\n\n## Subtitle\n\nThis is a paragraph with content.",
+                    "htmlProps": {
+                        "maxRows": 8,
+                        "minRows": 4,
+                        "placeholder": "Add your content in markdown syntax"
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Provide the content blocks. Use Markdown for text formatting. Refer to the <a href='https://developers.notion.com/reference/page#page-property-values' target='_blank'>Notion API Documentation</a>.",
+                    "displayName": "Page Content in Markdown",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the content for the page in markdown format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "content_format",
+                                "value": "markdown",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "markdown"
+            }
+        ]
+    },
+    "getDatabases": {
+        "definition": {
+            "url": "https://api.notion.com/v1/search",
+            "body": {
+                "query": "",
+                "filter": {
+                    "value": "database",
+                    "property": "object"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "const updatedRes = output.map((db) => ({ name: db?.title[0]?.plain_text || 'Untitled', id: db?.id })); return updatedRes;"
+            }
+        }
+    },
+    "definition": {
+        "url": "https://api.notion.com/v1/pages/{{parameters.page_id}}",
+        "body": {
+            "icon": {
+                "emoji": "{{parameters.icon}}"
+            },
+            "cover": {
+                "external": {
+                    "url": "{{parameters.cover}}"
+                }
+            }
+        },
+        "method": "patch",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.access_token}}",
+            "Notion-Version": "2022-06-28"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "function processBody(updatedBody) { if (!(updatedBody.properties?.title?.[0]?.text?.content)) { delete updatedBody.properties; } if (!updatedBody.icon || !updatedBody.icon.emoji) { delete updatedBody.icon; } if (!updatedBody.cover || !updatedBody.cover.external?.url) { delete updatedBody.cover; } return updatedBody; } const updatedBody = JSON.parse(JSON.stringify(body)); return processBody(updatedBody);"
+        }
+    }
+}

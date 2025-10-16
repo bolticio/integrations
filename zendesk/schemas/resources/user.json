@@ -1,0 +1,189 @@
+{
+    "getGroups": {
+        "definition": {
+            "qs": {
+                "exclude_deleted": true
+            },
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data.groups}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the name of the user",
+                "displayName": "Name",
+                "displayType": "text",
+                "placeholder": "Enter user name"
+            },
+            "name": "name"
+        },
+        {
+            "meta": {
+                "value": "",
+                "description": "Enter email of the user. Email should be unique",
+                "displayName": "Email",
+                "displayType": "text",
+                "placeholder": "Enter user email"
+            },
+            "name": "email"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "zendesk",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "user",
+                        "operation": "user.create",
+                        "loadOptionsMethod": "getOrganizations"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "description": "Select the organization you want to assign the user to.",
+                "displayName": "Organization",
+                "displayType": "select",
+                "placeholder": "Select user organization"
+            },
+            "name": "organization_id"
+        },
+        {
+            "meta": {
+                "value": false,
+                "options": [
+                    {
+                        "label": "Agent",
+                        "value": "agent"
+                    },
+                    {
+                        "label": "End User",
+                        "value": "end-user"
+                    },
+                    {
+                        "label": "Admin",
+                        "value": "admin"
+                    }
+                ],
+                "description": "Select the role of the user.",
+                "displayName": "Role",
+                "displayType": "select",
+                "placeholder": "Select User role"
+            },
+            "name": "role"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "zendesk",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "user",
+                        "operation": "user.create",
+                        "loadOptionsMethod": "getGroups"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "description": "Select the default group you want to assign the user to.",
+                "displayName": "Group",
+                "displayType": "select",
+                "placeholder": "Select the default group of the user"
+            },
+            "name": "default_group_id"
+        },
+        {
+            "meta": {
+                "value": "",
+                "description": "Enter the details about the user.",
+                "displayName": "Details",
+                "displayType": "textarea",
+                "placeholder": "Enter user details"
+            },
+            "name": "details"
+        },
+        {
+            "meta": {
+                "value": "",
+                "description": "Enter the notes you have about the user.",
+                "displayName": "Notes",
+                "displayType": "textarea",
+                "placeholder": "Enter user notes"
+            },
+            "name": "notes"
+        }
+    ],
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/organizations",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        }
+    },
+    "definition": {
+        "qs": {},
+        "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/users",
+        "body": {
+            "user": {
+                "name": "{{parameters.name}}",
+                "role": "{{parameters.role}}",
+                "email": "{{parameters.email}}",
+                "notes": "{{parameters.notes}}",
+                "details": "{{parameters.details}}",
+                "organization_id": "{{parameters.organization_id}}",
+                "default_group_id": "{{parameters.default_group_id}}"
+            }
+        },
+        "method": "post",
+        "filters": {
+            "body": {
+                "allowEmptyArray": false,
+                "allowEmptyValue": false,
+                "allowEmptyObject": false
+            }
+        },
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        }
+    }
+}
