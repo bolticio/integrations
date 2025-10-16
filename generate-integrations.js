@@ -31,7 +31,8 @@ async function main() {
       integration.activity_type !== "CloudDatabase" &&
       integration.activity_type !== "platformFdkActivity" &&
       integration.activity_type !== "applicationFdkActivity" &&
-      integration.trigger_type !== "CloudTrigger"
+      integration.trigger_type !== "CloudTrigger" &&
+      integration.status === 'published'
     ) {
       continue;
     }
@@ -42,7 +43,20 @@ async function main() {
     await fs.ensureDir(integrationFolder);
 
     // Write spec.json
-    await fs.writeJson(path.join(integrationFolder, "spec.json"), integration, {
+
+    const spec = {
+        name: integration.name,
+        slug: integration.slug,
+        description: integration.description,
+        icon: integration.icon,
+        activity_type: integration.activity_type,
+        trigger_type: integration.trigger_type,
+        documentation: integration.documentation,
+        meta: integration.meta,
+    }
+
+
+    await fs.writeJson(path.join(integrationFolder, "spec.json"), spec, {
       spaces: 4,
     });
 
