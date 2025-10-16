@@ -2,10 +2,14 @@ name: Generate Integration Folders
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # daily at 02:00 UTC
 
 jobs:
   generate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
       PGUSER: ${{ secrets.PGUSER }}
@@ -17,6 +21,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          ref: master
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,15 +31,19 @@ jobs:
 
       - name: Install Required Modules
         run: |
-          npm install pg fs-extra
+          npm ci || npm install
 
       - name: Run Integration Export Script
         run: node generate-integrations.js
+
+      - name: Update README Index
+        run: npm run update:readme
 
       - name: Commit and Push Changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B master
           git add .
           git diff-index --quiet HEAD || git commit -m "Auto-update integration folders"
-          git push
+          git push origin HEAD:master
