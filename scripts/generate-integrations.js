@@ -38,12 +38,6 @@ async function main() {
       `Failed to fetch integrations (${status}) from ${INTEGRATIONS_URL}: ${body}`
     );
   }
-  if (process.env.DEBUG) {
-    console.log("GET", INTEGRATIONS_URL, {
-      params: PARAMS,
-      headers: { "x-boltic-token": "***" },
-    });
-  }
   const integrations = Array.isArray(response.data?.data)
     ? response.data.data
     : Array.isArray(response.data)
