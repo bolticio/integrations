@@ -5,8 +5,7 @@ const axios = require("axios");
 require("dotenv").config();
 
 async function main() {
-  const API_BASE =
-    "https://asia-south1.api.boltic.io/service/panel/temporal/v1.0";
+  const API_BASE = process.env.BOLTIC_API_BASE;
   const INTEGRATIONS_URL = `${API_BASE}/integrations`;
   const AUTHENTICATION_URL = `${API_BASE}/integrations/{integration_id}/authentication`;
   const WEBHOOK_URL = `${API_BASE}/integrations/{integration_id}/webhook`;
