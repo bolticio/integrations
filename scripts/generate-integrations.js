@@ -4,12 +4,9 @@ const axios = require("axios");
 
 require("dotenv").config();
 
-
 async function main() {
-
   const API_BASE =
-    process.env.BOLTIC_API_BASE ||
-    "https://asia-south1.api.boltic.io/service/panel/temporal";
+    "https://asia-south1.api.boltic.io/service/panel/temporal/v1.0";
   const INTEGRATIONS_URL = `${API_BASE}/integrations`;
   const AUTHENTICATION_URL = `${API_BASE}/integrations/{integration_id}/authentication`;
   const WEBHOOK_URL = `${API_BASE}/integrations/{integration_id}/webhook`;
@@ -109,54 +106,81 @@ async function main() {
     const schemasFolder = path.join(integrationFolder, "schemas");
     await fs.ensureDir(schemasFolder);
 
+    let authentication = null;
+    try {
+      authentication = await axios.get(
+        AUTHENTICATION_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(`Authentication not found for ${integration.name} (${integration.id}) - skipping`);
+      } else {
+        throw e;
+      }
+    }
 
-    const authentication = await axios.get(
-      AUTHENTICATION_URL.replace("{integration_id}", integration.id),
-      { headers }
-    );
-    const authenticationData =
-      authentication.data?.data !== undefined
-        ? authentication.data.data
-        : authentication.data;
-    if (authenticationData) {
+    if (authentication?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "authentication.json"),
-        authenticationData,
+        authentication.data.data,
         { spaces: 4 }
       );
       await fs.writeFile(
         path.join(integrationFolder, "Authentication.mdx"),
-        JSON.stringify(authenticationData, null, 4)
+        JSON.stringify(authentication.data.data, null, 4)
       );
     }
     // Webhooks
-    const webhook = await axios.get(
-      WEBHOOK_URL.replace("{integration_id}", integration.id),
-      { headers }
-    );
-    const webhookData =
-      webhook.data?.data !== undefined ? webhook.data.data : webhook.data;
-    if (webhookData) {
+    let webhook = null;
+    try {
+      webhook = await axios.get(
+        WEBHOOK_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(`Webhook not found for ${integration.name} (${integration.id}) - skipping`);
+      } else {
+        throw e;
+      }
+    }
+
+    if (webhook?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "webhook.json"),
-        webhookData,
+        webhook.data.data,
         { spaces: 4 }
+      );
+      await fs.writeFile(
+        path.join(integrationFolder, "Webhook.mdx"),
+        JSON.stringify(webhook.data.data, null, 4)
       );
     }
 
     // Configurations (base.json)
-    const config = await axios.get(
-      CONFIGURATION_URL.replace("{integration_id}", integration.id),
-      { headers }
-    );
-    const configData =
-      config.data?.data !== undefined ? config.data.data : config.data;
-    if (configData) {
+    let config = null;
+    try {
+      config = await axios.get(
+        CONFIGURATION_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(`Configuration not found for ${integration.name} (${integration.id}) - skipping`);
+      } else {
+        throw e;
+      }
+    }
+    if (config?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "base.json"),
-        configData,
-        { spaces: 4 }
+        config.data.data,
+        {
+          spaces: 4,
+        }
       );
+     
     }
 
     // Resources + Operations merged
@@ -164,6 +188,7 @@ async function main() {
       RESOURCE_URL.replace("{integration_id}", integration.id),
       { headers }
     );
+    
     const resourcesList = Array.isArray(resourcesResp.data?.data)
       ? resourcesResp.data.data
       : Array.isArray(resourcesResp.data)
@@ -188,7 +213,8 @@ async function main() {
         const operationsResp = await axios
           .get(
             OPERATION_URL.replace("{integration_id}", integration.id).replace(
-              "{resource_id}", resource.id
+              "{resource_id}",
+              resource.id
             ),
             { headers }
           )
@@ -211,10 +237,7 @@ async function main() {
         }
 
         const resourceName = resource.name || resource.id || "resource";
-        const resourceFile = path.join(
-          resourcesFolder,
-          `${resourceName}.json`
-        );
+        const resourceFile = path.join(resourcesFolder, `${resourceName}.json`);
         await fs.writeJson(resourceFile, merged, { spaces: 4 });
       }
     }
