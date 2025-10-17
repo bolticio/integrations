@@ -107,22 +107,33 @@ async function main() {
       );
     } catch (e) {
       if (e.response && e.response.status === 404) {
-        console.warn(`Authentication not found for ${integration.name} (${integration.id}) - skipping`);
+        console.warn(
+          `Authentication not found for ${integration.name} (${integration.id}) - skipping`
+        );
       } else {
         throw e;
       }
     }
 
     if (authentication?.data?.data) {
+      const authJson = authentication.data.data?.content ?? authentication.data.data;
       await fs.writeJson(
         path.join(schemasFolder, "authentication.json"),
-        authentication.data.data.content,
+        authJson ?? {},
         { spaces: 4 }
       );
-      await fs.writeFile(
-        path.join(integrationFolder, "Authentication.mdx"),
-        JSON.stringify(authentication.data.data.content.documentation, null, 4)
-      );
+      const authDoc =
+        authentication.data.data?.documentation ??
+        authentication.data.data?.content?.documentation ??
+        authentication.data.data?.content;
+      if (authDoc !== undefined && authDoc !== null) {
+        const authMdx =
+          typeof authDoc === "string" ? authDoc : JSON.stringify(authDoc, null, 4);
+        await fs.writeFile(
+          path.join(integrationFolder, "Authentication.mdx"),
+          authMdx
+        );
+      }
     }
     // Webhooks
     let webhook = null;
@@ -133,21 +144,20 @@ async function main() {
       );
     } catch (e) {
       if (e.response && e.response.status === 404) {
-        console.warn(`Webhook not found for ${integration.name} (${integration.id}) - skipping`);
+        console.warn(
+          `Webhook not found for ${integration.name} (${integration.id}) - skipping`
+        );
       } else {
         throw e;
       }
     }
 
     if (webhook?.data?.data) {
+      const webhookJson = webhook.data.data?.content ?? webhook.data.data;
       await fs.writeJson(
         path.join(schemasFolder, "webhook.json"),
-        webhook.data.data.content,
+        webhookJson ?? {},
         { spaces: 4 }
-      );
-      await fs.writeFile(
-        path.join(integrationFolder, "Webhook.mdx"),
-        JSON.stringify(webhook.data.data.content, null, 4)
       );
     }
 
@@ -160,20 +170,22 @@ async function main() {
       );
     } catch (e) {
       if (e.response && e.response.status === 404) {
-        console.warn(`Configuration not found for ${integration.name} (${integration.id}) - skipping`);
+        console.warn(
+          `Configuration not found for ${integration.name} (${integration.id}) - skipping`
+        );
       } else {
         throw e;
       }
     }
     if (config?.data?.data) {
+      const configJson = config.data.data?.content ?? config.data.data;
       await fs.writeJson(
         path.join(schemasFolder, "base.json"),
-        config.data.data.content,
+        configJson ?? {},
         {
           spaces: 4,
         }
       );
-     
     }
 
     // Resources + Operations merged
@@ -220,7 +232,8 @@ async function main() {
         try {
           operationsResp = await axios.get(
             OPERATION_URL.replace("{integration_id}", integration.id).replace(
-              "{resource_id}", resource.id
+              "{resource_id}",
+              resource.id
             ),
             { headers }
           );
