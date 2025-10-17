@@ -6,12 +6,19 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -24,6 +31,8 @@ jobs:
       - name: Generate integrations
         env:
           BOLTIC_TOKEN: ${{ secrets.BOLTIC_TOKEN }}
+          BOLTIC_API_BASE: ${{ secrets.BOLTIC_API_BASE }}
+          DEBUG: '1'
         run: npm run generate
 
       - name: Update README index
@@ -33,4 +42,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: regenerate integrations and update README index"
+          branch: master
 

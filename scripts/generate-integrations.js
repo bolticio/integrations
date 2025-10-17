@@ -4,17 +4,14 @@ const axios = require("axios");
 
 require("dotenv").config();
 
-
 async function main() {
-
-  const VORTEX_MAIN_URL =
-    "https://asia-south1.api.boltic.io/service/panel/temporal";
-  const INTEGRATIONS_URL = `${VORTEX_MAIN_URL}/integrations`;
-  const AUTHENTICATION_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/authentication`;
-  const WEBHOOK_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/webhook`;
-  const CONFIGURATION_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/configuration`;
-  const RESOURCE_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/resource`;
-  const OPERATION_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/resource/{resource_id}/operation`;
+  const API_BASE = process.env.BOLTIC_API_BASE;
+  const INTEGRATIONS_URL = `${API_BASE}/integrations`;
+  const AUTHENTICATION_URL = `${API_BASE}/integrations/{integration_id}/authentication`;
+  const WEBHOOK_URL = `${API_BASE}/integrations/{integration_id}/webhook`;
+  const CONFIGURATION_URL = `${API_BASE}/integrations/{integration_id}/configuration`;
+  const RESOURCE_URL = `${API_BASE}/integrations/{integration_id}/resource`;
+  const OPERATION_URL = `${API_BASE}/integrations/{integration_id}/resource/{resource_id}/operation`;
 
   const PARAMS = {
     page: 1,
@@ -22,13 +19,36 @@ async function main() {
     status: "published",
   };
 
+  const token = process.env.BOLTIC_TOKEN;
+  if (!token) {
+    throw new Error("BOLTIC_TOKEN is missing");
+  }
   const headers = {
     "Content-Type": "application/json",
-    "x-boltic-token": process.env.BOLTIC_TOKEN,
+    "x-boltic-token": token,
   };
 
-  const response = await axios.get(INTEGRATIONS_URL, { params: PARAMS, headers });
-  const integrations = response.data.data;
+  let response;
+  try {
+    response = await axios.get(INTEGRATIONS_URL, { params: PARAMS, headers });
+  } catch (err) {
+    const status = err.response?.status;
+    const body = JSON.stringify(err.response?.data || {}, null, 2);
+    throw new Error(
+      `Failed to fetch integrations (${status}) from ${INTEGRATIONS_URL}: ${body}`
+    );
+  }
+  if (process.env.DEBUG) {
+    console.log("GET", INTEGRATIONS_URL, {
+      params: PARAMS,
+      headers: { "x-boltic-token": "***" },
+    });
+  }
+  const integrations = Array.isArray(response.data?.data)
+    ? response.data.data
+    : Array.isArray(response.data)
+    ? response.data
+    : [];
 
   for (const integration of integrations) {
     // Only process the integrations that have activity_type as 'customActivity', 'CloudDatabase', 'platformFdkActivity', 'applicationFdkActivity' or trigger_type as 'CloudTrigger'. Ignore the others.
@@ -85,9 +105,21 @@ async function main() {
     const schemasFolder = path.join(integrationFolder, "schemas");
     await fs.ensureDir(schemasFolder);
 
+    let authentication = null;
+    try {
+      authentication = await axios.get(
+        AUTHENTICATION_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(`Authentication not found for ${integration.name} (${integration.id}) - skipping`);
+      } else {
+        throw e;
+      }
+    }
 
-    const authentication = await axios.get(AUTHENTICATION_URL.replace("{integration_id}", integration.id), { headers });
-    if (authentication.data.data) {
+    if (authentication?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "authentication.json"),
         authentication.data.data,
@@ -99,55 +131,138 @@ async function main() {
       );
     }
     // Webhooks
-    const webhook = await axios.get(WEBHOOK_URL.replace("{integration_id}", integration.id), { headers });
+    let webhook = null;
+    try {
+      webhook = await axios.get(
+        WEBHOOK_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(`Webhook not found for ${integration.name} (${integration.id}) - skipping`);
+      } else {
+        throw e;
+      }
+    }
 
-    if (webhook.data.data) {
+    if (webhook?.data?.data) {
       await fs.writeJson(
-        path.join(schemasFolder, "panel.json"),
-        panel.rows[0].content,
+        path.join(schemasFolder, "webhook.json"),
+        webhook.data.data,
         { spaces: 4 }
+      );
+      await fs.writeFile(
+        path.join(integrationFolder, "Webhook.mdx"),
+        JSON.stringify(webhook.data.data, null, 4)
       );
     }
 
     // Configurations (base.json)
-    const config = await axios.get(CONFIGURATION_URL.replace("{integration_id}", integration.id), { headers });
-
-    if (config.data.data) {
+    let config = null;
+    try {
+      config = await axios.get(
+        CONFIGURATION_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(`Configuration not found for ${integration.name} (${integration.id}) - skipping`);
+      } else {
+        throw e;
+      }
+    }
+    if (config?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "base.json"),
         config.data.data,
-        { spaces: 4 }
+        {
+          spaces: 4,
+        }
       );
+     
     }
 
     // Resources + Operations merged
-    const resources = await axios.get(RESOURCE_URL.replace("{integration_id}", integration.id), { headers });
+    let resourcesResp = null;
+    try {
+      resourcesResp = await axios.get(
+        RESOURCE_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(
+          `Resources not found for ${integration.name} (${integration.id}) - skipping`
+        );
+      } else {
+        throw e;
+      }
+    }
 
-    if (resources.data.data) {
+    const resourcesList = resourcesResp
+      ? Array.isArray(resourcesResp.data?.data)
+        ? resourcesResp.data.data
+        : Array.isArray(resourcesResp.data)
+        ? resourcesResp.data
+        : []
+      : [];
+
+    if (resourcesList.length > 0) {
       const resourcesFolder = path.join(schemasFolder, "resources");
       await fs.ensureDir(resourcesFolder);
 
-      for (const resource of resources.rows) {
-        const operations = await axios.get(OPERATION_URL.replace("{integration_id}", integration.id).replace("{resource_id}", resource.id), { headers });
+      for (const resource of resourcesList) {
+        let merged = {};
+        if (resource && typeof resource === "object") {
+          merged = {
+            ...merged,
+            ...(resource.content && typeof resource.content === "object"
+              ? resource.content
+              : resource),
+          };
+        }
 
-        let merged = { ...resource.content };
-
-        for (const op of operations.rows) {
-          if (op.content && typeof op.content === "object") {
-            merged = { ...merged, ...op.content }; // Flat merge
+        let operationsResp = null;
+        try {
+          operationsResp = await axios.get(
+            OPERATION_URL.replace("{integration_id}", integration.id).replace(
+              "{resource_id}", resource.id
+            ),
+            { headers }
+          );
+        } catch (e) {
+          if (e.response && e.response.status === 404) {
+            console.warn(
+              `Operations not found for ${integration.name} (${integration.id}) resource ${resource.id} - skipping`
+            );
+          } else {
+            throw e;
           }
         }
 
-        const resourceFile = path.join(
-          resourcesFolder,
-          `${resource.name}.json`
-        );
+        const opsData = operationsResp
+          ? operationsResp.data?.data ?? operationsResp.data
+          : null;
+
+        if (opsData) {
+          if (Array.isArray(opsData)) {
+            for (const op of opsData) {
+              if (op && typeof op === "object") {
+                merged = { ...merged, ...op };
+              }
+            }
+          } else if (typeof opsData === "object") {
+            merged = { ...merged, ...opsData };
+          }
+        }
+
+        const resourceName = resource.name || resource.id || "resource";
+        const resourceFile = path.join(resourcesFolder, `${resourceName}.json`);
         await fs.writeJson(resourceFile, merged, { spaces: 4 });
       }
     }
   }
 
-  await client.end();
   console.log("✅ Integration folders generated in current directory.");
 }
 
