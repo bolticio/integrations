@@ -242,11 +242,11 @@ async function main() {
           if (Array.isArray(opsData)) {
             for (const op of opsData) {
               if (op && typeof op === "object") {
-                merged = { ...merged, ...op };
+                merged = { ...merged, ...op.content };
               }
             }
           } else if (typeof opsData === "object") {
-            merged = { ...merged, ...opsData };
+            merged = { ...merged, ...opsData.content };
           }
         }
 
