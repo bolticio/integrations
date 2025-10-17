@@ -1,0 +1,74 @@
+{
+    "id": "16af863b-2ffd-4f38-8c4b-cf9a3aab69ac",
+    "documentation": "This guide walks you through setting up the Better Stack integration within Boltic.\n\n#### Pre-requisites\n\nTo set up the Better Stack integration, you'll need:\n\n- The Better Stack access token\n\n\n#### Setting Up the Better Stack Integration in Boltic\n\n  \n\n1.  **Log In**\n\n\t- Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n  \n\n2.  **Navigate to Integrations from the Primary Menu**\n\n\t- Click on `Sources` and then click on `+ Add New source`.\n\n  \n\n3.  **Select Source Type**\n\n\t- On the Set up the source page, search for `Better Stack` from the search bar and select it.\n\n  \n\n4.  **Configure Integration**\n\n\t-  **Name:** Enter a name for the Better Stack integration.\n\n\t-  **Personal Access Token:** Enter your Better Stack personal access token. The Better Stack integration currently supports only the \"Access Token\" authentication type.\n\n  \n\n5.  **Details (Optional)**\n\n\t-  **Tags:** Add any tags for categorization.\n\n\t-  **Description:** Provide a brief description of the integration.\n\n  \n\n6.  **Test and Save Integration**\n\n\t- Click `Test Connection` to ensure the provided details are correct and the connection is successful.\n\n\t- Once the connection test is successful, click `Set up source` to complete the configuration.\n\n  \n\n#### Troubleshooting\n\nIf you encounter any issues during setup:\n\n-  **Check Access Token:** Ensure the provided personal access token is correct and has the necessary permissions.\n\n-  **Network Issues:** Check for any network issues that might be affecting connectivity.\n\n\n#### Frequently Asked Questions (FAQs)\n\n1.  **How do I find my Better Stack Access Token?**\n\n- To find your Better Stack Access Token, Navigate to Account Settings,Find API Tokens Section click on Generate or View API Token. You can also refer to this <a href=\"https://betterstack.com/docs/uptime/api/getting-started-with-uptime-api/regenerate-token/\" target=\"_blank\" rel=\"noopener\"><span>BetterStack's official documentation</span></a> for detailed instructions.\n\n  \n\n2.  **What should I do if my connection fails?**\n\n- Ensure the provided personal access token is correct and has the necessary permissions.\n\n- Check your network connection and firewall settings.\n\n\n\n3.  **Can I customize the data being synced?**\n\n- Yes, you can customize the data being synced by adjusting the settings during the setup process.\n\n  \n\n#### Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n",
+    "integration_id": "b0792f02-9d24-49b3-96ac-7150d7121cb0",
+    "content": {
+        "parameters": [
+            {
+                "meta": {
+                    "value": "access_token",
+                    "options": [
+                        {
+                            "label": "Access Token",
+                            "value": "access_token"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "select",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ],
+        "access_token": {
+            "validate": {
+                "url": "https://uptime.betterstack.com/api/v2/monitors?per_page=1",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.errors}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "API secret key is required"
+                            }
+                        },
+                        "description": "Refer to the <a href='https://betterstack.com/docs/uptime/api/getting-started-with-uptime-api/' target='blank'>Better Stack authentication documentation</a> for detailed instructions on getting your API keys.",
+                        "displayName": "API Secret Key",
+                        "displayType": "password",
+                        "placeholder": "",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "access_token",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "access_token"
+                }
+            ]
+        }
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:28.375Z",
+    "updated_at": "2025-06-11T12:12:28.375Z"
+}

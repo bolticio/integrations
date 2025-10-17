@@ -1,0 +1,97 @@
+{
+    "id": "51dacc2f-5e12-47fc-bf34-ddc7c02d703c",
+    "documentation": "With Shopify modules in Boltic, you can manage your Shopify store's products, orders, and more.\nIf you don't have an Shopify account, you can create one at <a href=\"https://www.shopify.com/login\" target=\"_blank\" rel=\"noopener\"></a>.\n\n## Authentication Ways\n- Access Token\n\n# How to Get an Access Token for a Shopify Account\n\n## Step 1: Create a Shopify Account & Store\n1. Go to Shopify <a href=\"https://www.shopify.com/\" target=\"_blank\" rel=\"noopener\"> <span> Support Documentation</span> </a>.\n2. Click **Start free trial** and create an account.\n3. Set up your **store name** (e.g., `mystore.myshopify.com`).\n4. Complete store setup and go to your **Shopify Admin Dashboard**.\n\n---\n\n## Step 2: Enable Custom App Development\nBefore creating an app, you need to enable **custom app development** in your store.\n\n1. In **Shopify Admin**, go to **Settings** > **Apps and sales channels**.\n2. Click **Develop apps**.\n3. If prompted, click **Allow custom app development**.\n4. Click **Create an app**.\n\n---\n\n## Step 3: Create a New App\n1. Enter a **name** for your app (e.g., \"My API App\").\n2. Select the **App Developer** (your Shopify account).\n3. Click **Create App**.\n\n---\n\n## Step 4: Configure API Access\nTo allow your app to access Shopify data:\n\n1. Go to the **API Credentials** tab.\n2. Click **Configure Admin API Scopes**.\n3. Select the required **scopes** based on what your app needs:  \n   - `read_products`, `write_products` (for product management)\n   - `read_orders`, `write_orders` (for order access)\n   - `read_customers`, `write_customers` (for customer data)  \n4. Click **Save**.\n5. Webhooks for required resource requires write scope.\n\n---\n\n## Step 5: Install the App & Get Access Token\n1. Go to the **API Credentials** tab.\n2. Click **Install App** (this generates an **Admin API Access Token**).\n3. Copy the **Admin API Access Token** (it is shown **only once**).\n4. Store it securely—this token is used for API calls.\n\n---\n\n## Step 6: Find Your Shopify Domain\nTo make API requests, you need your **Shopify store domain**.\n\n1. Go to your **Shopify Admin Dashboard**.\n2. Look at the browser URL:https://your-store-name.myshopify.com/admin\nYour Shopify domain is your-store-name\n\n",
+    "integration_id": "21d6d45e-fd60-4722-9634-d0b46acf677e",
+    "content": {
+        "parameters": [
+            {
+                "meta": {
+                    "value": "access_token",
+                    "options": [
+                        {
+                            "label": "Private Access Token",
+                            "value": "access_token"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "hidden",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Domain is required"
+                        }
+                    },
+                    "description": "If your Shopify store address is, for example, xyz.myshopify.com, enter only 'xyz'.",
+                    "displayName": "Domain",
+                    "displayType": "text",
+                    "placeholder": "Enter your Shopify store's subdomain",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "domain"
+            }
+        ],
+        "access_token": {
+            "validate": {
+                "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2023-01/shop.json",
+                "method": "get",
+                "headers": {
+                    "X-Shopify-Access-Token": "{{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.errors}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "description": "Your Shopify access token for making API requests.",
+                        "displayName": "Private Access Token",
+                        "displayType": "password",
+                        "placeholder": "Enter your Shopify access token",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "access_token",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "Access Token is required"
+                        }
+                    },
+                    "name": "access_token"
+                }
+            ]
+        }
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:25.828Z",
+    "updated_at": "2025-06-11T12:12:25.828Z"
+}

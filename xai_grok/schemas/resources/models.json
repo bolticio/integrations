@@ -1,0 +1,232 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "All Models",
+                        "value": "models.getallmodels"
+                    },
+                    {
+                        "label": "All Language Models",
+                        "value": "models.getalllangmodels"
+                    },
+                    {
+                        "label": "All Embedding Models",
+                        "value": "models.getembmodels"
+                    },
+                    {
+                        "label": "Get Embedding Model Details",
+                        "value": "models.embedding_model"
+                    },
+                    {
+                        "label": "Get Language Model Details",
+                        "value": "models.language_model"
+                    },
+                    {
+                        "label": "Any Model Details",
+                        "value": "models.model"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Get",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "models",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getAllModels": {
+        "definition": {
+            "url": "https://api.x.ai/v1/models",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "embedding_Models": {
+        "definition": {
+            "url": "https://api.x.ai/v1/embedding-models",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.models}}"
+            }
+        }
+    },
+    "getLanguageModels": {
+        "definition": {
+            "url": "https://api.x.ai/v1/language-models",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.models}}"
+            }
+        }
+    },
+    "id": "0b07d467-6f44-4ddb-a3ea-7b6fca623406",
+    "integration_id": "b114f104-6a7e-4d68-9446-4c4bc842b695",
+    "resource_id": "db93371b-ba7d-4b1a-80e0-09313227d4cf",
+    "name": "create_message",
+    "content": {
+        "definition": {
+            "url": "https://api.x.ai/v1/chat/completions",
+            "body": {
+                "model": "{{parameters.model}}",
+                "stream": false,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "{{parameters.content}}."
+                    },
+                    {
+                        "role": "user",
+                        "content": "{{parameters.messages}}"
+                    }
+                ],
+                "temperature": "{{parameters.temperature}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "let updatedBody = { ...body }; for (let [key, value] of Object.entries(updatedBody)) { if (key == 'temperature') { updatedBody[key] = parseFloat(value); }} return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "xai_grok",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "makingRequests",
+                            "operation": "makingRequests.create_message",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Eg: embedding-model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Persona is required field."
+                        }
+                    },
+                    "description": "Provide the Persona of the response.",
+                    "displayName": "Persona",
+                    "displayType": "text",
+                    "placeholder": "Eg. You are Grok, a chatbot inspired by the Hitchhikers Guide to the Galaxy."
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 500,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prompt is required field"
+                        }
+                    },
+                    "description": "Provide the prompt for the bot.",
+                    "displayName": "Prompt",
+                    "displayType": "textarea",
+                    "placeholder": "Eg. What is the answer to life and universe?"
+                },
+                "name": "messages"
+            },
+            {
+                "meta": {
+                    "max": 1.9,
+                    "min": 0.1,
+                    "step": 0.2,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:44.601Z",
+    "updated_at": "2025-06-11T12:12:44.601Z"
+}

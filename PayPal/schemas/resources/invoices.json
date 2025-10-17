@@ -1,0 +1,86 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Draft Invoice",
+                        "value": "invoices.create_invoice",
+                        "description": "Create a new PayPal invoice with detailed information."
+                    },
+                    {
+                        "label": "Generate Invoice Number",
+                        "value": "invoices.generate_next_invoice_number",
+                        "description": "Generate the next PayPal invoice number for invoicing."
+                    },
+                    {
+                        "label": "Get Invoice",
+                        "value": "invoices.get_invoice",
+                        "description": "Get details of a specific PayPal invoice by ID."
+                    },
+                    {
+                        "label": "List Invoices",
+                        "value": "invoices.list_invoices",
+                        "description": "List PayPal invoices with."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "invoices",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "5590e06c-d541-43e6-befb-7db96b8e06eb",
+    "integration_id": "c8e57084-481a-4322-a825-4daeb25e6fe4",
+    "resource_id": "68810d03-909f-49cd-98a4-2e1e7e541e1e",
+    "name": "capture",
+    "content": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/checkout/orders/{{parameters.order_id}}/capture",
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the confirmed order to capture payment.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter approved order ID"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "created_by": "rahilsiddiqui@gofynd.com",
+    "modified_by": "rahilsiddiqui@gofynd.com",
+    "created_at": "2025-08-12T05:18:49.148Z",
+    "updated_at": "2025-10-09T05:43:52.471Z"
+}

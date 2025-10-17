@@ -1,0 +1,71 @@
+{
+    "id": "e970eeb3-00b1-44c2-b2ab-a2cf60127b59",
+    "documentation": "## Nanonets Authentication\n\n### Requirements\nTo use the Nanonets, you need:\n\n- A Nanonets account.\n- An API Key from Nanonets (available in your account settings).\n\n### Supported Authentication Methods\n**Basic Authentication**\n\n### Authentication\nSet up Nanonets authentication using your API Key to authenticate and access the API.\n\n#### Obtaining API Key\n1. Sign up or log in to <a href=\"https://app.nanonets.com/\">Nanonets</a>.\n2. Navigate to the API dashboard.\n3. Copy your API Key from the settings page.\n\n### Handling Authentication Errors\nIf authentication fails, the API will return a **401 Unauthorized** response. Ensure that:\n\n- The API Key is correct.\n- The API Key is Base64 encoded properly.\n- The request includes the `Authorization` header.\n\n### Security Best Practices\n- Keep your API Key secure; do not expose it in public repositories.\n- Rotate API Keys periodically.\n- Use environment variables to store API Keys instead of hardcoding them.\n\n### Support\nFor more detailed instructions on setting up your Nanonets integration, refer to the Nanonets documentation or contact Nanonets support.",
+    "integration_id": "2076db79-e4cf-49fd-8209-05a187e96cf5",
+    "content": {
+        "api_token": {
+            "validate": {
+                "url": "https://app.nanonets.com/api/v2/ImageCategorization/Models/",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Basic convertBufferBase64String({{secrets.api_token}}:X)"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "API token is required field"
+                            }
+                        },
+                        "description": "Your Nanonets API Key. Refer to the <a href='https://docs.nanonets.com/docs/generate-api-key#how-to-generate-the-api-key' target='_blank'>Nanonets API documentation</a> for details.",
+                        "displayName": "API token",
+                        "displayType": "password",
+                        "placeholder": "Enter API token",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "api_token",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "api_token"
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "api_token",
+                    "options": [
+                        {
+                            "label": "API Key",
+                            "value": "api_token"
+                        }
+                    ],
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "hidden",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:38.618Z",
+    "updated_at": "2025-06-11T12:12:38.618Z"
+}

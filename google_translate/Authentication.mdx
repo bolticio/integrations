@@ -1,0 +1,71 @@
+{
+    "id": "436c1fff-45fd-494f-8090-d3602144d89a",
+    "documentation": "# Google Translate Authentication\n\nThis document outlines the setup for Google Translate authentication in Boltic, using an API key. The authentication method can be selected and configured through the following steps.\n\n## Authentication Types\n\n### 1. API Key Authentication\n\nTo authenticate with Google Translate, you can use the **API Key** method. Follow the steps below to configure the authentication.\n\n### Parameters\n\n#### Authentication Type\n\n-   **Parameter Name:** `type`\n-   **Display Name:** Authentication Type\n-   **Description:** Choose the type of authentication you want to use.\n-   **Type:** Select\n-   **Options:**\n    -   **API Key:** Use your Google Translate API key for authentication.\n-   **Validation:** Required\n\n#### API Key Authentication Fields\n\nWhen `API Key` is selected as the authentication type, the following field is required:\n\n##### API Key\n\n-   **Parameter Name:** `api_key`\n-   **Display Name:** API Key\n-   **Description:** Your Google Translate API Key. Refer to <a href=\"https://cloud.google.com/docs/authentication/api-keys\" target=\"_blank\" rel=\"noopener\">Google Cloud API Key documentation</a> for instructions on obtaining your API key.\n-   **Type:** Password\n-   **Placeholder:** Enter API Key\n-   **Validation:** Required\n\n---\n\n### Validation\n\nOnce the API Key is entered, the connection is validated using the Google Translate API.\n\n-   **Validation URL:**\n-   **Method:** GET\n-   **Query Parameters:**\n    -   **Key:** `{{secrets.api_key}}`\n-   **Headers:**\n    -   **Accept:** `application/json`\n-   **Response:**\n    -   **Success:** The response will include the list of supported languages in `{{response.data.languages}}`.\n    -   **Error:** If an error occurs, the message will be displayed as `{{response.data.error.message}}`, with the corresponding status code: `{{response.data.error.code}}`.\n\n---\n\n## Troubleshooting\n\nIf the connection fails:\n\n-   Ensure your **API Key** is correct.\n-   Confirm that your Google Cloud project has the Google Translate API enabled.\n-   Verify your network connection.\n\n---\n\n## Conclusion\n\nAfter successfully setting up your API key, you should be able to authenticate and start interacting with the Google Translate API through Boltic.\n\n---\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\">Support Documentation</a>.\n",
+    "integration_id": "fef8ac99-de6f-4b36-a9f1-c660a9b30948",
+    "content": {
+        "api_key": {
+            "validate": {
+                "url": "https://translation.googleapis.com/language/translate/v2/languages?key={{secrets.api_key}}",
+                "method": "get",
+                "response": {
+                    "error": {
+                        "code": "{{response.data.error.code}}",
+                        "message": "{{response.data.error.message}}"
+                    },
+                    "output": "{{response.data.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "API Key is required field"
+                            }
+                        },
+                        "description": "Refer to <a href='https://cloud.google.com/docs/authentication/api-keys' target='_blank' rel='noopener'><span>Google Cloud API Key documentation</span></a>",
+                        "displayName": "API Key",
+                        "displayType": "password",
+                        "placeholder": "Enter API Key"
+                    },
+                    "name": "api_key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "api_key",
+                    "options": [
+                        {
+                            "label": "API Key",
+                            "value": "api_key"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "hidden",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:38.060Z",
+    "updated_at": "2025-06-11T12:12:38.060Z"
+}

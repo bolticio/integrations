@@ -1,0 +1,79 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Extract Data",
+                        "value": "extract.extract",
+                        "description": "Use AI to identify and extract specific fields or entities from collected data."
+                    },
+                    {
+                        "label": "Extract Status",
+                        "value": "extract.extract_status",
+                        "description": "Check the status or results of an ongoing or completed extraction operation."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "extract",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "c01517e9-62c2-499e-a564-48864843e68d",
+    "integration_id": "f237044a-bc24-4073-898d-1b7e0c0175d2",
+    "resource_id": "e99ab25f-4f4e-48b5-96f7-5dc8b74d63c5",
+    "name": "extract_status",
+    "content": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/extract/{{parameters.extract_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Extract ID is required field"
+                        }
+                    },
+                    "description": "The ID of the extract job to check status for.",
+                    "displayName": "Extract ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Extract ID"
+                },
+                "name": "extract_id"
+            }
+        ]
+    },
+    "created_by": "rahilsiddiqui@gofynd.com",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-07-10T12:28:05.730Z",
+    "updated_at": "2025-10-15T10:44:35.394Z"
+}

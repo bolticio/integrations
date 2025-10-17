@@ -1,0 +1,202 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Chat Completion",
+                        "value": "chats.interactive_chat"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation which needs to be performed.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "chats",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "9d4958fc-8101-4c49-ab0f-b1a7873c5f33",
+    "integration_id": "8fe8bb9f-7c00-4cbc-b4d9-6cdac39cbafb",
+    "resource_id": "d964e6a8-4e3b-45e8-a078-630f9c2c2e77",
+    "name": "interactive_chat",
+    "content": {
+        "definition": {
+            "url": "https://api.perplexity.ai/chat/completions",
+            "body": {
+                "model": "{{parameters.model}}",
+                "messages": "{{parameters.messages}}",
+                "max_tokens": "{{parameters.max_tokens}}",
+                "temperature": "{{parameters.temperature}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "sonar-reasoning",
+                            "value": "sonar-reasoning"
+                        },
+                        {
+                            "label": "sonar-reasoning-pro",
+                            "value": "sonar-reasoning-pro"
+                        },
+                        {
+                            "label": "sonar-pro",
+                            "value": "sonar-pro"
+                        },
+                        {
+                            "label": "sonar",
+                            "value": "sonar"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is a required field."
+                        }
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant"
+                                    },
+                                    {
+                                        "label": "System (Message to the system)",
+                                        "value": "system"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Please select the role for the message."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user, assistant, or system. The user message is mandatory and must be explicitly specified. If the system role is included, it must be chosen first.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "maxLength": 500,
+                                    "minLength": 1,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message content is required field."
+                                    }
+                                },
+                                "description": "Provide the content of the message.",
+                                "displayName": "Message Content",
+                                "displayType": "textarea",
+                                "placeholder": "Enter the text content of the message"
+                            },
+                            "name": "content"
+                        }
+                    ],
+                    "validation": {
+                        "max": 100,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add the message as it can not be empty"
+                        }
+                    },
+                    "displayName": "Messages",
+                    "displayType": "array"
+                },
+                "name": "messages"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response.",
+                    "displayName": "Max Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "max_tokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.2,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.2.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:45.034Z",
+    "updated_at": "2025-06-25T14:49:11.994Z"
+}

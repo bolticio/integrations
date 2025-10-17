@@ -1,0 +1,217 @@
+{
+    "append": {
+        "definition": {
+            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}/children",
+            "body": {
+                "children": "{{children}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody() { const children = body.children.map((child) => { const block = { object: 'block', type: child.blockType }; block[child.blockType] = { rich_text: [ { type: 'text', text: { content: child.content, link: child.url ? { url: child.url } : null, }, }, ], }; return block; }); return { children: children }; } return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Block ID is required to retrieve block children."
+                        }
+                    },
+                    "description": "The unique identifier for a block in Notion. To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
+                    "displayName": "Block/Page ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Block ID or Page ID"
+                },
+                "name": "block_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Paragraph",
+                                        "value": "paragraph"
+                                    },
+                                    {
+                                        "label": "Heading 1",
+                                        "value": "heading_1"
+                                    },
+                                    {
+                                        "label": "Heading 2",
+                                        "value": "heading_2"
+                                    },
+                                    {
+                                        "label": "Heading 3",
+                                        "value": "heading_3"
+                                    },
+                                    {
+                                        "label": "Bulleted List",
+                                        "value": "bulleted_list_item"
+                                    },
+                                    {
+                                        "label": "Numbered List",
+                                        "value": "numbered_list_item"
+                                    },
+                                    {
+                                        "label": "To-Do",
+                                        "value": "to_do"
+                                    },
+                                    {
+                                        "label": "Toggle",
+                                        "value": "toggle"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Choose block type",
+                                "displayType": "select",
+                                "placeholder": "Select the type of block to append."
+                            },
+                            "name": "blockType"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Block Content",
+                                "displayType": "textarea",
+                                "placeholder": "Enter the content for the block (e.g., text or heading content)."
+                            },
+                            "name": "content"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "displayName": "Optional URL",
+                                "displayType": "text",
+                                "placeholder": "Enter an optional URL for rich text links (e.g., https://example.com)."
+                            },
+                            "name": "url"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "An array of block objects to append as children to the specified block.",
+                    "displayName": "Block Children",
+                    "displayType": "array"
+                },
+                "name": "children"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Retrieve a Block",
+                        "value": "blocks.retrieve"
+                    },
+                    {
+                        "label": "Retrieve Block Children",
+                        "value": "blocks.retrieve_children"
+                    },
+                    {
+                        "label": "Delete a Block",
+                        "value": "blocks.delete"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform on the blocks.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "blocks",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "2ce07888-1a01-42cc-8339-b2f76210dde6",
+    "integration_id": "205ed6b2-b093-4a2e-84de-060169477856",
+    "resource_id": "01b4a54f-a383-4670-baf0-6bb4d5f6ab81",
+    "name": "query",
+    "content": {
+        "definition": {
+            "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}/query/",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "databases",
+                            "operation": "databases.retrieve",
+                            "loadOptionsMethod": "getDatabases"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "You must select a database to retrieve"
+                        }
+                    },
+                    "description": "Notion database to retrieve.",
+                    "displayName": "Database",
+                    "displayType": "select",
+                    "placeholder": "Select a database"
+                },
+                "name": "database_id"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:29.161Z",
+    "updated_at": "2025-06-11T12:12:29.161Z"
+}

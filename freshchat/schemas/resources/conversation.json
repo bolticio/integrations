@@ -1,0 +1,117 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Conversation",
+                        "value": "conversation.create"
+                    },
+                    {
+                        "label": "Get Conversation",
+                        "value": "conversation.get"
+                    },
+                    {
+                        "label": "Update Conversation",
+                        "value": "conversation.update"
+                    },
+                    {
+                        "label": "List Conversation",
+                        "value": "conversation.list"
+                    },
+                    {
+                        "label": "Send Message Conversation",
+                        "value": "conversation.send"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "getChannels": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/channels",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.channels}}"
+            }
+        }
+    },
+    "getMoreParameters": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/conversations/fields",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const result = output.map((ele) => { const typeMap = { text: 'text', textarea: 'textarea', dropdown: 'select', auto_complete: 'multitext', multi_select_dropdown: 'multiselect', radio: 'select', number: 'number', }; const newObj = { name: ele.name, meta: { displayName: ele.label, displayType: ele.choices ? 'select' : 'text', placeholder: `${ele.choices ? 'Select' : 'Enter'} ${ele.label}`, validation: { required: ele.required_for_agents, }, }, }; if (ele.choices) { newObj.meta.htmlProps = { allowDynamic: true }; if (!Array.isArray(ele.choices) && Object.keys(ele.choices).length) { newObj.meta.options = Object.keys(ele.choices).map((choice) => ({ label: ele.choices[choice], value: choice, })); } else if (Array.isArray(ele.choices) && ele.choices.length) { newObj.meta.options = Object.keys(ele.choices).map((choice) => ({ label: choice, value: choice, })); } else { newObj.meta.displayType = 'text'; } if (ele.type === 'multi_select_dropdown') { newObj.meta.value = []; } } if (ele.default === false) { newObj.prop = 'custom_field'; } return newObj; }).filter((ele) => ele !== null); let custom_field = { name: 'custom_field', meta: { children: [], displayType: 'object', }, }; const outputWithCustomField = result.reduce((acc, ele) => { if (ele.prop === 'custom_field') { custom_field.meta.children.push(ele); } else { acc.push(ele); } return acc; }, []); if (custom_field.meta.children.length > 0) { outputWithCustomField.push(custom_field); } return outputWithCustomField"
+            }
+        }
+    },
+    "id": "a0550e4c-a5d4-480c-9a96-cb4ddbfd8747",
+    "integration_id": "cab40bc8-087f-4d9e-aa66-eb34aea7d887",
+    "resource_id": "dc92ea91-ad28-496e-be95-03f86a213378",
+    "name": "get",
+    "content": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/users/{{parameters.user_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the user to retrieve",
+                    "displayName": "User ID",
+                    "displayType": "number",
+                    "placeholder": "Enter the User ID"
+                },
+                "name": "user_id"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:21.597Z",
+    "updated_at": "2025-06-11T12:12:21.597Z"
+}

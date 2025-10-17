@@ -1,0 +1,121 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Deal",
+                        "value": "deal.create",
+                        "description": "Creates a new deal record in HubSpot. Requires properties like deal name and amount, and optionally the pipeline."
+                    },
+                    {
+                        "label": "Update Deal",
+                        "value": "deal.update",
+                        "description": "Updates specific properties of an existing deal record in HubSpot using its unique Deal ID."
+                    },
+                    {
+                        "label": "Get Deal",
+                        "value": "deal.get",
+                        "description": "Retrieves the details of a specific deal record from HubSpot using its unique Deal ID."
+                    },
+                    {
+                        "label": "List Deals",
+                        "value": "deal.list",
+                        "description": "Retrieves a list of all deal records in your HubSpot account. Supports pagination to handle large numbers of deals."
+                    },
+                    {
+                        "label": "Delete Deal",
+                        "value": "deal.delete",
+                        "description": "Permanently removes a specific deal record from HubSpot using its unique Deal ID."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "deal",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getMoreParameters": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/deal",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "const typeMap = {text:'text',textarea:'textarea',dropdown:'select',auto_complete:'multitext',multi_select_dropdown:'multiselect',radio:'select',number:'number'};const result=output.map(ele=>{const newObj={name:ele.name,meta:{displayName:ele.label,displayType:ele.options&&ele.options.length>0?'select':'text',placeholder:`${ele.options&&ele.options.length>0?'Select':'Enter'} ${ele.label}`,validation:{required:ele.required_for_agents}}};if(ele.options&&ele.options.length>0){newObj.meta.htmlProps={allowDynamic:true};newObj.meta.options=ele.options.map(choice=>({label:choice.label||choice,value:choice.value||choice}));if(ele.type==='multi_select_dropdown'){newObj.meta.value=[];}}if(ele.default===false){newObj.prop='custom_field';}return newObj;}).filter(ele=>ele!==null);const custom_field={name:'custom_field',meta:{children:[],displayType:'object'}};const outputWithCustomField=result.reduce((acc,ele)=>{if(ele.prop==='custom_field'){custom_field.meta.children.push(ele);}else{acc.push(ele);}return acc;},[]);if(custom_field.meta.children.length>0){outputWithCustomField.push(custom_field);} return outputWithCustomField;"
+            }
+        }
+    },
+    "id": "445fcd6f-4160-46f7-ad3d-2976b1436345",
+    "integration_id": "f7c6b482-894a-4c9f-94d6-4a32f154b980",
+    "resource_id": "29e0cf5e-fa4f-4c22-ab29-39f06c010d2c",
+    "name": "list",
+    "content": {
+        "definition": {
+            "qs": {
+                "limit": "{{parameters.limit}}",
+                "archived": "{{parameters.archived}}"
+            },
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {
+                    "after": "{{response.data.paging.next.after}}"
+                },
+                "default": {
+                    "after": null,
+                    "limit": 100
+                },
+                "condition": "{{response.data.paging}} !== undefined"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Whether to return only results that have been archived",
+                    "displayName": "Archived",
+                    "displayType": "toggle"
+                },
+                "name": "archived"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:42.283Z",
+    "updated_at": "2025-07-03T06:06:49.319Z"
+}

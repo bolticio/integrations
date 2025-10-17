@@ -1,0 +1,94 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Greeting",
+                        "value": "greetings.create",
+                        "description": "Create a new greeting."
+                    },
+                    {
+                        "label": "List all Greetings",
+                        "value": "greetings.list",
+                        "description": "List all greetings."
+                    },
+                    {
+                        "label": "Get Greeting Details by ID",
+                        "value": "greetings.get",
+                        "description": "Get detailed information about all greetings."
+                    },
+                    {
+                        "label": "Update Greeting",
+                        "value": "greetings.update",
+                        "description": "Update an existing greeting."
+                    },
+                    {
+                        "label": "Delete Greeting",
+                        "value": "greetings.delete",
+                        "description": "Delete an existing greeting."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": [
+                    {
+                        "field": "resource",
+                        "value": "greetings",
+                        "operator": "EQUALS"
+                    }
+                ]
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "911905e2-1dc0-4f4b-8aa9-0757f6b95815",
+    "integration_id": "ccd5dc7c-b8ae-40a3-ae4f-d7b519059b07",
+    "resource_id": "a320065c-967e-4d55-9297-0127e91f57be",
+    "name": "get",
+    "content": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses/{{parameters.address_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "address_id": "{{parameters.address_id}}"
+            },
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.description}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by the Zendesk.",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Address ID"
+                },
+                "name": "address_id"
+            }
+        ]
+    },
+    "created_by": "ahmedsakri@gofynd.com",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-09-03T09:46:01.501Z",
+    "updated_at": "2025-10-14T06:46:59.578Z"
+}

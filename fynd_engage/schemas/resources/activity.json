@@ -1,0 +1,169 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Publish Activity",
+                        "value": "activity.publishActivity",
+                        "description": "Log a customer activity in Engage, such as an order, referral, or signup. This helps track user actions and enables personalized engagement based on the activity type and associated metadata like transaction details or purchased items."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the activity operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "49a1310d-c3af-4c0a-b42e-daca117c6de7",
+    "integration_id": "146f9c48-92f7-49ff-9102-a08c28dc0eb1",
+    "resource_id": "da691fd2-b573-400f-879e-69bf9030ff7b",
+    "name": "earn",
+    "content": {
+        "definition": {
+            "url": "https://api.engage.fynd.com/service/platform/v1/order/earn",
+            "body": {
+                "items": "{{parameters.items}}",
+                "cartId": "{{parameters.cartId}}",
+                "currency": "{{parameters.currency}}",
+                "orderAmount": "{{parameters.orderAmount}}",
+                "activityName": "Order"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.meta.statusCode}}",
+                    "message": "{{response.data.meta.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Total value of the order before discounts and taxes.",
+                    "displayName": "Order Amount",
+                    "displayType": "number",
+                    "placeholder": "Enter the order amount"
+                },
+                "name": "orderAmount"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Currency code in which the order is charged (e.g., INR, USD, EUR).",
+                    "displayName": "Currency",
+                    "displayType": "text",
+                    "placeholder": "Enter the currency (e.g., INR)"
+                },
+                "name": "currency"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique identifier for the cart associated with the order.",
+                    "displayName": "Cart ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the cart ID"
+                },
+                "name": "cartId"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Unique identifier of the product item.",
+                                "displayName": "Item ID",
+                                "displayType": "text",
+                                "placeholder": "Enter the item ID"
+                            },
+                            "name": "itemId"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Unit price of the product item.",
+                                "displayName": "Amount",
+                                "displayType": "number",
+                                "placeholder": "Enter the item amount"
+                            },
+                            "name": "amount"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Number of units of the item ordered.",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter the quantity"
+                            },
+                            "name": "quantity"
+                        },
+                        {
+                            "meta": {
+                                "description": "Stock Keeping Unit code for internal inventory reference.",
+                                "displayName": "SKU Code",
+                                "displayType": "text",
+                                "placeholder": "Enter the SKU code"
+                            },
+                            "name": "skuCode"
+                        },
+                        {
+                            "meta": {
+                                "description": "European Article Number used for barcode scanning and tracking.",
+                                "displayName": "EAN Identifier",
+                                "displayType": "text",
+                                "placeholder": "Enter the EAN identifier"
+                            },
+                            "name": "eanIdentifier"
+                        },
+                        {
+                            "meta": {
+                                "description": "Internal reference ID used for article tracking and reporting.",
+                                "displayName": "Article ID",
+                                "displayType": "text",
+                                "placeholder": "Enter the article ID"
+                            },
+                            "name": "articleId"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List of product items included in the order.",
+                    "displayName": "Items",
+                    "displayType": "array"
+                },
+                "name": "items"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:41.138Z",
+    "updated_at": "2025-06-11T12:12:41.138Z"
+}

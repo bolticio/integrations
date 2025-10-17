@@ -1,0 +1,99 @@
+{
+    "id": "417dcff0-f364-407f-b364-6c417216fad5",
+    "documentation": "This guide walks you through setting up the Azure DevOps integration within Boltic.\n\n#### Prerequisites\n\nTo use the Azure DevOps connector, you need to have an Azure DevOps account. If you don't have one, you can create an Azure DevOps account at <a href=\"https://aex.dev.azure.com/signup?client_id=azurecli&response_type=Assertion&state=7d14bbba-5a08-4a1b-9e45-78fe758de206\" target=\"_blank\" rel=\"noopener\"><span>Azure DevOps sign-up page</span></a>.\n\n\nTo set up the Azure DevOps integration, you'll need:\n\n- The Azure DevOps organization URL\n- The Azure DevOps Personal Access Token (PAT)\n- Admin access to the Azure DevOps organization\n\n#### Setting Up the Azure DevOps Integration in Boltic\n\n#### Log In\n\nLog into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n#### Navigate to Integrations from the Primary Menu\n\nClick on `Sources` and then click on `+ Add New source`.\n\n#### Select Source Type\n\nOn the Set up the source page, search for `Azure DevOps` from the search bar and select it.\n\n#### Configure Integration\n\n- **Name:** Enter a name for the Azure DevOps integration.\n- **Organization URL:** Enter your Azure DevOps organization URL.\n- **Personal Access Token:** Enter your Azure DevOps Personal Access Token (PAT). The Azure DevOps integration uses the PAT for authentication.\n\n#### Details (Optional)\n\n- **Tags:** Add any tags for categorization.\n- **Description:** Provide a brief description of the integration.\n\n#### Test and Save Integration\n\n- Click `Test Connection` to ensure the provided details are correct and the connection is successful.\n- Once the connection test is successful, click `Set up source` to complete the configuration.\n\n#### Troubleshooting\n\nIf you encounter any issues during setup:\n\n- **Check Personal Access Token:** Ensure the provided PAT is correct and has the necessary permissions.\n- **Verify Organization URL:** Confirm the organization URL is correct.\n- **Network Issues:** Check for any network issues that might be affecting connectivity.\n\n#### Frequently Asked Questions (FAQs)\n\n**How do I find my Azure DevOps Personal Access Token?**\n\nYou can create and manage PATs in the Azure DevOps portal under Security > Personal access tokens. More details can be found in <a href=\"https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate\" target=\"_blank\" rel=\"noopener\">Azure DevOps official documentation</a>.\n\n**What should I do if my connection fails?**\n\n- Ensure your PAT is correct.\n- Verify the organization URL and ensure there are no typos.\n- Check your network connection and firewall settings.\n\n**How often is the data synced?**\n\nThe data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.\n\n**Can I customize the data being synced?**\n\nYes, you can customize the data being synced by adjusting the settings during the setup process.\n\n#### Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\">Support Documentation</a>.\n",
+    "integration_id": "637b7d2e-8869-4e54-b685-ae165556c52e",
+    "content": {
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Access Token",
+                            "value": "access_token"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Authentication Type is a required field"
+                        }
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "select",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ],
+        "access_token": {
+            "validate": {
+                "url": "https://dev.azure.com/{{secrets.organization_id}}/_apis/projects?api-version=6.0",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Basic convertBufferBase64String('':{{secrets.access_token}})"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "Authorization failed"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Acess Token is a required field"
+                            }
+                        },
+                        "description": "Refer to the <a href='https://docs.microsoft.com/en-us/azure/devops/pipelines/release/azure-rm-endpoint' target='_blank'>Azure DevOps authentication documentation</a> for detailed instructions on getting your API keys.",
+                        "displayName": "Personal Access Token",
+                        "displayType": "password",
+                        "placeholder": "",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "access_token",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "access_token"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Organization Type is a required field"
+                            }
+                        },
+                        "displayName": "Organization Name",
+                        "displayType": "text",
+                        "placeholder": "",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "access_token",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "organization_id"
+                }
+            ]
+        }
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:30.275Z",
+    "updated_at": "2025-06-11T12:12:30.275Z"
+}

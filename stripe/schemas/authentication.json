@@ -1,0 +1,399 @@
+{
+    "id": "7961dd6d-b1fc-45b7-a50c-8c1dc2d5f238",
+    "documentation": "This guide walks you through setting up the Stripe integration within Boltic.\n\n#### Prerequisites\n\nTo set up the Stripe integration, you'll need:\n\n- The Stripe account email address\n- The Stripe API key (Secret Key)\n- Admin access to the Stripe account\n\n#### Setting Up the Stripe Integration in Boltic\n\n#### Log In\n\nLog into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n#### Navigate to Integrations from the Primary Menu\n\nClick on `Sources` and then click on `+ Add New source`.\n\n#### Select Source Type\n\nOn the Set up the source page, search for `Stripe` from the search bar and select it.\n\n#### Configure Integration\n\n- **Name:** Enter a name for the Stripe integration.\n- **Email:** Enter the email address associated with your Stripe account.\n- **API Key (Secret Key):** Enter your Stripe API key. The Stripe integration uses the Secret Key for authentication (You can get the access key from <a href=\"https://dashboard.stripe.com/\" target=\"_blank\" rel=\"noopener\">Stripe dashboard</a>).\n\n#### Obtaining Your Stripe API Key (Secret Key)\n\nTo integrate with Stripe, you'll need your Secret Key for authentication. Follow these steps to obtain it:\n\n1. **Log in to Stripe:**\n   - Go to the <a href=\"https://dashboard.stripe.com/\" target=\"_blank\" rel=\"noopener\">Stripe dashboard</a> and log in with your credentials.\n\n2. **Navigate to API Keys:**\n   - Once logged in, navigate to the **Developers** section in the left-hand menu.\n\n3. **View API Keys:**\n   - In the Developers section, click on **API keys**. Here you will see your **Publishable Key** and **Secret Key**.\n\n4. **Reveal Secret Key:**\n   - By default, the Secret Key may be partially obscured. Click on the \"Reveal test key\" or \"Reveal live key\" button next to the Secret Key to see the full key.\n\n5. **Copy the Secret Key:**\n   - Copy the Secret Key and use it in your application for authentication.\n\n#### Important Notes\n\n- **Test Mode and Live Mode:** Stripe provides separate keys for test mode and live mode. Ensure you use the correct key depending on whether you are in the development or production phase.\n- **Security:** Keep your Secret Key secure and do not share it publicly or include it in client-side code. It provides full access to your Stripe account.\n\nFor more detailed information, refer to Stripe's official documentation on <a href=\"https://stripe.com/docs/keys\" target=\"_blank\" rel=\"noopener\">API keys</a>.\n\n#### Details (Optional)\n\n- **Tags:** Add any tags for categorization.\n- **Description:** Provide a brief description of the integration.\n\n#### Test and Save Integration\n\n- Click `Test Connection` to ensure the provided details are correct and the connection is successful.\n- Once the connection test is successful, click `Set up source` to complete the configuration.\n\n#### Troubleshooting\n\nIf you encounter any issues during setup:\n\n- **Check API Key:** Ensure the provided API key is correct and has the necessary permissions.\n- **Verify Account Information:** Confirm the account details are correct.\n- **Network Issues:** Check for any network issues that might be affecting connectivity.\n\n#### Frequently Asked Questions (FAQs)\n\n**How do I find my Stripe API key?**\n\nYou can find your API key in the Stripe Dashboard under Developers > API keys. More details can be found in <a href=\"https://stripe.com/docs/keys\" target=\"_blank\" rel=\"noopener\">Stripe's official documentation</a>.\n\n**What should I do if my connection fails?**\n\n- Ensure your API key is correct.\n- Verify your account details and ensure there are no typos.\n- Check your network connection and firewall settings.\n\n**How often is the data synced?**\n\nThe data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.\n\n**Can I customize the data being synced?**\n\nYes, you can customize the data being synced by adjusting the settings during the setup process.\n\n#### Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\">Support Documentation</a>.\n",
+    "integration_id": "7bfbe927-d0bd-448e-8dab-7e2aa889d337",
+    "content": {
+        "oauth2": {
+            "info": {
+                "url": "https://api.stripe.com/v1/account",
+                "headers": {
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "output": "{{response.data}}"
+                }
+            },
+            "token": {
+                "url": "https://connect.stripe.com/oauth/token",
+                "body": {
+                    "code": "{{code}}",
+                    "client_id": "{{secrets.client_id}}",
+                    "grant_type": "authorization_code",
+                    "redirect_uri": "{{secrets.redirect_uri}}",
+                    "client_secret": "{{secrets.client_secret}}"
+                },
+                "method": "post",
+                "headers": {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.error.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "refresh": {
+                "qs": {
+                    "client_id": "{{secrets.client_id}}",
+                    "grant_type": "refresh_token",
+                    "client_secret": "{{secrets.client_secret}}",
+                    "refresh_token": "{{secrets.refresh_token}}"
+                },
+                "url": "https://connect.stripe.com/oauth/token",
+                "method": "post",
+                "response": {
+                    "error": {
+                        "code": "{{response.data.error}}",
+                        "message": "{{response.data.error_description}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "validate": {
+                "url": "https://api.stripe.com/v1/account",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.error.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "authorize": {
+                "qs": {
+                    "scope": "read_write",
+                    "state": "uuidv4()",
+                    "client_id": "{{secrets.client_id}}",
+                    "redirect_uri": "{{secrets.redirect_uri}}",
+                    "response_type": "code"
+                },
+                "url": "https://connect.stripe.com/oauth/authorize",
+                "method": "get",
+                "response": {
+                    "output": "{{response.data}}"
+                }
+            },
+            "invalidate": {
+                "url": "https://connect.stripe.com/oauth/deauthorize",
+                "body": {
+                    "client_id": "{{secrets.client_id}}",
+                    "stripe_user_id": "{{secrets.stripe_user_id}}"
+                },
+                "method": "post",
+                "response": {
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Client ID is required"
+                            }
+                        },
+                        "displayName": "Enter Client ID",
+                        "displayType": "text",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "client_id"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Client Secre is required"
+                            }
+                        },
+                        "displayName": "Enter Client Secret",
+                        "displayType": "password",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "client_secret"
+                },
+                {
+                    "meta": {
+                        "value": "v1/stripe/oauth2/callback",
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Redirect URI is required"
+                            }
+                        },
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "redirect_uri"
+                },
+                {
+                    "meta": {
+                        "htmlProps": {
+                            "size": "small",
+                            "style": {
+                                "color": "#ffffff",
+                                "height": "40px",
+                                "padding": "16px",
+                                "fontSize": "14px",
+                                "fontWeight": 700,
+                                "backgroundColor": "#6772e5"
+                            },
+                            "variant": "contained"
+                        },
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Please connect with Stripe first"
+                            }
+                        },
+                        "description": "Add the following callback URL in your application settings on Stripe.",
+                        "displayName": "Connect Stripe Account",
+                        "displayType": "button",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "refresh_token",
+                                    "operator": "EMPTY"
+                                },
+                                {
+                                    "field": "expires_in",
+                                    "operator": "EMPTY"
+                                },
+                                {
+                                    "field": "expiry_date",
+                                    "operator": "EMPTY"
+                                },
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        },
+                        "displayProps": {
+                            "size": "small",
+                            "variant": "contained"
+                        }
+                    },
+                    "name": "oauth2"
+                },
+                {
+                    "meta": {
+                        "htmlProps": {
+                            "size": "small",
+                            "color": "success",
+                            "variant": "contained"
+                        },
+                        "displayName": "Stripe Account Connected",
+                        "displayType": "button",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "refresh_token",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "expires_in",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "expiry_date",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "oauth2_connected"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Refresh token is required"
+                            }
+                        },
+                        "displayName": "Refresh Token",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "refresh_token"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Access token is required"
+                            }
+                        },
+                        "displayName": "Access Token",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "access_token"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "displayName": "Expires In",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "expires_in"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "displayName": "Expiry Date",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "expiry_date"
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Access Token",
+                            "value": "access_token"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Authentication Type is required"
+                        }
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "select",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ],
+        "access_token": {
+            "validate": {
+                "url": "https://api.stripe.com/v1/account",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.error.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "max": 120,
+                                "errorMsg": "API Secret Key is required"
+                            }
+                        },
+                        "description": "Refer to the <a href='https://stripe.com/docs/keys' target='blank'>Stripe authentication documentation</a> for detailed instructions on getting your API keys.",
+                        "displayName": "API Secret Key",
+                        "displayType": "password",
+                        "placeholder": "",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "access_token",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "access_token"
+                }
+            ]
+        }
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:29.431Z",
+    "updated_at": "2025-06-11T12:12:29.431Z"
+}

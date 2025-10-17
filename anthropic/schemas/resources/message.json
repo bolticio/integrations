@@ -1,0 +1,254 @@
+{
+    "getModels": {
+        "definition": {
+            "url": "https://api.anthropic.com/v1/models",
+            "method": "get",
+            "headers": {
+                "x-api-key": "{{secrets.api_token}}",
+                "content-type": "application/json",
+                "anthropic-version": "2023-06-01"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const updatedOutput = output.data.map((model) => { return { name: model.display_name, id: model.id }; }); return updatedOutput;"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Generate Message",
+                        "value": "message.create_message"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "message",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "920858c7-a29c-43d9-b4a2-f3a1c5960367",
+    "integration_id": "7ffc013c-6f1b-4277-99bb-f5c49227ce46",
+    "resource_id": "70acfa2d-d5a6-4404-8a33-978248ebb43f",
+    "name": "create_message",
+    "content": {
+        "definition": {
+            "url": "https://api.anthropic.com/v1/messages",
+            "body": {
+                "model": "{{parameters.model}}",
+                "system": "{{parameters.system}}",
+                "messages": "{{parameters.messages}}",
+                "max_tokens": "{{parameters.max_tokens}}",
+                "temperature": "{{parameters.temperature}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowStringToNumberConversion": true
+                }
+            },
+            "headers": {
+                "x-api-key": "{{secrets.api_token}}",
+                "content-type": "application/json",
+                "anthropic-version": "2023-06-01"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "let updatedBody = { ...body }; for (let [key, value] of Object.entries(updatedBody)) { if (key == 'max_tokens') { updatedBody[key] = parseInt(value); } if (key == 'temperature') { updatedBody[key] = parseFloat(value); } if (key == 'system') { updatedBody[key] = value.replace(/[^A-Za-z0-9\\s]/g, ''); } } return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "anthropic",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "message",
+                            "operation": "message.create_message",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field."
+                        }
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Role is required field."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user or the assistant.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "maxLength": 500,
+                                    "minLength": 1,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message content is required field."
+                                    }
+                                },
+                                "description": "Provide the content of the message. This field is required.",
+                                "displayName": "Message Content",
+                                "displayType": "text",
+                                "placeholder": "Enter the text content of the message"
+                            },
+                            "name": "content"
+                        }
+                    ],
+                    "validation": {
+                        "max": 100,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Message content is required field"
+                        }
+                    },
+                    "displayName": "Messages",
+                    "displayType": "array"
+                },
+                "name": "messages"
+            },
+            {
+                "meta": {
+                    "value": "Default system behavior",
+                    "htmlProps": {
+                        "maxRows": 6,
+                        "minRows": 3,
+                        "placeholder": "Define the system's behavior"
+                    },
+                    "validation": {
+                        "pattern": "^[A-Za-z0-9\\s]+$",
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "patternDetail": {
+                            "errorMsg": "Only alphabetic characters, numbers, and spaces are allowed. Special characters are not permitted."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "System Prompt is required field."
+                        }
+                    },
+                    "description": "Set the system's behavior, tone, or role in the response. Only alphabetic characters, numbers, and spaces are allowed. Special characters are not permitted. Defauls to 'Default system behavior",
+                    "displayName": "System Prompt",
+                    "displayType": "textarea",
+                    "placeholder": "Define the system's behavior"
+                },
+                "name": "system"
+            },
+            {
+                "meta": {
+                    "value": 1024,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Max tokens is required field"
+                        }
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "max_tokens"
+            },
+            {
+                "meta": {
+                    "max": 1,
+                    "min": 0.1,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 1.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:46.047Z",
+    "updated_at": "2025-06-11T12:12:46.047Z"
+}

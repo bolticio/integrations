@@ -1,0 +1,238 @@
+{
+    "video": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}:generateContent",
+            "body": {
+                "contents": [
+                    {
+                        "parts": [
+                            {
+                                "text": "Caption this image."
+                            },
+                            {
+                                "inline_data": {
+                                    "data": "convertBufferBase64String({{parameters.image_url})",
+                                    "mime_type": "image/jpeg"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Referer": "https://console.boltic.io",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Gemini 1.5 Pro",
+                            "value": "gemini-1.5-pro"
+                        },
+                        {
+                            "label": "Gemini 1.5 Flash",
+                            "value": "gemini-1.5-flash"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "V1",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "V1 Beta",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field"
+                        }
+                    },
+                    "description": "Specify the API version to be used",
+                    "displayName": "API version",
+                    "displayType": "select",
+                    "placeholder": "Choose the api version"
+                },
+                "name": "api_version"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the video URL you want.",
+                    "displayName": "video URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the URL of the image"
+                },
+                "name": "video_url"
+            },
+            {
+                "meta": {
+                    "value": "Caption this",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter a prompt that tells the model how to interpret the image, e.g., 'Caption this.'",
+                    "displayName": "Prompt",
+                    "displayType": "text",
+                    "placeholder": "Enter the text prompt"
+                },
+                "name": "prompt"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Generate Image Captions (Multi-Image Support)",
+                        "value": "vision.generate_caption"
+                    }
+                ],
+                "validation": {
+                    "errorMsg": "An operation selection is required to proceed.",
+                    "required": true
+                },
+                "description": "Select the action you want to perform using the Gemini API's advanced AI capabilities.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "vision",
+                            "operator": "EQUALS",
+                            "description": "This operation is only available for resources of type 'Vision'."
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "84218e27-bbb8-46b0-aa2e-01ac6e50dfa7",
+    "integration_id": "9bc48fde-aab8-47b4-8b12-e9c154df128b",
+    "resource_id": "e066b4d7-b5d8-4576-ae45-6bfcb7b463e7",
+    "name": "retrieve_a_model",
+    "content": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}",
+            "method": "get",
+            "headers": {
+                "Referer": "https://console.boltic.io/",
+                "content-type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "gemini",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "models.retrieve_a_model",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Version 1 (Stable)",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "Version 1 Beta (Experimental)",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field."
+                        }
+                    },
+                    "description": "Specify the version of the API to use for this request.",
+                    "displayName": "API Version",
+                    "displayType": "select",
+                    "placeholder": "Select API Version"
+                },
+                "name": "api_version"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:39.677Z",
+    "updated_at": "2025-06-11T12:12:39.677Z"
+}

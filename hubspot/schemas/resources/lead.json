@@ -1,0 +1,192 @@
+{
+    "update": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/objects/leads/{{parameters.lead_id}}",
+            "body": "{{parameters}}",
+            "method": "patch",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead ID is required field."
+                        }
+                    },
+                    "description": "The ID of the lead you want to update.",
+                    "displayName": "Lead ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the lead ID"
+                },
+                "name": "lead_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead name is required field."
+                        }
+                    },
+                    "description": "Enter the name of the lead you want to create.",
+                    "displayName": "Lead Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the lead name"
+                },
+                "name": "hs_lead_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead type is required field."
+                        }
+                    },
+                    "description": "Specify the type of the lead.",
+                    "displayName": "Lead Type",
+                    "displayType": "text",
+                    "placeholder": "Enter the lead type (e.g., New Business)"
+                },
+                "name": "hs_lead_type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead label is required field."
+                        }
+                    },
+                    "description": "Specify the label for the lead.",
+                    "displayName": "Lead Label",
+                    "displayType": "text",
+                    "placeholder": "Enter the lead label (e.g., Warm, Hot)"
+                },
+                "name": "hs_lead_label"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Contact ID is required field."
+                        }
+                    },
+                    "description": "The ID of the contact to associate with the lead.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the contact ID to associate"
+                },
+                "name": "contact_id"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Lead",
+                        "value": "lead.create",
+                        "description": "Creates a new lead record in HubSpot and associates it with an existing contact. Requires lead name, type, label, and the associated Contact ID."
+                    },
+                    {
+                        "label": "Get Lead",
+                        "value": "lead.get",
+                        "description": "Retrieves the details of a specific lead record from HubSpot using its unique Lead ID."
+                    },
+                    {
+                        "label": "List Leads",
+                        "value": "lead.list",
+                        "description": "Retrieves a list of all lead records in your HubSpot account. Supports pagination to handle large numbers of leads."
+                    },
+                    {
+                        "label": "Delete Lead",
+                        "value": "lead.delete",
+                        "description": "Permanently removes a specific lead record from HubSpot using its unique Lead ID."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "lead",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "445fcd6f-4160-46f7-ad3d-2976b1436345",
+    "integration_id": "f7c6b482-894a-4c9f-94d6-4a32f154b980",
+    "resource_id": "29e0cf5e-fa4f-4c22-ab29-39f06c010d2c",
+    "name": "list",
+    "content": {
+        "definition": {
+            "qs": {
+                "limit": "{{parameters.limit}}",
+                "archived": "{{parameters.archived}}"
+            },
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {
+                    "after": "{{response.data.paging.next.after}}"
+                },
+                "default": {
+                    "after": null,
+                    "limit": 100
+                },
+                "condition": "{{response.data.paging}} !== undefined"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Whether to return only results that have been archived",
+                    "displayName": "Archived",
+                    "displayType": "toggle"
+                },
+                "name": "archived"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:42.283Z",
+    "updated_at": "2025-07-03T06:06:49.319Z"
+}

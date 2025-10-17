@@ -1,0 +1,139 @@
+{
+    "name": "modifyMessage",
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Moderation For Single Text String",
+                        "value": "moderations.createModerationForSingleString",
+                        "description": "Uses OpenAI to check if a text input violates content policies."
+                    },
+                    {
+                        "label": "Create Moderation For Image and Text",
+                        "value": "moderations.createModerationForImageAndText",
+                        "description": "Uses OpenAI to detect policy violations in both image and text inputs."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "moderations",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "57e36316-1a25-4d56-b620-7c2982bd8d7b",
+    "integration_id": "7a81dbd8-2864-492a-9d30-f9d238d8ef35",
+    "resource_id": "35b765c0-6dab-4038-90ed-ef8961cf88cc",
+    "content": {
+        "definition": {
+            "url": "https://api.openai.com/v1/threads/{{parameters.threadId}}/messages/{{parameters.messageId}}",
+            "body": {
+                "metadata": "{{parameters.metadata}}"
+            },
+            "method": "post",
+            "headers": {
+                "OpenAI-Beta": "assistants=v2",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Thread ID is required field"
+                        }
+                    },
+                    "description": "The ID of the thread the messages belongs.",
+                    "displayName": "Thread ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a thread id"
+                },
+                "name": "threadId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Message ID is required field"
+                        }
+                    },
+                    "description": "The ID of the message to modify.",
+                    "displayName": "Message ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a message id"
+                },
+                "name": "messageId"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 64,
+                                    "required": false
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 512,
+                                    "required": false
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 16,
+                        "required": false
+                    },
+                    "description": "OpenAI: Attach up to 16 key-value pairs to store structured metadata on an object for better tracking or categorization.",
+                    "displayName": "Metadata",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter metadata key-value pairs"
+                },
+                "name": "metadata"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:43.194Z",
+    "updated_at": "2025-07-31T16:28:25.421Z"
+}

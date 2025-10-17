@@ -1,0 +1,356 @@
+{
+    "id": "e0768313-036c-443c-a1df-81878cba3076",
+    "documentation": "# ZohoCRM\n\n## Overview\n\nThe ZohoCRM node allows you to connect your application with Zoho CRM to automate tasks such as managing leads, contacts, accounts, deals, campaigns, and more. It helps streamline sales workflows by enabling seamless integration with your CRM data.\n\n## Authentication Ways\n\n- OAuth 2.0 <a href=\"https://www.zoho.com/crm/developer/docs/api/oauth-overview.html\" target=\"_blank\" rel=\"noopener\"> Documentation</a>\n\n## OAuth 2.0\n\nTo use the ZohoCRM node, you need to authenticate using OAuth 2.0. Follow the steps below to set up your OAuth credentials and authorize access to your Zoho CRM data.\n\n**Steps:**\n\n1. **Connect via Boltic**\n\n   - Enter the **name** of your integration in the required field\n\n2. **Authorize Access**\n\n   - Click **Connect** or **Authorize**\n   - You will be redirected to Zoho's login and consent screen\n   - Log in using your Zoho credentials\n   - Grant access when prompted\n   - Once the button turns green, click **Save** — your credentials are now securely stored in Boltic\n\n3. **Token Handling**\n   - After successful authentication, Boltic will store both the **access token** and **refresh token** securely\n   - Tokens will be refreshed automatically when expired\n\nFor more details, see the <a href=\"https://www.zoho.com/crm/developer/docs/api/v8/api-collection.html\" target=\"_blank\" rel=\"noopener\"><span> Custom API Documentation</span></a>\n",
+    "integration_id": "1bf7ccd8-58bd-4f2c-8cfd-e623c274f3a2",
+    "content": {
+        "oauth2": {
+            "token": {
+                "url": "https://accounts.zoho.in/oauth/v2/token",
+                "body": {
+                    "code": "{{code}}",
+                    "scope": "ZohoCRM.settings.ALL,ZohoCRM.settings.profiles.ALL,ZohoCRM.settings.roles.ALL,ZohoCRM.settings.territories.All,ZohoCRM.modules.ALL,ZohoCRM.users.All,ZohoCRM.settings.scoring_rules.ALL,ZohoCRM.modules.entity_scores.READ,ZohoCRM.settings.signals.ALL,ZohoCRM.settings.variables.ALL,ZohoCRM.settings.map_dependency.ALL,ZohoCRM.settings.user_groups.ALL,ZohoCRM.settings.pipeline.ALL,ZohoCRM.settings.wizards.READ,ZohoCRM.settings.assignment_rules.ALL,ZohoCRM.templates.email.ALL,ZohoCRM.templates.inventory.ALL,ZohoCRM.settings.users_unavailability.ALL,ZohoCRM.settings.clientportal.ALL,ZohoCRM.settings.fiscal_year.READ,ZohoCRM.settings.business_hours.ALL,ZohoCRM.org.ALL,ZohoSearch.securesearch.READ,ZohoCRM.modules.services.ALL,ZohoCRM.modules.appointments.ALL,ZohoCRM.modules.appointments_rescheduled_history.ALL,ZohoCRM.settings.mailmerge.CREATE,ZohoWriter.documentEditor.ALL,ZohoWriter.merge.ALL,ZohoCRM.settings.emails.ALL,ZohoCRM.modules.attachments.ALL,ZohoCRM.settings.currencies.READ,ZohoCRM.settings.currencies.CREATE,ZohoCRM.settings.currencies.UPDATE,ZohoCRM.Files.READ,ZohoCRM.Files.CREATE,ZohoCRM.change_owner.CREATE,ZohoCRM.modules.emails.ALL,ZohoCRM.composite_requests.CUSTOM,ZohoCRM.bulk.backup.ALL,ZohoCRM.bulk.READ,ZohoFiles.files.ALL,ZohoCRM.bulk.CREATE,ZohoCRM.notifications.ALL,ZohoCRM.coql.READ",
+                    "state": "uuidv4()",
+                    "client_id": "{{secrets.client_id}}",
+                    "grant_type": "authorization_code",
+                    "redirect_uri": "{{secrets.redirect_uri}}",
+                    "client_secret": "{{secrets.client_secret}}"
+                },
+                "method": "post",
+                "headers": {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.error}}",
+                        "message": "{{response.data.error_description}}"
+                    },
+                    "output": {
+                        "expires_in": "{{response.data.expires_in}}",
+                        "token_type": "Bearer",
+                        "access_token": "{{response.data.access_token}}",
+                        "refresh_token": "{{response.data.refresh_token}}"
+                    }
+                }
+            },
+            "refresh": {
+                "qs": {
+                    "client_id": "{{secrets.client_id}}",
+                    "grant_type": "refresh_token",
+                    "redirect_uri": "{{secrets.redirect_uri}}",
+                    "client_secret": "{{secrets.client_secret}}",
+                    "refresh_token": "{{secrets.refresh_token}}"
+                },
+                "url": "https://accounts.zoho.in/oauth/v2/token",
+                "method": "post",
+                "response": {
+                    "error": {
+                        "code": "{{response.data.error}}",
+                        "message": "{{response.data.error_description}}"
+                    },
+                    "output": {
+                        "expires_in": "{{response.data.expires_in}}",
+                        "token_type": "Bearer",
+                        "access_token": "{{response.data.access_token}}"
+                    }
+                }
+            },
+            "validate": {
+                "url": "https://www.zohoapis.in/crm/v2/users",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "authorize": {
+                "qs": {
+                    "scope": "ZohoCRM.settings.ALL,ZohoCRM.settings.profiles.ALL,ZohoCRM.settings.roles.ALL,ZohoCRM.settings.territories.All,ZohoCRM.modules.ALL,ZohoCRM.users.All,ZohoCRM.settings.scoring_rules.ALL,ZohoCRM.modules.entity_scores.READ,ZohoCRM.settings.signals.ALL,ZohoCRM.settings.variables.ALL,ZohoCRM.settings.map_dependency.ALL,ZohoCRM.settings.user_groups.ALL,ZohoCRM.settings.pipeline.ALL,ZohoCRM.settings.wizards.READ,ZohoCRM.settings.assignment_rules.ALL,ZohoCRM.templates.email.ALL,ZohoCRM.templates.inventory.ALL,ZohoCRM.settings.users_unavailability.ALL,ZohoCRM.settings.clientportal.ALL,ZohoCRM.settings.fiscal_year.READ,ZohoCRM.settings.business_hours.ALL,ZohoCRM.org.ALL,ZohoSearch.securesearch.READ,ZohoCRM.modules.services.ALL,ZohoCRM.modules.appointments.ALL,ZohoCRM.modules.appointments_rescheduled_history.ALL,ZohoCRM.settings.mailmerge.CREATE,ZohoWriter.documentEditor.ALL,ZohoWriter.merge.ALL,ZohoCRM.settings.emails.ALL,ZohoCRM.modules.attachments.ALL,ZohoCRM.settings.currencies.READ,ZohoCRM.settings.currencies.CREATE,ZohoCRM.settings.currencies.UPDATE,ZohoCRM.Files.READ,ZohoCRM.Files.CREATE,ZohoCRM.change_owner.CREATE,ZohoCRM.modules.emails.ALL,ZohoCRM.composite_requests.CUSTOM,ZohoCRM.bulk.backup.ALL,ZohoCRM.bulk.READ,ZohoFiles.files.ALL,ZohoCRM.bulk.CREATE,ZohoCRM.notifications.ALL,ZohoCRM.coql.READ",
+                    "state": "{{uuidv4()}}",
+                    "prompt": "consent",
+                    "client_id": "{{secrets.client_id}}",
+                    "access_type": "offline",
+                    "redirect_uri": "{{secrets.redirect_uri}}",
+                    "response_type": "code"
+                },
+                "url": "https://accounts.zoho.in/oauth/v2/auth",
+                "method": "get",
+                "response": {
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "value": "v1/zoho_crm/oauth2/callback",
+                        "validation": {
+                            "required": true
+                        },
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "redirect_uri"
+                },
+                {
+                    "meta": {
+                        "htmlProps": {
+                            "size": "small",
+                            "style": {
+                                "color": "#ffffff",
+                                "height": "40px",
+                                "padding": "16px",
+                                "fontSize": "14px",
+                                "fontWeight": 700,
+                                "backgroundColor": "#ff592f"
+                            },
+                            "variant": "contained"
+                        },
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Please connect with ZohoCRM first"
+                            }
+                        },
+                        "displayName": "Connect Zoho CRM Account",
+                        "displayType": "button",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "refresh_token",
+                                    "operator": "EMPTY"
+                                },
+                                {
+                                    "field": "expires_in",
+                                    "operator": "EMPTY"
+                                },
+                                {
+                                    "field": "expiry_date",
+                                    "operator": "EMPTY"
+                                },
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        },
+                        "displayProps": {
+                            "size": "small",
+                            "variant": "contained"
+                        }
+                    },
+                    "name": "oauth2"
+                },
+                {
+                    "meta": {
+                        "htmlProps": {
+                            "size": "small",
+                            "color": "success",
+                            "variant": "contained"
+                        },
+                        "displayName": "Zoho CRM Account Connected",
+                        "displayType": "button",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "refresh_token",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "expiry_date",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "expires_in",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                },
+                                {
+                                    "field": "meta.auth_status",
+                                    "value": "ACTIVE",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "oauth2_connected"
+                },
+                {
+                    "meta": {
+                        "htmlProps": {
+                            "size": "small",
+                            "color": "error",
+                            "variant": "contained"
+                        },
+                        "displayName": "Reconnect Zoho CRM",
+                        "displayType": "button",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "refresh_token",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "expiry_date",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "expires_in",
+                                    "operator": "NOT_EMPTY"
+                                },
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                },
+                                {
+                                    "field": "meta.auth_status",
+                                    "value": "REVOKED",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "oauth2_reconnect"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "displayName": "Refresh Token",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "refresh_token"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "displayName": "Access Token",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "access_token"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "displayName": "Auth Status",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "meta.auth_status"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "displayName": "Expiry Date",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "expiry_date"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "displayName": "Expires In",
+                        "displayType": "hidden",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "oauth2",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "expires_in"
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "oauth2",
+                    "options": [
+                        {
+                            "label": "OAuth2",
+                            "value": "oauth2"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "select",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ]
+    },
+    "created_by": "ruchivishwakarma@fynd-external.com",
+    "modified_by": "ruchivishwakarma@fynd-external.com",
+    "created_at": "2025-06-18T11:57:00.032Z",
+    "updated_at": "2025-07-04T07:13:59.789Z"
+}

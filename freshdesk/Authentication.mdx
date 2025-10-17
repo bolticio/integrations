@@ -1,0 +1,93 @@
+{
+    "id": "afc0d7f1-bfb4-4b26-ace8-e29eba83086f",
+    "documentation": "\n\n# Freshdesk\n\n\n\nThis guide walks you through setting up the Freshdesk integration within Boltic.\n\n\n\n## Prerequisites\n\nTo set up the Freshdesk integration, you'll need:\n\n- A Freshdesk account\n\n- The Freshdesk domain name\n\n- The Freshdesk API Key\n\n\n\n## Setting Up the Freshdesk Integration in Boltic\n\n1. **Log In**\n\n   - Log into your Freshdesk account.\n\n\n\n2. **Obtain API Key**\n\n   - In the upper-right corner, click on your profile picture and select **Profile Settings**.\n\n   - In the right sidebar, click the **View API key** button.\n\n   - Copy the API key value shown and store it in a safe place.\n\n\n\n3. **Log into Boltic**\n\n   - Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n\n\n4. **Navigate to Integrations**\n\n   - Click on `Sources` and then click on `+ Add New source`.\n\n\n\n5. **Select Source Type**\n\n   - On the Set up the source page, search for `Freshdesk` from the search bar and select it.\n\n\n\n6. **Configure Integration**\n\n   - **Name:** Enter a name for the Freshdesk integration.\n\n   - **Domain:** Enter your Freshdesk domain name. For example, if your Freshdesk URL is `https://abc.freshdesk.com`, enter `abc`.\n\n   - **API Key:** Paste the API key copied from the Freshdesk Profile Settings.\n\n\n\n7. **Details (Optional)**\n\n   - **Tags:** Add any tags for categorization.\n\n   - **Description:** Provide a brief description of the integration.\n\n\n\n8. **Test and Save Integration**\n\n   - Click `Test Connection` to ensure the provided details are correct and the connection is successful.\n\n   - Once the connection test is successful, click `Set up source` to complete the configuration.\n\n\n\n## Setting Up Freshdesk Webhooks\n\nFreshdesk uses webhooks to trigger a scenario when an event occurs. To set up a webhook:\n\n1. Add a Freshdesk instant module to your scenario and click **Create a webhook**.\n\n2. **Webhook Name:** Enter a name for the webhook (optional).\n\n3. **Connection:** Select the corresponding connection for the webhook.\n\n4. Click **Save** and then **Copy address to clipboard**.\n\n5. Log in to your Freshdesk account using <a href=\"https://support.freshdesk.com/support/login\" target=\"_blank\" rel=\"noopener\"><span>Freshdesk Login</span></a>.\n\n6. Follow the directions as outlined in the <a href=\"https://support.freshdesk.com/support/home\" target=\"_blank\" rel=\"noopener\"><span>Freshdesk Using Webhooks in Automation documentation</span></a>.\n\nFreshdesk will now send data to Boltic through the webhook when the selected event occurs.\n\n\n\n## Frequently Asked Questions (FAQs)\n\n1. **How do I find my Freshdesk API Key?**\n\n   - Navigate to your Freshdesk account settings and look for the Profile Settings tab to find your API Key. Follow the instructions provided earlier in this guide.\n\n\n\n2. **What should I do if my connection fails?**\n\n   - Ensure your API Key is correct.\n\n   - Verify the domain name and ensure there are no typos.\n\n   - Check your network connection and firewall settings.\n\n\n\n3. **How often is the data synced?**\n\n   - The data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.\n\n\n\n4. **Can I customize the data being synced?**\n\n   - Yes, you can customize the data being synced by adjusting the settings during the setup process.\n\n\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n\n",
+    "integration_id": "dac62a40-2b33-42f4-87a4-ba8d8540a559",
+    "content": {
+        "api_key": {
+            "validate": {
+                "url": "https://{{secrets.company}}.freshdesk.com/api/v2/tickets",
+                "method": "get",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "description": "Please enter Domain name (Helpdesk Name) exactly how it appears on Freshdesk. If your Freshdesk URL is 'https://abc.freshdesk.com' then enter 'abc' here",
+                        "displayName": "Company",
+                        "displayType": "text",
+                        "placeholder": "Enter Freshdesk company name",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "api_key",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "company"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true
+                        },
+                        "description": "Your API key obtained from FreshDesk",
+                        "displayName": "API Key",
+                        "displayType": "password",
+                        "placeholder": "Enter your API key",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "api_key",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "api_key"
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "api_key",
+                    "options": [
+                        {
+                            "label": "API Key",
+                            "value": "api_key"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "hidden",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:31.060Z",
+    "updated_at": "2025-06-25T14:48:03.703Z"
+}

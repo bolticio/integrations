@@ -1,0 +1,91 @@
+# Copilot Tool Definitions
+
+Copilot tool definitions specify external functions, APIs, or actions that a model can call to extend its capabilities beyond text generation. These tools enable Copilot's LLMs to access external data, perform specific computations, or interact with the environment.
+
+---
+
+## Parts of a Tool Definition
+
+A tool definition comprises the following parts:
+
+1. **Tool Name**
+2. **Active Status**: Indicates whether the tool is active.
+3. **Host ID Authentication**: Specifies if the tool requires Host ID authentication.
+4. **Tool Description**: A brief explanation of the tool's purpose.
+5. **Tool Parameters**:
+   - **Parameter Name**
+   - **Parameter Description**
+   - **Required Status**: Whether the parameter is mandatory.
+   - **Data Type**: Specifies the data type of the parameter.
+   - **Applicable Surfaces**: Lists all surfaces where the parameter is applicable.
+
+   *Note*: A tool may have multiple input parameters.
+6. **Allowed Surfaces**: Specifies the surfaces where the tool is visible or active.
+
+---
+
+## How Tool Definitions Work
+
+To use a tool, the following prerequisites must be met:
+
+1. A Copilot workflow must start with a **CopilotWebhook Trigger**.
+2. The trigger can be followed by single input and output workflow activities, such as APIs or functions that may act as middleware.
+3. The workflow must include a **Switch Activity**, connected to the tool definitions.
+4. When a tool is triggered by Copilot, it sends the following payload:
+
+```json
+{
+    "payload": {
+        "event": "tool_name_to_be_triggered",
+        "copilotInputArgs": {
+            "param1": "string/int/bool"
+        },
+        "copilotAppId": "string",
+        "organizationId": int,
+        "threadId": "string",
+        "copilotUser": {
+            "id": "string",
+            "copilotAppId": "string",
+            "name": "string",
+            "email": "string",
+            "phone": "string",
+            "profilePicUrl": "string",
+            "hostId": "string",
+            "verified": bool,
+            "meta": {
+                "additionalFields": {}
+            },
+            "surfaces": [
+                "web"
+            ],
+            "device": {
+                "host": "script.copilot.live",
+                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                "appVersion": "5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                "languages": [
+                    "en-US",
+                    "hi",
+                    "en"
+                ],
+                "platform": "MacIntel"
+            },
+            "organizationId": int,
+            "createdAt": "2024-12-12T15:20:23.764Z",
+            "updatedAt": "2024-12-19T06:17:03.074Z"
+        },
+        "conversationContext": {}
+    }
+}
+```
+                
+
+5. The **Switch Activity** executes a specific Copilot tool based on the `payload.event` field.
+6. Input arguments are present inside `payload.copilotInputArgs`.
+7. The last node executed in a workflow marks the end of a workflow call. The information returned by that node serves as the result of the tool call.
+
+---
+
+## For More Information
+
+For further details on workflows and how to implement them, please refer to the comprehensive [Copilot Documentation](https://platform.copilot.live/docs/workflows/copilottool/).
+

@@ -1,0 +1,103 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Custom API",
+                        "value": "custom.custom_api"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "custom",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "a6935afd-f677-4d87-abbf-2fd2f5b0a23b",
+    "integration_id": "20535a48-95a8-498d-8111-3a03e746e355",
+    "resource_id": "7df8cf44-d308-4ba6-8372-028facbd3ec0",
+    "name": "classify",
+    "content": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "body": {
+                "inputs": "{{parameters.text}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "text_functions",
+                            "operation": "text_functions.classify",
+                            "loadOptionsMethod": "getModelsClassification"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for classification.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the text for classification.",
+                    "displayName": "Text to Classify",
+                    "displayType": "text",
+                    "placeholder": "Enter the text to classify"
+                },
+                "name": "text"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:45.513Z",
+    "updated_at": "2025-06-25T14:49:38.139Z"
+}

@@ -1,0 +1,95 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Get Stock Item by SKU",
+                        "value": "stockItem.getBySku",
+                        "description": "Get stock item details for a specific product SKU."
+                    },
+                    {
+                        "label": "Get Low Stock Items",
+                        "value": "stockItem.lowStock",
+                        "description": "Get items with low stock."
+                    },
+                    {
+                        "label": "Get Stock Status by SKU",
+                        "value": "stockItem.getStockStatusBySku",
+                        "description": "Get stock status details for a specific product SKU."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "stockItem",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "id": "da473dd2-e815-48ed-b12e-4d360e2298b0",
+    "integration_id": "edeb3598-38fd-40ea-b38f-ece3e1e6f1f3",
+    "resource_id": "4a8d1531-b825-4d28-9862-bcbb8a5528dd",
+    "name": "sendEmail",
+    "content": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/default/V1/shipment/{{parameters.id}}/emails",
+            "body": {
+                "email": "{{parameters.email}}"
+            },
+            "method": "post",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the shipment to send an email for.",
+                    "displayName": "Shipment ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the shipment ID"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The email address to send the shipment details to.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the email address"
+                },
+                "name": "email"
+            }
+        ]
+    },
+    "created_by": "ruchivishwakarma@fynd-external.com",
+    "modified_by": "ruchivishwakarma@fynd-external.com",
+    "created_at": "2025-06-17T04:52:46.306Z",
+    "updated_at": "2025-06-17T13:39:54.101Z"
+}

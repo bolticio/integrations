@@ -1,0 +1,161 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create a Customer",
+                        "value": "customers.create",
+                        "description": "Create a new customer account"
+                    },
+                    {
+                        "label": "Send Account Invite",
+                        "value": "customers.send_invite",
+                        "description": "Send an invitation to a customer to activate their account"
+                    },
+                    {
+                        "label": "Get details of the customer list",
+                        "value": "customers.get_list",
+                        "description": "Retrieve a list of all customers"
+                    },
+                    {
+                        "label": "Get a Customer",
+                        "value": "customers.get",
+                        "description": "Retrieve details of a specific customer"
+                    },
+                    {
+                        "label": "Get Customer Orders",
+                        "value": "customers.get_orders",
+                        "description": "Fetch all orders associated with a specific customer"
+                    },
+                    {
+                        "label": "Get Customer Count",
+                        "value": "customers.count",
+                        "description": "Retrieve the total number of customers"
+                    },
+                    {
+                        "label": "Update a Customer",
+                        "value": "customers.update",
+                        "description": "Modify details of an existing customer"
+                    },
+                    {
+                        "label": "Delete a Customer",
+                        "value": "customers.delete",
+                        "description": "Remove a customer from the store"
+                    },
+                    {
+                        "label": "Add Tag to Customer",
+                        "value": "customers.add_tag",
+                        "description": "Assign a tag to a customer"
+                    },
+                    {
+                        "label": "Remove Tag from Customer",
+                        "value": "customers.remove_tag",
+                        "description": "Remove a tag from a customer"
+                    },
+                    {
+                        "label": "Find Customer by Email",
+                        "value": "customers.find_by_email",
+                        "description": "Search for a customer using their email address"
+                    },
+                    {
+                        "label": "Find Customer by Name",
+                        "value": "customers.find_by_name",
+                        "description": "Search for a customer using their name"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "customers",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getCustomers": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/search.json",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-shopify-access-token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.customers}}"
+            }
+        }
+    },
+    "id": "a3a29e7d-8445-4eaf-af94-3ca8002e5fbf",
+    "integration_id": "21d6d45e-fd60-4722-9634-d0b46acf677e",
+    "resource_id": "3087792e-b85d-4b9d-8e0f-6c0e051cfaa4",
+    "name": "find",
+    "content": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}/transactions.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "transaction",
+                            "operation": "transaction.find",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Select an order"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:25.976Z",
+    "updated_at": "2025-06-11T12:12:25.976Z"
+}

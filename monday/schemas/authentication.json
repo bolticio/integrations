@@ -1,0 +1,80 @@
+{
+    "id": "a5cacd89-f197-4fff-9071-ad68b5b22c32",
+    "documentation": "# Monday.com\n\nThis guide walks you through setting up the Monday.com integration within Boltic.\n\n## Prerequisites\n\nTo set up the Monday.com integration, you'll need:\n\n- A Monday.com account\n\nIf you don't have a Monday.com account, you can create one at <a href=\"https://auth.monday.com/users/sign_up_new?origin=hp_fullbg_page_header\" target=\"_blank\" rel=\"noopener\">Monday.com</a>.\n\n## Setting Up the Monday.com Integration in Boltic\n\n1. **Create an API Token**\n   - Log into your Monday.com account\n   - Visit the <a href=\"https://boltic-company.monday.com/apps/manage?placement=dev_center\" target=\"_blank\" rel=\"noopener\">Monday Developer Center</a>\n   - Click on \"My Access Tokens\" in the left sidebar\n   - Click \"Generate New Token\"\n   - Copy and securely store your API token\n\n2. **Log into Boltic**\n   - Log into your Boltic account or navigate to the Boltic Open Source dashboard\n\n3. **Navigate to Integrations**\n   - Click on `Sources` in the navigation menu\n   - Click on `+ Add New source`\n\n4. **Select Source Type**\n   - On the Set up the source page, search for `Monday` in the search bar\n   - Select Monday.com from the results\n\n5. **Configure Integration**\n   - **Name:** Enter a descriptive name for your Monday.com integration\n   - **API Token:** Paste the API token you generated earlier\n   - **Workspace:** Select the workspace you want to connect\n\n6. **Additional Details (Optional)**\n   - **Tags:** Add relevant tags for better organization\n   - **Description:** Provide a brief description of the integration's purpose\n\n7. **Test and Save Integration**\n   - Click `Test Connection` to verify your API token and settings\n   - If successful, click `Set up source` to complete the configuration\n\n## Support\n\nIf you need assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\">Support Documentation</a>.\n\n",
+    "integration_id": "eea02631-186e-4a1a-8170-525871a4a683",
+    "content": {
+        "parameters": [
+            {
+                "meta": {
+                    "value": "access_token",
+                    "options": [
+                        {
+                            "label": "Access Token",
+                            "value": "access_token",
+                            "description": "Secure token-based authentication for API access"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the authentication method for connecting to Monday.com",
+                    "displayName": "Authentication Type",
+                    "displayType": "hidden",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ],
+        "access_token": {
+            "validate": {
+                "url": "https://api.monday.com/v2",
+                "body": {
+                    "query": "{ me { id name email is_guest created_at name id} }"
+                },
+                "method": "post",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "{{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.errors[0].message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "value": "",
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Access token is a required field"
+                            }
+                        },
+                        "description": "Refer to the <a href='https://developer.monday.com/api-reference/docs/authentication' target='blank'>Monday.com authenticaton documentation</a> for detailed instructions on getting your access token.",
+                        "displayName": "Access Token",
+                        "displayType": "password",
+                        "placeholder": "Access Token is required field",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "access_token",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "access_token"
+                }
+            ]
+        }
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:40.451Z",
+    "updated_at": "2025-06-25T14:50:00.562Z"
+}

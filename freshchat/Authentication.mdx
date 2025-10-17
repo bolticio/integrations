@@ -1,0 +1,101 @@
+{
+    "id": "5ad2e720-6e9d-4213-a3cb-b97cf7fc787d",
+    "documentation": "\n\n# Freshchat\n\n\n\nThis guide walks you through setting up the Freshchat integration within Boltic.\n\n\n\n## Prerequisites\n\nTo set up the Freshchat integration, you'll need:\n\n- A Freshchat account  \n  You can create an account at <a href=\"https://www.freshworks.com/live-chat-software/\" target=\"_blank\" rel=\"noopener\"><span>Freshchat Create Account</span></a>.\n\n\n\n## Setting Up the Freshchat Integration in Boltic\n\n1. **Log In**\n\n   - Log into your Freshchat account.\n\n\n\n2. **Obtain API Token**\n\n   - Navigate to **Settings** > **API Tokens** > **Generate My API Token**.\n\n   - Copy the API token generated and store it in a safe place.\n\n\n\n3. **Log into Boltic**\n\n   - Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n\n\n4. **Navigate to Integrations**\n\n   - Click on `Sources` and then click on `+ Add New source`.\n\n\n\n5. **Select Source Type**\n\n   - On the Set up the source page, search for `Freshchat` from the search bar and select it.\n\n\n\n6. **Configure Integration**\n\n   - **Name:** Enter a name for the Freshchat integration.\n\n   - **API Key:** Paste the API token copied from the Freshchat settings.\n\n   - **Region:** Select the applicable region from the dropdown menu.\n\n\n\n7. **Details (Optional)**\n\n   - **Tags:** Add any tags for categorization.\n\n   - **Description:** Provide a brief description of the integration.\n\n\n\n8. **Test and Save Integration**\n\n   - Click `Test Connection` to ensure the provided details are correct and the connection is successful.\n\n   - Once the connection test is successful, click `Set up source` to complete the configuration.\n\n\n\n## Frequently Asked Questions (FAQs)\n\n1. **How do I find my Freshchat API token?**\n\n   - Log in to your Freshchat account and navigate to the Settings > API Tokens > Generate My API Token. Follow the instructions provided to generate and copy your API token.\n\n\n\n2. **What should I do if my connection fails?**\n\n   - Ensure the API token is correct.\n\n   - Verify that the selected region corresponds to your Freshchat account's region.\n\n   - Double-check the validity of the token and ensure it has not expired or been revoked.\n\n   - Check your network connection and firewall settings for any potential issues.\n\n\n\n3. **How often is the data synced?**\n\n   - The data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.\n\n\n\n4. **Can I customize the data being synced?**\n\n   - Yes, you can customize the data being synced by selecting specific modules and adjusting the settings during the setup process. This allows you to tailor the data flow to suit your specific requirements.\n\n\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n\n",
+    "integration_id": "cab40bc8-087f-4d9e-aa66-eb34aea7d887",
+    "content": {
+        "api_key": {
+            "validate": {
+                "url": "https://{{secrets.domain}}.freshchat.com/v2/accounts/configuration",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Bearer {{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.errorMessage}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Domain is required"
+                            }
+                        },
+                        "description": "The domain in the Freshchat CRM org URL. For example, in <a href='https://boltic.freshchat.com/v2' target='_blank'>https://boltic.freshchat.com/v2</a>, the domain is boltic.",
+                        "displayName": "Domain",
+                        "displayType": "text",
+                        "placeholder": "Enter Domain",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "api_key",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "domain"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "API key is required"
+                            }
+                        },
+                        "description": "Refer to the <a href='https://developers.freshchat.com/api/#authentication' target='blank'>Freshchat API authenticaton documentation</a> for detailed instructions on getting your API key.",
+                        "displayName": "API Key",
+                        "displayType": "password",
+                        "placeholder": "Enter API Key",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "api_key",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "api_key"
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "api_key",
+                    "options": [
+                        {
+                            "label": "API Key",
+                            "value": "api_key"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Authentication type is required"
+                        }
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "select",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:21.459Z",
+    "updated_at": "2025-06-11T12:12:21.459Z"
+}

@@ -1,0 +1,78 @@
+{
+    "id": "53130991-f563-47cb-9760-8fd075b847ba",
+    "documentation": "# Facebook Posts API\n\nThe Pages API is a set of Facebook Graph API endpoints that apps can use to create and manage a Page's settings and content.\n\n# Components\n\n## Access Tokens\n\n- API authentication is handled through Access Tokens.\n- Most endpoints require Page access tokens, which are:\n  - Unique to each Page, app User, and app.\n  - Have an expiration time.\n- To obtain a token from an app User:\n  - The app User must own or have a Task on the Page.\n  - Use Facebook Login for token retrieval.\n\n- **For New Page Experience:**\n  - A Page access token is required for all endpoints except:\n    - `/{user-id}/accounts`\n    - `/pages/search`\n    - `/{user-id}/likes`\n    - `/{page-id}`\n\n## Graph API\n\n- If unfamiliar with the Graph API:\n  - Refer to [Meta's Graph API documentation](https://developers.facebook.com/docs/graph-api).\n\n## Facebook Login\n\n- Enables app users to log into your app.\n- Requests permissions to access data.\n\n## Facebook Login for Business\n\n- Preferred for Tech Providers and business app developers.\n- Allows access to business clients' assets.\n\n## Features\n\n- Some endpoints require Features that must be approved through App Review.\n- Features allow:\n  - Access to public Page data.\n  - Tasks without explicit permission.\n\n## Mentions\n\n- Allows Pages to:\n  - Publicly reply to a specific person.\n  - Mention those who post or comment on the Page.\n\n## Page-Scoped User IDs (PSID)\n\n- Unique IDs for each User-Page pair.\n- Used for:\n  - Identifying interactions on Pages.\n  - Public Messenger conversations.\n\n## Permissions\n\n- Required for most endpoints.\n- Granted via:\n  - Facebook Login.\n  - Business Manager (for apps claimed by a Business).\n\n- **App Review:**\n  - Permissions must be approved for live apps.\n  - Business apps need Advanced access for permissions.\n\n## Page Search\n\n- Find information about Facebook Pages, including:\n  - Names.\n  - Locations.\n  - `@Mentions`.\n  - Tagging Pages for branded content.\n\n## Rate Limits\n\n- All Pages endpoint requests are subject to rate limits.\n- View usage in the App Dashboard.\n\n## Tasks\n\n- Users can perform specific actions on Pages based on their task assignment.\n\n### Task and Actions\n\n- **ADVERTISE:** Create ads, unpublished posts, and ads for Instagram-connected Pages.\n- **ANALYZE:** View Page Insights and admin activities.\n- **CREATE_CONTENT:** Publish content as the Page.\n- **MANAGE:** Assign/manage Page tasks.\n- **MANAGE_LEADS:** View and manage leads.\n- **MESSAGING:** Send messages as the Page.\n- **MODERATE:** Respond to/delete comments and publish Instagram content.\n- **VIEW_MONETIZATION_INSIGHTS:** View monetization insights.\n\n- Admin access allows all tasks on a Page.\n\n## Messenger Platform\n\n- Engage with customers or interested individuals via Messenger.\n\n## Meta Webhooks for Pages\n\n- Receive real-time notifications for:\n  - Comments on posts.\n  - Reactions to Page posts.\n\n## App Review\n\n- All permissions and features require approval via App Review.\n- Apps in Development Mode can request permissions for users with app roles.\n\n## How It Works\n\n1. Obtain a User Access Token using Facebook Login.\n2. Query the `/me/accounts` endpoint to retrieve:\n   - Page ID.\n   - Page Access Token.\n3. Use the retrieved ID and token to interact with the Page node.\n\n- If multiple Pages are granted:\n  - Capture all Page IDs and tokens.\n  - Provide app Users with options to target specific Pages.\n",
+    "integration_id": "a5f2267c-0be9-49e4-bce9-964c04001759",
+    "content": {
+        "api_key": {
+            "validate": {
+                "url": "https://graph.facebook.com/facebook/picture?redirect=false",
+                "method": "get",
+                "headers": {
+                    "Accept": "application/json",
+                    "facebook-api-key": "Bearer {{secrets.api_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Please add the api token"
+                            }
+                        },
+                        "description": "Your Facebook    API Key. Refer to the <a href='https://developers.facebook.com/docs/graph-api/overview#access-tokens' target='_blank'>Facebook API documentation</a> for details.",
+                        "displayName": "API token",
+                        "displayType": "password",
+                        "placeholder": "Enter API token",
+                        "dependencies": {
+                            "conditions": [
+                                {
+                                    "field": "type",
+                                    "value": "api_key",
+                                    "operator": "EQUALS"
+                                }
+                            ]
+                        }
+                    },
+                    "name": "api_token"
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "api_key",
+                    "options": [
+                        {
+                            "label": "API Key",
+                            "value": "api_key"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please select the authentication type"
+                        }
+                    },
+                    "description": "Choose the type of authentication you want to use.",
+                    "displayName": "Authentication Type",
+                    "displayType": "select",
+                    "placeholder": "Select an authentication type"
+                },
+                "name": "type"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:32.720Z",
+    "updated_at": "2025-06-11T12:12:32.720Z"
+}

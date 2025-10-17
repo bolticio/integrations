@@ -1,0 +1,159 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create an Attribute Term",
+                        "value": "attributeTerms.create",
+                        "description": "Create a new term (e.g., Small, Red) for a given product attribute."
+                    },
+                    {
+                        "label": "Get Attribute Term",
+                        "value": "attributeTerms.getOne",
+                        "description": "Retrieve a product attribute term by its ID."
+                    },
+                    {
+                        "label": "List Attribute Terms",
+                        "value": "attributeTerms.list",
+                        "description": "Get all terms for a specific product attribute."
+                    },
+                    {
+                        "label": "Update an Attribute Term",
+                        "value": "attributeTerms.update",
+                        "description": "Update an existing attribute term."
+                    },
+                    {
+                        "label": "Delete an Attribute Term",
+                        "value": "attributeTerms.delete",
+                        "description": "Delete a specific attribute term."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the action you want to perform on attribute terms.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "attributeTerms",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getAttribute": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/products/attributes",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "id": "70a1d588-10c4-4229-84ef-1986289ae4fa",
+    "integration_id": "5fc76917-0fff-45f4-bf17-50de5034b32b",
+    "resource_id": "c3b15d83-c54b-41c7-91e7-9a0914d9b918",
+    "name": "get",
+    "content": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes/{{parameters.note_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.get",
+                            "loadOptionsMethod": "getOrder"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the order.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Order ID"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "order_id": "{{parameters.order_id}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.get",
+                            "loadOptionsMethod": "list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id",
+                        "condition": "{{parameters.order_id}}"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the note.",
+                    "displayName": "Note ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Note ID"
+                },
+                "name": "note_id"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "created_at": "2025-06-11T12:12:23.680Z",
+    "updated_at": "2025-06-11T12:12:23.680Z"
+}

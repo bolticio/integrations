@@ -1,0 +1,126 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Call Phone",
+                        "value": "call.create",
+                        "description": "Calls a number using Twilio."
+                    },
+                    {
+                        "label": "List Calls",
+                        "value": "call.list",
+                        "description": "Returns a list of calls associated with your Twilio account."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "call",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getPhoneNumbers": {
+        "definition": {
+            "qs": {
+                "PageSize": "500"
+            },
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/IncomingPhoneNumbers.json",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.incoming_phone_numbers}}"
+            }
+        }
+    },
+    "id": "04604ad2-37ad-4ac4-a0ea-ad0854317eaf",
+    "integration_id": "01b37a7d-3d5c-4eab-aac0-d82caafb62db",
+    "resource_id": "c98e9129-0b7b-48c2-aca5-d84848ad95dc",
+    "name": "send",
+    "content": {
+        "definition": {
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
+            "body": {
+                "To": "whatsapp:{{parameters.to}}",
+                "Body": "{{parameters.body}}",
+                "From": "whatsapp:{{parameters.from}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/x-www-form-urlencoded",
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.message}}",
+                    "more_info": "{{response.data.more_info}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Recipient's WhatsApp number.",
+                    "displayName": "To Number",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient's WhatsApp number"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Sender's phone number for the whatsapp.",
+                    "displayName": "From Number",
+                    "displayType": "text",
+                    "placeholder": "Select sender's Twilio phone number"
+                },
+                "name": "from"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The message content to send.",
+                    "displayName": "Message Body",
+                    "displayType": "text",
+                    "placeholder": "Enter the message body."
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:19.111Z",
+    "updated_at": "2025-10-07T09:52:44.211Z"
+}

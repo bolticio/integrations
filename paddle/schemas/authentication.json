@@ -1,0 +1,85 @@
+{
+    "id": "3721260d-03e7-4044-8679-421746d83148",
+    "documentation": "# Paddle\n\n## Overview\n\nPaddle is a complete payments and billing platform for SaaS companies. It provides a comprehensive solution for handling subscriptions, one-time payments, tax compliance, and billing operations. \n\nYou can access Paddle's functionality programmatically using the Paddle API.\n\n## Authentication Ways\n\n- Personal API Key\n\n## Personal API Key\n\nTo authenticate with Paddle, you need to create a Personal API Key in your Paddle dashboard. This key provides access to your Paddle account data and allows you to perform operations through the API.\n\n**Steps:**\n\n1. **Create a Paddle Account**\n    - Go to <a href=\"https://login.paddle.com/signup\" target=\"_blank\" rel=\"noopener\"><span>Paddle sign-up page</span></a>\n    - Create your account and complete the setup process\n    - Verify your email address and complete any required verification steps\n\n2. **Access Developer Tools**\n    - Log into your Paddle dashboard\n    - Navigate to **Developer Tools** in the main menu\n    - Click on the **Authentication** tab\n\n3. **Generate Your API Key**\n    - In the Authentication section, locate the **API keys** area\n    - You can either:\n        - Copy an existing key if one is already created\n        - Click **Create New Key** to generate a new Personal API Key\n    - Ensure that provide Notification(Read) access is provided to the API Key. This is used to test the authentication flow.\n    - Store this key securely as it will be used for authentication\n\n4. **Select Environment**\n    - Choose the appropriate environment for your integration:\n        - **Sandbox**: For testing and development\n        - **Live**: For production use\n    - Ensure you're using the correct environment URL:\n        - Sandbox: `https://sandbox-api.paddle.com`\n        - Live: `https://api.paddle.com`\n\nFor more details, see the <a href=\"https://developer.paddle.com/api-reference/about/authentication\" target=\"_blank\" rel=\"noopener\"><span>Paddle API Authentication documentation</span></a>.\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n",
+    "integration_id": "f02aa846-6602-47ff-980b-27562eb74c41",
+    "content": {
+        "api_key": {
+            "validate": {
+                "url": "https://{{secrets.environment_url}}/events",
+                "method": "get",
+                "headers": {
+                    "Authorization": "Bearer {{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data}}. Refer to the Paddle docs: {{response.data.error.documentation_url}}."
+                    },
+                    "output": "{{response.data}}"
+                }
+            },
+            "parameters": [
+                {
+                    "meta": {
+                        "options": [
+                            {
+                                "label": "Sandbox",
+                                "value": "sandbox-api.paddle.com"
+                            },
+                            {
+                                "label": "Production",
+                                "value": "api.paddle.com"
+                            }
+                        ],
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "Environment is required"
+                            }
+                        },
+                        "description": "Choose an environment for hitting Paddle APIs.",
+                        "displayName": "Environment",
+                        "displayType": "select",
+                        "placeholder": "Select a paddle account environment"
+                    },
+                    "name": "environment_url"
+                },
+                {
+                    "meta": {
+                        "validation": {
+                            "required": true,
+                            "requiredDetail": {
+                                "errorMsg": "API key is required"
+                            }
+                        },
+                        "description": "Refer to the <a href='https://developer.paddle.com/api-reference/about/authentication' target='blank'>Paddle authentication documentation</a> for detailed instructions on getting your API key.",
+                        "displayName": "API key",
+                        "displayType": "password",
+                        "placeholder": "Enter API key"
+                    },
+                    "name": "api_key"
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "api_key",
+                    "options": [
+                        {
+                            "label": "API key",
+                            "value": "api_key"
+                        }
+                    ],
+                    "displayName": "Authentication Type",
+                    "displayType": "hidden"
+                },
+                "name": "type"
+            }
+        ]
+    },
+    "created_by": "dev@boltic.io",
+    "modified_by": "ahmedsakri@gofynd.com",
+    "created_at": "2025-06-11T12:12:22.610Z",
+    "updated_at": "2025-08-18T08:22:15.890Z"
+}
