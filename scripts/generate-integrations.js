@@ -122,12 +122,12 @@ async function main() {
     if (authentication?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "authentication.json"),
-        authentication.data.data,
+        authentication.data.data.content,
         { spaces: 4 }
       );
       await fs.writeFile(
         path.join(integrationFolder, "Authentication.mdx"),
-        JSON.stringify(authentication.data.data, null, 4)
+        JSON.stringify(authentication.data.data.content, null, 4)
       );
     }
     // Webhooks
@@ -148,12 +148,12 @@ async function main() {
     if (webhook?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "webhook.json"),
-        webhook.data.data,
+        webhook.data.data.content,
         { spaces: 4 }
       );
       await fs.writeFile(
         path.join(integrationFolder, "Webhook.mdx"),
-        JSON.stringify(webhook.data.data, null, 4)
+        JSON.stringify(webhook.data.data.content, null, 4)
       );
     }
 
@@ -174,7 +174,7 @@ async function main() {
     if (config?.data?.data) {
       await fs.writeJson(
         path.join(schemasFolder, "base.json"),
-        config.data.data,
+        config.data.data.content,
         {
           spaces: 4,
         }
@@ -258,7 +258,7 @@ async function main() {
 
         const resourceName = resource.name || resource.id || "resource";
         const resourceFile = path.join(resourcesFolder, `${resourceName}.json`);
-        await fs.writeJson(resourceFile, merged, { spaces: 4 });
+        await fs.writeJson(resourceFile, merged.content, { spaces: 4 });
       }
     }
   }
