@@ -22,7 +22,9 @@ Each integration has its own folder named after the service or platform it conne
 integration-name/
 │
 ├── spec.json
-├── Documentation.mdx
+├── documentation/
+│   ├── integration.mdx
+│   ├── trigger.mdx
 ├── Authentication.mdx
 └── schemas/
     ├── authentication.json
@@ -32,7 +34,7 @@ integration-name/
         ├── customers.json
         ├── products.json
         └── orders.json
-````
+```
 
 ---
 
