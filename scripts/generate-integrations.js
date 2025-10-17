@@ -122,7 +122,7 @@ async function main() {
       );
       await fs.writeFile(
         path.join(integrationFolder, "Authentication.mdx"),
-        JSON.stringify(authentication.data.data.documentation, null, 4)
+        authentication.data.data.documentation || ""
       );
     }
     // Webhooks
@@ -208,8 +208,10 @@ async function main() {
       for (const resource of resourcesList) {
         // Base content comes only from the resource.content (like CLI)
         const baseResourceContent =
-          resource && typeof resource === "object" &&
-          resource.content && typeof resource.content === "object"
+          resource &&
+          typeof resource === "object" &&
+          resource.content &&
+          typeof resource.content === "object"
             ? resource.content
             : {};
 
