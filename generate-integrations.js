@@ -1,38 +1,43 @@
-const { Client } = require("pg");
 const fs = require("fs-extra");
 const path = require("path");
+const axios = require("axios");
 
 require("dotenv").config();
 
-// PostgreSQL connection config (use environment variables for GitHub Actions)
-const dbConfig = {
-  user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  port: parseInt(process.env.PGPORT || "5432"),
-};
 
 async function main() {
-  const connectionOptions = process.env.DATABASE_URL
-    ? { connectionString: process.env.DATABASE_URL }
-    : dbConfig;
-  const client = new Client(connectionOptions);
-  await client.connect();
 
-  const integrations = await client.query(
-    `SELECT * FROM "Integrations" WHERE status = 'published'`
-  );
+  const VORTEX_MAIN_URL =
+    "https://asia-south1.api.boltic.io/service/panel/temporal";
+  const INTEGRATIONS_URL = `${VORTEX_MAIN_URL}/integrations`;
+  const AUTHENTICATION_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/authentication`;
+  const WEBHOOK_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/webhook`;
+  const CONFIGURATION_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/configuration`;
+  const RESOURCE_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/resource`;
+  const OPERATION_URL = `${VORTEX_MAIN_URL}/integrations/{integration_id}/resource/{resource_id}/operation`;
 
-  for (const integration of integrations.rows) {
+  const PARAMS = {
+    page: 1,
+    per_page: 999,
+    status: "published",
+  };
+
+  const headers = {
+    "Content-Type": "application/json",
+    "x-boltic-token": process.env.BOLTIC_TOKEN,
+  };
+
+  const response = await axios.get(INTEGRATIONS_URL, { params: PARAMS, headers });
+  const integrations = response.data.data;
+
+  for (const integration of integrations) {
     // Only process the integrations that have activity_type as 'customActivity', 'CloudDatabase', 'platformFdkActivity', 'applicationFdkActivity' or trigger_type as 'CloudTrigger'. Ignore the others.
     if (
       integration.activity_type !== "customActivity" &&
       integration.activity_type !== "CloudDatabase" &&
       integration.activity_type !== "platformFdkActivity" &&
       integration.activity_type !== "applicationFdkActivity" &&
-      integration.trigger_type !== "CloudTrigger" &&
-      integration.status === 'published'
+      integration.trigger_type !== "CloudTrigger"
     ) {
       continue;
     }
@@ -45,16 +50,15 @@ async function main() {
     // Write spec.json
 
     const spec = {
-        name: integration.name,
-        slug: integration.slug,
-        description: integration.description,
-        icon: integration.icon,
-        activity_type: integration.activity_type,
-        trigger_type: integration.trigger_type,
-        documentation: integration.documentation,
-        meta: integration.meta,
-    }
-
+      name: integration.name,
+      slug: integration.slug,
+      description: integration.description,
+      icon: integration.icon,
+      activity_type: integration.activity_type,
+      trigger_type: integration.trigger_type,
+      documentation: integration.documentation,
+      meta: integration.meta,
+    };
 
     await fs.writeJson(path.join(integrationFolder, "spec.json"), spec, {
       spaces: 4,
@@ -81,67 +85,50 @@ async function main() {
     const schemasFolder = path.join(integrationFolder, "schemas");
     await fs.ensureDir(schemasFolder);
 
-    // Authentications
-    const auth = await client.query(
-      `SELECT content FROM "Authentications" WHERE integration_id = $1`,
-      [integration.id]
-    );
 
-    if (auth.rows.length > 0) {
-      await fs.writeFile(
-        path.join(integrationFolder, "Authenitcation.mdx"),
-        JSON.stringify(auth.rows[0].content, null, 4)
-      );
+    const authentication = await axios.get(AUTHENTICATION_URL.replace("{integration_id}", integration.id), { headers });
+    if (authentication.data.data) {
       await fs.writeJson(
         path.join(schemasFolder, "authentication.json"),
-        auth.rows[0].content,
+        authentication.data.data,
         { spaces: 4 }
       );
+      await fs.writeFile(
+        path.join(integrationFolder, "Authentication.mdx"),
+        JSON.stringify(authentication.data.data, null, 4)
+      );
     }
-
     // Webhooks
-    const webhook = await client.query(
-      `SELECT content FROM "Webhooks" WHERE integration_id = $1`,
-      [integration.id]
-    );
+    const webhook = await axios.get(WEBHOOK_URL.replace("{integration_id}", integration.id), { headers });
 
-    if (webhook.rows.length > 0) {
+    if (webhook.data.data) {
       await fs.writeJson(
-        path.join(schemasFolder, "webhook.json"),
-        webhook.rows[0].content,
+        path.join(schemasFolder, "panel.json"),
+        panel.rows[0].content,
         { spaces: 4 }
       );
     }
 
     // Configurations (base.json)
-    const config = await client.query(
-      `SELECT content FROM "Configurations" WHERE integration_id = $1`,
-      [integration.id]
-    );
+    const config = await axios.get(CONFIGURATION_URL.replace("{integration_id}", integration.id), { headers });
 
-    if (config.rows.length > 0) {
+    if (config.data.data) {
       await fs.writeJson(
         path.join(schemasFolder, "base.json"),
-        config.rows[0].content,
+        config.data.data,
         { spaces: 4 }
       );
     }
 
     // Resources + Operations merged
-    const resources = await client.query(
-      `SELECT id, name, content FROM "Resources" WHERE integration_id = $1`,
-      [integration.id]
-    );
+    const resources = await axios.get(RESOURCE_URL.replace("{integration_id}", integration.id), { headers });
 
-    if (resources.rows.length > 0) {
+    if (resources.data.data) {
       const resourcesFolder = path.join(schemasFolder, "resources");
       await fs.ensureDir(resourcesFolder);
 
       for (const resource of resources.rows) {
-        const operations = await client.query(
-          `SELECT content FROM "Operations" WHERE integration_id = $1 AND resource_id = $2`,
-          [integration.id, resource.id]
-        );
+        const operations = await axios.get(OPERATION_URL.replace("{integration_id}", integration.id).replace("{resource_id}", resource.id), { headers });
 
         let merged = { ...resource.content };
 
