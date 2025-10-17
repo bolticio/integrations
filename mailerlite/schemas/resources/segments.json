@@ -1,32 +1,504 @@
 {
-    "definition": {
-        "url": "https://connect.mailerlite.com/api/subscribers/{{parameters.idOrEmail}}",
-        "method": "get",
-        "headers": {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer {{secrets.api_key}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data.message}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
+                "options": [
+                    {
+                        "label": "List Segments",
+                        "value": "segments.list"
+                    }
+                ],
                 "validation": {
                     "required": true
                 },
-                "description": "Provide either a valid subscriber ID or email. One of these parameters must be provided.",
-                "displayName": "Subscriber ID or Email",
-                "displayType": "text",
-                "placeholder": "Enter subscriber ID or email"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "segments",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "idOrEmail"
+            "name": "operation"
         }
-    ]
+    ],
+    "list": {
+        "definition": {
+            "url": "https://connect.mailerlite.com/api/subscribers",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "pagination": {
+            "qs": {
+                "cursor": "{{response.meta.next_cursor}}",
+                "per_page": 25
+            },
+            "type": "cursor",
+            "default": {
+                "cursor": null,
+                "per_page": 25
+            },
+            "condition": "{{response.meta.next_cursor}} !== null",
+            "fetch_next": {
+                "url": "https://connect.mailerlite.com/api/subscribers?cursor={{response.meta.next_cursor}}",
+                "method": "get",
+                "headers": {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.message}}"
+                    },
+                    "output": "{{response.data}}"
+                }
+            }
+        },
+        "parameters": []
+    },
+    "update": {
+        "definition": {
+            "url": "https://connect.mailerlite.com/api/subscribers/{{parameters.id}}",
+            "body": "{{parameters}}",
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the subscriber to update.",
+                    "displayName": "Subscriber ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the subscriber ID"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's first name.",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter first name"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's last name.",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter last name"
+                            },
+                            "name": "last_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Custom or default field for the subscriber's email address.",
+                                "displayName": "Email",
+                                "displayType": "text",
+                                "placeholder": "Enter email address"
+                            },
+                            "name": "email"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's phone number.",
+                                "displayName": "Phone Number",
+                                "displayType": "text",
+                                "placeholder": "Enter phone number"
+                            },
+                            "name": "phone"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's city.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's company.",
+                                "displayName": "Company",
+                                "displayType": "text",
+                                "placeholder": "Enter company name"
+                            },
+                            "name": "company"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's country.",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's state.",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Custom or default field for the subscriber's ZIP code.",
+                                "displayName": "ZIP Code",
+                                "displayType": "text",
+                                "placeholder": "Enter ZIP code"
+                            },
+                            "name": "z_i_p"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Object keys must correspond to default or custom field names.",
+                    "displayName": "Fields",
+                    "displayType": "object",
+                    "placeholder": "Enter custom fields"
+                },
+                "name": "fields"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Subscriber group Id.",
+                    "displayName": "Group ID",
+                    "displayType": "text",
+                    "placeholder": "Enter group id"
+                },
+                "name": "group_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Active",
+                            "value": "active"
+                        },
+                        {
+                            "label": "Unsubscribed",
+                            "value": "unsubscribed"
+                        },
+                        {
+                            "label": "Unconfirmed",
+                            "value": "unconfirmed"
+                        },
+                        {
+                            "label": "Bounced",
+                            "value": "bounced"
+                        },
+                        {
+                            "label": "Junk",
+                            "value": "junk"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Can be one of the following: active, unsubscribed, unconfirmed, bounced, junk.",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select status"
+                },
+                "name": "status"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day",
+                            "hours",
+                            "minutes",
+                            "seconds"
+                        ],
+                        "format": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Must be a valid date in the format yyyy-MM-dd HH:mm:ss.",
+                    "displayName": "Subscribed At",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the subscribed date"
+                },
+                "name": "subscribed_at"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Must be a valid IP address.",
+                    "displayName": "IP Address",
+                    "displayType": "text",
+                    "placeholder": "Enter the IP address"
+                },
+                "name": "ip_address"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day",
+                            "hours",
+                            "minutes",
+                            "seconds"
+                        ],
+                        "format": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Must be a valid date in the format yyyy-MM-dd HH:mm:ss.",
+                    "displayName": "Opted In At",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the opt-in date"
+                },
+                "name": "opted_in_at"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Must be a valid IP address.",
+                    "displayName": "Opt-In IP Address",
+                    "displayType": "text",
+                    "placeholder": "Enter the opt-in IP address"
+                },
+                "name": "optin_ip"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day",
+                            "hours",
+                            "minutes",
+                            "seconds"
+                        ],
+                        "format": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Must be a valid date in the format yyyy-MM-dd HH:mm:ss.",
+                    "displayName": "Unsubscribed At",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the unsubscribe date"
+                },
+                "name": "unsubscribed_at"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://connect.mailerlite.com/api/groups/{{parameters.id}}",
+            "method": "delete",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique ID for the group.",
+                    "displayName": "Group ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Group ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://connect.mailerlite.com/api/subscribers/{{parameters.idOrEmail}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide either a valid subscriber ID or email. One of these parameters must be provided.",
+                    "displayName": "Subscriber ID or Email",
+                    "displayType": "text",
+                    "placeholder": "Enter subscriber ID or email"
+                },
+                "name": "idOrEmail"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://connect.mailerlite.com/api/subscribers",
+            "body": "{{parameters}}",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the email address of the subscriber.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the email"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter the first name of the subscriber.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the first name"
+                },
+                "name": "fields.name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter the last name of the subscriber.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the last name"
+                },
+                "name": "fields.last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Subscriber group Id.",
+                    "displayName": "Group ID",
+                    "displayType": "text",
+                    "placeholder": "Enter group id"
+                },
+                "name": "group_id"
+            }
+        ]
+    }
 }

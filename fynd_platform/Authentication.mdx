@@ -1,193 +1,79 @@
-{
-    "parameters": [
-        {
-            "meta": {
-                "value": "access_token",
-                "options": [
-                    {
-                        "label": "Fynd Commerce",
-                        "value": "access_token"
-                    },
-                    {
-                        "label": "Fynd Extension",
-                        "value": "fynd_extension"
-                    }
-                ],
-                "validation": {
-                    "required": true
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "select",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "API Key is required"
-                    }
-                },
-                "description": "",
-                "displayName": "API Key",
-                "displayType": "text",
-                "placeholder": "Enter your API Key"
-            },
-            "name": "api_key"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "API Secret is required"
-                    }
-                },
-                "description": "",
-                "displayName": "API Secret",
-                "displayType": "password",
-                "placeholder": "Enter your API Secret"
-            },
-            "name": "api_secret"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Domain is required"
-                    }
-                },
-                "description": "Enter Fynd Commerce Domain, if your domain is https://fynd.com then enter api.fynd.com",
-                "displayName": "Domain",
-                "displayType": "text",
-                "placeholder": "Eg: api.fynd.com"
-            },
-            "name": "domain"
-        }
-    ],
-    "access_token": {
-        "token": {
-            "url": "https://{{secrets.domain}}/service/panel/authentication/v1.0/company/{{secrets.company_id}}/oauth/token",
-            "body": {
-                "grant_type": "client_credentials"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "refresh": {
-            "url": "https://{{secrets.domain}}/service/panel/authentication/v1.0/company/{{secrets.company_id}}/oauth/token",
-            "body": {
-                "grant_type": "client_credentials"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "validate": {
-            "url": "https://{{secrets.domain}}/service/platform/company-profile/v1.0/company/{{secrets.company_id}}/metrics",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Company ID is required"
-                        }
-                    },
-                    "description": "",
-                    "displayName": "Company ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Company ID here",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "company_id"
-            }
-        ]
-    },
-    "fynd_extension": {
-        "validate": {
-            "url": "https://{{secrets.domain}}/service/panel/partners/v1.0/extensions/details/{{secrets.api_key}}",
-            "method": "get",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Test Company ID is required"
-                        }
-                    },
-                    "description": "",
-                    "displayName": "Test Company ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Test Company ID here",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "fynd_extension",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "test_company_id"
-            }
-        ]
-    }
-}
+# Fynd Commerce ( Platform ) Integration
+
+This guide walks you through setting up the Fynd Commerce ( Platform ) integration within Boltic.
+
+## Prerequisites
+
+To retrieve client credentials, you'll need:
+
+-   A registered <a href="https://platform.fynd.com/" target="_blank" rel="noopener"><span>Fynd Commerce account</span></a> with access to at least one company.
+
+## Setting Up the Fynd Commerce ( Platform ) Integration in Boltic
+
+1. **Log In**
+
+    - Log into your <a href="https://platform.fynd.com/" target="_blank" rel="noopener"><span>Fynd Commerce account</span></a>.
+
+2. **Select Company**
+
+    - If you have access to multiple companies, you will be prompted to select one. If not, the system will redirect you to the "Create Company" form.
+
+3. **Access Fynd Commerce Dashboard**
+
+    - Once you have selected the company, you will be directed to the Fynd Commerce Dashboard.
+
+4. **Navigate to Developers Tab**
+
+    - Click on the `Developers` tab in the sidebar. This action will open the `APIs & SDKs` page.
+
+5. **Access Clients Tab**
+
+    - Click on the `Clients` tab to view a list of existing clients.
+
+6. **Create Client or use existing ones**
+
+    - Click on `Create Client` and fill in the necessary details and permissions to create a new client.
+
+    - You can also use any already exisiting credential.
+
+7. **Retrieve Credentials**
+
+    - After creating the client, you will be able to view your `Client ID` and `Client Secret`.
+
+8. **Log into Boltic**
+
+    - Log into your Boltic account or navigate to the Boltic Open Source dashboard.
+
+9. **Navigate to Integrations**
+
+    - Click on `Sources` and then click on `+ Add New source`.
+
+10. **Select Source Type**
+
+    - On the Set up the source page, search for `Fynd Commerce` from the search bar and select it.
+
+11. **Configure Integration**
+
+    - **Name:** Enter a name for the Fynd Commerce integration.
+
+    - **Company ID:** Enter the Company ID from the Fynd Commerce.
+
+    - **Client ID:** Enter the Client ID obtained from the Fynd Commerce.
+
+    - **Client Secret:** Enter the Client Secret obtained from the Fynd Commerce.
+
+12. **Details (Optional)**
+
+    - **Tags:** Add any tags for categorization.
+
+    - **Description:** Provide a brief description of the integration.
+
+13. **Test and Save Integration**
+
+    - Click `Test & Save` to ensure the connection is successful.
+
+    - Once the connection test is successful, your integration will be saved.
+
+## Support
+
+For further assistance, please contact Fynd Commerce support or refer to our <a href="https://platform.fynd.com/help" target="_blank" rel="noopener"><span>Support Documentation</span></a>.

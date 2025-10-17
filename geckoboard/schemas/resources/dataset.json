@@ -1,33 +1,443 @@
 {
-    "definition": {
-        "url": "https://api.geckoboard.com/datasets/{{parameters.dataset_id}}",
-        "method": "delete",
-        "headers": {
-            "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:)"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data.errors[0].message}}"
+    "create": {
+        "definition": {
+            "url": "https://api.geckoboard.com/datasets/{{parameters.dataset_id}}",
+            "body": {
+                "fields": "{{parameters.fields}}"
             },
-            "output": "{{response.data}}"
-        }
+            "method": "put",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "max": 256,
+                        "min": 4,
+                        "pattern": "^[a-z0-9]+([._][a-z0-9]+)*$",
+                        "required": true,
+                        "maxDetail": {
+                            "errorMsg": "Maximum 256 characters is allowed to create Dataset ID"
+                        },
+                        "minDetail": {
+                            "errorMsg": "Minimum 4 characters is required to create Dataset ID"
+                        },
+                        "patternDetail": {
+                            "errorMsg": "Dataset ID must start and end with a lowercase letter or digit. Periods, and underscores allowed in between followed by lowercase letters or digits"
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "Dataset ID is required"
+                        }
+                    },
+                    "description": "e.g. sales.by_day, closed_deals, ...",
+                    "displayName": "Dataset ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the dataset ID"
+                },
+                "name": "dataset_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Name is required"
+                                    }
+                                },
+                                "description": "User-facing field name.",
+                                "displayName": "Field Name",
+                                "displayType": "text"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[a-z]+([a-z]+)*$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Lowercase characters only."
+                                    },
+                                    "requiredDetail": {
+                                        "errorMsg": "ID is required"
+                                    }
+                                },
+                                "description": "Internal field name",
+                                "displayName": "ID",
+                                "displayType": "text"
+                            },
+                            "name": "id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Type is required"
+                                    }
+                                },
+                                "description": "The type of data this field will contain.",
+                                "displayName": "Type",
+                                "displayType": "text"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "value": false,
+                                "options": [
+                                    {
+                                        "label": "Yes",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "No",
+                                        "value": false
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "optionsLayout": "row",
+                                    "labelPlacement": "end"
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Allow updates where this field is omitted, empty, or null.",
+                                "displayName": "Allow this field to be empty?",
+                                "displayType": "radiobutton"
+                            },
+                            "name": "optional"
+                        },
+                        {
+                            "meta": {
+                                "value": false,
+                                "options": [
+                                    {
+                                        "label": "Yes",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "No",
+                                        "value": false
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "optionsLayout": "row",
+                                    "labelPlacement": "end"
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The unique key is a set of fields such that there can only be one record in the Dataset for each unique combination of their values. The unique key can only be set on fields with the types of either string, date and date time.",
+                                "displayName": "Add to unique key?",
+                                "displayType": "radiobutton"
+                            },
+                            "name": "is_unique_key"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "childrenType": "object"
+                    },
+                    "validation": {
+                        "max": 15,
+                        "min": 1,
+                        "required": true
+                    },
+                    "displayName": "Fields",
+                    "displayType": "array"
+                },
+                "name": "fields"
+            }
+        ]
     },
     "parameters": [
         {
             "meta": {
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Dataset ID is required"
+                "options": [
+                    {
+                        "label": "List Dataset",
+                        "value": "dataset.list"
+                    },
+                    {
+                        "label": "Get Dataset",
+                        "value": "dataset.get"
+                    },
+                    {
+                        "label": "Delete Dataset",
+                        "value": "dataset.delete"
                     }
+                ],
+                "validation": {
+                    "required": true
                 },
-                "description": "Enter the ID of the dataset you want to delete.",
-                "displayName": "Dataset ID",
-                "displayType": "text",
-                "placeholder": "Enter the dataset ID"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "dataset",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "dataset_id"
+            "name": "operation"
         }
-    ]
+    ],
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.geckoboard.com/datasets/{{parameters.dataset_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Dataset ID is required"
+                        }
+                    },
+                    "description": "Enter the ID of the dataset you want to get.",
+                    "displayName": "Dataset ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the dataset ID"
+                },
+                "name": "dataset_id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://api.geckoboard.com/datasets",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.geckoboard.com/datasets/{{parameters.dataset_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Dataset ID is required"
+                        }
+                    },
+                    "description": "Enter the ID of the dataset you want to delete.",
+                    "displayName": "Dataset ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the dataset ID"
+                },
+                "name": "dataset_id"
+            }
+        ]
+    }
 }

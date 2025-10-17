@@ -38,12 +38,6 @@ async function main() {
       `Failed to fetch integrations (${status}) from ${INTEGRATIONS_URL}: ${body}`
     );
   }
-  if (process.env.DEBUG) {
-    console.log("GET", INTEGRATIONS_URL, {
-      params: PARAMS,
-      headers: { "x-boltic-token": "***" },
-    });
-  }
   const integrations = Array.isArray(response.data?.data)
     ? response.data.data
     : Array.isArray(response.data)
@@ -76,7 +70,6 @@ async function main() {
       icon: integration.icon,
       activity_type: integration.activity_type,
       trigger_type: integration.trigger_type,
-      documentation: integration.documentation,
       meta: integration.meta,
     };
 
@@ -113,7 +106,9 @@ async function main() {
       );
     } catch (e) {
       if (e.response && e.response.status === 404) {
-        console.warn(`Authentication not found for ${integration.name} (${integration.id}) - skipping`);
+        console.warn(
+          `Authentication not found for ${integration.name} (${integration.id}) - skipping`
+        );
       } else {
         throw e;
       }
@@ -127,7 +122,7 @@ async function main() {
       );
       await fs.writeFile(
         path.join(integrationFolder, "Authentication.mdx"),
-        JSON.stringify(authentication.data.data.content, null, 4)
+        authentication.data.data.documentation || ""
       );
     }
     // Webhooks
@@ -139,7 +134,9 @@ async function main() {
       );
     } catch (e) {
       if (e.response && e.response.status === 404) {
-        console.warn(`Webhook not found for ${integration.name} (${integration.id}) - skipping`);
+        console.warn(
+          `Webhook not found for ${integration.name} (${integration.id}) - skipping`
+        );
       } else {
         throw e;
       }
@@ -150,10 +147,6 @@ async function main() {
         path.join(schemasFolder, "webhook.json"),
         webhook.data.data.content,
         { spaces: 4 }
-      );
-      await fs.writeFile(
-        path.join(integrationFolder, "Webhook.mdx"),
-        JSON.stringify(webhook.data.data.content, null, 4)
       );
     }
 
@@ -166,7 +159,9 @@ async function main() {
       );
     } catch (e) {
       if (e.response && e.response.status === 404) {
-        console.warn(`Configuration not found for ${integration.name} (${integration.id}) - skipping`);
+        console.warn(
+          `Configuration not found for ${integration.name} (${integration.id}) - skipping`
+        );
       } else {
         throw e;
       }
@@ -179,7 +174,6 @@ async function main() {
           spaces: 4,
         }
       );
-     
     }
 
     // Resources + Operations merged
@@ -212,21 +206,22 @@ async function main() {
       await fs.ensureDir(resourcesFolder);
 
       for (const resource of resourcesList) {
-        let merged = {};
-        if (resource && typeof resource === "object") {
-          merged = {
-            ...merged,
-            ...(resource.content && typeof resource.content === "object"
-              ? resource.content
-              : resource),
-          };
-        }
+        // Base content comes only from the resource.content (like CLI)
+        const baseResourceContent =
+          resource &&
+          typeof resource === "object" &&
+          resource.content &&
+          typeof resource.content === "object"
+            ? resource.content
+            : {};
 
+        // Fetch operations for this resource
         let operationsResp = null;
         try {
           operationsResp = await axios.get(
             OPERATION_URL.replace("{integration_id}", integration.id).replace(
-              "{resource_id}", resource.id
+              "{resource_id}",
+              resource.id
             ),
             { headers }
           );
@@ -244,21 +239,37 @@ async function main() {
           ? operationsResp.data?.data ?? operationsResp.data
           : null;
 
+        // Build operations map keyed by slugged operation name
+        const operationsContent = {};
         if (opsData) {
           if (Array.isArray(opsData)) {
             for (const op of opsData) {
               if (op && typeof op === "object") {
-                merged = { ...merged, ...op };
+                const opKey = String(op.name || op.id || "operation")
+                  .toLowerCase()
+                  .replace(/\s+/g, "-");
+                operationsContent[opKey] = op?.content;
               }
             }
           } else if (typeof opsData === "object") {
-            merged = { ...merged, ...opsData };
+            const opKey = String(opsData.name || opsData.id || "operation")
+              .toLowerCase()
+              .replace(/\s+/g, "-");
+            operationsContent[opKey] = opsData?.content;
           }
         }
 
-        const resourceName = resource.name || resource.id || "resource";
+        const merged = {
+          ...baseResourceContent,
+          ...operationsContent,
+        };
+
+        // Slug the resource filename like CLI does
+        const resourceName = String(resource.name || resource.id || "resource")
+          .toLowerCase()
+          .replace(/\s+/g, "-");
         const resourceFile = path.join(resourcesFolder, `${resourceName}.json`);
-        await fs.writeJson(resourceFile, merged.content, { spaces: 4 });
+        await fs.writeJson(resourceFile, merged, { spaces: 4 });
       }
     }
   }

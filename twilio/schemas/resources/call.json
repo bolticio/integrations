@@ -1,62 +1,367 @@
 {
-    "definition": {
-        "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
-        "body": {
-            "To": "whatsapp:{{parameters.to}}",
-            "Body": "{{parameters.body}}",
-            "From": "whatsapp:{{parameters.from}}"
-        },
-        "method": "post",
-        "headers": {
-            "content-type": "application/x-www-form-urlencoded",
-            "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.data.code}}",
-                "status": "{{response.data.status}}",
-                "message": "{{response.data.message}}",
-                "more_info": "{{response.data.more_info}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
+                "options": [
+                    {
+                        "label": "Call Phone",
+                        "value": "call.create",
+                        "description": "Calls a number using Twilio."
+                    },
+                    {
+                        "label": "List Calls",
+                        "value": "call.list",
+                        "description": "Returns a list of calls associated with your Twilio account."
+                    }
+                ],
                 "validation": {
                     "required": true
                 },
-                "description": "Recipient's WhatsApp number.",
-                "displayName": "To Number",
-                "displayType": "text",
-                "placeholder": "Enter recipient's WhatsApp number"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "call",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "to"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true
-                },
-                "description": "Sender's phone number for the whatsapp.",
-                "displayName": "From Number",
-                "displayType": "text",
-                "placeholder": "Select sender's Twilio phone number"
-            },
-            "name": "from"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true
-                },
-                "description": "The message content to send.",
-                "displayName": "Message Body",
-                "displayType": "text",
-                "placeholder": "Enter the message body."
-            },
-            "name": "body"
+            "name": "operation"
         }
-    ]
+    ],
+    "getPhoneNumbers": {
+        "definition": {
+            "qs": {
+                "PageSize": "500"
+            },
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/IncomingPhoneNumbers.json",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.incoming_phone_numbers}}"
+            }
+        }
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "To": "{{parameters.to}}",
+                "From": "{{parameters.from}}"
+            },
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Calls.json",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.message}}",
+                    "more_info": "{{response.data.more_info}}"
+                },
+                "output": "{{response.data.calls}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 50
+                },
+                "type": "url",
+                "default": {
+                    "limit": 50,
+                    "next_url": null
+                },
+                "next_url": "https://api.twilio.com{{response.data.next_page_uri}}",
+                "condition": "{{response.data.next_page_uri}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "continents": [
+                            "NA",
+                            "SA",
+                            "AS",
+                            "OC",
+                            "AF",
+                            "EU"
+                        ],
+                        "defaultCountry": "IN"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Recipient's phone number is required."
+                        }
+                    },
+                    "description": "Recipient's phone number for the Call.",
+                    "displayName": "To Number",
+                    "displayType": "phone",
+                    "placeholder": "Enter recipient's phone number e.g. 5552229999."
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "twilio",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "call",
+                            "operation": "call.list",
+                            "loadOptionsMethod": "getPhoneNumbers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "phone_number",
+                        "valueKey": "phone_number"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Sender's phone number is required."
+                        }
+                    },
+                    "description": "Sender's phone number for the Call.",
+                    "displayName": "From Number",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select sender's Twilio phone number e.g. +15552229999.",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "resource",
+                                "value": "call",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "call.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "from"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Calls.json",
+            "body": {
+                "To": "{{parameters.to}}",
+                "From": "{{parameters.from}}",
+                "Twiml": "<Response><Say voice='{{parameters.voice}}'>{{parameters.twiml}}</Say></Response>",
+                "MachineDetection": "true"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/x-www-form-urlencoded",
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.message}}",
+                    "more_info": "{{response.data.more_info}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "continents": [
+                            "NA",
+                            "SA",
+                            "AS",
+                            "OC",
+                            "AF",
+                            "EU"
+                        ],
+                        "defaultCountry": "IN"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Recipient's phone number is required."
+                        }
+                    },
+                    "description": "Recipient's phone number for the call.",
+                    "displayName": "To Number",
+                    "displayType": "phone",
+                    "placeholder": "Enter recipient's phone number e.g. 5552229999."
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "twilio",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "call",
+                            "operation": "call.create",
+                            "loadOptionsMethod": "getPhoneNumbers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "phone_number",
+                        "valueKey": "phone_number"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Sender's phone number is required"
+                        }
+                    },
+                    "description": "Sender's phone number for the call.",
+                    "displayName": "From Number",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select sender's Twilio phone number e.g. +15552229999.",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "resource",
+                                "value": "call",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "call.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "from"
+            },
+            {
+                "meta": {
+                    "value": "woman",
+                    "options": [
+                        {
+                            "label": "Woman",
+                            "value": "woman"
+                        },
+                        {
+                            "label": "Man",
+                            "value": "man"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Call voice selection is required"
+                        }
+                    },
+                    "description": "Send voice.",
+                    "displayName": "Voice",
+                    "displayType": "radio"
+                },
+                "name": "voice"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Call message is required"
+                        }
+                    },
+                    "description": "This message plays when call is received. Max 3955 characters.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Enter message..."
+                },
+                "name": "twiml"
+            }
+        ]
+    },
+    "send": {
+        "definition": {
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
+            "body": {
+                "To": "whatsapp:{{parameters.to}}",
+                "Body": "{{parameters.body}}",
+                "From": "whatsapp:{{parameters.from}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/x-www-form-urlencoded",
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.message}}",
+                    "more_info": "{{response.data.more_info}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Recipient's WhatsApp number.",
+                    "displayName": "To Number",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient's WhatsApp number"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Sender's phone number for the whatsapp.",
+                    "displayName": "From Number",
+                    "displayType": "text",
+                    "placeholder": "Select sender's Twilio phone number"
+                },
+                "name": "from"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The message content to send.",
+                    "displayName": "Message Body",
+                    "displayType": "text",
+                    "placeholder": "Enter the message body."
+                },
+                "name": "body"
+            }
+        ]
+    }
 }

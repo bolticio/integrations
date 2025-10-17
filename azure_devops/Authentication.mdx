@@ -1,90 +1,74 @@
-{
-    "parameters": [
-        {
-            "meta": {
-                "options": [
-                    {
-                        "label": "Access Token",
-                        "value": "access_token"
-                    }
-                ],
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Authentication Type is a required field"
-                    }
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "select",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        }
-    ],
-    "access_token": {
-        "validate": {
-            "url": "https://dev.azure.com/{{secrets.organization_id}}/_apis/projects?api-version=6.0",
-            "method": "get",
-            "headers": {
-                "Authorization": "Basic convertBufferBase64String('':{{secrets.access_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "Authorization failed"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Acess Token is a required field"
-                        }
-                    },
-                    "description": "Refer to the <a href='https://docs.microsoft.com/en-us/azure/devops/pipelines/release/azure-rm-endpoint' target='_blank'>Azure DevOps authentication documentation</a> for detailed instructions on getting your API keys.",
-                    "displayName": "Personal Access Token",
-                    "displayType": "password",
-                    "placeholder": "",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "access_token"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Organization Type is a required field"
-                        }
-                    },
-                    "displayName": "Organization Name",
-                    "displayType": "text",
-                    "placeholder": "",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "organization_id"
-            }
-        ]
-    }
-}
+This guide walks you through setting up the Azure DevOps integration within Boltic.
+
+#### Prerequisites
+
+To use the Azure DevOps connector, you need to have an Azure DevOps account. If you don't have one, you can create an Azure DevOps account at <a href="https://aex.dev.azure.com/signup?client_id=azurecli&response_type=Assertion&state=7d14bbba-5a08-4a1b-9e45-78fe758de206" target="_blank" rel="noopener"><span>Azure DevOps sign-up page</span></a>.
+
+
+To set up the Azure DevOps integration, you'll need:
+
+- The Azure DevOps organization URL
+- The Azure DevOps Personal Access Token (PAT)
+- Admin access to the Azure DevOps organization
+
+#### Setting Up the Azure DevOps Integration in Boltic
+
+#### Log In
+
+Log into your Boltic account or navigate to the Boltic Open Source dashboard.
+
+#### Navigate to Integrations from the Primary Menu
+
+Click on `Sources` and then click on `+ Add New source`.
+
+#### Select Source Type
+
+On the Set up the source page, search for `Azure DevOps` from the search bar and select it.
+
+#### Configure Integration
+
+- **Name:** Enter a name for the Azure DevOps integration.
+- **Organization URL:** Enter your Azure DevOps organization URL.
+- **Personal Access Token:** Enter your Azure DevOps Personal Access Token (PAT). The Azure DevOps integration uses the PAT for authentication.
+
+#### Details (Optional)
+
+- **Tags:** Add any tags for categorization.
+- **Description:** Provide a brief description of the integration.
+
+#### Test and Save Integration
+
+- Click `Test Connection` to ensure the provided details are correct and the connection is successful.
+- Once the connection test is successful, click `Set up source` to complete the configuration.
+
+#### Troubleshooting
+
+If you encounter any issues during setup:
+
+- **Check Personal Access Token:** Ensure the provided PAT is correct and has the necessary permissions.
+- **Verify Organization URL:** Confirm the organization URL is correct.
+- **Network Issues:** Check for any network issues that might be affecting connectivity.
+
+#### Frequently Asked Questions (FAQs)
+
+**How do I find my Azure DevOps Personal Access Token?**
+
+You can create and manage PATs in the Azure DevOps portal under Security > Personal access tokens. More details can be found in <a href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate" target="_blank" rel="noopener">Azure DevOps official documentation</a>.
+
+**What should I do if my connection fails?**
+
+- Ensure your PAT is correct.
+- Verify the organization URL and ensure there are no typos.
+- Check your network connection and firewall settings.
+
+**How often is the data synced?**
+
+The data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.
+
+**Can I customize the data being synced?**
+
+Yes, you can customize the data being synced by adjusting the settings during the setup process.
+
+#### Support
+
+If you need further assistance, please contact Boltic support or visit our <a href="https://docs.boltic.io" target="_blank" rel="noopener">Support Documentation</a>.

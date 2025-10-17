@@ -1,83 +1,68 @@
-{
-    "api_key": {
-        "validate": {
-            "url": "https://api.aircall.io/v1/ping",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Your Aircall API ID.",
-                    "displayName": "API ID",
-                    "displayType": "text",
-                    "placeholder": "Enter API ID",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "api_key",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "api_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Your Aircall API Token.<a href='https://developer.aircall.io/tutorials/basic-authentication/' target='blank'>Aircall authenticaton documentation</a> ",
-                    "displayName": "API Token",
-                    "displayType": "password",
-                    "placeholder": "Enter API Token",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "api_key",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "api_token"
-            }
-        ]
-    },
-    "parameters": [
-        {
-            "meta": {
-                "options": [
-                    {
-                        "label": "API Key",
-                        "value": "api_key"
-                    }
-                ],
-                "validation": {
-                    "required": true
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "select",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        }
-    ]
-}
+# Aircall Authentication
+
+This document outlines the setup for Aircall authentication in Boltic, using an API key. The authentication method can be selected and configured through the following steps.
+
+## Authentication Types
+
+### 1. API Key Authentication
+
+To authenticate with Aircall, you can use the **API Key** method. Follow the steps below to configure the authentication.
+
+### Parameters
+
+#### Authentication Type
+
+-   **Parameter Name:** `type`
+-   **Display Name:** Authentication Type
+-   **Description:** Choose the type of authentication you want to use.
+-   **Type:** Select
+-   **Options:**
+    -   **API Key:** Use your Aircall API key for authentication.
+-   **Validation:** Required
+
+#### API Key Authentication Fields
+
+When `API Key` is selected as the authentication type, the following fields are required:
+
+##### API ID
+
+-   **Parameter Name:** `api_id`
+-   **Display Name:** API ID
+-   **Description:** Your Aircall API ID.
+-   **Type:** Text
+-   **Placeholder:** Enter API ID
+-   **Validation:** Required
+
+##### API Token
+
+-   **Parameter Name:** `api_token`
+-   **Display Name:** API Token
+-   **Description:** Your Aircall API Token.
+-   **Type:** Password
+-   **Placeholder:** Enter API Token
+-   **Validation:** Required
+
+### Validation
+
+Once the API ID and API Token are entered, the connection is validated using the Aircall API.
+
+-   **Validation URL:** `https://api.aircall.io/v1/ping`
+-   **Method:** GET
+-   **Headers:**
+    -   **Accept:** `application/json`
+    -   **Authorization:** Basic authentication using the API ID and API Token
+-   **Response:**
+    -   **Success:** The response will include output from `{{response.data}}`.
+    -   **Error:** If an error occurs, the message will be displayed as `{{response.data.message}}`, with the corresponding status code: `{{response.status}}`.
+
+## Troubleshooting
+
+If the connection fails:
+
+-   Ensure your **API ID** and **API Token** are correct.
+-   Confirm that your Aircall account has the necessary permissions for API access.
+-   Verify the network connection.
+
+## Conclusion
+
+After successfully setting up your API key, you should be able to authenticate and start interacting with the Aircall API through Boltic.

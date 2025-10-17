@@ -1,88 +1,62 @@
-{
-    "parameters": [
-        {
-            "meta": {
-                "value": "access_token",
-                "options": [
-                    {
-                        "label": "Private Access Token",
-                        "value": "access_token"
-                    }
-                ],
-                "validation": {
-                    "required": true
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "hidden",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Domain is required"
-                    }
-                },
-                "description": "If your Shopify store address is, for example, xyz.myshopify.com, enter only 'xyz'.",
-                "displayName": "Domain",
-                "displayType": "text",
-                "placeholder": "Enter your Shopify store's subdomain",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "type",
-                            "operator": "NOT_EMPTY"
-                        }
-                    ]
-                }
-            },
-            "name": "domain"
-        }
-    ],
-    "access_token": {
-        "validate": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2023-01/shop.json",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Your Shopify access token for making API requests.",
-                    "displayName": "Private Access Token",
-                    "displayType": "password",
-                    "placeholder": "Enter your Shopify access token",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    },
-                    "requiredDetail": {
-                        "errorMsg": "Access Token is required"
-                    }
-                },
-                "name": "access_token"
-            }
-        ]
-    }
-}
+With Shopify modules in Boltic, you can manage your Shopify store's products, orders, and more.
+If you don't have an Shopify account, you can create one at <a href="https://www.shopify.com/login" target="_blank" rel="noopener"></a>.
+
+## Authentication Ways
+- Access Token
+
+# How to Get an Access Token for a Shopify Account
+
+## Step 1: Create a Shopify Account & Store
+1. Go to Shopify <a href="https://www.shopify.com/" target="_blank" rel="noopener"> <span> Support Documentation</span> </a>.
+2. Click **Start free trial** and create an account.
+3. Set up your **store name** (e.g., `mystore.myshopify.com`).
+4. Complete store setup and go to your **Shopify Admin Dashboard**.
+
+---
+
+## Step 2: Enable Custom App Development
+Before creating an app, you need to enable **custom app development** in your store.
+
+1. In **Shopify Admin**, go to **Settings** > **Apps and sales channels**.
+2. Click **Develop apps**.
+3. If prompted, click **Allow custom app development**.
+4. Click **Create an app**.
+
+---
+
+## Step 3: Create a New App
+1. Enter a **name** for your app (e.g., "My API App").
+2. Select the **App Developer** (your Shopify account).
+3. Click **Create App**.
+
+---
+
+## Step 4: Configure API Access
+To allow your app to access Shopify data:
+
+1. Go to the **API Credentials** tab.
+2. Click **Configure Admin API Scopes**.
+3. Select the required **scopes** based on what your app needs:  
+   - `read_products`, `write_products` (for product management)
+   - `read_orders`, `write_orders` (for order access)
+   - `read_customers`, `write_customers` (for customer data)  
+4. Click **Save**.
+5. Webhooks for required resource requires write scope.
+
+---
+
+## Step 5: Install the App & Get Access Token
+1. Go to the **API Credentials** tab.
+2. Click **Install App** (this generates an **Admin API Access Token**).
+3. Copy the **Admin API Access Token** (it is shown **only once**).
+4. Store it securely—this token is used for API calls.
+
+---
+
+## Step 6: Find Your Shopify Domain
+To make API requests, you need your **Shopify store domain**.
+
+1. Go to your **Shopify Admin Dashboard**.
+2. Look at the browser URL:https://your-store-name.myshopify.com/admin
+Your Shopify domain is your-store-name
+

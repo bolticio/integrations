@@ -1,158 +1,1182 @@
 {
-    "definition": {
-        "qs": "{{parameters.query_params}}",
-        "url": "{{parameters.base_url}}",
-        "body": "{{parameters.body}}",
-        "method": "{{parameters.method}}",
-        "headers": {
-            "content-type": "application/json",
-            "account-token": "{{secrets.api_key}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "value": "get",
                 "options": [
                     {
-                        "label": "GET",
-                        "value": "get"
-                    },
-                    {
-                        "label": "PUT",
-                        "value": "put"
-                    },
-                    {
-                        "label": "POST",
-                        "value": "post"
-                    },
-                    {
-                        "label": "PATCH",
-                        "value": "patch"
-                    },
-                    {
-                        "label": "DELETE",
-                        "value": "delete"
+                        "label": "Custom API",
+                        "value": "custom.custom_api",
+                        "description": "Make authenticated HTTP requests to any WooCommerce REST API endpoint, enabling access to all available resources and functionalities."
                     }
                 ],
                 "validation": {
                     "required": true
                 },
-                "description": "The HTTP Method to be used for the request.",
-                "displayName": "Method",
-                "displayType": "select"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "custom",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "method"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true
-                },
-                "description": "The URL of the HTTP Request.",
-                "displayName": "Base URL",
-                "displayType": "text",
-                "placeholder": "Eg. https://www.example.com"
-            },
-            "name": "base_url"
-        },
-        {
-            "meta": {
-                "children": [
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Key is required"
-                                }
-                            },
-                            "displayName": "key",
-                            "displayType": "text"
-                        },
-                        "name": "key"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Value is required"
-                                }
-                            },
-                            "displayName": "value",
-                            "displayType": "text"
-                        },
-                        "name": "value"
-                    }
-                ],
-                "htmlProps": {
-                    "allowAdd": true
-                },
-                "description": "You don't have to add authorization headers, we already did that for you.",
-                "displayName": "Headers",
-                "displayType": "keyvalue"
-            },
-            "name": "headers"
-        },
-        {
-            "meta": {
-                "children": [
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Key is required"
-                                }
-                            },
-                            "displayName": "key",
-                            "displayType": "text"
-                        },
-                        "name": "key"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Value is required"
-                                }
-                            },
-                            "displayName": "value",
-                            "displayType": "text"
-                        },
-                        "name": "value"
-                    }
-                ],
-                "htmlProps": {
-                    "allowAdd": true
-                },
-                "displayName": "Query String",
-                "displayType": "keyvalue"
-            },
-            "name": "query_params"
-        },
-        {
-            "meta": {
-                "htmlProps": {
-                    "size": "md",
-                    "language": "json",
-                    "fullscreen": true,
-                    "showSuggestions": true
-                },
-                "description": "The Payload (Body) of the HTTP Request.",
-                "displayName": "Body",
-                "displayType": "code"
-            },
-            "name": "body"
+            "name": "operation"
         }
-    ]
+    ],
+    "create": {
+        "definition": {
+            "url": "https://api.scm.fynd.com/tms/service/public/hyperlocal/v1.0/shipments",
+            "body": {
+                "data": [
+                    {
+                        "mps": "{{parameters.mps}}",
+                        "invoice": "{{parameters.invoice}}",
+                        "packages": "{{parameters.packages}}",
+                        "drop_location": "{{parameters.drop_location}}",
+                        "payment_method": "{{parameters.payment_method}}",
+                        "delivery_format": "{{parameters.delivery_format}}",
+                        "pickup_location": "{{parameters.pickup_location}}",
+                        "amount_to_collect": "{{parameters.amount_to_collect}}",
+                        "dispatch_strategy": "{{parameters.dispatch_strategy}}"
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "account-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Delivery Format of the shipment.",
+                    "displayName": "Delivery Format",
+                    "displayType": "text",
+                    "placeholder": "Enter the Delivery Format"
+                },
+                "name": "delivery_format"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The Dispatch strategy of the Shipment.",
+                    "displayName": "Dispatch strategy",
+                    "displayType": "text",
+                    "placeholder": "Enter the Dispatch Strategy"
+                },
+                "name": "dispatch_strategy"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "True",
+                            "value": "true"
+                        },
+                        {
+                            "label": "False",
+                            "value": "false"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Multi-Piece Shipment flag. Set to true for shipments with multiple packages.",
+                    "displayName": "MPS",
+                    "displayType": "select",
+                    "placeholder": "Enter the MPS"
+                },
+                "name": "mps"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Length is required field."
+                                    }
+                                },
+                                "description": "Package length of the shipment.",
+                                "displayName": "Length (cm)",
+                                "displayType": "number",
+                                "placeholder": "Enter package length"
+                            },
+                            "name": "length"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Width is required field."
+                                    }
+                                },
+                                "description": "Package width of the shipment.",
+                                "displayName": "Width (cm)",
+                                "displayType": "number",
+                                "placeholder": "Enter package width"
+                            },
+                            "name": "width"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Height is required field."
+                                    }
+                                },
+                                "description": "Package height of the shipment.",
+                                "displayName": "Height (cm)",
+                                "displayType": "number",
+                                "placeholder": "Enter package height"
+                            },
+                            "name": "height"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Package reference is required field."
+                                    }
+                                },
+                                "description": "Package reference of the shipment.",
+                                "displayName": "Package Reference",
+                                "displayType": "text",
+                                "placeholder": "Enter package reference."
+                            },
+                            "name": "package_reference"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Weight is required field."
+                                    }
+                                },
+                                "description": "Package weight of the shipment.",
+                                "displayName": "Weight (grams)",
+                                "displayType": "number",
+                                "placeholder": "Enter weight in grams"
+                            },
+                            "name": "weight"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Item name is required field."
+                                                }
+                                            },
+                                            "description": "Item name of the Package.",
+                                            "displayName": "Item Name",
+                                            "displayType": "text",
+                                            "placeholder": "Enter item name"
+                                        },
+                                        "name": "name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "SKU is required field."
+                                                }
+                                            },
+                                            "description": "SKU of the package.",
+                                            "displayName": "SKU",
+                                            "displayType": "text",
+                                            "placeholder": "Enter item SKU"
+                                        },
+                                        "name": "sku"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Quantity is required field."
+                                                }
+                                            },
+                                            "description": "Quantity of the package.",
+                                            "displayName": "Quantity",
+                                            "displayType": "text",
+                                            "placeholder": "Enter quantity"
+                                        },
+                                        "name": "quantity"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "MRP is required field."
+                                                }
+                                            },
+                                            "description": "MRP of the package.",
+                                            "displayName": "MRP",
+                                            "displayType": "number",
+                                            "placeholder": "Enter MRP"
+                                        },
+                                        "name": "mrp"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "INR",
+                                                    "value": "INR"
+                                                },
+                                                {
+                                                    "label": "KHR",
+                                                    "value": "KHR"
+                                                },
+                                                {
+                                                    "label": "SAR",
+                                                    "value": "SAR"
+                                                }
+                                            ],
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Currency code is required field."
+                                                }
+                                            },
+                                            "description": "Currency code of the package.",
+                                            "displayName": "Currency Code",
+                                            "displayType": "select",
+                                            "placeholder": "Enter currency code."
+                                        },
+                                        "name": "currency_code"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Items are required for a package."
+                                    }
+                                },
+                                "description": "Details of each item inside the package.",
+                                "displayName": "Items in Package",
+                                "displayType": "array",
+                                "placeholder": "Enter the items inside the package"
+                            },
+                            "name": "items"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add details of each package."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "At least one package is required field."
+                        }
+                    },
+                    "description": "List of packages being shipped, including dimensions, reference, weight, and items inside.",
+                    "displayName": "Package Details",
+                    "displayType": "array",
+                    "placeholder": "Enter the package details"
+                },
+                "name": "packages"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Invoice number is required field."
+                                    }
+                                },
+                                "description": "Invoice number of the shipment.",
+                                "displayName": "Invoice Number",
+                                "displayType": "text",
+                                "placeholder": "Enter invoice number"
+                            },
+                            "name": "invoice_number"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Issue date is required field."
+                                    }
+                                },
+                                "description": "Issue date of the shipment.",
+                                "displayName": "Issue Date",
+                                "displayType": "date",
+                                "placeholder": "Select issue date"
+                            },
+                            "name": "issue_date"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Amount is required field."
+                                    }
+                                },
+                                "description": "Invoice amount of the shipment.",
+                                "displayName": "Invoice Amount",
+                                "displayType": "text",
+                                "placeholder": "Enter invoice amount"
+                            },
+                            "name": "amount"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "INR",
+                                        "value": "INR"
+                                    },
+                                    {
+                                        "label": "KHR",
+                                        "value": "KHR"
+                                    },
+                                    {
+                                        "label": "SAR",
+                                        "value": "SAR"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Currency code is required field."
+                                    }
+                                },
+                                "description": "Currency code of the shipment.",
+                                "displayName": "Currency Code",
+                                "displayType": "select",
+                                "placeholder": "Enter currency code"
+                            },
+                            "name": "currency_code"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add invoice number, date, amount, and currency."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "Invoice details are required."
+                        }
+                    },
+                    "description": "Provide details of the invoice related to the shipment.",
+                    "displayName": "Invoice Details",
+                    "displayType": "object",
+                    "placeholder": "Enter invoice details"
+                },
+                "name": "invoice"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Pickup contact name is required field."
+                                    }
+                                },
+                                "description": "The contact name of the pickup agent.",
+                                "displayName": "Pickup Contact Name",
+                                "displayType": "text",
+                                "placeholder": "Enter name of the pickup contact"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Address Line 1 is required field."
+                                    }
+                                },
+                                "description": "The address line of the pickup address.",
+                                "displayName": "Address Line 1",
+                                "displayType": "textarea",
+                                "placeholder": "Enter address line 1"
+                            },
+                            "name": "address_line_1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Country is required field."
+                                    }
+                                },
+                                "description": "The country of the pickup location.",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Pincode is required field."
+                                    }
+                                },
+                                "description": "The postal code of the pickup address.",
+                                "displayName": "Pincode",
+                                "displayType": "text",
+                                "placeholder": "Enter pincode"
+                            },
+                            "name": "pincode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "City is required field."
+                                    }
+                                },
+                                "description": "The city of the pickup location.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "State is required field."
+                                    }
+                                },
+                                "description": "The state of the pickup location.",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Contact name is required field."
+                                                }
+                                            },
+                                            "description": "The name of the person to contact for the pickup.",
+                                            "displayName": "Contact Name",
+                                            "displayType": "text",
+                                            "placeholder": "Enter contact name"
+                                        },
+                                        "name": "contact_name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Contact phone is required field."
+                                                }
+                                            },
+                                            "description": "The phone number of the pickup agent.",
+                                            "displayName": "Contact Phone",
+                                            "displayType": "text",
+                                            "placeholder": "Enter contact phone number"
+                                        },
+                                        "name": "contact_phone"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Contact email is required field."
+                                                }
+                                            },
+                                            "description": "The email address of the pickup agent.",
+                                            "displayName": "Contact Email",
+                                            "displayType": "text",
+                                            "placeholder": "Enter contact email"
+                                        },
+                                        "name": "contact_email"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Contact details is required field."
+                                    }
+                                },
+                                "description": "The contact details of the pickup agent.",
+                                "displayName": "Contact Details",
+                                "displayType": "object",
+                                "placeholder": "Enter contact details"
+                            },
+                            "name": "contact_details"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Enter pickup location with full address and contact."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "Pickup location is required field."
+                        }
+                    },
+                    "description": "Provide the details of the location where the shipment will be picked up.",
+                    "displayName": "Pickup Location",
+                    "displayType": "object",
+                    "placeholder": "Enter pickup location details"
+                },
+                "name": "pickup_location"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Drop contact name is required field."
+                                    }
+                                },
+                                "description": "The contact name of the delivery recipient.",
+                                "displayName": "Drop Contact Name",
+                                "displayType": "text",
+                                "placeholder": "Enter name of the drop contact"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Address Line 1 is required field."
+                                    }
+                                },
+                                "description": "The address line of the delivery address.",
+                                "displayName": "Address Line 1",
+                                "displayType": "textarea",
+                                "placeholder": "Enter address line 1"
+                            },
+                            "name": "address_line_1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Country is required field."
+                                    }
+                                },
+                                "description": "The country of the drop location.",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Pincode is required field."
+                                    }
+                                },
+                                "description": "The postal code of the drop address.",
+                                "displayName": "Pincode",
+                                "displayType": "text",
+                                "placeholder": "Enter pincode"
+                            },
+                            "name": "pincode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "City is required field."
+                                    }
+                                },
+                                "description": "The city of the drop location.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "State is required field."
+                                    }
+                                },
+                                "description": "The state of the drop location.",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Contact name is required field."
+                                                }
+                                            },
+                                            "description": "The name of the person to contact at the drop location.",
+                                            "displayName": "Contact Name",
+                                            "displayType": "text",
+                                            "placeholder": "Enter contact name"
+                                        },
+                                        "name": "contact_name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Contact phone is required field."
+                                                }
+                                            },
+                                            "description": "The phone number of the drop contact.",
+                                            "displayName": "Contact Phone",
+                                            "displayType": "text",
+                                            "placeholder": "Enter contact phone number"
+                                        },
+                                        "name": "contact_phone"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Contact details are required field"
+                                    }
+                                },
+                                "description": "The contact details of the delivery recipient.",
+                                "displayName": "Contact Details",
+                                "displayType": "object",
+                                "placeholder": "Enter contact details"
+                            },
+                            "name": "contact_details"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Enter drop location with full address and contact."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "Drop location is required field"
+                        }
+                    },
+                    "description": "Provide the details of the location where the shipment will be delivered.",
+                    "displayName": "Drop Location",
+                    "displayType": "object",
+                    "placeholder": "Enter drop location details"
+                },
+                "name": "drop_location"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "COD",
+                            "value": "cod"
+                        },
+                        {
+                            "label": "Prepaid",
+                            "value": "prepaid"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Payment method is required field."
+                        }
+                    },
+                    "description": "Specify the payment method used for the order (e.g., cod, prepaid).",
+                    "displayName": "Payment Method",
+                    "displayType": "select",
+                    "placeholder": "Enter payment method"
+                },
+                "name": "payment_method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Amount to collect is required field."
+                        }
+                    },
+                    "description": "Specify the amount to be collected from the recipient.",
+                    "displayName": "Amount to Collect",
+                    "displayType": "text",
+                    "placeholder": "Enter the amount to collect"
+                },
+                "name": "amount_to_collect"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.scm.fynd.com/tms/service/public/hyperlocal/v1.0/shipments/status",
+            "body": {
+                "data": [
+                    {
+                        "event": "{{parameters.event}}",
+                        "reason": "{{paramaters.reason}}",
+                        "awb_number": "{{parameters.awb_number}}",
+                        "event_time": "{{parameters.event_time}}",
+                        "payment_meta": {
+                            "payment_id": "{{parameters.payment_id}}",
+                            "mode_of_payment_identifier": "{{parameters.mode_of_payment_identifier}}",
+                            "mode_of_payment_description": "{{parameters.mode_of_payment_description}}"
+                        },
+                        "payment_method": "{{parameters.payment_method}}",
+                        "mode_of_payment": "{{parameters.mode_of_payment}}"
+                    }
+                ]
+            },
+            "method": "put",
+            "headers": {
+                "content-type": "application/json",
+                "account-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors}}",
+                    "message": "{{response.data.errors[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Identifier of the shipment to be updated.",
+                    "displayName": "Identifier",
+                    "displayType": "text",
+                    "placeholder": "Enter the identifier"
+                },
+                "name": "identifier"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "minimum": 0,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "AWB number is required field."
+                        }
+                    },
+                    "description": "AWB number of the shipment to be updated.",
+                    "displayName": "AWB Number",
+                    "displayType": "number",
+                    "placeholder": "Enter the AWB number"
+                },
+                "name": "awb_number"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Cancel",
+                            "value": "cancel"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Event is required field."
+                        }
+                    },
+                    "description": "Event type to be updated of the shipment.",
+                    "displayName": "Event",
+                    "displayType": "select"
+                },
+                "name": "event"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Event time in ISO 8601 format (eg. 2019-08-24T14:15:22Z) .",
+                    "displayName": "Event Time",
+                    "displayType": "text",
+                    "placeholder": "Enter the event time"
+                },
+                "name": "event_time"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Reason for the event.",
+                    "displayName": "Reason",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the reason"
+                },
+                "name": "reason"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Mode of payment (eg. UPI, Cash).",
+                    "displayName": "Mode of Payment",
+                    "displayType": "text",
+                    "placeholder": "Enter the mode of payment"
+                },
+                "name": "mode_of_payment"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "COD",
+                            "value": "cod"
+                        },
+                        {
+                            "label": "Prepaid",
+                            "value": "prepaid"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Specify the payment method used for the order (e.g., cod, prepaid).",
+                    "displayName": "Payment Method",
+                    "displayType": "select",
+                    "placeholder": "Enter payment method"
+                },
+                "name": "payment_method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Payment ID is required field."
+                        }
+                    },
+                    "description": "ID of the payment.",
+                    "displayName": "Payment ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the payment ID"
+                },
+                "name": "payment_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Identifier for the mode of payment.",
+                    "displayName": "Mode of Payment Identifier",
+                    "displayType": "text",
+                    "placeholder": "Enter the mode of payment identifier"
+                },
+                "name": "mode_of_payment_identifier"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Description for the mode of payment.",
+                    "displayName": "Mode of Payment Description",
+                    "displayType": "text",
+                    "placeholder": "Enter the mode of payment description"
+                },
+                "name": "mode_of_payment_description"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.scm.fynd.com/tms/service/public/hyperlocal/v1.0/shipments/status",
+            "body": {
+                "data": [
+                    {
+                        "event": "cancel",
+                        "awb_number": "{{parameters.awb_number}}",
+                        "payment_meta": {
+                            "payment_id": "{{parameters.payment_id}}"
+                        }
+                    }
+                ]
+            },
+            "method": "put",
+            "headers": {
+                "content-type": "application/json",
+                "account-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors}}",
+                    "message": "{{response.data.errors[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "minimum": 0,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "AWB number is required field."
+                        }
+                    },
+                    "description": "AWB number of the shipment.",
+                    "displayName": "AWB Number",
+                    "displayType": "number",
+                    "placeholder": "Enter the AWB number"
+                },
+                "name": "awb_number"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Payment ID is required field."
+                        }
+                    },
+                    "description": "ID of the payment.",
+                    "displayName": "Payment ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the payment ID"
+                },
+                "name": "payment_id"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "content-type": "application/json",
+                "account-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    }
 }

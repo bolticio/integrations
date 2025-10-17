@@ -1,52 +1,274 @@
 {
-    "definition": {
-        "url": "https://api.telegram.org/bot{{secrets.api_token}}/sendPhoto?chat_id=@{{parameters.chat_id}}&photo={{parameters.image_url}}",
-        "method": "post",
-        "headers": {
-            "content-type": "application/json"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "validation": {
-                    "required": true,
-                    "maxLength": 500,
-                    "minLength": 1,
-                    "requiredDetail": {
-                        "errorMsg": "Chat id is required."
+                "options": [
+                    {
+                        "label": "Send Text Message",
+                        "value": "message.text"
+                    },
+                    {
+                        "label": "Send Photo",
+                        "value": "message.photo"
+                    },
+                    {
+                        "label": "Send Document",
+                        "value": "message.document"
+                    },
+                    {
+                        "label": "Send Poll",
+                        "value": "message.sendpoll"
                     }
-                },
-                "description": "The unique id of your public channel Eg. chatgroup1",
-                "displayName": "Chat id",
-                "displayType": "text",
-                "placeholder": "Provide the chat id."
-            },
-            "name": "chat_id"
-        },
-        {
-            "meta": {
+                ],
                 "validation": {
-                    "required": true,
-                    "maxLength": 500,
-                    "minLength": 1,
-                    "requiredDetail": {
-                        "errorMsg": "Image URL is required."
-                    }
+                    "required": true
                 },
-                "description": "Provide the URL of the Image.",
-                "displayName": "Image URL",
-                "displayType": "text",
-                "placeholder": "Enter the image url here."
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "message",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "image_url"
+            "name": "operation"
         }
-    ]
+    ],
+    "text": {
+        "definition": {
+            "url": "https://api.telegram.org/bot{{secrets.api_token}}/sendMessage?chat_id=@{{parameters.chat_id}}&text={{parameters.content}}",
+            "method": "post",
+            "headers": {
+                "content-type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Chat id is required."
+                        }
+                    },
+                    "description": "The unique id of your public channel Eg. chatgroup1",
+                    "displayName": "Chat id",
+                    "displayType": "text",
+                    "placeholder": "Provide the chat id."
+                },
+                "name": "chat_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Message is required."
+                        }
+                    },
+                    "description": "Eg. hello world, this is my first bot message.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Provide the content of the text message."
+                },
+                "name": "content"
+            }
+        ]
+    },
+    "document": {
+        "definition": {
+            "url": "https://api.telegram.org/bot{{secrets.api_token}}/sendDocument?chat_id=@{{parameters.chat_id}}&document={{parameters.doc_url}}",
+            "method": "post",
+            "headers": {
+                "content-type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Chat id is required."
+                        }
+                    },
+                    "description": "The unique id of your public channel Eg. chatgroup1",
+                    "displayName": "Chat id",
+                    "displayType": "text",
+                    "placeholder": "Provide the chat id."
+                },
+                "name": "chat_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Document URL is required."
+                        }
+                    },
+                    "description": "Provide the URL of the Document.",
+                    "displayName": "Document URL",
+                    "displayType": "text",
+                    "placeholder": "Send up to 20 MB in size, this limit may be changed in the future"
+                },
+                "name": "doc_url"
+            }
+        ]
+    },
+    "sendpoll": {
+        "definition": {
+            "url": "https://api.telegram.org/bot{{secrets.api_token}}/sendPoll?chat_id=@{{parameters.chat_id}}",
+            "body": {
+                "options": "{{parameters.options}}",
+                "question": "{{parameters.question}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Chat id is required."
+                        }
+                    },
+                    "description": "The unique id of your public channel Eg. chatgroup1",
+                    "displayName": "Chat id",
+                    "displayType": "text",
+                    "placeholder": "Provide the chat id."
+                },
+                "name": "chat_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Question is required."
+                        }
+                    },
+                    "description": "Provide the question.",
+                    "displayName": "Question",
+                    "displayType": "textarea",
+                    "placeholder": "The question for your poll"
+                },
+                "name": "question"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Options is required."
+                        }
+                    },
+                    "description": "Enter the options for poll",
+                    "displayName": "Options",
+                    "displayType": "multitext",
+                    "placeholder": "Enter options"
+                },
+                "name": "options"
+            }
+        ]
+    },
+    "photo": {
+        "definition": {
+            "url": "https://api.telegram.org/bot{{secrets.api_token}}/sendPhoto?chat_id=@{{parameters.chat_id}}&photo={{parameters.image_url}}",
+            "method": "post",
+            "headers": {
+                "content-type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Chat id is required."
+                        }
+                    },
+                    "description": "The unique id of your public channel Eg. chatgroup1",
+                    "displayName": "Chat id",
+                    "displayType": "text",
+                    "placeholder": "Provide the chat id."
+                },
+                "name": "chat_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Image URL is required."
+                        }
+                    },
+                    "description": "Provide the URL of the Image.",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the image url here."
+                },
+                "name": "image_url"
+            }
+        ]
+    }
 }

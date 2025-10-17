@@ -1,64 +1,672 @@
 {
-    "definition": {
-        "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
-        "body": {
-            "inputs": "{{parameters.text}}"
-        },
-        "method": "post",
-        "headers": {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer {{secrets.access_token}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data.error}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "config": {
-                    "url": "integrations/options",
-                    "body": {
-                        "name": "hugging_face",
-                        "secret": "{{parameters.secret}}",
-                        "resource": "text_functions",
-                        "operation": "text_functions.classify",
-                        "loadOptionsMethod": "getModelsClassification"
-                    },
-                    "method": "post",
-                    "urlType": "options",
-                    "labelKey": "modelId",
-                    "valueKey": "modelId"
-                },
-                "options": [],
-                "htmlProps": {
-                    "allowDynamic": true
-                },
+                "options": [
+                    {
+                        "label": "Fill Mask",
+                        "value": "fill_mask.fill"
+                    }
+                ],
                 "validation": {
                     "required": true
                 },
-                "description": "Select the model for classification.",
-                "displayName": "Models",
-                "displayType": "autocomplete",
-                "placeholder": "Select a model"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation"
             },
-            "name": "models"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true
-                },
-                "description": "Provide the text for classification.",
-                "displayName": "Text to Classify",
-                "displayType": "text",
-                "placeholder": "Enter the text to classify"
-            },
-            "name": "text"
+            "name": "operation"
         }
-    ]
+    ],
+    "getModelsFillMask": {
+        "definition": {
+            "url": "https://huggingface.co/api/models?filter=fill-mask&sort=downloads",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "object_detection": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.model}}",
+            "body": {
+                "inputs": "{{parameters.image_url}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "object",
+                            "operation": "object.object_detection",
+                            "loadOptionsMethod": "getObjectDetectionModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for Object Detection.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the URL of the image to analyze for objects.",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter image URL"
+                },
+                "name": "image_url"
+            }
+        ]
+    },
+    "question_answering": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "body": {
+                "inputs": {
+                    "context": "{{parameters.context}}",
+                    "question": "{{parameters.question}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "qa",
+                            "operation": "qa.question_answering",
+                            "loadOptionsMethod": "getModelsQuestionAnswering"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for Question Answering.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The question you want answered.",
+                    "displayName": "Question",
+                    "displayType": "text",
+                    "placeholder": "Enter your question"
+                },
+                "name": "question"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the text context for the question.",
+                    "displayName": "Context",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the context text"
+                },
+                "name": "context"
+            }
+        ]
+    },
+    "feature": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.model}}",
+            "body": {
+                "inputs": "{{parameters.input_text}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "feature_extraction",
+                            "operation": "feature_extraction.feature",
+                            "loadOptionsMethod": "getModelFeatureExtraction"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a pre-trained model to extract features from the provided text.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Input text for feature extraction. ",
+                    "displayName": "Input Text",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the text for feature extraction"
+                },
+                "name": "input_text"
+            }
+        ]
+    },
+    "fill": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/FacebookAI/xlm-roberta-base",
+            "body": {
+                "inputs": "{{parameters.input}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fill_mask",
+                            "operation": "fill_mask.fill",
+                            "loadOptionsMethod": "getModelsFillMask"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for Fill mask.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The input text containing a mask token to be replaced.Eg. The cat sat on the <mask>.",
+                    "displayName": "Input",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the input text with a <mask> token"
+                },
+                "name": "input"
+            }
+        ]
+    },
+    "classify": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "body": {
+                "inputs": "{{parameters.text}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "text_functions",
+                            "operation": "text_functions.classify",
+                            "loadOptionsMethod": "getModelsClassification"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for classification.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the text for classification.",
+                    "displayName": "Text to Classify",
+                    "displayType": "text",
+                    "placeholder": "Enter the text to classify"
+                },
+                "name": "text"
+            }
+        ]
+    },
+    "imagetexttotext": {
+        "definition": {
+            "url": "https://router.huggingface.co/{{parameters.models}}/v1/chat/completions",
+            "body": {
+                "model": "accounts/fireworks/models/llama-v3p2-11b-vision-instruct",
+                "stream": false,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "text": "{{parameters.text}}",
+                                "type": "text"
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": "{{parameters.image_url}}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "max_tokens": 500
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "fireworks-ai",
+                            "value": "fireworks-ai"
+                        },
+                        {
+                            "label": "google/gemma-3-27b-it",
+                            "value": "google/gemma-3-27b-it"
+                        },
+                        {
+                            "label": "google/gemma-3-4b-it",
+                            "value": "google/gemma-3-4b-it"
+                        },
+                        {
+                            "label": "allenai/olmOCR-7B-0225-preview",
+                            "value": "allenai/olmOCR-7B-0225-preview"
+                        },
+                        {
+                            "label": "unsloth/gemma-3-27b-it-GGUF",
+                            "value": "unsloth/gemma-3-27b-it-GGUF"
+                        },
+                        {
+                            "label": "allenai/olmOCR-7B-0225-preview",
+                            "value": "allenai/olmOCR-7B-0225-preview"
+                        },
+                        {
+                            "label": "Qwen/Qwen2.5-VL-7B-Instruct",
+                            "value": "Qwen/Qwen2.5-VL-7B-Instruct"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for image-to-text generation.",
+                    "displayName": "Models",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the image URL for image to text.",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the image URL"
+                },
+                "name": "image_url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the context for image.",
+                    "displayName": "Text to describe the Image",
+                    "displayType": "text",
+                    "placeholder": "Enter the text"
+                },
+                "name": "text"
+            }
+        ]
+    },
+    "segment": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "body": {
+                "inputs": "{{parameters.image_url}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "image",
+                            "operation": "image.segment",
+                            "loadOptionsMethod": "getModelSegment"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for image segmentation.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the image URL for segmentation.",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the image URL"
+                },
+                "name": "image_url"
+            }
+        ]
+    },
+    "generate": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "body": {
+                "inputs": "{{parameters.prompt}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "text_functions",
+                            "operation": "text_functions.generate",
+                            "loadOptionsMethod": "getTextGenerationModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for text generation.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The prompt text that you want the model to complete.",
+                    "displayName": "Prompt",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the text prompt"
+                },
+                "name": "prompt"
+            }
+        ]
+    },
+    "summarize": {
+        "definition": {
+            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "body": {
+                "inputs": "{{parameters.text}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "text_functions",
+                            "operation": "text_functions.summarize",
+                            "loadOptionsMethod": "getModelsSummarization"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for summarization.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the text you want summarized.",
+                    "displayName": "Text to Summarize",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the text to summarize"
+                },
+                "name": "text"
+            }
+        ]
+    }
 }

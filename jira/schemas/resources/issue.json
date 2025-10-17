@@ -1,46 +1,512 @@
 {
-    "definition": {
-        "qs": {
-            "expand": "{{parameters.expand}}"
-        },
-        "url": "https://{{secrets.domain}}/rest/api/2/project/{{parameters.projectIdOrKey}}",
-        "method": "get",
-        "headers": {
-            "Accept": "application/json",
-            "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data.errorMessages[0]}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
+                "options": [
+                    {
+                        "label": "Get Issue",
+                        "value": "issue.getIssue"
+                    },
+                    {
+                        "label": "Add Comment to Issue",
+                        "value": "issue.addCommentToIssue"
+                    },
+                    {
+                        "label": "Search Issues",
+                        "value": "issue.searchIssuesText"
+                    }
+                ],
                 "validation": {
                     "required": true
                 },
-                "description": "A unique identifire for your jira project.",
-                "displayName": "Project Id or Key",
-                "displayType": "text",
-                "placeholder": "Enter Project Id or Key here"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "issue",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "projectIdOrKey"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": false
-                },
-                "description": "Use expand to include additional information in the response. This parameter accepts a comma-separated list. Note that the project description, issue types, and project lead are included in all responses by default.",
-                "displayName": "Expand",
-                "displayType": "text",
-                "placeholder": "Enter comma seperated expand options"
-            },
-            "name": "expand"
+            "name": "operation"
         }
-    ]
+    ],
+    "getProjects": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/api/3/project/search",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data.values}}"
+            }
+        }
+    },
+    "getIssueTypes": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/api/3/issuetype",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "addcommenttoissue": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/api/3/issue/{{parameters.issueIdOrKey}}/comment",
+            "body": {
+                "body": {
+                    "type": "doc",
+                    "content": [
+                        {
+                            "type": "paragraph",
+                            "content": [
+                                {
+                                    "text": "{{parameters.comment}}",
+                                    "type": "text"
+                                }
+                            ]
+                        }
+                    ],
+                    "version": 1
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Issue Id or Key is required."
+                        }
+                    },
+                    "description": "The unique ID or key of the Jira issue, e.g., 'PROJ-123'.",
+                    "displayName": "Issue Id or Key",
+                    "displayType": "text",
+                    "placeholder": "Enter issue id or key here"
+                },
+                "name": "issueIdOrKey"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "maxRows": 4,
+                        "minRows": 4
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Comment is required."
+                        }
+                    },
+                    "description": "Jira supports Wiki Markup formatting for comments. For information about the syntax, see Wiki Markup",
+                    "displayName": "Comment",
+                    "displayType": "textarea",
+                    "placeholder": "Enter text..."
+                },
+                "name": "comment"
+            }
+        ]
+    },
+    "getissue": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/api/3/issue/{{parameters.issueIdOrKey}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Issue Id or Key is required."
+                        }
+                    },
+                    "description": "The unique ID or key of the Jira issue, e.g., 'PROJ-123'.",
+                    "displayName": "Issue Id or Key",
+                    "displayType": "text",
+                    "placeholder": "Enter issue id or key here"
+                },
+                "name": "issueIdOrKey"
+            }
+        ]
+    },
+    "searchissuestext": {
+        "definition": {
+            "qs": {
+                "query": "{{parameters.query}}",
+                "maxResults": "{{parameters.maxResults}}"
+            },
+            "url": "https://{{secrets.domain}}/rest/api/3/issue/picker",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Text query is required."
+                        }
+                    },
+                    "description": "A string to search for issues.",
+                    "displayName": "Text Query",
+                    "displayType": "text",
+                    "placeholder": "Enter text search query here"
+                },
+                "name": "query"
+            },
+            {
+                "meta": {
+                    "value": 50,
+                    "validation": {
+                        "max": 1000,
+                        "min": 1,
+                        "required": false
+                    },
+                    "description": "The maximum number of items to return. Max is 1000.",
+                    "displayName": "Max Results",
+                    "displayType": "number",
+                    "placeholder": "Enter max results"
+                },
+                "name": "maxResults"
+            }
+        ]
+    },
+    "getstatuses": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/api/3/project/{{parameters.projectIdOrKey}}/statuses",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A unique identifier for your jira project.",
+                    "displayName": "Project Id or Key",
+                    "displayType": "text",
+                    "placeholder": "Enter Project Id or Key here"
+                },
+                "name": "projectIdOrKey"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "query": "{{parameters.search}}"
+            },
+            "url": "https://{{secrets.domain}}/rest/api/3/project/search",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.values}}"
+            },
+            "pagination": {
+                "qs": {
+                    "startAt": "{{response.data.startAt}} + {{pagination.maxResults}}",
+                    "maxResults": 50
+                },
+                "type": "offset",
+                "default": {
+                    "startAt": 0,
+                    "maxResults": 50
+                },
+                "condition": "{{response.data.isLast}} !== true"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Search jira project by name",
+                    "displayName": "Search Project",
+                    "displayType": "text",
+                    "placeholder": "Enter project name"
+                },
+                "name": "search"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "qs": {
+                "expand": "{{parameters.expand}}"
+            },
+            "url": "https://{{secrets.domain}}/rest/api/2/project/{{parameters.projectIdOrKey}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A unique identifire for your jira project.",
+                    "displayName": "Project Id or Key",
+                    "displayType": "text",
+                    "placeholder": "Enter Project Id or Key here"
+                },
+                "name": "projectIdOrKey"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Use expand to include additional information in the response. This parameter accepts a comma-separated list. Note that the project description, issue types, and project lead are included in all responses by default.",
+                    "displayName": "Expand",
+                    "displayType": "text",
+                    "placeholder": "Enter comma seperated expand options"
+                },
+                "name": "expand"
+            }
+        ]
+    }
 }

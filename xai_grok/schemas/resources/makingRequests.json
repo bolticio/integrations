@@ -1,122 +1,588 @@
 {
-    "definition": {
-        "url": "https://api.x.ai/v1/chat/completions",
-        "body": {
-            "model": "{{parameters.model}}",
-            "stream": false,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "{{parameters.content}}."
-                },
-                {
-                    "role": "user",
-                    "content": "{{parameters.messages}}"
-                }
-            ],
-            "temperature": "{{parameters.temperature}}"
-        },
-        "method": "post",
-        "headers": {
-            "content-type": "application/json",
-            "Authorization": "Bearer {{secrets.api_token}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data}}"
-            },
-            "output": "{{response.data}}"
-        },
-        "transform": {
-            "body": "let updatedBody = { ...body }; for (let [key, value] of Object.entries(updatedBody)) { if (key == 'temperature') { updatedBody[key] = parseFloat(value); }} return updatedBody;"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "config": {
-                    "url": "integrations/options",
-                    "body": {
-                        "name": "xai_grok",
-                        "secret": "{{parameters.secret}}",
-                        "resource": "makingRequests",
-                        "operation": "makingRequests.create_message",
-                        "loadOptionsMethod": "getAllModels"
-                    },
-                    "method": "post",
-                    "urlType": "options",
-                    "labelKey": "id",
-                    "valueKey": "id"
-                },
-                "options": [],
+                "options": [
+                    {
+                        "label": "Message",
+                        "value": "makingRequests.create_message"
+                    }
+                ],
                 "validation": {
                     "required": true
                 },
-                "description": "",
-                "displayName": "Model",
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
                 "displayType": "select",
-                "placeholder": "Eg: embedding-model"
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "makingRequests",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "model"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true,
-                    "maxLength": 500,
-                    "minLength": 1,
-                    "requiredDetail": {
-                        "errorMsg": "Persona is required field."
-                    }
-                },
-                "description": "Provide the Persona of the response.",
-                "displayName": "Persona",
-                "displayType": "text",
-                "placeholder": "Eg. You are Grok, a chatbot inspired by the Hitchhikers Guide to the Galaxy."
-            },
-            "name": "content"
-        },
-        {
-            "meta": {
-                "htmlProps": {
-                    "disabled": false,
-                    "overrideDynamicSupport": true
-                },
-                "validation": {
-                    "max": 500,
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Prompt is required field"
-                    }
-                },
-                "description": "Provide the prompt for the bot.",
-                "displayName": "Prompt",
-                "displayType": "textarea",
-                "placeholder": "Eg. What is the answer to life and universe?"
-            },
-            "name": "messages"
-        },
-        {
-            "meta": {
-                "max": 1.9,
-                "min": 0.1,
-                "step": 0.2,
-                "value": 0.7,
-                "htmlProps": {
-                    "showInfoIcon": true
-                },
-                "validation": {
-                    "required": true,
-                    "infoDetail": {
-                        "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
-                    }
-                },
-                "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
-                "displayName": "Temperature",
-                "displayType": "slider"
-            },
-            "name": "temperature"
+            "name": "operation"
         }
-    ]
+    ],
+    "getAllModels": {
+        "definition": {
+            "url": "https://api.x.ai/v1/models",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "insert_message": {
+        "definition": {
+            "url": "https://api.x.ai/v1/embeddings",
+            "body": {
+                "input": [
+                    "{{parameters.embeddings}}"
+                ],
+                "model": "{{parameters.model}}",
+                "encoding_format": "float"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "xai_grok",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "makingEmbeddings",
+                            "operation": "makingEmbeddings.insert_message",
+                            "loadOptionsMethod": "getAllEmbedModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Eg: embedding-model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 2000,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add the Embedding."
+                        }
+                    },
+                    "displayName": "Text Embedding",
+                    "displayType": "text",
+                    "placeholder": "Enter the text content of the Embedding"
+                },
+                "name": "Embeddings"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Token token={{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "getembmodels": {
+        "definition": {
+            "url": "https://api.x.ai/v1/embedding-models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "getallmodels": {
+        "definition": {
+            "url": "https://api.x.ai/v1/models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "language_model": {
+        "definition": {
+            "url": "https://api.x.ai/v1/language-models/{{parameters.model}}",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "xai_grok",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "getmodels.language_model",
+                            "loadOptionsMethod": "getLanguageModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Eg: grok-beta"
+                },
+                "name": "model"
+            }
+        ]
+    },
+    "model": {
+        "definition": {
+            "url": "https://api.x.ai/v1/models/{{parameters.model}}",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "xai_grok",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "getmodels.model",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Eg: grok-beta"
+                },
+                "name": "model"
+            }
+        ]
+    },
+    "embedding_model": {
+        "definition": {
+            "url": "https://api.x.ai/v1/embedding-models/{{parameters.model}}",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "xai_grok",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "getmodels.embedding_model",
+                            "loadOptionsMethod": "embedding_Models"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Eg: embedding-model"
+                },
+                "name": "model"
+            }
+        ]
+    },
+    "getalllangmodels": {
+        "definition": {
+            "url": "https://api.x.ai/v1/language-models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "create_message": {
+        "definition": {
+            "url": "https://api.x.ai/v1/chat/completions",
+            "body": {
+                "model": "{{parameters.model}}",
+                "stream": false,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "{{parameters.content}}."
+                    },
+                    {
+                        "role": "user",
+                        "content": "{{parameters.messages}}"
+                    }
+                ],
+                "temperature": "{{parameters.temperature}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "let updatedBody = { ...body }; for (let [key, value] of Object.entries(updatedBody)) { if (key == 'temperature') { updatedBody[key] = parseFloat(value); }} return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "xai_grok",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "makingRequests",
+                            "operation": "makingRequests.create_message",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Eg: embedding-model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Persona is required field."
+                        }
+                    },
+                    "description": "Provide the Persona of the response.",
+                    "displayName": "Persona",
+                    "displayType": "text",
+                    "placeholder": "Eg. You are Grok, a chatbot inspired by the Hitchhikers Guide to the Galaxy."
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 500,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prompt is required field"
+                        }
+                    },
+                    "description": "Provide the prompt for the bot.",
+                    "displayName": "Prompt",
+                    "displayType": "textarea",
+                    "placeholder": "Eg. What is the answer to life and universe?"
+                },
+                "name": "messages"
+            },
+            {
+                "meta": {
+                    "max": 1.9,
+                    "min": 0.1,
+                    "step": 0.2,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    }
 }

@@ -1,213 +1,244 @@
 {
-    "definition": {
-        "url": "https://integrations.copilot.live/_cloudintegrationz",
-        "body": {
-            "parameters": "{{parameters}}",
-            "copilotInputArgs": "{{payload.copilotInputArgs}}"
-        },
-        "method": "post",
-        "filters": {
-            "body": {
-                "allowEmptyArray": true,
-                "allowEmptyValue": true,
-                "allowEmptyObject": true
-            }
-        },
-        "headers": {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data.error}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "validation": {
-                    "required": false
-                },
-                "description": "By activating the tool, you can use it in your copilot",
-                "displayName": "Activate Tool",
-                "displayType": "toggle",
-                "placeholder": ""
-            },
-            "name": "isToolActive"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": false
-                },
-                "description": "Enable this option to require users to be authenticated before accessing the tool.",
-                "displayName": "Authenticated Access Only",
-                "displayType": "toggle",
-                "placeholder": ""
-            },
-            "name": "requiresAuthentication"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Tool description is required"
-                    }
-                },
-                "description": "Provide a description of the tool",
-                "displayName": "Tool Description",
-                "displayType": "text",
-                "placeholder": "E.g. This tool will return a list of products"
-            },
-            "name": "toolDescription"
-        },
-        {
-            "meta": {
-                "children": [
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Parameter name is required"
-                                }
-                            },
-                            "description": "Enter the name of the parameter",
-                            "displayName": "Name",
-                            "displayType": "text",
-                            "placeholder": "E.g. product_id"
-                        },
-                        "name": "name"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Parameter name is required"
-                                }
-                            },
-                            "description": "Enter the description of the parameter",
-                            "displayName": "Description",
-                            "displayType": "text",
-                            "placeholder": "E.g. ID of the product"
-                        },
-                        "name": "description"
-                    },
-                    {
-                        "meta": {
-                            "options": [
-                                {
-                                    "label": "String",
-                                    "value": "string"
-                                },
-                                {
-                                    "label": "Number",
-                                    "value": "number"
-                                },
-                                {
-                                    "label": "Boolean",
-                                    "value": "boolean"
-                                }
-                            ],
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Data type selection is required"
-                                }
-                            },
-                            "description": "Data Type of the parameter",
-                            "displayName": "Data Type",
-                            "displayType": "select",
-                            "placeholder": "Select one"
-                        },
-                        "name": "dataType"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": false
-                            },
-                            "description": "This will make the parameter mandatory",
-                            "displayName": "Is Required?",
-                            "displayType": "toggle",
-                            "placeholder": ""
-                        },
-                        "name": "required"
-                    }
-                ],
-                "htmlProps": {
-                    "allowAdd": true,
-                    "childrenType": "object"
-                },
-                "validation": {
-                    "max": 20,
-                    "min": 0,
-                    "required": false
-                },
-                "description": "Parameters for the tool",
-                "displayName": "Parameter",
-                "displayType": "array"
-            },
-            "name": "toolParams"
-        },
-        {
-            "meta": {
-                "value": "web",
                 "options": [
                     {
-                        "label": "Phone Call",
-                        "value": "call"
-                    },
-                    {
-                        "label": "Public Webpage",
-                        "value": "hosted-web"
-                    },
-                    {
-                        "label": "Web Widget",
-                        "value": "web"
-                    },
-                    {
-                        "label": "WhatsApp",
-                        "value": "whatsapp"
-                    },
-                    {
-                        "label": "Mobile",
-                        "value": "mobile"
+                        "label": "Add Tool Definition",
+                        "value": "functions.toolDefinition"
                     }
                 ],
                 "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Please select at least 1 surface where the workflow can be used"
-                    }
-                },
-                "description": "Select one or more surfaces where the workflow can be used",
-                "displayName": "Supported Surfaces",
-                "displayType": "multiselect"
-            },
-            "name": "toolSurfaces"
-        },
-        {
-            "meta": {
-                "value": "15",
-                "htmlProps": {
-                    "overrideDynamicSupport": true
-                },
-                "validation": {
-                    "max": 120,
-                    "min": 5,
                     "required": true
                 },
-                "description": "This is the maximum time Copilot agent will wait for tool to respond.",
-                "displayName": "Execution Timeout",
-                "displayType": "number"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "functions",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "pollTimeout"
+            "name": "operation"
         }
-    ]
+    ],
+    "tooldefinition": {
+        "definition": {
+            "url": "https://integrations.copilot.live/_cloudintegrationz",
+            "body": {
+                "parameters": "{{parameters}}",
+                "copilotInputArgs": "{{payload.copilotInputArgs}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": true,
+                    "allowEmptyValue": true,
+                    "allowEmptyObject": true
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "By activating the tool, you can use it in your copilot",
+                    "displayName": "Activate Tool",
+                    "displayType": "toggle",
+                    "placeholder": ""
+                },
+                "name": "isToolActive"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enable this option to require users to be authenticated before accessing the tool.",
+                    "displayName": "Authenticated Access Only",
+                    "displayType": "toggle",
+                    "placeholder": ""
+                },
+                "name": "requiresAuthentication"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Tool description is required"
+                        }
+                    },
+                    "description": "Provide a description of the tool",
+                    "displayName": "Tool Description",
+                    "displayType": "text",
+                    "placeholder": "E.g. This tool will return a list of products"
+                },
+                "name": "toolDescription"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Parameter name is required"
+                                    }
+                                },
+                                "description": "Enter the name of the parameter",
+                                "displayName": "Name",
+                                "displayType": "text",
+                                "placeholder": "E.g. product_id"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Parameter name is required"
+                                    }
+                                },
+                                "description": "Enter the description of the parameter",
+                                "displayName": "Description",
+                                "displayType": "text",
+                                "placeholder": "E.g. ID of the product"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "String",
+                                        "value": "string"
+                                    },
+                                    {
+                                        "label": "Number",
+                                        "value": "number"
+                                    },
+                                    {
+                                        "label": "Boolean",
+                                        "value": "boolean"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Data type selection is required"
+                                    }
+                                },
+                                "description": "Data Type of the parameter",
+                                "displayName": "Data Type",
+                                "displayType": "select",
+                                "placeholder": "Select one"
+                            },
+                            "name": "dataType"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "This will make the parameter mandatory",
+                                "displayName": "Is Required?",
+                                "displayType": "toggle",
+                                "placeholder": ""
+                            },
+                            "name": "required"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "childrenType": "object"
+                    },
+                    "validation": {
+                        "max": 20,
+                        "min": 0,
+                        "required": false
+                    },
+                    "description": "Parameters for the tool",
+                    "displayName": "Parameter",
+                    "displayType": "array"
+                },
+                "name": "toolParams"
+            },
+            {
+                "meta": {
+                    "value": "web",
+                    "options": [
+                        {
+                            "label": "Phone Call",
+                            "value": "call"
+                        },
+                        {
+                            "label": "Public Webpage",
+                            "value": "hosted-web"
+                        },
+                        {
+                            "label": "Web Widget",
+                            "value": "web"
+                        },
+                        {
+                            "label": "WhatsApp",
+                            "value": "whatsapp"
+                        },
+                        {
+                            "label": "Mobile",
+                            "value": "mobile"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please select at least 1 surface where the workflow can be used"
+                        }
+                    },
+                    "description": "Select one or more surfaces where the workflow can be used",
+                    "displayName": "Supported Surfaces",
+                    "displayType": "multiselect"
+                },
+                "name": "toolSurfaces"
+            },
+            {
+                "meta": {
+                    "value": "15",
+                    "htmlProps": {
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 120,
+                        "min": 5,
+                        "required": true
+                    },
+                    "description": "This is the maximum time Copilot agent will wait for tool to respond.",
+                    "displayName": "Execution Timeout",
+                    "displayType": "number"
+                },
+                "name": "pollTimeout"
+            }
+        ]
+    }
 }

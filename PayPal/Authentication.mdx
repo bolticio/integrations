@@ -1,128 +1,33 @@
-{
-    "parameters": [
-        {
-            "meta": {
-                "value": "access_token",
-                "options": [
-                    {
-                        "label": "Access Token",
-                        "value": "access_token"
-                    }
-                ],
-                "displayName": "Authentication Type",
-                "displayType": "hidden"
-            },
-            "name": "type"
-        }
-    ],
-    "access_token": {
-        "token": {
-            "url": "https://{{secrets.environment}}.paypal.com/v1/oauth2/token",
-            "body": {
-                "grant_type": "client_credentials"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": "Basic convertBufferBase64String({{secrets.client_id}}:{{secrets.client_secret}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "refresh": {
-            "url": "https://{{secrets.environment}}.paypal.com/v1/oauth2/token",
-            "body": {
-                "grant_type": "client_credentials"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": "Basic convertBufferBase64String({{secrets.client_id}}:{{secrets.client_secret}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "validate": {
-            "url": "https://{{secrets.environment}}.paypal.com/v1/identity/oauth2/userinfo?schema=paypalv1.1",
-            "method": "GET",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Client ID is required"
-                        }
-                    },
-                    "description": "Your PayPal application Client ID",
-                    "displayName": "Client ID",
-                    "displayType": "text",
-                    "placeholder": "Enter Client ID"
-                },
-                "name": "client_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Consumer secret is required"
-                        }
-                    },
-                    "description": "Your PayPal application Consumer secret",
-                    "displayName": "Consumer secret",
-                    "displayType": "password",
-                    "placeholder": "Enter Consumer secret"
-                },
-                "name": "client_secret"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Production",
-                            "value": "api-m"
-                        },
-                        {
-                            "label": "Sandbox",
-                            "value": "api-m.sandbox"
-                        }
-                    ],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Environment type is required field."
-                        }
-                    },
-                    "description": "Your PayPal application Environment",
-                    "displayName": "Environment type",
-                    "displayType": "select",
-                    "placeholder": "Select Environment type"
-                },
-                "name": "environment"
-            }
-        ]
-    }
-}
+# PayPal
+
+## Overview
+PayPal provides a secure platform that allows developers to integrate payment processing, subscription management, and financial services into their applications. Access is controlled using OAuth 2.0 client credentials to ensure secure and authorized usage.
+
+## Authentication Ways
+
+- OAuth 2.0 (Client ID & Client Secret)
+
+## OAuth 2.0 (Client ID & Client Secret)
+
+To authenticate with the PayPal, you need a Client ID and Client Secret generated from your PayPal Developer account. These credentials must be exchanged for an access token to authorize requests and track usage.
+
+**Steps:**
+
+1. **Sign in to PayPal Developer Portal**  
+   - Go to <a href="https://developer.paypal.com/" target="_blank" rel="noopener"><span>developer.paypal.com</span></a> and log in to the developer portal.
+
+2. **Access Apps & Credentials Section**  
+   - Navigate to the <a href="https://developer.paypal.com/developer/applications/" target="_blank" rel="noopener"><span> Apps & Credentials</span></a> section.
+
+3. **Create or Manage Your Application**  
+   - Click **Create App** to generate new credentials, or select an existing application.  
+   - Provide an **App Name** for easier management.  
+   - Select your **Merchant** account.  
+   - Choose the **Features** you need (Accept payments, Send payments, Subscriptions, etc.).  
+   - Store your **Client ID** and **Client Secret** securely—treat them like passwords.
+
+4. **Environment Selection**  
+   - **Sandbox**: Use for testing and development at <a href="https://developer.paypal.com/developer/accounts/" target="_blank" rel="noopener"><span>PayPal Sandbox</span></a>  
+   - **Live**: Use for production with verified business account
+
+If you need further assistance, please contact Boltic support <a href="mailto:support@boltic.io">support@boltic.io</a>

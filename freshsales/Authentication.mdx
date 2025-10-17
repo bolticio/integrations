@@ -1,130 +1,139 @@
-{
-    "api_key": {
-        "validate": {
-            "url": "{{secrets.api_url}}/api/settings/sales_accounts/fields",
-            "method": "get",
-            "headers": {
-                "Authorization": "Token token={{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "{{domain}}.myfreshworks.com/crm/sales",
-                            "value": "https://{{secrets.domain}}.myfreshworks.com/crm/sales"
-                        },
-                        {
-                            "label": "{{domain}}.freshsales.io",
-                            "value": "https://{{secrets.domain}}.freshsales.io"
-                        },
-                        {
-                            "label": "{{domain}}.freshworks.com/crm/sales",
-                            "value": "https://{{secrets.domain}}.freshworks.com/crm/sales"
-                        }
-                    ],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "API URL is required"
-                        }
-                    },
-                    "description": "Choose an API URL endpoint.",
-                    "displayName": "API URL",
-                    "displayType": "select",
-                    "placeholder": "Select an API URL",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "api_key",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "api_url"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Domain is required"
-                        }
-                    },
-                    "description": "The domain in the Freshworks CRM org URL. For example, in <a href='https://boltic.myfreshworks.com' target='_blank'>https://boltic.myfreshworks.com</a>, the domain is boltic.",
-                    "displayName": "Domain",
-                    "displayType": "text",
-                    "placeholder": "Enter Domain",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "api_key",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "domain"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "API key is required"
-                        }
-                    },
-                    "description": "Refer to the <a href='https://developer.freshsales.io/api/#authentication' target='blank'>Freshsales API authenticaton documentation</a> for detailed instructions on getting your API key.",
-                    "displayName": "API Key",
-                    "displayType": "password",
-                    "placeholder": "Enter API Key",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "api_key",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "api_key"
-            }
-        ]
-    },
-    "parameters": [
-        {
-            "meta": {
-                "value": "api_key",
-                "options": [
-                    {
-                        "label": "API Key",
-                        "value": "api_key"
-                    }
-                ],
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Authentication type is required"
-                    }
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "select",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        }
-    ]
-}
+
+
+# Freshsales
+
+
+
+This guide walks you through setting up the Freshsales integration within Boltic.
+
+
+
+## Prerequisites
+
+To set up the Freshsales integration, you'll need:
+
+- A Freshsales account
+
+- The Freshsales domain name
+
+- The Freshsales API Key
+
+
+
+## Setting Up the Freshsales Integration in Boltic
+
+
+
+1. **Log In**
+
+   - Log into your Freshsales account dashboard.
+
+
+
+2. **Obtain API Key**
+
+   - Click on your **Profile Icon** > **Settings** > **API Settings**.
+
+   - In the API Settings tab, complete the authentication to view your API Key.
+
+   - Copy the API Key to your clipboard.
+
+
+
+3. **Log into Boltic**
+
+   - Log into your Boltic account or navigate to the Boltic Open Source dashboard.
+
+
+
+4. **Navigate to Integrations**
+
+   - Click on `Sources` and then click on `+ Add New source`.
+
+
+
+5. **Select Source Type**
+
+   - On the Set up the source page, search for `Freshsales` from the search bar and select it.
+
+
+
+6. **Configure Integration**
+
+   - **Name:** Enter a name for the Freshsales integration.
+
+   - **Domain:** Enter your Freshsales domain name. For example, if your Freshsales URL is `www.xyz.myfreshworks.com/crm/sales`, your domain is `xyz`.
+
+   - **API Key:** Paste the API Key copied from the Freshsales API Settings.
+
+
+
+7. **Details (Optional)**
+
+   - **Tags:** Add any tags for categorization.
+
+   - **Description:** Provide a brief description of the integration.
+
+
+
+8. **Test and Save Integration**
+
+   - Click `Test Connection` to ensure the provided details are correct and the connection is successful.
+
+   - Once the connection test is successful, click `Set up source` to complete the configuration.
+
+
+
+## Setting Up Freshsales Webhooks
+
+
+
+Freshsales uses webhooks to trigger a scenario when an event occurs. To set up a webhook:
+
+
+1. Add a Freshsales instant module to your scenario and click **Create a webhook**.
+
+
+2. **Webhook Name:** Enter a name for the webhook (optional).
+
+
+3. **Connection:** Select the corresponding connection for the webhook.
+
+
+4. Click **Save** and then **Copy address to clipboard**.
+
+
+5. Log in to your Freshsales account using <a href="https://support.freshsales.io/support/solutions/articles/50000003583-how-to-configure-a-workflow-"  target="_blank" rel="noopener"><span>Login to the Freshsales Account</span></a>.
+
+1. **How do I find my Freshsales API Key?**
+
+   - Navigate to your Freshsales account settings and look for the API Settings tab to find your API Key. Follow the instructions provided earlier in this guide.
+
+
+
+2. **What should I do if my connection fails?**
+
+   - Ensure your API Key is correct.
+
+   - Verify the domain name and ensure there are no typos.
+
+   - Check your network connection and firewall settings.
+
+
+
+3. **How often is the data synced?**
+
+   - The data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.
+
+
+
+4. **Can I customize the data being synced?**
+
+   - Yes, you can customize the data being synced by adjusting the settings during the setup process.
+
+
+
+## Support
+
+If you need further assistance, please contact Boltic support or visit our <a href="https://docs.boltic.io" target="_blank" rel="noopener"><span>Support Documentation</span></a>.
+

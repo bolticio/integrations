@@ -1,229 +1,58 @@
-{
-    "parameters": [
-        {
-            "meta": {
-                "value": "access_token",
-                "options": [
-                    {
-                        "label": "Access Token",
-                        "value": "access_token"
-                    }
-                ],
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Authentication type is a mandatory field"
-                    }
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "select",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        }
-    ],
-    "access_token": {
-        "token": {
-            "url": "https://login.{{secrets.environment}}.com/connect/token",
-            "body": {
-                "scope": "kekaapi",
-                "api_key": "{{secrets.api_key}}",
-                "client_id": "{{secrets.client_id}}",
-                "grant_type": "kekaapi",
-                "client_secret": "{{secrets.client_secret}}"
-            },
-            "method": "post",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "refresh": {
-            "qs": {
-                "grant_type": "refresh_token"
-            },
-            "url": "https://login.{{secrets.environment}}.com/connect/token",
-            "body": {
-                "scope": "kekaapi",
-                "api_key": "{{secrets.api_key}}",
-                "client_id": "{{secrets.client_id}}",
-                "grant_type": "kekaapi",
-                "client_secret": "{{secrets.client_secret}}"
-            },
-            "method": "post",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "validate": {
-            "url": "https://login.{{secrets.environment}}.com/connect/token?grant_type=refresh_token",
-            "body": {
-                "scope": "kekaapi",
-                "api_key": "{{secrets.api_key}}",
-                "client_id": "{{secrets.client_id}}",
-                "grant_type": "kekaapi",
-                "client_secret": "{{secrets.client_secret}}"
-            },
-            "method": "post",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Company is a required field"
-                        }
-                    },
-                    "description": "Company name is the subdomain of your Keka account. For example, if your Keka account URL is https://mycompany.keka.com, then your company name is mycompany.",
-                    "displayName": "Company",
-                    "displayType": "text",
-                    "placeholder": "Enter your company name",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "company"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Keka",
-                            "value": "keka"
-                        },
-                        {
-                            "label": "Keka Demo",
-                            "value": "kekademo"
-                        }
-                    ],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Environment is a required field"
-                        }
-                    },
-                    "description": "Environment refers to a specific instance of the platform, such as kekademo for testing and training with mock data, or keka for live operations with real employee and company data.",
-                    "displayName": "Environment",
-                    "displayType": "select",
-                    "placeholder": "Please select your keka environment",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "environment"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Client ID is a required field"
-                        }
-                    },
-                    "description": "To access client ID, users must navigate to Global admin settings -> Integrations & Automations -> API access -> Client ID",
-                    "displayName": "Client ID",
-                    "displayType": "text",
-                    "placeholder": "Enter your client ID",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "client_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Client Secret is a required field"
-                        }
-                    },
-                    "description": "To access client secret, users must navigate to Global admin settings -> Integrations & Automations -> API access -> Client secret",
-                    "displayName": "Client Secret",
-                    "displayType": "password",
-                    "placeholder": "Enter your client secret",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "client_secret"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "API key is a required field"
-                        }
-                    },
-                    "description": "To access API keys, users must navigate to Global admin settings -> Integrations & Automations -> API access -> API key",
-                    "displayName": "API Key",
-                    "displayType": "password",
-                    "placeholder": "Enter your API key",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "api_key"
-            }
-        ]
-    }
-}
+# Keka Authentication
+
+This guide walks you through setting up the Keka integration within Boltic.
+
+## Prerequisites
+
+To set up the Keka integration, you'll need:
+
+-   An keka account (Client ID, Client Secret, API Key)
+-   Following is he link to know more about client id, client secret and api key and how to use them to create new access token <a href='https://developers.keka.com/reference/authentication' target='_blank' rel="noopener">Authentication Documentation</a>.
+
+If you don't have an Keka account, you can create one at <a href="https://www.keka.com/signup" target="_blank" rel="noopener"><span>Keka Create Account</span></a>.
+
+## Setting Up the Keka Integration in Boltic
+
+1. **Log In**
+
+    - Log into your Keka account.
+
+2. **Log into Boltic**
+
+    - Log into your Boltic account or navigate to the Boltic Open Source dashboard.
+
+3. **Navigate to Integrations**
+
+    - Click on `Sources` and then click on `+ Add New source`.
+
+4. **Select Source Type**
+
+    - On the Set up the source page, search for `Keka` from the search bar and select it.
+
+5. **Basic Details**
+
+    - **Name:** Enter a name for the Keka integration.
+
+    - **Description:** Provide a brief description of the integration.
+
+6. **Connection Details**
+
+    - **Authentication Type:** Select authentication type.
+
+    - **Company:** Provide the company name.
+
+    - **Environment:** Select the environment you want to use.
+
+    - **Client ID:** Provide the client id.
+
+    - **Client Secret:** Provide the client secret.
+
+    - **API Key:** Provide the api key.
+
+7. **Test and Save Integration**
+
+    - Click `Test Connection` to ensure the connection is successful.
+
+## Support
+
+If you need further assistance, please contact Boltic support or visit our <a href="https://docs.boltic.io" target="_blank" rel="noopener"><span>Boltic Support Documentation</span></a>.

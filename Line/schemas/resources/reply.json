@@ -1,143 +1,1195 @@
 {
-    "definition": {
-        "url": "https://api.line.me/v2/bot/message/push",
-        "body": {
-            "to": "{{parameters.to}}",
-            "messages": "{{parameters.messages}}"
-        },
-        "method": "post",
-        "headers": {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer {{secrets.api_token}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data.message}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "User ID is a required field."
-                    }
-                },
-                "description": "LINE user ID to whom the message will be sent",
-                "displayName": "Recipient User ID",
-                "displayType": "text",
-                "placeholder": "Enter LINE user ID"
-            },
-            "name": "to"
-        },
-        {
-            "meta": {
-                "children": [
+                "options": [
                     {
-                        "meta": {
-                            "value": "location",
-                            "options": [
-                                {
-                                    "label": "Location",
-                                    "value": "location"
-                                }
-                            ],
-                            "htmlProps": {
-                                "allowDynamic": true
-                            },
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Message Type is a required field."
-                                }
-                            },
-                            "description": "Type of the message",
-                            "displayName": "Message Type",
-                            "displayType": "select",
-                            "defaultValue": "location"
-                        },
-                        "name": "type"
+                        "label": "Reply with text",
+                        "value": "reply.reply_text",
+                        "description": "Reply to a message with plain text."
                     },
                     {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Location title is a required field"
-                                }
-                            },
-                            "description": "Title for the location message Eg. My Location.",
-                            "displayName": "Location Title",
-                            "displayType": "text",
-                            "placeholder": "Enter Location Title"
-                        },
-                        "name": "title"
+                        "label": "Reply with image",
+                        "value": "reply.reply_image",
+                        "description": "Reply with an image using a direct URL."
                     },
                     {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Address is a required field."
-                                }
-                            },
-                            "description": "Displayed address for the location.",
-                            "displayName": "Address",
-                            "displayType": "textarea",
-                            "placeholder": "Full address of location"
-                        },
-                        "name": "address"
+                        "label": "Reply with sticker",
+                        "value": "reply.reply_sticker",
+                        "description": "Reply using a LINE sticker from a sticker pack."
                     },
                     {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Latitude is a required field."
-                                }
-                            },
-                            "description": "Latitude of the location (e.g., 35.6895).",
-                            "displayName": "Latitude",
-                            "displayType": "number",
-                            "placeholder": "Enter latitude"
-                        },
-                        "name": "latitude"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Longitude is a required field."
-                                }
-                            },
-                            "description": "Longitude of the location (e.g., 139.6917).",
-                            "displayName": "Longitude",
-                            "displayType": "number",
-                            "placeholder": "Enter longitude"
-                        },
-                        "name": "longitude"
+                        "label": "Reply with location",
+                        "value": "reply.reply_location",
+                        "description": "Reply by sharing a specific location."
                     }
                 ],
                 "validation": {
                     "required": true,
-                    "infoDetail": {
-                        "infoMsg": "You can send multiple location messages in a single request."
-                    },
                     "requiredDetail": {
-                        "errorMsg": "At least one message is required."
+                        "errorMsg": "Operation is a required field."
                     }
                 },
-                "description": "List of location messages to be sent.",
-                "displayName": "Messages",
-                "displayType": "array",
-                "placeholder": "Enter location messages"
+                "description": "Select the reply operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select a reply operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "reply",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "messages"
+            "name": "operation"
         }
-    ]
+    ],
+    "reply_text": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/reply",
+            "body": {
+                "messages": "{{parameters.messages}}",
+                "replyToken": "{{parameters.replyToken}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reply token is a required field."
+                        }
+                    },
+                    "description": "The Reply Token received from webhook.",
+                    "displayName": "Reply Token",
+                    "displayType": "text",
+                    "placeholder": "Enter Reply Token"
+                },
+                "name": "replyToken"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "text",
+                                "options": [
+                                    {
+                                        "label": "Text",
+                                        "value": "text"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Type is a required field."
+                                    }
+                                },
+                                "description": "Type of the message",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "Select message type"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 5000,
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Text is a required field."
+                                    }
+                                },
+                                "description": "The text content of the message",
+                                "displayName": "Message Text",
+                                "displayType": "textarea",
+                                "placeholder": "Enter the message content"
+                            },
+                            "name": "text"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List of text messages to reply with.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter reply messages"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "reply_sticker": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/reply",
+            "body": {
+                "messages": "{{parameters.messages}}",
+                "replyToken": "{{parameters.replyToken}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reply Token is a required field."
+                        }
+                    },
+                    "description": "The Reply Token received from webhook.",
+                    "displayName": "Reply Token",
+                    "displayType": "text",
+                    "placeholder": "Enter Reply Token"
+                },
+                "name": "replyToken"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "sticker",
+                                "options": [
+                                    {
+                                        "label": "Sticker",
+                                        "value": "sticker"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Type is a required field."
+                                    }
+                                },
+                                "description": "Type of the message",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "Select message type"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Package ID is a required field."
+                                    }
+                                },
+                                "description": "The ID of the sticker package.",
+                                "displayName": "Sticker Package ID",
+                                "displayType": "number",
+                                "placeholder": "Enter package ID"
+                            },
+                            "name": "packageId"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Sticker ID is a required field."
+                                    }
+                                },
+                                "description": "The ID of the sticker within the package.",
+                                "displayName": "Sticker ID",
+                                "displayType": "number",
+                                "placeholder": "Enter sticker ID"
+                            },
+                            "name": "stickerId"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is a required."
+                        }
+                    },
+                    "description": "Sticker messages to reply with.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter sticker messages"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "reply_location": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/reply",
+            "body": {
+                "messages": "{{parameters.messages}}",
+                "replyToken": "{{parameters.replyToken}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reply Token is a required field."
+                        }
+                    },
+                    "description": "The Reply Token received from webhook.",
+                    "displayName": "Reply Token",
+                    "displayType": "text",
+                    "placeholder": "Enter Reply Token"
+                },
+                "name": "replyToken"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "location",
+                                "options": [
+                                    {
+                                        "label": "Location",
+                                        "value": "location"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Type is a required field."
+                                    }
+                                },
+                                "description": "Type of the message",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "Select message type"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Location title is a required field."
+                                    }
+                                },
+                                "description": "Title for the location message Eg. My Location.",
+                                "displayName": "Location Title",
+                                "displayType": "text",
+                                "placeholder": "Enter Location Title"
+                            },
+                            "name": "title"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Address is a required field."
+                                    }
+                                },
+                                "description": "Displayed address for the location.",
+                                "displayName": "Address",
+                                "displayType": "textarea",
+                                "placeholder": "Full address of location"
+                            },
+                            "name": "address"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Latitude is a required field."
+                                    }
+                                },
+                                "description": "Latitude of the location (e.g., 35.67966).",
+                                "displayName": "Latitude",
+                                "displayType": "number",
+                                "placeholder": "Enter latitude"
+                            },
+                            "name": "latitude"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Longitude is a required field."
+                                    }
+                                },
+                                "description": "Longitude of the location (e.g., 139.73669).",
+                                "displayName": "Longitude",
+                                "displayType": "number",
+                                "placeholder": "Enter longitude"
+                            },
+                            "name": "longitude"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "You can send multiple location messages in a single request."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is a required field."
+                        }
+                    },
+                    "description": "List of location messages to be sent.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter location messages"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "reply_image": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/reply",
+            "body": {
+                "messages": "{{parameters.messages}}",
+                "replyToken": "{{parameters.replyToken}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reply token is a required field."
+                        }
+                    },
+                    "description": "The Reply Token received from webhook.",
+                    "displayName": "Reply Token",
+                    "displayType": "text",
+                    "placeholder": "Enter Reply Token"
+                },
+                "name": "replyToken"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "image",
+                                "options": [
+                                    {
+                                        "label": "Image",
+                                        "value": "image"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Type is a required field."
+                                    }
+                                },
+                                "description": "Type of the message",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "Select message type"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^(https?:\\/\\/).+\\.(jpg|png|jpeg)$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Please provide a valid image URL (e.g., .jpg, .jpeg, .png)."
+                                    },
+                                    "requiredDetail": {
+                                        "errorMsg": "Original image URL is a required field."
+                                    }
+                                },
+                                "description": "Public HTTPS URL of the original image (JPEG/PNG, <10MB).",
+                                "displayName": "Original Image URL",
+                                "displayType": "text",
+                                "placeholder": "Enter Image URL"
+                            },
+                            "name": "originalContentUrl"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^(https?:\\/\\/).+\\.(jpg|png|jpeg)$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Please provide a valid image URL (e.g., .jpg, .jpeg, .png)."
+                                    },
+                                    "requiredDetail": {
+                                        "errorMsg": "Preview image URL is a required field."
+                                    }
+                                },
+                                "description": "Public HTTPS URL of the preview image (JPEG/PNG, <10MB).",
+                                "displayName": "Preview Image URL",
+                                "displayType": "text",
+                                "placeholder": "Enter preview image URL"
+                            },
+                            "name": "previewImageUrl"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is a required."
+                        }
+                    },
+                    "description": "List of image messages to reply with.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter image messages"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers; we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "get_user_profile": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/profile/{{parameters.userId}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The LINE user ID to retrieve profile information for.",
+                    "displayName": "User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter LINE user ID",
+                    "requiredDetail": {
+                        "errorMsg": "Location title is required."
+                    }
+                },
+                "name": "userId"
+            }
+        ]
+    },
+    "send_message": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/push",
+            "body": {
+                "to": "{{parameters.to}}",
+                "messages": "{{parameters.messages}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "User ID is a required field."
+                        }
+                    },
+                    "description": "The User ID of the recipient to send the message to.",
+                    "displayName": "Recipient User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter User ID"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "text",
+                                "options": [
+                                    {
+                                        "label": "Text",
+                                        "value": "text"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Type is a required field."
+                                    }
+                                },
+                                "description": "Type of the message ",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "Select message type"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 5000,
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message text is a required field."
+                                    }
+                                },
+                                "description": "The text content of the message.",
+                                "displayName": "Message Text",
+                                "displayType": "textarea",
+                                "placeholder": "Enter the message content"
+                            },
+                            "name": "text"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "You can send multiple messages in a single request."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is required."
+                        }
+                    },
+                    "description": "List of messages to be sent, including message type and content.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter messages to send via LINE"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "send_reply": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/reply",
+            "body": {
+                "messages": "{{parameters.messages}}",
+                "replyToken": "{{parameters.replyToken}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{parameters.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.message}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reply token is required."
+                        }
+                    },
+                    "description": "Reply token received from a webhook event.",
+                    "displayName": "Reply Token",
+                    "displayType": "text",
+                    "placeholder": "Enter the reply token"
+                },
+                "name": "replyToken"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "text",
+                                        "value": "text"
+                                    },
+                                    {
+                                        "label": "sticker",
+                                        "value": "sticker"
+                                    },
+                                    {
+                                        "label": "image",
+                                        "value": "image"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message type is required."
+                                    }
+                                },
+                                "description": "Type of the message (e.g., text, sticker, image)",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "e.g., text"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message text is required."
+                                    }
+                                },
+                                "description": "The content of the message to send.",
+                                "displayName": "Message Text",
+                                "displayType": "text",
+                                "placeholder": "Enter the message content"
+                            },
+                            "name": "text",
+                            "condition": "type == 'text'"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Sticker packageId is required."
+                                    }
+                                },
+                                "description": "LINE Sticker Package ID.",
+                                "displayName": "Sticker Package ID",
+                                "displayType": "text",
+                                "placeholder": "e.g., 446"
+                            },
+                            "name": "packageId",
+                            "condition": "type == 'sticker'"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "StickerId is required."
+                                    }
+                                },
+                                "description": "LINE Sticker ID within the package.",
+                                "displayName": "Sticker ID",
+                                "displayType": "text",
+                                "placeholder": "e.g., 1988"
+                            },
+                            "name": "stickerId",
+                            "condition": "type == 'sticker'"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "You can send multiple messages in a single reply."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is required."
+                        }
+                    },
+                    "description": "List of messages to be sent, including message type and text.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter messages to send via LINE"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "send_sticker": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/push",
+            "body": {
+                "to": "{{parameters.to}}",
+                "messages": "{{parameters.messages}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "User ID is a required field."
+                        }
+                    },
+                    "description": "The User ID of the recipient to send the message to.",
+                    "displayName": "Recipient User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter User ID"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "sticker",
+                                "options": [
+                                    {
+                                        "label": "Sticker",
+                                        "value": "sticker"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Type is a required field."
+                                    }
+                                },
+                                "description": "Type of the message",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "Select message type"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Sticker package ID is a required field."
+                                    }
+                                },
+                                "description": "LINE Package ID.",
+                                "displayName": "Sticker Package ID",
+                                "displayType": "number",
+                                "placeholder": "Enter the package ID"
+                            },
+                            "name": "packageId"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Sticker ID is a required field."
+                                    }
+                                },
+                                "description": "LINE Sticker ID within the package.",
+                                "displayName": "Sticker ID",
+                                "displayType": "number",
+                                "placeholder": "Enter the sticker ID"
+                            },
+                            "name": "stickerId"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "You can send multiple messages in a single request."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is required."
+                        }
+                    },
+                    "description": "List of messages to be sent, including message type and content.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter messages to send via LINE"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "send_location": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/push",
+            "body": {
+                "to": "{{parameters.to}}",
+                "messages": "{{parameters.messages}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "User ID is a required field."
+                        }
+                    },
+                    "description": "LINE user ID to whom the message will be sent",
+                    "displayName": "Recipient User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter LINE user ID"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "location",
+                                "options": [
+                                    {
+                                        "label": "Location",
+                                        "value": "location"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message Type is a required field."
+                                    }
+                                },
+                                "description": "Type of the message",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "defaultValue": "location"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Location title is a required field"
+                                    }
+                                },
+                                "description": "Title for the location message Eg. My Location.",
+                                "displayName": "Location Title",
+                                "displayType": "text",
+                                "placeholder": "Enter Location Title"
+                            },
+                            "name": "title"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Address is a required field."
+                                    }
+                                },
+                                "description": "Displayed address for the location.",
+                                "displayName": "Address",
+                                "displayType": "textarea",
+                                "placeholder": "Full address of location"
+                            },
+                            "name": "address"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Latitude is a required field."
+                                    }
+                                },
+                                "description": "Latitude of the location (e.g., 35.6895).",
+                                "displayName": "Latitude",
+                                "displayType": "number",
+                                "placeholder": "Enter latitude"
+                            },
+                            "name": "latitude"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Longitude is a required field."
+                                    }
+                                },
+                                "description": "Longitude of the location (e.g., 139.6917).",
+                                "displayName": "Longitude",
+                                "displayType": "number",
+                                "placeholder": "Enter longitude"
+                            },
+                            "name": "longitude"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "You can send multiple location messages in a single request."
+                        },
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is required."
+                        }
+                    },
+                    "description": "List of location messages to be sent.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter location messages"
+                },
+                "name": "messages"
+            }
+        ]
+    }
 }

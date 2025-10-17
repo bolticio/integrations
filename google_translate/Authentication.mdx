@@ -1,62 +1,72 @@
-{
-    "api_key": {
-        "validate": {
-            "url": "https://translation.googleapis.com/language/translate/v2/languages?key={{secrets.api_key}}",
-            "method": "get",
-            "response": {
-                "error": {
-                    "code": "{{response.data.error.code}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "API Key is required field"
-                        }
-                    },
-                    "description": "Refer to <a href='https://cloud.google.com/docs/authentication/api-keys' target='_blank' rel='noopener'><span>Google Cloud API Key documentation</span></a>",
-                    "displayName": "API Key",
-                    "displayType": "password",
-                    "placeholder": "Enter API Key"
-                },
-                "name": "api_key",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "type",
-                            "value": "api_key",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
-            }
-        ]
-    },
-    "parameters": [
-        {
-            "meta": {
-                "value": "api_key",
-                "options": [
-                    {
-                        "label": "API Key",
-                        "value": "api_key"
-                    }
-                ],
-                "validation": {
-                    "required": true
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "hidden",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        }
-    ]
-}
+# Google Translate Authentication
+
+This document outlines the setup for Google Translate authentication in Boltic, using an API key. The authentication method can be selected and configured through the following steps.
+
+## Authentication Types
+
+### 1. API Key Authentication
+
+To authenticate with Google Translate, you can use the **API Key** method. Follow the steps below to configure the authentication.
+
+### Parameters
+
+#### Authentication Type
+
+-   **Parameter Name:** `type`
+-   **Display Name:** Authentication Type
+-   **Description:** Choose the type of authentication you want to use.
+-   **Type:** Select
+-   **Options:**
+    -   **API Key:** Use your Google Translate API key for authentication.
+-   **Validation:** Required
+
+#### API Key Authentication Fields
+
+When `API Key` is selected as the authentication type, the following field is required:
+
+##### API Key
+
+-   **Parameter Name:** `api_key`
+-   **Display Name:** API Key
+-   **Description:** Your Google Translate API Key. Refer to <a href="https://cloud.google.com/docs/authentication/api-keys" target="_blank" rel="noopener">Google Cloud API Key documentation</a> for instructions on obtaining your API key.
+-   **Type:** Password
+-   **Placeholder:** Enter API Key
+-   **Validation:** Required
+
+---
+
+### Validation
+
+Once the API Key is entered, the connection is validated using the Google Translate API.
+
+-   **Validation URL:**
+-   **Method:** GET
+-   **Query Parameters:**
+    -   **Key:** `{{secrets.api_key}}`
+-   **Headers:**
+    -   **Accept:** `application/json`
+-   **Response:**
+    -   **Success:** The response will include the list of supported languages in `{{response.data.languages}}`.
+    -   **Error:** If an error occurs, the message will be displayed as `{{response.data.error.message}}`, with the corresponding status code: `{{response.data.error.code}}`.
+
+---
+
+## Troubleshooting
+
+If the connection fails:
+
+-   Ensure your **API Key** is correct.
+-   Confirm that your Google Cloud project has the Google Translate API enabled.
+-   Verify your network connection.
+
+---
+
+## Conclusion
+
+After successfully setting up your API key, you should be able to authenticate and start interacting with the Google Translate API through Boltic.
+
+---
+
+## Support
+
+If you need further assistance, please contact Boltic support or visit our <a href="https://docs.boltic.io" target="_blank" rel="noopener">Support Documentation</a>.

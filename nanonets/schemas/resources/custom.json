@@ -1,157 +1,359 @@
 {
-    "definition": {
-        "qs": "{{parameters.query_params}}",
-        "url": "{{parameters.base_url}}",
-        "body": "{{parameters.body}}",
-        "method": "{{parameters.method}}",
-        "headers": {
-            "Authorization": "Basic convertBufferBase64String({{secrets.api_token}}:X)"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "value": "get",
                 "options": [
                     {
-                        "label": "GET",
-                        "value": "get"
-                    },
-                    {
-                        "label": "PUT",
-                        "value": "put"
-                    },
-                    {
-                        "label": "POST",
-                        "value": "post"
-                    },
-                    {
-                        "label": "PATCH",
-                        "value": "patch"
-                    },
-                    {
-                        "label": "DELETE",
-                        "value": "delete"
+                        "label": "Custom API",
+                        "value": "custom.custom_api"
                     }
                 ],
                 "validation": {
                     "required": true
                 },
-                "description": "The HTTP Method to be used for the request.",
-                "displayName": "Method",
-                "displayType": "select"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "custom",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "method"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true
-                },
-                "description": "The URL of the HTTP Request.",
-                "displayName": "Base URL",
-                "displayType": "text",
-                "placeholder": "Eg. https://www.example.com"
-            },
-            "name": "base_url"
-        },
-        {
-            "meta": {
-                "children": [
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Key is required"
-                                }
-                            },
-                            "displayName": "key",
-                            "displayType": "text"
-                        },
-                        "name": "key"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Value is required"
-                                }
-                            },
-                            "displayName": "value",
-                            "displayType": "text"
-                        },
-                        "name": "value"
-                    }
-                ],
-                "htmlProps": {
-                    "allowAdd": true
-                },
-                "description": "You don't have to add authorization headers, we already did that for you.",
-                "displayName": "Headers",
-                "displayType": "keyvalue"
-            },
-            "name": "headers"
-        },
-        {
-            "meta": {
-                "children": [
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Key is required"
-                                }
-                            },
-                            "displayName": "key",
-                            "displayType": "text"
-                        },
-                        "name": "key"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Value is required"
-                                }
-                            },
-                            "displayName": "value",
-                            "displayType": "text"
-                        },
-                        "name": "value"
-                    }
-                ],
-                "htmlProps": {
-                    "allowAdd": true
-                },
-                "displayName": "Query String",
-                "displayType": "keyvalue"
-            },
-            "name": "query_params"
-        },
-        {
-            "meta": {
-                "htmlProps": {
-                    "size": "md",
-                    "language": "json",
-                    "fullscreen": true,
-                    "showSuggestions": true
-                },
-                "description": "The Payload (Body) of the HTTP Request.",
-                "displayName": "Body",
-                "displayType": "code"
-            },
-            "name": "body"
+            "name": "operation"
         }
-    ]
+    ],
+    "ocrs": {
+        "definition": {
+            "url": "https://app.nanonets.com/api/v2/OCR/Model/{{parameters.model}}/LabelUrls/",
+            "body": "{{parameters}}",
+            "retry": {
+                "delay": 1000,
+                "conditions": [
+                    "{{response.status}} == 400"
+                ],
+                "multiplier": 2,
+                "max_retries": 5
+            },
+            "method": "post",
+            "headers": {
+                "accept": "application/x-www-form-urlencoded",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_token}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const data = new FormData(); data.append('urls', '{{parameters.image_url}}'); return data;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "nanonets",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "ocr",
+                            "operation": "ocrs",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "model_id",
+                        "valueKey": "model_id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field."
+                        }
+                    },
+                    "description": "OCR Model for prediction of an image.",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a Model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Image URL is required field."
+                        }
+                    },
+                    "description": "The url of the image that you want to process.",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter image url"
+                },
+                "name": "image_url"
+            }
+        ]
+    },
+    "retrieve_model": {
+        "definition": {
+            "url": "https://app.nanonets.com/api/v2/OCR/Model/{{parameters.model_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_token}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "nanonets",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "ocr",
+                            "operation": "retrieve_model",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "model_id",
+                        "valueKey": "model_id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field."
+                        }
+                    },
+                    "description": "OCR model to retrieve the details.",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a Model"
+                },
+                "name": "model_id"
+            }
+        ]
+    },
+    "create_model": {
+        "definition": {
+            "url": "https://app.nanonets.com/api/v2/OCR/Model/",
+            "body": "{{parameters}}",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_token}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const data = {'categories': '{{parameters.category}}'}; return data;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Category is required field."
+                        }
+                    },
+                    "description": "This will be added to the description of the model (Eg. invoice, tables)",
+                    "displayName": "Category",
+                    "displayType": "multitext",
+                    "placeholder": "Enter the Categories"
+                },
+                "name": "category"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_token}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    }
 }

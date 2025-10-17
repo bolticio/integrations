@@ -1,42 +1,669 @@
 {
-    "definition": {
-        "qs": {},
-        "url": "https://api.fynd.com/service/application/catalog/v1.0/follow/{{parameters.collection_type}}/{{parameters.collection_id}}",
-        "body": {},
-        "method": "delete",
-        "headers": {
-            "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": ""
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
+                "options": [
+                    {
+                        "label": "Lists customer orders (getOrders)",
+                        "value": "order.getOrders",
+                        "description": "Retrieve a list of all orders placed by the customer with details like order status, items, and delivery information."
+                    },
+                    {
+                        "label": "Fetches order by ID (getOrderById)",
+                        "value": "order.getOrderById",
+                        "description": "Get detailed information about a specific order using its unique identifier, including order items, payment details, and shipping status."
+                    },
+                    {
+                        "label": "Fetches shipment by ID (getShipmentById)",
+                        "value": "order.getShipmentById",
+                        "description": "Retrieve shipping information for a specific order shipment, including tracking details, delivery status, and estimated delivery date."
+                    }
+                ],
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is a required field"
+                    }
                 },
-                "description": "Type of collection followed, i.e. products, brands, or collections.",
-                "displayName": "collection_type",
-                "displayType": "text"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "autocomplete",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "order",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "collection_type"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true
-                },
-                "description": "The ID of the collection type.",
-                "displayName": "collection_id",
-                "displayType": "text"
-            },
-            "name": "collection_id"
+            "name": "operation"
         }
-    ]
+    ],
+    "getorders": {
+        "definition": {
+            "qs": {
+                "status": "{{parameters.status}}",
+                "page_no": "{{parameters.page_no}}",
+                "to_date": "{{parameters.to_date}}",
+                "end_date": "{{parameters.end_date}}",
+                "from_date": "{{parameters.from_date}}",
+                "page_size": "{{parameters.page_size}}",
+                "start_date": "{{parameters.start_date}}",
+                "custom_meta": "{{parameters.custom_meta}}"
+            },
+            "url": "https://api.fynd.com/service/application/order/v1.0/orders",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "A filter to retrieve orders by their current status such as _placed_, _delivered_, etc.",
+                    "displayName": "status",
+                    "displayType": "number"
+                },
+                "name": "status"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The page number to navigate through the given set of results. Default value is 1.",
+                    "displayName": "page_no",
+                    "displayType": "number"
+                },
+                "name": "page_no"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The number of items to retrieve in each page. Default value is 10.",
+                    "displayName": "page_size",
+                    "displayType": "number"
+                },
+                "name": "page_size"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The date from which the orders should be retrieved.",
+                    "displayName": "from_date",
+                    "displayType": "text"
+                },
+                "name": "from_date"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The date till which the orders should be retrieved.",
+                    "displayName": "to_date",
+                    "displayType": "text"
+                },
+                "name": "to_date"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "UTC Start Date in ISO format",
+                    "displayName": "start_date",
+                    "displayType": "text"
+                },
+                "name": "start_date"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "UTC Start Date in ISO format",
+                    "displayName": "end_date",
+                    "displayType": "text"
+                },
+                "name": "end_date"
+            },
+            {
+                "meta": {
+                    "value": "6388422a5ebd6a6cf4a8ede6",
+                    "validation": {},
+                    "description": "A filter and retrieve data using special fields included for special use-cases",
+                    "displayName": "custom_meta",
+                    "displayType": "text"
+                },
+                "name": "custom_meta"
+            }
+        ]
+    },
+    "getshipmentbyid": {
+        "definition": {
+            "qs": {
+                "allow_inactive": "{{parameters.allow_inactive}}"
+            },
+            "url": "https://api.fynd.com/service/application/order/v1.0/orders/shipments/{{parameters.shipment_id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the shipment. An order may contain multiple items and may get divided into one or more shipment, each having its own ID.",
+                    "displayName": "shipment_id",
+                    "displayType": "text"
+                },
+                "name": "shipment_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "True",
+                            "value": "true"
+                        },
+                        {
+                            "label": "False",
+                            "value": "false"
+                        }
+                    ],
+                    "validation": {},
+                    "description": "Flag to allow inactive shipments",
+                    "displayName": "allow_inactive",
+                    "displayType": "select"
+                },
+                "name": "allow_inactive"
+            }
+        ]
+    },
+    "getorderbyid": {
+        "definition": {
+            "qs": {
+                "allow_inactive": "{{parameters.allow_inactive}}"
+            },
+            "url": "https://api.fynd.com/service/application/order/v1.0/orders/{{parameters.order_id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A unique number used for identifying and tracking your orders.",
+                    "displayName": "order_id",
+                    "displayType": "text"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "True",
+                            "value": "true"
+                        },
+                        {
+                            "label": "False",
+                            "value": "false"
+                        }
+                    ],
+                    "validation": {},
+                    "description": "Flag to allow inactive shipments",
+                    "displayName": "allow_inactive",
+                    "displayType": "select"
+                },
+                "name": "allow_inactive"
+            }
+        ]
+    },
+    "getproductsizesbyslug": {
+        "definition": {
+            "qs": {
+                "store_id": "{{parameters.store_id}}"
+            },
+            "url": "https://api.fynd.com/service/application/catalog/v1.0/products/{{parameters.slug}}/sizes",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A short, human-readable, URL-friendly identifier of a product. You can get slug value from the endpoint /service/application/catalog/v1.0/products/",
+                    "displayName": "slug",
+                    "displayType": "text"
+                },
+                "name": "slug"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The ID of the store that is selling the product, e.g. 1,2,3.",
+                    "displayName": "store_id",
+                    "displayType": "number"
+                },
+                "name": "store_id"
+            }
+        ]
+    },
+    "getproductpricebyslug": {
+        "definition": {
+            "qs": {
+                "moq": "{{parameters.moq}}",
+                "store_id": "{{parameters.store_id}}"
+            },
+            "url": "https://api.fynd.com/service/application/catalog/v3.0/products/{{parameters.slug}}/sizes/{{parameters.size}}/price",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A short, human-readable, URL-friendly identifier of a product. You can get slug value from the endpoint /service/application/catalog/v1.0/products/",
+                    "displayName": "slug",
+                    "displayType": "text"
+                },
+                "name": "slug"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A string indicating the size of the product, e.g. S, M, XL. You can get slug value from the endpoint /service/application/catalog/v1.0/products/sizes",
+                    "displayName": "size",
+                    "displayType": "text"
+                },
+                "name": "size"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The ID of the store that is selling the product, e.g. 1,2,3.",
+                    "displayName": "store_id",
+                    "displayType": "number"
+                },
+                "name": "store_id"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "An Integer indication the Minimum Order Quantity of a product, e.g. 100.",
+                    "displayName": "moq",
+                    "displayType": "number"
+                },
+                "name": "moq"
+            }
+        ]
+    },
+    "getproductdetailbyslug": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.fynd.com/service/application/catalog/v1.0/products/{{parameters.slug}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A short, human-readable, URL-friendly identifier of a product. You can get slug value from the endpoint /service/application/catalog/v1.0/products/",
+                    "displayName": "slug",
+                    "displayType": "text"
+                },
+                "name": "slug"
+            }
+        ]
+    },
+    "followbyid": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.fynd.com/service/application/catalog/v1.0/follow/{{parameters.collection_type}}/{{parameters.collection_id}}",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of collection followed, i.e. products, brands, or collections.",
+                    "displayName": "collection_type",
+                    "displayType": "text"
+                },
+                "name": "collection_type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the collection type.",
+                    "displayName": "collection_id",
+                    "displayType": "text"
+                },
+                "name": "collection_id"
+            }
+        ]
+    },
+    "getproducts": {
+        "definition": {
+            "qs": {
+                "f": "{{parameters.f}}",
+                "q": "{{parameters.q}}",
+                "filters": "{{parameters.filters}}",
+                "page_id": "{{parameters.page_id}}",
+                "page_no": "{{parameters.page_no}}",
+                "sort_on": "{{parameters.sort_on}}",
+                "page_size": "{{parameters.page_size}}",
+                "page_type": "{{parameters.page_type}}"
+            },
+            "url": "https://api.fynd.com/service/application/catalog/v1.0/products",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The search query for entering partial or full name of product, brand, category, or collection.",
+                    "displayName": "q",
+                    "displayType": "text"
+                },
+                "name": "q"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The search filter parameters. Filter parameters will be passed in f parameter as shown in the example below. Double Pipe (||) denotes the OR condition, whereas Triple-colon (:::) indicates a new filter paramater applied as an AND condition.",
+                    "displayName": "f",
+                    "displayType": "text"
+                },
+                "name": "f"
+            },
+            {
+                "meta": {
+                    "value": true,
+                    "options": [
+                        {
+                            "label": "True",
+                            "value": "true"
+                        },
+                        {
+                            "label": "False",
+                            "value": "false"
+                        }
+                    ],
+                    "validation": {},
+                    "description": "This is a boolean value, True for fetching all filter parameters and False for disabling the filter parameters.",
+                    "displayName": "filters",
+                    "displayType": "select"
+                },
+                "name": "filters"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "latest",
+                            "value": "latest"
+                        },
+                        {
+                            "label": "popular",
+                            "value": "popular"
+                        },
+                        {
+                            "label": "price_asc",
+                            "value": "price_asc"
+                        },
+                        {
+                            "label": "price_dsc",
+                            "value": "price_dsc"
+                        },
+                        {
+                            "label": "discount_asc",
+                            "value": "discount_asc"
+                        },
+                        {
+                            "label": "discount_dsc",
+                            "value": "discount_dsc"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {},
+                    "description": "The order in which the list of products should be sorted, e.g. popularity, price, latest and discount, in either ascending or descending order. See the supported values below.",
+                    "displayName": "sort_on",
+                    "displayType": "select"
+                },
+                "name": "sort_on"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Page ID to retrieve next set of results.",
+                    "displayName": "page_id",
+                    "displayType": "text"
+                },
+                "name": "page_id"
+            },
+            {
+                "meta": {
+                    "value": 12,
+                    "validation": {},
+                    "description": "The number of items to retrieve in each page.",
+                    "displayName": "page_size",
+                    "displayType": "number"
+                },
+                "name": "page_size"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "validation": {},
+                    "description": "The page number to navigate through the given set of results.",
+                    "displayName": "page_no",
+                    "displayType": "number"
+                },
+                "name": "page_no"
+            },
+            {
+                "meta": {
+                    "value": "cursor",
+                    "validation": {},
+                    "description": "Available pagination types are cursor or number.",
+                    "displayName": "page_type",
+                    "displayType": "text"
+                },
+                "name": "page_type"
+            }
+        ]
+    },
+    "getfollowedlisting": {
+        "definition": {
+            "qs": {
+                "page_id": "{{parameters.page_id}}",
+                "page_size": "{{parameters.page_size}}"
+            },
+            "url": "https://api.fynd.com/service/application/catalog/v1.0/follow/{{parameters.collection_type}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of collection followed, i.e. products, brands, or collections.",
+                    "displayName": "collection_type",
+                    "displayType": "text"
+                },
+                "name": "collection_type"
+            },
+            {
+                "meta": {
+                    "value": "1",
+                    "validation": {},
+                    "description": "Page ID to retrieve next set of results.",
+                    "displayName": "page_id",
+                    "displayType": "text"
+                },
+                "name": "page_id"
+            },
+            {
+                "meta": {
+                    "value": 12,
+                    "validation": {},
+                    "description": "Page ID to retrieve next set of results.",
+                    "displayName": "page_size",
+                    "displayType": "number"
+                },
+                "name": "page_size"
+            }
+        ]
+    },
+    "unfollowbyid": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.fynd.com/service/application/catalog/v1.0/follow/{{parameters.collection_type}}/{{parameters.collection_id}}",
+            "body": {},
+            "method": "delete",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of collection followed, i.e. products, brands, or collections.",
+                    "displayName": "collection_type",
+                    "displayType": "text"
+                },
+                "name": "collection_type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the collection type.",
+                    "displayName": "collection_id",
+                    "displayType": "text"
+                },
+                "name": "collection_id"
+            }
+        ]
+    }
 }

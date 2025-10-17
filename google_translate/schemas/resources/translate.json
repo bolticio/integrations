@@ -1,17 +1,282 @@
 {
-    "definition": {
-        "url": "https://translation.googleapis.com/language/translate/v2/languages?key={{secrets.api_key}}&target=en",
-        "method": "get",
-        "headers": {
-            "Content-Type": "application/json"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data.error.message}}"
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Translate Text",
+                        "value": "translate.translates"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "translate",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "output": "{{response.data.data.languages}}"
+            "name": "operation"
+        }
+    ],
+    "getLanguages": {
+        "definition": {
+            "url": "https://translation.googleapis.com/language/translate/v2/languages?key={{secrets.api_key}}&target=en",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data.languages}}"
+            }
         }
     },
-    "parameters": []
+    "translates": {
+        "definition": {
+            "url": "https://translation.googleapis.com/language/translate/v2?key={{secrets.api_key}}",
+            "body": {
+                "q": "{{parameters.q}}",
+                "target": "{{parameters.target}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The text to translate.",
+                    "displayName": "Text",
+                    "displayType": "text",
+                    "placeholder": "Enter the text to be translated"
+                },
+                "name": "q"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_translate",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "translate",
+                            "operation": "translate.translates",
+                            "loadOptionsMethod": "getLanguages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "language"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The target language.",
+                    "displayName": "Target Language",
+                    "displayType": "select",
+                    "placeholder": "Select the target language"
+                },
+                "name": "target"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}?key={{secrets.api_key}}&target=en",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://translation.googleapis.com/language/translate/v2/languages?key={{secrets.api_key}}&target=en",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data.languages}}"
+            }
+        },
+        "parameters": []
+    }
 }

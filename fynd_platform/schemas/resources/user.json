@@ -1,162 +1,656 @@
 {
-    "definition": {
-        "qs": "{{parameters.query_params}}",
-        "url": "{{parameters.base_url}}",
-        "body": "{{parameters.body}}",
-        "method": "{{parameters.method}}",
-        "headers": {
-            "Authorization": "Bearer {{secrets.access_token}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response}}",
-                "message": "{{response}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
-                "value": "get",
                 "options": [
                     {
-                        "label": "GET",
-                        "value": "get",
-                        "description": "Retrieve data from the specified resource without modifying it. Safe and idempotent operation."
+                        "label": "Search users (searchUsers)",
+                        "value": "user.searchUsers",
+                        "description": "Search for users by their mobile number or email ID within a specific application"
                     },
                     {
-                        "label": "PUT",
-                        "value": "put",
-                        "description": "Replace or create a resource at the specified location. Idempotent operation that updates entire resource."
+                        "label": "Create user (createUser)",
+                        "value": "user.createUser",
+                        "description": "Create a new user account with basic profile information and optional metadata"
                     },
                     {
-                        "label": "POST",
-                        "value": "post",
-                        "description": "Create a new resource or trigger a processing action. Non-idempotent operation for new data."
+                        "label": "Create user session (createUserSession)",
+                        "value": "user.createUserSession",
+                        "description": "Generate a new session for an existing user with customizable domain and expiration settings"
                     },
                     {
-                        "label": "PATCH",
-                        "value": "patch",
-                        "description": "Partially modify an existing resource. Used for incremental updates to specific fields."
-                    },
-                    {
-                        "label": "DELETE",
-                        "value": "delete",
-                        "description": "Remove the specified resource. Idempotent operation that permanently removes data."
+                        "label": "Get active sessions (getActiveSessions)",
+                        "value": "user.getActiveSessions",
+                        "description": "Retrieve all active sessions for a specific user in the application"
                     }
                 ],
                 "validation": {
-                    "required": true
-                },
-                "description": "The HTTP Method to be used for the request.",
-                "displayName": "Method",
-                "displayType": "select"
-            },
-            "name": "method"
-        },
-        {
-            "meta": {
-                "validation": {
-                    "required": true
-                },
-                "description": "The URL of the HTTP Request.",
-                "displayName": "Base URL",
-                "displayType": "text",
-                "placeholder": "Eg. https://www.example.com"
-            },
-            "name": "base_url"
-        },
-        {
-            "meta": {
-                "children": [
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Key is required"
-                                }
-                            },
-                            "displayName": "key",
-                            "displayType": "text"
-                        },
-                        "name": "key"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Value is required"
-                                }
-                            },
-                            "displayName": "value",
-                            "displayType": "text"
-                        },
-                        "name": "value"
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is a required field"
                     }
-                ],
-                "htmlProps": {
-                    "allowAdd": true
                 },
-                "description": "You don't have to add authorization headers, we already did that for you.",
-                "displayName": "Headers",
-                "displayType": "keyvalue"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "autocomplete",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "user",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "headers"
-        },
-        {
-            "meta": {
-                "children": [
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Key is required"
-                                }
-                            },
-                            "displayName": "key",
-                            "displayType": "text"
-                        },
-                        "name": "key"
-                    },
-                    {
-                        "meta": {
-                            "validation": {
-                                "required": true,
-                                "requiredDetail": {
-                                    "errorMsg": "Value is required"
-                                }
-                            },
-                            "displayName": "value",
-                            "displayType": "text"
-                        },
-                        "name": "value"
-                    }
-                ],
-                "htmlProps": {
-                    "allowAdd": true
-                },
-                "displayName": "Query String",
-                "displayType": "keyvalue"
-            },
-            "name": "query_params"
-        },
-        {
-            "meta": {
-                "htmlProps": {
-                    "size": "md",
-                    "language": "json",
-                    "fullscreen": true,
-                    "showSuggestions": true
-                },
-                "description": "The Payload (Body) of the HTTP Request.",
-                "displayName": "Body",
-                "displayType": "code"
-            },
-            "name": "body"
+            "name": "operation"
         }
-    ]
+    ],
+    "getApplications": {
+        "definition": {
+            "qs": {
+                "page_no": 1,
+                "is_active": true,
+                "page_size": 100,
+                "company_id": "{{secrets.company_id}}"
+            },
+            "url": "https://api.fynd.com/service/platform/configuration/v1.0/company/{{secrets.company_id}}/application",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.items}}"
+            }
+        }
+    },
+    "getactivesessions": {
+        "definition": {
+            "qs": {
+                "id": "{{parameters.id}}"
+            },
+            "url": "https://api.fynd.com/service/platform/user/v1.0/company/{{secrets.company_id}}/application/{{parameters.application_id}}/customers/sessions",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "isFp": true,
+                            "name": "platform",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "user",
+                            "loadOptionsMethod": "getApplications"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A `application_id` is a unique identifier for a particular sale channel.",
+                    "displayName": "Application ID",
+                    "displayType": "autocomplete"
+                },
+                "name": "application_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of a customer.",
+                    "displayName": "id",
+                    "displayType": "text"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "searchusers": {
+        "definition": {
+            "qs": {
+                "q": "{{parameters.q}}",
+                "query": "{{parameters.query}}"
+            },
+            "url": "https://api.fynd.com/service/platform/user/v1.0/company/{{secrets.company_id}}/application/{{parameters.application_id}}/customers/search",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "isFp": true,
+                            "name": "platform",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "user",
+                            "loadOptionsMethod": "getApplications"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A `application_id` is a unique identifier for a particular sale channel.",
+                    "displayName": "Application ID",
+                    "displayType": "autocomplete"
+                },
+                "name": "application_id"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "The search query. Mobile number or email ID of a customer.",
+                    "displayName": "q",
+                    "displayType": "text"
+                },
+                "name": "q"
+            }
+        ]
+    },
+    "createusersession": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.fynd.com/service/platform/user/v1.0/company/{{secrets.company_id}}/application/{{parameters.application_id}}/customers/session",
+            "body": {
+                "domain": "{{parameters.domain}}",
+                "max_age": "{{parameters.max_age}}",
+                "user_id": "{{parameters.user_id}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "isFp": true,
+                            "name": "platform",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "user",
+                            "loadOptionsMethod": "getApplications"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A `application_id` is a unique identifier for a particular sale channel.",
+                    "displayName": "Application ID",
+                    "displayType": "autocomplete"
+                },
+                "name": "application_id"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "domain",
+                    "displayType": "text"
+                },
+                "name": "domain"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "max_age",
+                    "displayType": "text"
+                },
+                "name": "max_age"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "user_id",
+                    "displayType": "text"
+                },
+                "name": "user_id"
+            }
+        ]
+    },
+    "createuser": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.fynd.com/service/platform/user/v1.0/company/{{secrets.company_id}}/application/{{parameters.application_id}}/customers",
+            "body": {
+                "meta": "{{parameters.meta}}",
+                "email": "{{parameters.email}}",
+                "gender": "{{parameters.gender}}",
+                "username": "{{parameters.username}}",
+                "last_name": "{{parameters.last_name}}",
+                "first_name": "{{parameters.first_name}}",
+                "external_id": "{{parameters.external_id}}",
+                "phone_number": "{{parameters.phone_number}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "isFp": true,
+                            "name": "platform",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "user",
+                            "loadOptionsMethod": "getApplications"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A `application_id` is a unique identifier for a particular sale channel.",
+                    "displayName": "Application ID",
+                    "displayType": "autocomplete"
+                },
+                "name": "application_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "phone_number",
+                    "displayType": "text"
+                },
+                "name": "phone_number"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "username",
+                    "displayType": "text"
+                },
+                "name": "username"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "email",
+                    "displayType": "text"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "first_name",
+                    "displayType": "text"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "last_name",
+                    "displayType": "text"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "gender",
+                    "displayType": "text"
+                },
+                "name": "gender"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "validation": {},
+                    "displayName": "meta",
+                    "displayType": "object"
+                },
+                "name": "meta"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "external_id",
+                    "displayType": "text"
+                },
+                "name": "external_id"
+            }
+        ]
+    },
+    "getproduct": {
+        "definition": {
+            "url": "https://api.fynd.com/service/platform/catalog/v2.0/company/{{secrets.company_id}}/products/{{parameters.item_id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {},
+                    "description": "Item Id of the product.",
+                    "displayName": "Item ID",
+                    "displayType": "number"
+                },
+                "name": "item_id"
+            }
+        ]
+    },
+    "listproducts": {
+        "definition": {
+            "qs": {
+                "page_no": "{{parameters.page_no}}",
+                "page_size": "{{parameters.page_size}}"
+            },
+            "url": "https://api.fynd.com/service/platform/catalog/v2.0/company/{{secrets.company_id}}/products/",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": ""
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": 12,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {},
+                    "description": "Number of items to retrieve in each page. Default is 10.",
+                    "displayName": "Page Size",
+                    "displayType": "number"
+                },
+                "name": "page_size"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {},
+                    "description": "For pagination type value can be cursor or number. Default is number.",
+                    "displayName": "Page Number",
+                    "displayType": "number"
+                },
+                "name": "page_no"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response}}",
+                    "message": "{{response}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get",
+                            "description": "Retrieve data from the specified resource without modifying it. Safe and idempotent operation."
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put",
+                            "description": "Replace or create a resource at the specified location. Idempotent operation that updates entire resource."
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post",
+                            "description": "Create a new resource or trigger a processing action. Non-idempotent operation for new data."
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch",
+                            "description": "Partially modify an existing resource. Used for incremental updates to specific fields."
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete",
+                            "description": "Remove the specified resource. Idempotent operation that permanently removes data."
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    }
 }

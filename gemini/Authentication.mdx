@@ -1,72 +1,51 @@
-{
-    "api_key": {
-        "validate": {
-            "qs": {
-                "key": "{{secrets.api_token}}"
-            },
-            "url": "https://generativelanguage.googleapis.com/v1beta/models",
-            "method": "get",
-            "headers": {
-                "Referer": "https://console.boltic.io",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "API key is required field"
-                        }
-                    },
-                    "description": "Your Google Generative AI API Key. Refer to the <a href='https://ai.google.dev/gemini-api/docs/api-key' target='_blank'>Google Generative AI documentation</a> for details.",
-                    "displayName": "API Key",
-                    "displayType": "password",
-                    "placeholder": "Enter your Google Generative AI API Key",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "api_key",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "api_token"
-            }
-        ]
-    },
-    "parameters": [
-        {
-            "meta": {
-                "value": "api_key",
-                "options": [
-                    {
-                        "label": "API Key",
-                        "value": "api_key"
-                    }
-                ],
-                "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Please select the Authentication type as it cannot be empty"
-                    }
-                },
-                "description": "Choose the type of authentication you want to use.",
-                "displayName": "Authentication Type",
-                "displayType": "hidden",
-                "placeholder": "Select an authentication type"
-            },
-            "name": "type"
-        }
-    ]
-}
+# **Gemini Authentication**
+
+This document outlines the setup for authenticating with the Gemini API using an API key. The authentication method ensures secure interaction with Google's Gemini, the generative AI system.
+
+## **Authentication Types**
+
+### **API Key Authentication**
+
+The Gemini API requires an **API key** for every request. This key is used to securely authenticate and authorize API interactions with Gemini's generative models.
+
+## **Parameters**
+
+### **Authentication Type**
+
+-   **Parameter Name**: `type`
+-   **Display Name**: Authentication Type
+-   **Description**: Choose the type of authentication you want to use.
+-   **Type**: Select
+-   **Options**:
+    -   **API Key**: Use your Gemini API key for authentication.
+-   **Validation**: Required
+
+### **API Key**
+
+-   **Parameter Name**: `api_key`
+-   **Display Name**: Gemini API Key
+-   **Description**: Your Gemini API key. Refer to the <a href="https://ai.google.dev/api?lang=python" target="_blank">Google Gemini API documentation</a> for details.
+-   **Type**: Password
+-   **Placeholder**: Enter your API Key
+-   **Validation**: Required
+
+## **Validation**
+
+Once the API key is entered, the connection is validated using the Gemini API.
+
+-   **Method**: POST
+-   **Headers**:
+    -   **Authorization**: Bearer `<YOUR_API_KEY>`
+    -   **Accept**: `application/json`
+    -   **Content-Type**: `application/json`
+-   **Response**:
+    -   **Success**: The response will include output from `{{response.data}}`.
+    -   **Error**: If an error occurs, the message will be displayed as `{{response.data.error.message}}`, with the corresponding status code: `{{response.status}}`.
+
+## **Troubleshooting**
+
+If the connection fails:
+
+-   Ensure your **API Key** is correct.
+-   Confirm that your Gemini API account has the necessary permissions.
+-   Verify the network connection.

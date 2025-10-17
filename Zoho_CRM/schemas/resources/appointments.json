@@ -1,31 +1,282 @@
 {
-    "definition": {
-        "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
-        "method": "delete",
-        "headers": {
-            "Authorization": "Bearer {{secrets.access_token}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
+                "options": [
+                    {
+                        "label": "Create an Appointment",
+                        "value": "appointments.create",
+                        "description": "Create a new appointment in Zoho CRM."
+                    },
+                    {
+                        "label": "Get an Appointment",
+                        "value": "appointments.get",
+                        "description": "Retrieve details of a specific appointment by ID."
+                    },
+                    {
+                        "label": "Get list of Appointments",
+                        "value": "appointments.get_list",
+                        "description": "Retrieve a list of appointments from Zoho CRM."
+                    },
+                    {
+                        "label": "Update an Appointment",
+                        "value": "appointments.update",
+                        "description": "Update details of an existing appointment."
+                    },
+                    {
+                        "label": "Delete an Appointment",
+                        "value": "appointments.delete",
+                        "description": "Delete an appointment by ID."
+                    }
+                ],
                 "validation": {
-                    "pattern": "^[0-9]+$",
                     "required": true
                 },
-                "description": "The ID of the contact to delete.",
-                "displayName": "Contact ID",
-                "displayType": "text",
-                "placeholder": "Enter the contact ID"
+                "description": "Select the operation you want to perform on appointments.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "appointments",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "contact_id"
+            "name": "operation"
         }
-    ]
+    ],
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "body": {
+                "data": [
+                    {
+                        "Email": "{{parameters.email}}",
+                        "Last_Name": "{{parameters.last_name}}",
+                        "First_Name": "{{parameters.first_name}}"
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The first name of the contact.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The last name of the contact.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the last name"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The email address of the contact.",
+                    "displayName": "Email",
+                    "displayType": "email",
+                    "placeholder": "Enter the email address"
+                },
+                "name": "email"
+            }
+        ]
+    },
+    "get_list": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "page": "{{pagination.page}} + 1"
+                },
+                "type": "page",
+                "default": {
+                    "page": 1
+                },
+                "condition": "{{response.data.info.more_records}} != false"
+            }
+        },
+        "parameters": []
+    },
+    "update": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "body": {
+                "data": [
+                    {
+                        "Email": "{{parameters.email}}",
+                        "Last_Name": "{{parameters.last_name}}",
+                        "First_Name": "{{parameters.first_name}}"
+                    }
+                ]
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[0-9]+$",
+                        "required": true
+                    },
+                    "description": "The ID of the contact to update.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the contact ID"
+                },
+                "name": "contact_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The first name of the contact.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The last name of the contact.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the last name"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The email address of the contact.",
+                    "displayName": "Email",
+                    "displayType": "email",
+                    "placeholder": "Enter the email address"
+                },
+                "name": "email"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[0-9]+$",
+                        "required": true
+                    },
+                    "description": "The ID of the contact to retrieve.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the contact ID"
+                },
+                "name": "contact_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[0-9]+$",
+                        "required": true
+                    },
+                    "description": "The ID of the contact to delete.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the contact ID"
+                },
+                "name": "contact_id"
+            }
+        ]
+    }
 }

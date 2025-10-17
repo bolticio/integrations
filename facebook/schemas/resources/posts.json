@@ -1,19 +1,227 @@
 {
-    "definition": {
-        "url": "https://graph.facebook.com/v21.0/me/feed",
-        "body": {},
-        "method": "get",
-        "headers": {
-            "content-type": "application/json",
-            "Authorization": "Bearer {{secrets.api_token}}"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data}}"
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Text",
+                        "value": "posts.create"
+                    },
+                    {
+                        "label": "Article",
+                        "value": "posts.createlink"
+                    },
+                    {
+                        "label": "Photo",
+                        "value": "posts.createphoto"
+                    },
+                    {
+                        "label": "Get all posts",
+                        "value": "posts.getallposts"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "posts",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "output": "{{response.data}}"
+            "name": "operation"
         }
+    ],
+    "create": {
+        "definition": {
+            "url": "https://graph.facebook.com/v21.0/me/feed",
+            "body": {
+                "message": "{{parameters.content}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 2000,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add the message"
+                        }
+                    },
+                    "displayName": "Post",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the text of the message"
+                },
+                "name": "content"
+            }
+        ]
     },
-    "parameters": []
+    "createphoto": {
+        "definition": {
+            "url": "https://graph.facebook.com/v21.0/me/photos",
+            "body": {
+                "url": "{{parameters.url}}",
+                "caption": "{{parameters.caption}}",
+                "published": "true"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 2000,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add the caption"
+                        }
+                    },
+                    "displayName": "Caption",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the Caption"
+                },
+                "name": "caption"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 2000,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add the link"
+                        }
+                    },
+                    "displayName": "Photo link",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the link for photo"
+                },
+                "name": "url"
+            }
+        ]
+    },
+    "createlink": {
+        "definition": {
+            "url": "https://graph.facebook.com/v21.0/me/feed",
+            "body": {
+                "link": "{{parameters.url}}",
+                "message": "{{parameters.content}}",
+                "published": "true"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 2000,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add the content"
+                        }
+                    },
+                    "displayName": "Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the content."
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "max": 2000,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add the link"
+                        }
+                    },
+                    "displayName": "Link",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the Link"
+                },
+                "name": "url"
+            }
+        ]
+    },
+    "getallposts": {
+        "definition": {
+            "url": "https://graph.facebook.com/v21.0/me/feed",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    }
 }

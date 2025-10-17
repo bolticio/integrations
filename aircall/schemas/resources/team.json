@@ -1,30 +1,398 @@
 {
-    "definition": {
-        "url": "https://api.aircall.io/v1/numbers/{{parameters.number_id}}",
-        "method": "get",
-        "headers": {
-            "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
-        },
-        "response": {
-            "error": {
-                "code": "{{response.status}}",
-                "message": "{{response.data}}"
-            },
-            "output": "{{response.data}}"
-        }
-    },
     "parameters": [
         {
             "meta": {
+                "options": [
+                    {
+                        "label": "List Teams",
+                        "value": "team.list"
+                    },
+                    {
+                        "label": "Get Team",
+                        "value": "team.get"
+                    },
+                    {
+                        "label": "Create Team",
+                        "value": "team.create"
+                    },
+                    {
+                        "label": "Delete Team",
+                        "value": "team.delete"
+                    },
+                    {
+                        "label": "Add User to Team",
+                        "value": "team.addUser"
+                    },
+                    {
+                        "label": "Remove User from Team",
+                        "value": "team.removeUser"
+                    }
+                ],
                 "validation": {
                     "required": true
                 },
-                "description": "The unique ID for the number.",
-                "displayName": "Number ID",
-                "displayType": "text",
-                "placeholder": "Enter the Number ID"
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "team",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
             },
-            "name": "number_id"
+            "name": "operation"
         }
-    ]
+    ],
+    "list": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/numbers",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.numbers}}"
+            },
+            "pagination": {
+                "qs": {
+                    "page": "{{response.data.meta.current_page}} + 1",
+                    "per_page": "20"
+                },
+                "type": "page",
+                "default": {
+                    "page": 1,
+                    "per_page": 20
+                },
+                "condition": "{{response.data.meta.total}} < {{response.data.meta.current_page}} * {{response.data.meta.per_page}}"
+            }
+        },
+        "parameters": []
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/numbers/{{parameters.number_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique ID for the number.",
+                    "displayName": "Number ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Number ID"
+                },
+                "name": "number_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/users/{{parameters.user_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique ID for the user.",
+                    "displayName": "User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the User ID"
+                },
+                "name": "user_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/users/{{parameters.user_id}}",
+            "body": {
+                "last_name": "{{parameters.last_name}}",
+                "first_name": "{{parameters.first_name}}"
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "details": "{{response.data.errors}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique ID for the user.",
+                    "displayName": "User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the User ID"
+                },
+                "name": "user_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The new first name of the user.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter new first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "description": "The new last name of the user.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter new last name"
+                },
+                "name": "last_name"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/users",
+            "body": {
+                "role": "{{parameters.role}}",
+                "email": "{{parameters.email}}",
+                "last_name": "{{parameters.last_name}}",
+                "first_name": "{{parameters.first_name}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The email address of the user.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter user email"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The first name of the user.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The last name of the user.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Admin",
+                            "value": "admin"
+                        },
+                        {
+                            "label": "Agent",
+                            "value": "agent"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Role of the user.",
+                    "displayName": "Role",
+                    "displayType": "select",
+                    "placeholder": "Select role"
+                },
+                "name": "role"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "qs": {
+                "to": "{{parameters.to}}",
+                "from": "{{parameters.from}}",
+                "user_id": "{{parameters.user_id}}",
+                "phone_number": "{{parameters.phone_number}}",
+                "fetch_contact": "{{parameters.fetch_contact}}"
+            },
+            "url": "https://api.aircall.io/v1/calls/search",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.calls}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "readOnly": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Set a minimal creation date for calls.",
+                    "displayName": "From (Timestamp)",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the minimal creation date (UNIX timestamp)"
+                },
+                "name": "from"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "readOnly": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Set a maximal creation date for calls.",
+                    "displayName": "To (Timestamp)",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the maximal creation date (UNIX timestamp)"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Unique ID of the user who made or received calls.",
+                    "displayName": "User ID",
+                    "displayType": "number",
+                    "placeholder": "Enter the User ID"
+                },
+                "name": "user_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "When set to true, adds contact details in the response.",
+                    "displayName": "Fetch Contact",
+                    "displayType": "boolean"
+                },
+                "name": "fetch_contact"
+            },
+            {
+                "meta": {
+                    "value": "+91",
+                    "htmlProps": {
+                        "disabled": false,
+                        "readOnly": false,
+                        "onlyCountries": [
+                            "IN"
+                        ],
+                        "defaultCountry": "IN",
+                        "preferredCountries": [
+                            "IN"
+                        ]
+                    },
+                    "validation": {
+                        "required": true,
+                        "matchIsValidTel": true
+                    },
+                    "description": "The calling or receiving phone number of the calls.",
+                    "displayName": "Phone Number",
+                    "displayType": "phone",
+                    "placeholder": "Enter the phone number"
+                },
+                "name": "phone_number"
+            }
+        ]
+    }
 }
