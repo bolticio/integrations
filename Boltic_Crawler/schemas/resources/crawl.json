@@ -1,0 +1,870 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Crawl Website",
+                        "value": "crawl.crawl",
+                        "description": "Crawl a website for pages."
+                    },
+                    {
+                        "label": "Crawl Status",
+                        "value": "crawl.crawl_status",
+                        "description": "Check the status of a crawl job."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "crawl",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "map": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/map",
+            "body": {
+                "url": "{{parameters.url}}",
+                "limit": "{{parameters.limit}}",
+                "search": "{{parameters.search}}",
+                "timeout": "{{parameters.timeout}}",
+                "sitemapOnly": "{{parameters.sitemapOnly}}",
+                "ignoreSitemap": "{{parameters.ignoreSitemap}}",
+                "includeSubdomains": "{{parameters.includeSubdomains}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "URL is required field"
+                        }
+                    },
+                    "description": "The URL to map the search query",
+                    "displayName": "URL",
+                    "displayType": "url",
+                    "placeholder": "Enter the URL to map"
+                },
+                "name": "url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Search Query is required field"
+                        }
+                    },
+                    "description": "The search query to map the URL",
+                    "displayName": "Search Query",
+                    "displayType": "text",
+                    "placeholder": "Enter the search query"
+                },
+                "name": "search"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Ignore the sitemap in the URL",
+                    "displayName": "Ignore Sitemap",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Ignore Sitemap"
+                },
+                "name": "ignoreSitemap"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Only map the sitemap in the URL",
+                    "displayName": "Sitemap Only",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Ignore Sitemap"
+                },
+                "name": "sitemapOnly"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Include subdomains in the map",
+                    "displayName": "Include Subdomains",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Include Subdomains"
+                },
+                "name": "includeSubdomains"
+            },
+            {
+                "meta": {
+                    "value": 5000,
+                    "validation": {
+                        "min": 1,
+                        "required": false
+                    },
+                    "description": "The limit of the map",
+                    "displayName": "Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter the Limit"
+                },
+                "name": "limit"
+            },
+            {
+                "meta": {
+                    "value": 30000,
+                    "validation": {
+                        "min": 1000,
+                        "required": false
+                    },
+                    "description": "The timeout of the map",
+                    "displayName": "Timeout",
+                    "displayType": "number",
+                    "placeholder": "Enter the Timeout"
+                },
+                "name": "timeout"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/search",
+            "body": {
+                "tbs": "{{parameters.tbs}}",
+                "limit": "{{parameters.limit}}",
+                "query": "{{parameters.query}}",
+                "timeout": "{{parameters.timeout}}",
+                "location": "{{parameters.location}}",
+                "scrapeOptions": {
+                    "formats": "{{parameters.formats}}",
+                    "onlyMainContent": "{{parameters.onlyMainContent}}"
+                },
+                "ignoreInvalidURLs": "{{parameters.ignoreInvalidURLs}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Query is required field"
+                        }
+                    },
+                    "description": "The query to search",
+                    "displayName": "Query",
+                    "displayType": "text",
+                    "placeholder": "Enter the Query"
+                },
+                "name": "query"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 100,
+                        "min": 1,
+                        "required": false
+                    },
+                    "description": "Maximum number of search results to return (1–100)",
+                    "displayName": "Result Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter the Limit"
+                },
+                "name": "limit"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Any Time",
+                            "value": ""
+                        },
+                        {
+                            "label": "Past Hour",
+                            "value": "qdr:h"
+                        },
+                        {
+                            "label": "Past 24 Hours",
+                            "value": "qdr:d"
+                        },
+                        {
+                            "label": "Past Week",
+                            "value": "qdr:w"
+                        },
+                        {
+                            "label": "Past Month",
+                            "value": "qdr:m"
+                        },
+                        {
+                            "label": "Past Year",
+                            "value": "qdr:y"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Restrict search by time (e.g., past day, week, month, year)",
+                    "displayName": "Time Filter",
+                    "displayType": "select",
+                    "placeholder": "Enter a Time Filter"
+                },
+                "name": "tbs"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Geographical location to tailor search results",
+                    "displayName": "Location",
+                    "displayType": "text",
+                    "placeholder": "Enter a Location"
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "min": 1000,
+                        "required": false
+                    },
+                    "description": "Maximum time (in milliseconds) to wait for the search operation to complete",
+                    "displayName": "Timeout (ms)",
+                    "displayType": "number",
+                    "placeholder": "Enter a Timeout"
+                },
+                "name": "timeout"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Exclude invalid URLs from results",
+                    "displayName": "Ignore Invalid URLs",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Ignore Invalid URLs"
+                },
+                "name": "ignoreInvalidURLs"
+            },
+            {
+                "meta": {
+                    "value": [
+                        "markdown"
+                    ],
+                    "options": [
+                        {
+                            "label": "Markdown",
+                            "value": "markdown"
+                        },
+                        {
+                            "label": "HTML",
+                            "value": "html"
+                        },
+                        {
+                            "label": "Raw HTML",
+                            "value": "rawHtml"
+                        },
+                        {
+                            "label": "Screenshot",
+                            "value": "screenshot"
+                        },
+                        {
+                            "label": "Links",
+                            "value": "links"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Output Formats is required field"
+                        }
+                    },
+                    "description": "Choose one or more output formats for scraped content.",
+                    "displayName": "Output Formats",
+                    "displayType": "multiselect",
+                    "placeholder": "Select output formats"
+                },
+                "name": "formats"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return only the main content of each page.",
+                    "displayName": "Only Main Content",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Only Main Content"
+                },
+                "name": "onlyMainContent"
+            }
+        ]
+    },
+    "crawl_status": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/crawl/{{parameters.crawl_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the crawl job to check status for.",
+                    "displayName": "Crawl ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Crawl ID"
+                },
+                "name": "crawl_id"
+            }
+        ]
+    },
+    "crawl": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/crawl",
+            "body": {
+                "url": "{{parameters.url}}",
+                "limit": "{{parameters.limit}}",
+                "maxDepth": "{{parameters.max_depth}}",
+                "scrapeOptions": {
+                    "formats": "{{parameters.formats}}",
+                    "timeout": "{{parameters.timeout}}",
+                    "onlyMainContent": "{{parameters.onlyMainContent}}"
+                },
+                "allowSubdomains": "{{parameters.allowSubdomains}}",
+                "allowExternalLinks": "{{parameters.allowExternalLinks}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const finalResult = { id: output.id, success: output.success }; return finalResult"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "URL is required field"
+                        }
+                    },
+                    "description": "Enter the URL you want to crawl.",
+                    "displayName": "URL",
+                    "displayType": "url",
+                    "placeholder": "Enter the URL to crawl"
+                },
+                "name": "url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 10,
+                        "min": 1,
+                        "required": false,
+                        "requiredDetail": {
+                            "errorMsg": "Page Limit is required field"
+                        }
+                    },
+                    "description": "Maximum number of pages to crawl.",
+                    "displayName": "Page Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter the Page Limit"
+                },
+                "name": "limit"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "min": 3,
+                        "required": false
+                    },
+                    "description": "Maximum depth to crawl from the base URL. Minimum value is 3.",
+                    "displayName": "Max Depth",
+                    "displayType": "number",
+                    "placeholder": "Enter the maximum depth"
+                },
+                "name": "max_depth"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Allow crawling of subdomains.",
+                    "displayName": "Allow Subdomains",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Allow Subdomains"
+                },
+                "name": "allowSubdomains"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Allow following links to external domains.",
+                    "displayName": "Allow External Links",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Allow External Links"
+                },
+                "name": "allowExternalLinks"
+            },
+            {
+                "meta": {
+                    "value": [
+                        "markdown"
+                    ],
+                    "options": [
+                        {
+                            "label": "Markdown",
+                            "value": "markdown"
+                        },
+                        {
+                            "label": "HTML",
+                            "value": "html"
+                        },
+                        {
+                            "label": "Raw HTML",
+                            "value": "rawHtml"
+                        },
+                        {
+                            "label": "Screenshot",
+                            "value": "screenshot"
+                        },
+                        {
+                            "label": "Links",
+                            "value": "links"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Output Formats is required field"
+                        }
+                    },
+                    "description": "Choose one or more output formats for scraped content.",
+                    "displayName": "Output Formats",
+                    "displayType": "multiselect",
+                    "placeholder": "Select output formats"
+                },
+                "name": "formats"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Return only the main content of the page (excluding headers, nav, footers, etc.).",
+                    "displayName": "Only Main Content",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Only Main Content"
+                },
+                "name": "onlyMainContent"
+            },
+            {
+                "meta": {
+                    "value": 30000,
+                    "validation": {
+                        "min": 1000,
+                        "required": false
+                    },
+                    "description": "Maximum duration in milliseconds to wait for each page.",
+                    "displayName": "Timeout (ms)",
+                    "displayType": "number",
+                    "placeholder": "Enter Timeout"
+                },
+                "name": "timeout"
+            }
+        ]
+    },
+    "batch_scrape": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/batch/scrape",
+            "body": {
+                "urls": "{{parameters.urls}}",
+                "formats": "{{parameters.formats}}",
+                "timeout": "{{parameters.timeout}}",
+                "parsePDF": "{{parameters.parsePDF}}",
+                "onlyMainContent": "{{parameters.onlyMainContent}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "URLs is required field"
+                        }
+                    },
+                    "description": "Enter the URLs you want to batch scrape.",
+                    "displayName": "URLs",
+                    "displayType": "multitext",
+                    "placeholder": "Enter the URLs"
+                },
+                "name": "urls"
+            },
+            {
+                "meta": {
+                    "value": [
+                        "markdown"
+                    ],
+                    "options": [
+                        {
+                            "label": "Markdown",
+                            "value": "markdown"
+                        },
+                        {
+                            "label": "HTML",
+                            "value": "html"
+                        },
+                        {
+                            "label": "Raw HTML",
+                            "value": "rawHtml"
+                        },
+                        {
+                            "label": "Screenshot",
+                            "value": "screenshot"
+                        },
+                        {
+                            "label": "Links",
+                            "value": "links"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Output Formats is required field"
+                        }
+                    },
+                    "description": "Choose one or more output formats (e.g., markdown, html, screenshot, links, rawHtml).",
+                    "displayName": "Output Formats",
+                    "displayType": "multiselect",
+                    "placeholder": "Select output formats"
+                },
+                "name": "formats"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Only Main Content is required field"
+                        }
+                    },
+                    "description": "Return only the main content of the page (excluding headers, nav, footers, etc.).",
+                    "displayName": "Only Main Content",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Only Main Content"
+                },
+                "name": "onlyMainContent"
+            },
+            {
+                "meta": {
+                    "value": 30000,
+                    "validation": {
+                        "min": 1000,
+                        "required": false
+                    },
+                    "description": "Maximum duration in milliseconds to wait for the page to respond.",
+                    "displayName": "Timeout (ms)",
+                    "displayType": "number",
+                    "placeholder": "Enter Timeout"
+                },
+                "name": "timeout"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Extract and convert PDF content to markdown.",
+                    "displayName": "Parse PDF",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Parse PDF"
+                },
+                "name": "parsePDF"
+            }
+        ]
+    },
+    "scrape_status": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/batch/scrape/{{parameters.batch_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "Invalid Scrape ID, connect with support@boltic.io"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Batch Scrape ID is required field"
+                        }
+                    },
+                    "description": "The ID of the Batch Scrape job to check status for.",
+                    "displayName": "Batch Scrape ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Batch Scrape ID"
+                },
+                "name": "batch_id"
+            }
+        ]
+    },
+    "scrape": {
+        "definition": {
+            "url": "https://api.firecrawl.dev/v1/scrape",
+            "body": {
+                "url": "{{parameters.url}}",
+                "formats": "{{parameters.formats}}",
+                "timeout": "{{parameters.timeout}}",
+                "parsePDF": "{{parameters.parsePDF}}",
+                "onlyMainContent": "{{parameters.onlyMainContent}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "URL is required field"
+                        }
+                    },
+                    "description": "Enter the URL you want to scrape.",
+                    "displayName": "URL",
+                    "displayType": "url",
+                    "placeholder": "Enter the URL"
+                },
+                "name": "url"
+            },
+            {
+                "meta": {
+                    "value": [
+                        "markdown"
+                    ],
+                    "options": [
+                        {
+                            "label": "Markdown",
+                            "value": "markdown"
+                        },
+                        {
+                            "label": "HTML",
+                            "value": "html"
+                        },
+                        {
+                            "label": "Raw HTML",
+                            "value": "rawHtml"
+                        },
+                        {
+                            "label": "Screenshot",
+                            "value": "screenshot"
+                        },
+                        {
+                            "label": "Links",
+                            "value": "links"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Output Formats is required field"
+                        }
+                    },
+                    "description": "Choose one or more output formats (e.g., markdown, html, screenshot, links, rawHtml).",
+                    "displayName": "Output Formats",
+                    "displayType": "multiselect",
+                    "placeholder": "Select output formats"
+                },
+                "name": "formats"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return only the main content of the page (excluding headers, nav, footers, etc.).",
+                    "displayName": "Only Main Content",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Only Main Content"
+                },
+                "name": "onlyMainContent"
+            },
+            {
+                "meta": {
+                    "value": 30000,
+                    "validation": {
+                        "min": 1000,
+                        "required": false
+                    },
+                    "description": "Maximum duration in milliseconds to wait for the page to respond.",
+                    "displayName": "Timeout (ms)",
+                    "displayType": "number",
+                    "placeholder": "Enter Timeout"
+                },
+                "name": "timeout"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Extract and convert PDF content to markdown.",
+                    "displayName": "Parse PDF",
+                    "displayType": "toggle",
+                    "placeholder": "Enter Parse PDF"
+                },
+                "name": "parsePDF"
+            }
+        ]
+    }
+}

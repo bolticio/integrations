@@ -1,0 +1,1136 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Project",
+                        "value": "project.create"
+                    },
+                    {
+                        "label": "Delete Project",
+                        "value": "project.delete"
+                    },
+                    {
+                        "label": "Get Project",
+                        "value": "project.get"
+                    },
+                    {
+                        "label": "Find Section in Project",
+                        "value": "project.find_section_in_project"
+                    },
+                    {
+                        "label": "Find Project",
+                        "value": "project.find_project"
+                    },
+                    {
+                        "label": "List All Projects",
+                        "value": "project.list"
+                    },
+                    {
+                        "label": "Update Project",
+                        "value": "project.update"
+                    },
+                    {
+                        "label": "Create Section",
+                        "value": "project.create_section"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "project",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getProjects": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/workspaces/{{parameters.workspace}}/projects",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getSections": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}/sections?limit=100",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getWorkspaces": {
+        "definition": {
+            "qs": {},
+            "url": "https://app.asana.com/api/1.0/workspaces",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects",
+            "body": "{{parameters}}",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (body) return {data: body};"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the name of the project you want to create.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the name of the project"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.create",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace in which you want to create the project.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the team you want to associate with the project.",
+                    "displayName": "Team ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the team ID"
+                },
+                "name": "team"
+            },
+            {
+                "meta": {
+                    "value": "none",
+                    "options": [
+                        {
+                            "label": "Dark Blue",
+                            "value": "dark-blue"
+                        },
+                        {
+                            "label": "Dark Brown",
+                            "value": "dark-brown"
+                        },
+                        {
+                            "label": "Dark Green",
+                            "value": "dark-green"
+                        },
+                        {
+                            "label": "Dark Orange",
+                            "value": "dark-orange"
+                        },
+                        {
+                            "label": "Dark Pink",
+                            "value": "dark-pink"
+                        },
+                        {
+                            "label": "Dark Purple",
+                            "value": "dark-purple"
+                        },
+                        {
+                            "label": "Dark Red",
+                            "value": "dark-red"
+                        },
+                        {
+                            "label": "Dark Teal",
+                            "value": "dark-teal"
+                        },
+                        {
+                            "label": "Dark Warm Gray",
+                            "value": "dark-warm-gray"
+                        },
+                        {
+                            "label": "Light Blue",
+                            "value": "light-blue"
+                        },
+                        {
+                            "label": "Light Green",
+                            "value": "light-green"
+                        },
+                        {
+                            "label": "Light Orange",
+                            "value": "light-orange"
+                        },
+                        {
+                            "label": "Light Pink",
+                            "value": "light-pink"
+                        },
+                        {
+                            "label": "Light Purple",
+                            "value": "light-purple"
+                        },
+                        {
+                            "label": "Light Red",
+                            "value": "light-red"
+                        },
+                        {
+                            "label": "Light Teal",
+                            "value": "light-teal"
+                        },
+                        {
+                            "label": "Light Warm Gray",
+                            "value": "light-warm-gray"
+                        },
+                        {
+                            "label": "Light Yellow",
+                            "value": "light-yellow"
+                        },
+                        {
+                            "label": "None",
+                            "value": "none"
+                        }
+                    ],
+                    "description": "Select the color for the project.",
+                    "displayName": "Color",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a color"
+                },
+                "name": "color"
+            },
+            {
+                "meta": {
+                    "description": "Enter any notes you want to add to the project.",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter notes"
+                },
+                "name": "notes"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the project.",
+                    "displayName": "Project ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the project ID"
+                },
+                "name": "project"
+            }
+        ]
+    },
+    "find_project": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.find_project",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace of the project to be searched.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.find_project",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            }
+        ]
+    },
+    "find_section_in_project": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/sections/{{parameters.section}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "transform": {
+                "output": "const getSectionByName => output.filter(output => output.name.toLowerCase().includes({{parameters.section_name}}.toLowerCase())); return {{parameters.section_name}};"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.find_section_in_project",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace of the project in which sections are to be searched.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.find_section_in_project",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project in which you search section.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "project",
+                            "operation": "project.find_section_in_project",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getSections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the section which is to be searched.",
+                    "displayName": "Section",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Section",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "project",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "section"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the project you want to delete.",
+                    "displayName": "Project ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the project ID"
+                },
+                "name": "project"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "archived": "{{parameters.archived}}",
+                "workspace": "{{parameters.workspace}}"
+            },
+            "url": "https://app.asana.com/api/1.0/projects",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.next_page.offset}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "limit": 100,
+                    "offset": null
+                },
+                "condition": "{{response.data.next_page}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.create",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace in which you want to create the project.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Only return projects whose `archived` field takes on the value of this parameter.",
+                    "displayName": "Archived",
+                    "displayType": "toggle"
+                },
+                "name": "archived"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
+            "body": {
+                "data": {
+                    "name": "{{parameters.name}}",
+                    "team": "{{parameters.team}}",
+                    "color": "{{parameters.color}}",
+                    "notes": "{{parameters.notes}}",
+                    "workspace": "{{parameters.workspace}}"
+                }
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.create",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace of the project to be updated.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the team you want to associate with the project.",
+                    "displayName": "Team ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the team ID"
+                },
+                "name": "team"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the project you want to update.",
+                    "displayName": "Project ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the project ID"
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter the name of the project you want to update.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the name of the project"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "value": "none",
+                    "options": [
+                        {
+                            "label": "Dark Blue",
+                            "value": "dark-blue"
+                        },
+                        {
+                            "label": "Dark Brown",
+                            "value": "dark-brown"
+                        },
+                        {
+                            "label": "Dark Green",
+                            "value": "dark-green"
+                        },
+                        {
+                            "label": "Dark Orange",
+                            "value": "dark-orange"
+                        },
+                        {
+                            "label": "Dark Pink",
+                            "value": "dark-pink"
+                        },
+                        {
+                            "label": "Dark Purple",
+                            "value": "dark-purple"
+                        },
+                        {
+                            "label": "Dark Red",
+                            "value": "dark-red"
+                        },
+                        {
+                            "label": "Dark Teal",
+                            "value": "dark-teal"
+                        },
+                        {
+                            "label": "Dark Warm Gray",
+                            "value": "dark-warm-gray"
+                        },
+                        {
+                            "label": "Light Blue",
+                            "value": "light-blue"
+                        },
+                        {
+                            "label": "Light Green",
+                            "value": "light-green"
+                        },
+                        {
+                            "label": "Light Orange",
+                            "value": "light-orange"
+                        },
+                        {
+                            "label": "Light Pink",
+                            "value": "light-pink"
+                        },
+                        {
+                            "label": "Light Purple",
+                            "value": "light-purple"
+                        },
+                        {
+                            "label": "Light Red",
+                            "value": "light-red"
+                        },
+                        {
+                            "label": "Light Teal",
+                            "value": "light-teal"
+                        },
+                        {
+                            "label": "Light Warm Gray",
+                            "value": "light-warm-gray"
+                        },
+                        {
+                            "label": "Light Yellow",
+                            "value": "light-yellow"
+                        },
+                        {
+                            "label": "None",
+                            "value": "none"
+                        }
+                    ],
+                    "description": "Select the color for the project.",
+                    "displayName": "Color",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a color"
+                },
+                "name": "color"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter any notes you want to add to the project.",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter notes"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "description": "Select the due date for the project.",
+                    "displayName": "Due Date",
+                    "displayType": "text",
+                    "placeholder": "Select a due date"
+                },
+                "name": "due_on"
+            }
+        ]
+    },
+    "create_section": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.section_name}}"
+            },
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}/sections",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.create_section",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace of the project in which section is to be created.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.create_section",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project creating section.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 50,
+                        "min": 3,
+                        "required": true
+                    },
+                    "description": "Name of the section to be created",
+                    "displayName": "Section Name",
+                    "displayType": "text",
+                    "placeholder": "Enter section name"
+                },
+                "name": "section_name"
+            }
+        ]
+    },
+    "find_user": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/users/",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL() { const encodedURL = url + encodeURIComponent('{{parameters.email}}'); return encodedURL; } return transformURL();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please enter Email or User ID",
+                    "displayName": "Email/User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Email/User ID"
+                },
+                "name": "email"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://app.asana.com/api/1.0/tasks"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    }
+}

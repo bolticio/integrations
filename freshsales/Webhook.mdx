@@ -1,0 +1,622 @@
+{
+    "deal": {
+        "attach": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc"
+                },
+                "url": "{{secrets.api_url}}/api/deals/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.deals}}"
+                },
+                "pagination": {
+                    "qs": {
+                        "page": "{{pagination.page}} + 1"
+                    },
+                    "type": "page",
+                    "default": {
+                        "page": 1
+                    },
+                    "condition": "{{response.data.meta.total_pages}} >= {{pagination.page}}"
+                },
+                "polling_criteria": {
+                    "type": "timestamp",
+                    "field": "created_at",
+                    "format": "iso"
+                }
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "freshsales",
+                            "secret": "{{parameters.secret}}",
+                            "webhook": true,
+                            "resource": "webhook",
+                            "operation": "webhook.deal",
+                            "loadOptionsMethod": "getDealViews"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "view ID to filter the list of deals.",
+                    "displayName": "View ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the view ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "webhook",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "webhook.deal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "view_id"
+            }
+        ]
+    },
+    "lead": {
+        "attach": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc"
+                },
+                "url": "{{secrets.api_url}}/api/leads/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.leads}}"
+                },
+                "pagination": {
+                    "qs": {
+                        "page": "{{pagination.page}} + 1"
+                    },
+                    "type": "page",
+                    "default": {
+                        "page": 1
+                    },
+                    "condition": "{{response.data.meta.total_pages}} >= {{pagination.page}}"
+                },
+                "polling_criteria": {
+                    "type": "timestamp",
+                    "field": "created_at",
+                    "format": "iso"
+                }
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "freshsales",
+                            "secret": "{{parameters.secret}}",
+                            "webhook": true,
+                            "resource": "webhook",
+                            "operation": "webhook.lead",
+                            "loadOptionsMethod": "getLeadsViews"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "view ID to filter the list of leads.",
+                    "displayName": "View ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the view ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "webhook",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "webhook.lead",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "view_id"
+            }
+        ]
+    },
+    "test": {
+        "deal": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc",
+                    "per_page": 10
+                },
+                "url": "{{secrets.api_url}}/api/deals/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.deals}}"
+                },
+                "transform": {
+                    "output": "return {event: output};"
+                }
+            }
+        },
+        "lead": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc",
+                    "per_page": 10
+                },
+                "url": "{{secrets.api_url}}/api/leads/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.leads}}"
+                },
+                "transform": {
+                    "output": "return {event: output};"
+                }
+            }
+        },
+        "account": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc",
+                    "per_page": 10
+                },
+                "url": "{{secrets.api_url}}/api/sales_accounts/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.sales_accounts}}"
+                },
+                "transform": {
+                    "output": "return {event: output};"
+                }
+            }
+        },
+        "contact": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc",
+                    "per_page": 10
+                },
+                "url": "{{secrets.api_url}}/api/contacts/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.contacts}}"
+                },
+                "transform": {
+                    "output": "return {event: output};"
+                }
+            }
+        }
+    },
+    "account": {
+        "attach": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc"
+                },
+                "url": "{{secrets.api_url}}/api/sales_accounts/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.sales_accounts}}"
+                },
+                "pagination": {
+                    "qs": {
+                        "page": "{{pagination.page}} + 1"
+                    },
+                    "type": "page",
+                    "default": {
+                        "page": 1
+                    },
+                    "condition": "{{response.data.meta.total_pages}} >= {{pagination.page}}"
+                },
+                "polling_criteria": {
+                    "type": "timestamp",
+                    "field": "created_at",
+                    "format": "iso"
+                }
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "freshsales",
+                            "secret": "{{parameters.secret}}",
+                            "webhook": true,
+                            "resource": "webhook",
+                            "operation": "webhook.account",
+                            "loadOptionsMethod": "getAccountViews"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the view ID to filter the list of accounts.",
+                    "displayName": "View ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the view ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "webhook",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "webhook.account",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "view_id"
+            }
+        ]
+    },
+    "contact": {
+        "attach": {
+            "definition": {
+                "qs": {
+                    "sort": "created_at",
+                    "order": "desc"
+                },
+                "url": "{{secrets.api_url}}/api/contacts/view/{{parameters.view_id}}",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Token token={{secrets.api_key}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.data.errors.code}}",
+                        "message": "{{response.data.errors.message}}"
+                    },
+                    "output": "{{response.data.contacts}}"
+                },
+                "pagination": {
+                    "qs": {
+                        "page": "{{pagination.page}} + 1"
+                    },
+                    "type": "page",
+                    "default": {
+                        "page": 1
+                    },
+                    "condition": "{{response.data.meta.total_pages}} >= {{pagination.page}}"
+                },
+                "polling_criteria": {
+                    "type": "timestamp",
+                    "field": "created_at",
+                    "format": "iso"
+                }
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "freshsales",
+                            "secret": "{{parameters.secret}}",
+                            "webhook": true,
+                            "resource": "webhook",
+                            "operation": "webhook.contact",
+                            "loadOptionsMethod": "getContactViews"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the view ID to filter the list of contacts.",
+                    "displayName": "View ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the view ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "webhook",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "webhook.contact",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "view_id"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "",
+                "config": {
+                    "url": "/FRESHSALES?current_page=1&page_size=999",
+                    "method": "get",
+                    "urlType": "secret",
+                    "labelKey": "name",
+                    "valueKey": "_id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "showAddNew": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "FreshSales is a secure partner with Boltic. Your credentials are encrypted & can be removed at any time.",
+                "displayName": "FreshSales Account",
+                "displayType": "autocomplete",
+                "placeholder": "Select FreshSales Account"
+            },
+            "name": "secret"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Webhook",
+                        "value": "webhook",
+                        "description": "Trigger a workflow when an webhook event is received."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the trigger you want to work with.",
+                "displayName": "Resource",
+                "displayType": "select",
+                "placeholder": "Select a trigger",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "secret",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "resource"
+        },
+        {
+            "meta": {
+                "value": "",
+                "options": [
+                    {
+                        "label": "Triggers when a new account is created",
+                        "value": "webhook.account",
+                        "description": "This event triggers the workflow when a new account is created."
+                    },
+                    {
+                        "label": "Triggers when a new contact is created",
+                        "value": "webhook.contact",
+                        "description": "This event triggers the workflow when a new contact is created."
+                    },
+                    {
+                        "label": "Triggers when a new deal is created",
+                        "value": "webhook.deal",
+                        "description": "This event triggers the workflow when a new deal is created."
+                    },
+                    {
+                        "label": "Triggers when a new lead is created",
+                        "value": "webhook.lead",
+                        "description": "This event triggers the workflow when a new lead is created."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "",
+                "displayName": "Event",
+                "displayType": "select",
+                "placeholder": "",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "secret",
+                            "operator": "NOT_EMPTY"
+                        },
+                        {
+                            "field": "resource",
+                            "value": "webhook",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getDealViews": {
+        "definition": {
+            "qs": {},
+            "url": "{{secrets.api_url}}/api/deals/filters",
+            "method": "get",
+            "headers": {
+                "Authorization": "Token token={{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data.filters}}"
+            },
+            "transform": {
+                "output": "const keyword = 'All'; return output.filter(v => v.name.includes(keyword));"
+            }
+        }
+    },
+    "getLeadsViews": {
+        "definition": {
+            "qs": {},
+            "url": "{{secrets.api_url}}/api/leads/filters",
+            "method": "get",
+            "headers": {
+                "Authorization": "Token token={{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data.filters}}"
+            },
+            "transform": {
+                "output": "const keyword = 'All'; return output.filter(v => v.name.includes(keyword));"
+            }
+        }
+    },
+    "getAccountViews": {
+        "definition": {
+            "qs": {},
+            "url": "{{secrets.api_url}}/api/sales_accounts/filters",
+            "method": "get",
+            "headers": {
+                "Authorization": "Token token={{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data.filters}}"
+            },
+            "transform": {
+                "output": "const keyword = 'All'; return output.filter(v => v.name.includes(keyword));"
+            }
+        }
+    },
+    "getContactViews": {
+        "definition": {
+            "qs": {},
+            "url": "{{secrets.api_url}}/api/contacts/filters",
+            "method": "get",
+            "headers": {
+                "Authorization": "Token token={{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.code}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data.filters}}"
+            },
+            "transform": {
+                "output": "const keyword = 'All'; return output.filter(v => v.name.includes(keyword));"
+            }
+        }
+    },
+    "polling_interval": 15
+}

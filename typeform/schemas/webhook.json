@@ -1,0 +1,232 @@
+{
+    "attach": {
+        "definition": {
+            "url": "https://api.typeform.com/forms/{{parameters.form_id}}/webhooks/{{parameters.tag}}",
+            "body": {
+                "url": "{{webhook.url}}",
+                "enabled": true,
+                "event_types": {
+                    "form_response_partial": true
+                }
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "detach": {
+        "definition": {
+            "url": "https://api.typeform.com/forms/{{parameters.form_id}}/webhooks/{{parameters.tag}}",
+            "body": {
+                "url": "{{webhook.url}}",
+                "enabled": true,
+                "event_types": {
+                    "form_response_partial": true
+                }
+            },
+            "method": "delete",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.typeform.com/forms/{{parameters.form_id}}/webhooks/{{parameters.tag}}",
+            "body": {
+                "url": "{{webhook.url}}",
+                "enabled": true,
+                "event_types": {
+                    "form_response_partial": true
+                }
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "getForms": {
+        "definition": {
+            "url": "https://api.typeform.com/forms",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data.items}}"
+            }
+        }
+    },
+    "new_entry": {
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "typeform",
+                            "secret": "{{parameters.secret}}",
+                            "webhook": true,
+                            "resource": "webhook",
+                            "operation": "webhook.new_entry",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "showAddNew": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "Select the form you want to subscribe to events.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form to subscribe to events"
+                },
+                "name": "form_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please enter a tag for the webhook to be created."
+                        }
+                    },
+                    "description": "Unique name you want to use for the webhook.",
+                    "displayName": "Tag",
+                    "displayType": "text",
+                    "placeholder": "Unique name you want to use for the webhook"
+                },
+                "name": "tag"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "config": {
+                    "url": "/TYPEFORM?current_page=1&page_size=999",
+                    "method": "get",
+                    "urlType": "secret",
+                    "labelKey": "name",
+                    "valueKey": "_id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "showAddNew": true
+                },
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Typeform Account is required"
+                    }
+                },
+                "description": "Typeform is a secure partner with Boltic. Your credentials are encrypted & can be removed at any time.",
+                "displayName": "Typeform Account",
+                "displayType": "autocomplete",
+                "placeholder": "Select Typeform Account"
+            },
+            "name": "secret"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Webhook",
+                        "value": "webhook",
+                        "description": "Webhooks allow you to receive real-time data from Typeform in real time."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Resource is required"
+                    }
+                },
+                "description": "Select the resource you want to work with.",
+                "displayName": "Resource",
+                "displayType": "select",
+                "placeholder": "Select a resource",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "secret",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "resource"
+        },
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "New Entry",
+                        "value": "webhook.new_entry",
+                        "description": "Triggers when a new entry is submitted to a typeform form."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Events is required"
+                    }
+                },
+                "description": "Select the resource you want to work with.",
+                "displayName": "Events",
+                "displayType": "select",
+                "placeholder": "Select a resource",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "operator": "NOT_EMPTY"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ]
+}

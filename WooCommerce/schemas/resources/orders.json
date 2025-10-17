@@ -1,0 +1,492 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create an Order",
+                        "value": "orders.create",
+                        "description": "Create a new WooCommerce order with customer details, billing/shipping information, line items, and payment method."
+                    },
+                    {
+                        "label": "Retrieve an Order",
+                        "value": "orders.retrieve",
+                        "description": "Fetch detailed information about a specific order using its unique order ID, including order status, customer details, and line items."
+                    },
+                    {
+                        "label": "List Orders",
+                        "value": "orders.list",
+                        "description": "Retrieve a paginated list of all orders in your WooCommerce store with their basic details."
+                    },
+                    {
+                        "label": "Update Order Status",
+                        "value": "orders.update",
+                        "description": "Modify an existing order's status (e.g., from pending to processing, completed, or cancelled)."
+                    },
+                    {
+                        "label": "Delete an Order",
+                        "value": "orders.delete",
+                        "description": "Permanently remove an order from your WooCommerce store (this action cannot be undone)."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "orders",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getPayments": {
+        "definition": {
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/payment_gateways?consumer_key={{secrets.consumer_key}}&consumer_secret={{secrets.consumer_secret}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "getProducts": {
+        "definition": {
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/products?consumer_key={{secrets.consumer_key}}&consumer_secret={{secrets.consumer_secret}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "send": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/actions/send_order_details",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orderAction",
+                            "operation": "orderAction.send",
+                            "loadOptionsMethod": "getOrder"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the order.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Order ID"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes/{{parameters.note_id}}?force=true",
+            "method": "delete",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.delete",
+                            "loadOptionsMethod": "getOrder"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the order.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Order ID"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "order_id": "{{parameters.order_id}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.delete",
+                            "loadOptionsMethod": "list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id",
+                        "condition": "{{parameters.order_id}}"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the note.",
+                    "displayName": "Note ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Note ID"
+                },
+                "name": "note_id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "pagination": {
+                "qs": {},
+                "type": "url",
+                "default": {},
+                "next_key": "next",
+                "next_url": "{{response.headers.link}}",
+                "condition": "{{response.headers.link}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.list",
+                            "loadOptionsMethod": "getOrder"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the order.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Order ID"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes",
+            "body": {
+                "note": "{{parameters.note}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.create",
+                            "loadOptionsMethod": "getOrder"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the order.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Order ID"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The content of the order note.",
+                    "displayName": "Note",
+                    "displayType": "textarea",
+                    "placeholder": "Enter order note"
+                },
+                "name": "note"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/products/attributes/{{parameters.attribute_id}}",
+            "body": {
+                "order_by": "{{parameters.order_by}}"
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "productAttributes",
+                            "operation": "productAttributes.update",
+                            "loadOptionsMethod": "list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the product attribute to update.",
+                    "displayName": "Attribute Name",
+                    "displayType": "select",
+                    "placeholder": "Select attribute Name"
+                },
+                "name": "attribute_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Menu Order",
+                            "value": "menu_order"
+                        },
+                        {
+                            "label": "Name",
+                            "value": "name"
+                        },
+                        {
+                            "label": "ID",
+                            "value": "id"
+                        },
+                        {
+                            "label": "None",
+                            "value": ""
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Updated sorting order for the attribute.",
+                    "displayName": "Order By",
+                    "displayType": "select",
+                    "placeholder": "Select order by"
+                },
+                "name": "order_by"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes/{{parameters.note_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.get",
+                            "loadOptionsMethod": "getOrder"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the order.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Order ID"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "order_id": "{{parameters.order_id}}",
+                            "resource": "orderNote",
+                            "operation": "orderNote.get",
+                            "loadOptionsMethod": "list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id",
+                        "condition": "{{parameters.order_id}}"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique identifier of the note.",
+                    "displayName": "Note ID",
+                    "displayType": "select",
+                    "placeholder": "Enter Note ID"
+                },
+                "name": "note_id"
+            }
+        ]
+    }
+}

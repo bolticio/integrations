@@ -1,0 +1,707 @@
+{
+    "name": "audio",
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Speech",
+                        "value": "audio.createSpeech",
+                        "description": "Use OpenAI to convert text into natural speech for voice interfaces, narration, or audio content creation."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "audio",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "retrievemodel": {
+        "definition": {
+            "url": "https://api.openai.com/v1/models/{{parameters.modelId}}",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "openai",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "models.retrieveModel",
+                            "activity_id": "{{parameters.activity_id}}",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "Please select a model to retrieve it's details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "modelId"
+            }
+        ]
+    },
+    "listmodels": {
+        "definition": {
+            "url": "https://api.openai.com/v1/models",
+            "method": "get",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "createmoderationforsinglestring": {
+        "definition": {
+            "url": "https://api.openai.com/v1/moderations",
+            "body": {
+                "input": "{{parameters.input}}",
+                "model": "{{parameters.models}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "omni-moderation-latest",
+                            "value": "omni-moderation-latest"
+                        },
+                        {
+                            "label": "omni-moderation-2024-09-26",
+                            "value": "omni-moderation-2024-09-26"
+                        },
+                        {
+                            "label": "text-moderation-latest",
+                            "value": "text-moderation-latest"
+                        },
+                        {
+                            "label": "text-moderation-stable",
+                            "value": "text-moderation-stable"
+                        },
+                        {
+                            "label": "text-moderation-007",
+                            "value": "text-moderation-007"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "The content moderation model you would like to use.",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Input text is required field"
+                        }
+                    },
+                    "description": "Provide a text you want to moderate.",
+                    "displayName": "Input Text",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a text to be moderated"
+                },
+                "name": "input"
+            }
+        ]
+    },
+    "createmoderationforimageandtext": {
+        "definition": {
+            "url": "https://api.openai.com/v1/moderations",
+            "body": {
+                "input": [
+                    {
+                        "text": "{{parameters.input}}",
+                        "type": "text"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": "{{parameters.image_url}}"
+                        }
+                    }
+                ],
+                "model": "{{parameters.models}}"
+            },
+            "method": "post",
+            "headers": {
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "omni-moderation-latest",
+                            "value": "omni-moderation-latest"
+                        },
+                        {
+                            "label": "omni-moderation-2024-09-26",
+                            "value": "omni-moderation-2024-09-26"
+                        },
+                        {
+                            "label": "text-moderation-latest",
+                            "value": "text-moderation-latest"
+                        },
+                        {
+                            "label": "text-moderation-stable",
+                            "value": "text-moderation-stable"
+                        },
+                        {
+                            "label": "text-moderation-007",
+                            "value": "text-moderation-007"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "The content moderation model you would like to use.",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Input text is required field."
+                        }
+                    },
+                    "description": "Provide a text you want to check for moderate.",
+                    "displayName": "Input text",
+                    "displayType": "textarea",
+                    "placeholder": "Enter input text"
+                },
+                "name": "input"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Image URL is required field."
+                        }
+                    },
+                    "description": "Image URL for moderation",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter Image URL"
+                },
+                "name": "image_url"
+            }
+        ]
+    },
+    "retrievebatch": {
+        "definition": {
+            "url": "https://api.openai.com/v1/batches/{{parameters.batchId}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Batch ID is required field"
+                        }
+                    },
+                    "description": "The ID of the batch to retrieve.",
+                    "displayName": "Batch ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a batch id"
+                },
+                "name": "batchId"
+            }
+        ]
+    },
+    "cancelbatch": {
+        "definition": {
+            "url": "https://api.openai.com/v1/batches/{{parameters.batchId}}/cancel",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Batch ID is required field"
+                        }
+                    },
+                    "description": "The ID of a batch to cancel a batch operation that is already in progress",
+                    "displayName": "Batch ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a batch id"
+                },
+                "name": "batchId"
+            }
+        ]
+    },
+    "createbatch": {
+        "definition": {
+            "url": "https://api.openai.com/v1/batches",
+            "body": {
+                "endpoint": "{{parameters.endPoint}}",
+                "input_file_id": "{{parameters.inputFileId}}",
+                "completion_window": "{{parameters.completionWindow}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Input File ID is required field"
+                        }
+                    },
+                    "description": "The ID of an uploaded file that contains requests for the new batch. The file can contain up to 50,000 requests, and can be up to 200 MB in size.",
+                    "displayName": "Input File ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Input file ID"
+                },
+                "name": "inputFileId"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "/v1/chat/completions",
+                            "value": "/v1/chat/completions"
+                        },
+                        {
+                            "label": "/v1/embeddings",
+                            "value": "/v1/embeddings"
+                        },
+                        {
+                            "label": "/v1/completions",
+                            "value": "/v1/completions"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Endpoint is required field"
+                        }
+                    },
+                    "description": "The endpoint to be used for all requests in the batch. Currently /v1/chat/completions, /v1/embeddings, and /v1/completions are supported.",
+                    "displayName": "EndPoint (API)",
+                    "displayType": "select",
+                    "placeholder": "Select an endpoint"
+                },
+                "name": "endPoint"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "24 Hour",
+                            "value": "24h"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Completion window is required field"
+                        }
+                    },
+                    "description": "The time frame within which the batch should be processed. Currently only 24h is supported.",
+                    "displayName": "Completion Window",
+                    "displayType": "select",
+                    "placeholder": "Select a completion window"
+                },
+                "name": "completionWindow"
+            }
+        ]
+    },
+    "listbatch": {
+        "definition": {
+            "qs": {
+                "after": "{{parameters.after}}",
+                "limit": "{{parameters.limit}}"
+            },
+            "url": "https://api.openai.com/v1/batches",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": 20,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.",
+                    "displayName": "Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter a limit (number of objects)"
+                },
+                "name": "limit"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A cursor for use in pagination. after is an object ID that defines your place in the list.",
+                    "displayName": "After",
+                    "displayType": "text",
+                    "placeholder": "Enter after text"
+                },
+                "name": "after"
+            }
+        ]
+    },
+    "listmessages": {
+        "definition": {
+            "qs": {
+                "after": "{{parameters.after}}",
+                "limit": "{{parameters.limit}}",
+                "order": "{{parameters.order}}",
+                "before": "{{parameters.before}}",
+                "run_id": "{{parameters.runId}}"
+            },
+            "url": "https://api.openai.com/v1/threads/{{parameters.threadId}}/messages",
+            "method": "get",
+            "headers": {
+                "OpenAI-Beta": "assistants=v2",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Thread ID is required field"
+                        }
+                    },
+                    "description": "The ID of the thread the messages belong to.",
+                    "displayName": "Thread ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a thread id"
+                },
+                "name": "threadId"
+            },
+            {
+                "meta": {
+                    "value": 20,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.",
+                    "displayName": "Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter a limit (number of messages)"
+                },
+                "name": "limit"
+            },
+            {
+                "meta": {
+                    "value": "desc",
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "asc"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "desc"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Sort order by the created_at timestamp of the objects. asc for ascending order and desc for descending order.",
+                    "displayName": "Order",
+                    "displayType": "select",
+                    "placeholder": "Enter an order"
+                },
+                "name": "order"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A cursor for use in pagination. After is an object ID that defines your place in the list.",
+                    "displayName": "After",
+                    "displayType": "text",
+                    "placeholder": "Enter an order"
+                },
+                "name": "after"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A cursor for use in pagination. Before is an object ID that defines your place in the list.",
+                    "displayName": "Before",
+                    "displayType": "text",
+                    "placeholder": "Enter an order"
+                },
+                "name": "before"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter messages by the run ID that generated them.",
+                    "displayName": "Run ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a run id"
+                },
+                "name": "runId"
+            }
+        ]
+    },
+    "modifymessage": {
+        "definition": {
+            "url": "https://api.openai.com/v1/threads/{{parameters.threadId}}/messages/{{parameters.messageId}}",
+            "body": {
+                "metadata": "{{parameters.metadata}}"
+            },
+            "method": "post",
+            "headers": {
+                "OpenAI-Beta": "assistants=v2",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Thread ID is required field"
+                        }
+                    },
+                    "description": "The ID of the thread the messages belongs.",
+                    "displayName": "Thread ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a thread id"
+                },
+                "name": "threadId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Message ID is required field"
+                        }
+                    },
+                    "description": "The ID of the message to modify.",
+                    "displayName": "Message ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a message id"
+                },
+                "name": "messageId"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 64,
+                                    "required": false
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 512,
+                                    "required": false
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 16,
+                        "required": false
+                    },
+                    "description": "OpenAI: Attach up to 16 key-value pairs to store structured metadata on an object for better tracking or categorization.",
+                    "displayName": "Metadata",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter metadata key-value pairs"
+                },
+                "name": "metadata"
+            }
+        ]
+    }
+}

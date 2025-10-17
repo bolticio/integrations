@@ -1,0 +1,101 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create a bitLink",
+                        "value": "links.create"
+                    },
+                    {
+                        "label": "Find a bitLink",
+                        "value": "links.find"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "links",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "create": {
+        "definition": {
+            "url": "https://api-ssl.bitly.com/v4/shorten",
+            "body": {
+                "domain": "bit.ly",
+                "long_url": "{{parameters.long_url}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The long URL to be shortened.",
+                    "displayName": "Long URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the long URL"
+                },
+                "name": "long_url"
+            }
+        ]
+    },
+    "find": {
+        "definition": {
+            "url": "https://api-ssl.bitly.com/v4/bitlinks/{{parameters.link}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the bitlink you want to find",
+                    "displayName": "Link",
+                    "displayType": "text",
+                    "placeholder": "Enter the Link (e.g. bit.ly/3W6ay2N )"
+                },
+                "name": "link"
+            }
+        ]
+    }
+}

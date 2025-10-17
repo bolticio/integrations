@@ -1,0 +1,2008 @@
+{
+    "video": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}:generateContent",
+            "body": {
+                "contents": [
+                    {
+                        "parts": [
+                            {
+                                "text": "Caption this image."
+                            },
+                            {
+                                "inline_data": {
+                                    "data": "convertBufferBase64String({{parameters.image_url})",
+                                    "mime_type": "image/jpeg"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Referer": "https://console.boltic.io",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Gemini 1.5 Pro",
+                            "value": "gemini-1.5-pro"
+                        },
+                        {
+                            "label": "Gemini 1.5 Flash",
+                            "value": "gemini-1.5-flash"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "V1",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "V1 Beta",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field"
+                        }
+                    },
+                    "description": "Specify the API version to be used",
+                    "displayName": "API version",
+                    "displayType": "select",
+                    "placeholder": "Choose the api version"
+                },
+                "name": "api_version"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the video URL you want.",
+                    "displayName": "video URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the URL of the image"
+                },
+                "name": "video_url"
+            },
+            {
+                "meta": {
+                    "value": "Caption this",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter a prompt that tells the model how to interpret the image, e.g., 'Caption this.'",
+                    "displayName": "Prompt",
+                    "displayType": "text",
+                    "placeholder": "Enter the text prompt"
+                },
+                "name": "prompt"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Generate Image Captions (Multi-Image Support)",
+                        "value": "vision.generate_caption"
+                    }
+                ],
+                "validation": {
+                    "errorMsg": "An operation selection is required to proceed.",
+                    "required": true
+                },
+                "description": "Select the action you want to perform using the Gemini API's advanced AI capabilities.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "vision",
+                            "operator": "EQUALS",
+                            "description": "This operation is only available for resources of type 'Vision'."
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "generate_text": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}:generateContent",
+            "body": {
+                "contents": [
+                    {
+                        "parts": [
+                            {
+                                "text": "{{parameters.prompt}}"
+                            }
+                        ]
+                    }
+                ],
+                "safetySettings": [
+                    {
+                        "category": "HARM_CATEGORY_HARASSMENT",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_HATE_SPEECH",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        "threshold": "BLOCK_NONE"
+                    }
+                ],
+                "generationConfig": {
+                    "topK": "{{parameters.topK}}",
+                    "topP": "{{parameters.topP}}",
+                    "temperature": "{{parameters.temperature}}",
+                    "candidateCount": "{{parameters.candidateCount}}",
+                    "maxOutputTokens": "{{parameters.maxOutputTokens}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Referer": "https://console.boltic.io/",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "gemini",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "message",
+                            "operation": "message.generate_text",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Version 1 (Stable)",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "Version 1 Beta (Experimental)",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field."
+                        }
+                    },
+                    "description": "Specify the version of the API to use for this request.",
+                    "displayName": "API Version",
+                    "displayType": "select",
+                    "placeholder": "Select API Version"
+                },
+                "name": "api_version"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "maxRows": 6,
+                        "minRows": 3,
+                        "showCopyToClipboard": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "maxLength": 1000,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Prompt is required field."
+                        }
+                    },
+                    "description": "Provide the input prompt for text generation. For better results, include context or instructions.",
+                    "displayName": "Prompt",
+                    "displayType": "text",
+                    "placeholder": "Enter the text prompt"
+                },
+                "name": "prompt"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 1.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            },
+            {
+                "meta": {
+                    "value": "1",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the candidate count, or leave at default 1"
+                        }
+                    },
+                    "description": "Specifies the number of generated responses to return. Currently, this value can only be set to 1. If unset, this will default to 1.",
+                    "displayName": "Candidate Count",
+                    "displayType": "number"
+                },
+                "name": "candidateCount"
+            },
+            {
+                "meta": {
+                    "value": "0.95",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topP or leave at default value"
+                        }
+                    },
+                    "description": "Always selects the most probable token.",
+                    "displayName": "top P",
+                    "displayType": "number"
+                },
+                "name": "topP"
+            },
+            {
+                "meta": {
+                    "value": "10",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topK or leave at default value"
+                        }
+                    },
+                    "description": "Chooses from the top 3 most probable tokens, adding randomness.",
+                    "displayName": "top K",
+                    "displayType": "number"
+                },
+                "name": "topK"
+            }
+        ]
+    },
+    "interactive_chat": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}:generateContent",
+            "body": {
+                "contents": "{{parameters.chat}}",
+                "safetySettings": [
+                    {
+                        "category": "HARM_CATEGORY_HARASSMENT",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_HATE_SPEECH",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        "threshold": "BLOCK_NONE"
+                    }
+                ],
+                "generationConfig": {
+                    "topK": "{{parameters.topK}}",
+                    "topP": "{{parameters.topP}}",
+                    "temperature": "{{parameters.temperature}}",
+                    "candidateCount": "{{parameters.candidateCount}}",
+                    "maxOutputTokens": "{{parameters.maxOutputTokens}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Referer": "https://console.boltic.io/",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "gemini",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "models.interactive_chat",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Version 1 (Stable)",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "Version 1 Beta (Experimental)",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field."
+                        }
+                    },
+                    "description": "Specify the version of the API to use for this request.",
+                    "displayName": "API Version",
+                    "displayType": "select",
+                    "placeholder": "Select API Version"
+                },
+                "name": "api_version"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Please select the role for the message."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user or the assistant.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "showInfoIcon": true
+                                            },
+                                            "validation": {
+                                                "required": true,
+                                                "infoDetail": {
+                                                    "infoMsg": "Add message to the content"
+                                                }
+                                            },
+                                            "description": "This will be the prompt Eg. Tell me a fun fact.",
+                                            "displayName": "text",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the message part."
+                                        },
+                                        "name": "text"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "infoDetail": {
+                                        "infoMsg": "Add message to the content"
+                                    }
+                                },
+                                "displayName": "Text parts",
+                                "displayType": "array",
+                                "placeholder": "Enter the message parts",
+                                "requiredDetail": {
+                                    "errorMsg": "Text part is required field.",
+                                    "required": true
+                                }
+                            },
+                            "name": "parts"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add message to the content"
+                        }
+                    },
+                    "description": "Provide the chat history to simulate an ongoing conversation.",
+                    "displayName": "Chat History",
+                    "displayType": "array",
+                    "placeholder": "Enter the chat history"
+                },
+                "name": "chat"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 1.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            },
+            {
+                "meta": {
+                    "value": "1",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the candidate count, or leave at default 1"
+                        }
+                    },
+                    "description": "Specifies the number of generated responses to return. Currently, this value can only be set to 1. If unset, this will default to 1.",
+                    "displayName": "Candidate Count",
+                    "displayType": "number"
+                },
+                "name": "candidateCount"
+            },
+            {
+                "meta": {
+                    "value": "0.95",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topP or leave at default value"
+                        }
+                    },
+                    "description": "Always selects the most probable token.",
+                    "displayName": "top P",
+                    "displayType": "number"
+                },
+                "name": "topP"
+            },
+            {
+                "meta": {
+                    "value": "10",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topK or leave at default value"
+                        }
+                    },
+                    "description": "Chooses from the top 3 most probable tokens, adding randomness.",
+                    "displayName": "top K",
+                    "displayType": "number"
+                },
+                "name": "topK"
+            }
+        ]
+    },
+    "generate_caption": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}:generateContent",
+            "body": {
+                "prompt": "{{parameters.prompt}}",
+                "contents": [
+                    {
+                        "parts": [
+                            {
+                                "text": "Generate a descriptive caption for this image."
+                            },
+                            {
+                                "inline_data": {
+                                    "data": "convertBufferBase64String({{parameters.image_url}})",
+                                    "mime_type": "image/jpeg"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "image_urls": "{{parameters.image_urls}}"
+            },
+            "method": "post",
+            "headers": {
+                "Referer": "https://console.boltic.io",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "var updatedBody = JSON.parse(JSON.stringify(body)); var imageParts = await Promise.all(updatedBody.image_urls.map(async function(img_obj) { var image_url = img_obj.image_url; var fileExtension = image_url.split('?')[0].split('.').pop().toLowerCase(); const imageData = await axios.get(image_url, { responseType: 'arraybuffer' }); const base64Image = Buffer.from(imageData.data, 'binary').toString('base64'); const mimeType = fileExtension === 'png' ? 'image/png' : fileExtension === 'webp' ? 'image/webp' : fileExtension === 'heic' ? 'image/heic' : fileExtension === 'heif' ? 'image/heif' : 'image/jpeg'; return { inline_data: { mime_type: mimeType, data: base64Image } }; })); updatedBody.contents = [ { parts: [...imageParts, { text: updatedBody.prompt }] } ]; delete updatedBody.prompt; delete updatedBody.image_urls; return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Gemini 1.5 Pro",
+                            "value": "gemini-1.5-pro"
+                        },
+                        {
+                            "label": "Gemini 1.5 Flash",
+                            "value": "gemini-1.5-flash"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field."
+                        }
+                    },
+                    "description": "Select the AI model to process your request for generating captions.",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a Model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Version 1 (Stable)",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "Version 1 Beta (Experimental)",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field."
+                        }
+                    },
+                    "description": "Specify the version of the API to use for this request.",
+                    "displayName": "API Version",
+                    "displayType": "select",
+                    "placeholder": "Select API Version"
+                },
+                "name": "api_version"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^https?:\\/\\/(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}(?:\\/[^\\s]*)?\\.(?:jpg|jpeg|png|heic|heif|webp)(?:[\\?&][^\\s]*)?$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Please provide a valid image URL (e.g., .jpg, .jpeg, .png, .heic, .heif, or .webp)."
+                                    }
+                                },
+                                "description": "Input the publicly accessible URL of the image to generate a caption.",
+                                "displayName": "Image URL",
+                                "displayType": "text",
+                                "placeholder": "Enter the image URL"
+                            },
+                            "name": "image_url"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide one or more publicly accessible image URLs for which captions will be generated. Ensure the URLs are valid and accessible.",
+                    "displayName": "Image URL",
+                    "displayType": "array"
+                },
+                "name": "image_urls"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide instructions or a prompt for how the image should be interpreted or captioned. For example, 'Generate a descriptive caption for this image.'",
+                    "displayName": "Caption Prompt",
+                    "displayType": "text",
+                    "placeholder": "Enter a prompt for captioning"
+                },
+                "name": "prompt"
+            }
+        ]
+    },
+    "none": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/v1beta/models/{{parameters.model}}:generateContent",
+            "body": {
+                "tools": [
+                    {
+                        "function_declarations": "{{parameters.function_declarations}}"
+                    }
+                ],
+                "contents": "{{parameters.chat}}",
+                "tool_config": {
+                    "function_calling_config": {
+                        "mode": "NONE"
+                    }
+                },
+                "generationConfig": {
+                    "topK": "{{parameters.topK}}",
+                    "topP": "{{parameters.topP}}",
+                    "temperature": "{{parameters.temperature}}",
+                    "candidateCount": "{{parameters.candidateCount}}",
+                    "maxOutputTokens": "{{parameters.maxOutputTokens}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Referer": "https://console.boltic.io",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const updatedBody = JSON.parse(JSON.stringify(body)); if (updatedBody.tools && updatedBody.tools.length) { updatedBody.tools = updatedBody.tools.map(function (tool) { if (tool.function_declarations && Array.isArray(tool.function_declarations)) { const formattedFunctions = tool.function_declarations.map(function (func) { const formattedParams = { type: 'object', properties: {} }; if (func.parameters && Array.isArray(func.parameters)) { func.parameters.forEach(function (param) { formattedParams.properties[param.property_name] = { type: param.property_data_type, description: param.property_description }; }); } const requiredFields = func.parameters.filter(function (p) { return p.required === 'true'; }).map(function (p) { return p.property_name; }); if (requiredFields.length > 0) { formattedParams.required = requiredFields; } return { name: func.name, description: func.description, parameters: formattedParams }; }); tool.function_declarations = formattedFunctions; } return tool; }); } return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "gemini",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "models.generate_text",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": false,
+                                    "requiredDetail": {
+                                        "errorMsg": "Please select the role for the message."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user or the assistant.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "showInfoIcon": true
+                                            },
+                                            "validation": {
+                                                "required": false,
+                                                "infoDetail": {
+                                                    "infoMsg": "Add message to the content"
+                                                }
+                                            },
+                                            "displayName": "text",
+                                            "displayType": "text"
+                                        },
+                                        "name": "text"
+                                    }
+                                ],
+                                "displayName": "Text parts",
+                                "displayType": "array",
+                                "placeholder": "Enter the message parts"
+                            },
+                            "name": "parts"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Provide the chat history to simulate an ongoing conversation.",
+                    "displayName": "Chat History",
+                    "displayType": "array",
+                    "placeholder": "Enter the chat history"
+                },
+                "name": "chat"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Function Name",
+                                "displayType": "text",
+                                "placeholder": "Enter the name of the function"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "maxLength": 1000,
+                                    "minLength": 1
+                                },
+                                "displayName": "Description",
+                                "displayType": "text",
+                                "placeholder": "Enter the function description"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true
+                                            },
+                                            "displayName": "Property Name",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the property name"
+                                        },
+                                        "name": "property_name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "maxLength": 1000,
+                                                "minLength": 1
+                                            },
+                                            "displayName": "Property Description",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the property description"
+                                        },
+                                        "name": "property_description"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "string",
+                                                    "value": "string"
+                                                },
+                                                {
+                                                    "label": "number",
+                                                    "value": "number"
+                                                },
+                                                {
+                                                    "label": "boolean",
+                                                    "value": "boolean"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "validation": {
+                                                "required": true
+                                            },
+                                            "displayName": "Property Data Type",
+                                            "displayType": "select",
+                                            "placeholder": "Select a data type for the property"
+                                        },
+                                        "name": "property_data_type"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Yes",
+                                                    "value": "true"
+                                                },
+                                                {
+                                                    "label": "No",
+                                                    "value": "false"
+                                                }
+                                            ],
+                                            "validation": {
+                                                "required": false
+                                            },
+                                            "displayName": "Is Required",
+                                            "displayType": "select",
+                                            "placeholder": "Mark if this parameter is required"
+                                        },
+                                        "name": "required"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Define the parameters required by the function.",
+                                "displayName": "Parameters",
+                                "displayType": "array",
+                                "placeholder": "Enter the parameters for the function"
+                            },
+                            "name": "parameters"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the function declarations to simulate an ongoing conversation.",
+                    "displayName": "Function Declarations",
+                    "displayType": "array",
+                    "placeholder": "Enter the Function Declarations"
+                },
+                "name": "function_declarations"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 1.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            },
+            {
+                "meta": {
+                    "value": "1",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the candidate count, or leave at default 1"
+                        }
+                    },
+                    "description": "Specifies the number of generated responses to return. Currently, this value can only be set to 1. If unset, this will default to 1.",
+                    "displayName": "Candidate Count",
+                    "displayType": "number"
+                },
+                "name": "candidateCount"
+            },
+            {
+                "meta": {
+                    "value": "0.95",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topP or leave at default value"
+                        }
+                    },
+                    "description": "Always selects the most probable token.",
+                    "displayName": "top P",
+                    "displayType": "number"
+                },
+                "name": "topP"
+            },
+            {
+                "meta": {
+                    "value": "10",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topK or leave at default value"
+                        }
+                    },
+                    "description": "Chooses from the top 3 most probable tokens, adding randomness.",
+                    "displayName": "top K",
+                    "displayType": "number"
+                },
+                "name": "topK"
+            }
+        ]
+    },
+    "auto": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/v1beta/models/{{parameters.model}}:generateContent",
+            "body": {
+                "tools": [
+                    {
+                        "function_declarations": "{{parameters.function_declarations}}"
+                    }
+                ],
+                "contents": "{{parameters.chat}}",
+                "tool_config": {
+                    "function_calling_config": {
+                        "mode": "AUTO"
+                    }
+                },
+                "generationConfig": {
+                    "topK": "{{parameters.topK}}",
+                    "topP": "{{parameters.topP}}",
+                    "temperature": "{{parameters.temperature}}",
+                    "candidateCount": "{{parameters.candidateCount}}",
+                    "maxOutputTokens": "{{parameters.maxOutputTokens}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Referer": "https://console.boltic.io",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const updatedBody = JSON.parse(JSON.stringify(body)); if (updatedBody.tools && updatedBody.tools.length) { updatedBody.tools = updatedBody.tools.map(function (tool) { if (tool.function_declarations && Array.isArray(tool.function_declarations)) { const formattedFunctions = tool.function_declarations.map(function (func) { const formattedParams = { type: 'object', properties: {} }; if (func.parameters && Array.isArray(func.parameters)) { func.parameters.forEach(function (param) { formattedParams.properties[param.property_name] = { type: param.property_data_type, description: param.property_description }; }); } const requiredFields = func.parameters.filter(function (p) { return p.required === 'true'; }).map(function (p) { return p.property_name; }); if (requiredFields.length > 0) { formattedParams.required = requiredFields; } return { name: func.name, description: func.description, parameters: formattedParams }; }); tool.function_declarations = formattedFunctions; } return tool; }); } return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "gemini",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "models.generate_text",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Please select the role for the message."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user or the assistant.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "showInfoIcon": true
+                                            },
+                                            "validation": {
+                                                "required": true,
+                                                "infoDetail": {
+                                                    "infoMsg": "Add message to the content"
+                                                }
+                                            },
+                                            "displayName": "text",
+                                            "displayType": "text"
+                                        },
+                                        "name": "text"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "infoDetail": {
+                                        "infoMsg": "Add message to the content"
+                                    }
+                                },
+                                "displayName": "Text parts",
+                                "displayType": "array",
+                                "placeholder": "Enter the message parts"
+                            },
+                            "name": "parts"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the chat history to simulate an ongoing conversation.",
+                    "displayName": "Chat History",
+                    "displayType": "array",
+                    "placeholder": "Enter the chat history"
+                },
+                "name": "chat"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Function Name",
+                                "displayType": "text",
+                                "placeholder": "Enter the name of the function"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "maxLength": 1000,
+                                    "minLength": 1
+                                },
+                                "displayName": "Description",
+                                "displayType": "text",
+                                "placeholder": "Enter the function description"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true
+                                            },
+                                            "displayName": "Property Name",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the property name"
+                                        },
+                                        "name": "property_name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "maxLength": 1000,
+                                                "minLength": 1
+                                            },
+                                            "displayName": "Property Description",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the property description"
+                                        },
+                                        "name": "property_description"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "string",
+                                                    "value": "string"
+                                                },
+                                                {
+                                                    "label": "number",
+                                                    "value": "number"
+                                                },
+                                                {
+                                                    "label": "boolean",
+                                                    "value": "boolean"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "validation": {
+                                                "required": true
+                                            },
+                                            "displayName": "Property Data Type",
+                                            "displayType": "select",
+                                            "placeholder": "Select a data type for the property"
+                                        },
+                                        "name": "property_data_type"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Yes",
+                                                    "value": "true"
+                                                },
+                                                {
+                                                    "label": "No",
+                                                    "value": "false"
+                                                }
+                                            ],
+                                            "validation": {
+                                                "required": false
+                                            },
+                                            "displayName": "Is Required",
+                                            "displayType": "select",
+                                            "placeholder": "Mark if this parameter is required"
+                                        },
+                                        "name": "required"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Define the parameters required by the function.",
+                                "displayName": "Parameters",
+                                "displayType": "array",
+                                "placeholder": "Enter the parameters for the function"
+                            },
+                            "name": "parameters"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the function declarations to simulate an ongoing conversation.",
+                    "displayName": "Function Declarations",
+                    "displayType": "array",
+                    "placeholder": "Enter the Function Declarations"
+                },
+                "name": "function_declarations"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 1.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            },
+            {
+                "meta": {
+                    "value": "1",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the candidate count, or leave at default 1"
+                        }
+                    },
+                    "description": "Specifies the number of generated responses to return. Currently, this value can only be set to 1. If unset, this will default to 1.",
+                    "displayName": "Candidate Count",
+                    "displayType": "number"
+                },
+                "name": "candidateCount"
+            },
+            {
+                "meta": {
+                    "value": "0.95",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topP or leave at default value"
+                        }
+                    },
+                    "description": "Always selects the most probable token.",
+                    "displayName": "top P",
+                    "displayType": "number"
+                },
+                "name": "topP"
+            },
+            {
+                "meta": {
+                    "value": "10",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topK or leave at default value"
+                        }
+                    },
+                    "description": "Chooses from the top 3 most probable tokens, adding randomness.",
+                    "displayName": "top K",
+                    "displayType": "number"
+                },
+                "name": "topK"
+            }
+        ]
+    },
+    "any": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/v1beta/models/{{parameters.model}}:generateContent",
+            "body": {
+                "tools": [
+                    {
+                        "function_declarations": "{{parameters.function_declarations}}"
+                    }
+                ],
+                "contents": "{{parameters.chat}}",
+                "tool_config": {
+                    "function_calling_config": {
+                        "mode": "ANY"
+                    }
+                },
+                "generationConfig": {
+                    "topK": "{{parameters.topK}}",
+                    "topP": "{{parameters.topP}}",
+                    "temperature": "{{parameters.temperature}}",
+                    "candidateCount": "{{parameters.candidateCount}}",
+                    "maxOutputTokens": "{{parameters.maxOutputTokens}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Referer": "https://console.boltic.io",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const updatedBody = JSON.parse(JSON.stringify(body)); if (updatedBody.tools && updatedBody.tools.length) { updatedBody.tools = updatedBody.tools.map(function (tool) { if (tool.function_declarations && Array.isArray(tool.function_declarations)) { const formattedFunctions = tool.function_declarations.map(function (func) { const formattedParams = { type: 'object', properties: {} }; if (func.parameters && Array.isArray(func.parameters)) { func.parameters.forEach(function (param) { formattedParams.properties[param.property_name] = { type: param.property_data_type, description: param.property_description }; }); } const requiredFields = func.parameters.filter(function (p) { return p.required === 'true'; }).map(function (p) { return p.property_name; }); if (requiredFields.length > 0) { formattedParams.required = requiredFields; } return { name: func.name, description: func.description, parameters: formattedParams }; }); tool.function_declarations = formattedFunctions; } return tool; }); } return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "gemini",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "models.generate_text",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": false,
+                                    "requiredDetail": {
+                                        "errorMsg": "Please select the role for the message."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user or the assistant.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "showInfoIcon": true
+                                            },
+                                            "validation": {
+                                                "required": false,
+                                                "infoDetail": {
+                                                    "infoMsg": "Add message to the content"
+                                                }
+                                            },
+                                            "displayName": "text",
+                                            "displayType": "text"
+                                        },
+                                        "name": "text"
+                                    }
+                                ],
+                                "displayName": "Text parts",
+                                "displayType": "array",
+                                "placeholder": "Enter the message parts"
+                            },
+                            "name": "parts"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Provide the chat history to simulate an ongoing conversation.",
+                    "displayName": "Chat History",
+                    "displayType": "array",
+                    "placeholder": "Enter the chat history"
+                },
+                "name": "chat"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Function Name",
+                                "displayType": "text",
+                                "placeholder": "Enter the name of the function"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "maxLength": 1000,
+                                    "minLength": 1
+                                },
+                                "displayName": "Description",
+                                "displayType": "text",
+                                "placeholder": "Enter the function description"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true
+                                            },
+                                            "displayName": "Property Name",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the property name"
+                                        },
+                                        "name": "property_name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "maxLength": 1000,
+                                                "minLength": 1
+                                            },
+                                            "displayName": "Property Description",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the property description"
+                                        },
+                                        "name": "property_description"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "string",
+                                                    "value": "string"
+                                                },
+                                                {
+                                                    "label": "number",
+                                                    "value": "number"
+                                                },
+                                                {
+                                                    "label": "boolean",
+                                                    "value": "boolean"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "validation": {
+                                                "required": true
+                                            },
+                                            "displayName": "Property Data Type",
+                                            "displayType": "select",
+                                            "placeholder": "Select a data type for the property"
+                                        },
+                                        "name": "property_data_type"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Yes",
+                                                    "value": "true"
+                                                },
+                                                {
+                                                    "label": "No",
+                                                    "value": "false"
+                                                }
+                                            ],
+                                            "validation": {
+                                                "required": false
+                                            },
+                                            "displayName": "Is Required",
+                                            "displayType": "select",
+                                            "placeholder": "Mark if this parameter is required"
+                                        },
+                                        "name": "required"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Define the parameters required by the function.",
+                                "displayName": "Parameters",
+                                "displayType": "array",
+                                "placeholder": "Enter the parameters for the function"
+                            },
+                            "name": "parameters"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the function declarations to simulate an ongoing conversation.",
+                    "displayName": "Function Declarations",
+                    "displayType": "array",
+                    "placeholder": "Enter the Function Declarations"
+                },
+                "name": "function_declarations"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 1.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            },
+            {
+                "meta": {
+                    "value": "1",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the candidate count, or leave at default 1"
+                        }
+                    },
+                    "description": "Specifies the number of generated responses to return. Currently, this value can only be set to 1. If unset, this will default to 1.",
+                    "displayName": "Candidate Count",
+                    "displayType": "number"
+                },
+                "name": "candidateCount"
+            },
+            {
+                "meta": {
+                    "value": "0.95",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topP or leave at default value"
+                        }
+                    },
+                    "description": "Always selects the most probable token.",
+                    "displayName": "top P",
+                    "displayType": "number"
+                },
+                "name": "topP"
+            },
+            {
+                "meta": {
+                    "value": "10",
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add value to the topK or leave at default value"
+                        }
+                    },
+                    "description": "Chooses from the top 3 most probable tokens, adding randomness.",
+                    "displayName": "top K",
+                    "displayType": "number"
+                },
+                "name": "topK"
+            }
+        ]
+    },
+    "get_models": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Referer": "https://console.boltic.io/"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Version 1 (Stable)",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "Version 1 Beta (Experimental)",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field."
+                        }
+                    },
+                    "description": "Specify the version of the API to use for this request.",
+                    "displayName": "API Version",
+                    "displayType": "select",
+                    "placeholder": "Select API Version"
+                },
+                "name": "api_version"
+            }
+        ]
+    },
+    "retrieve_a_model": {
+        "definition": {
+            "qs": {
+                "key": "{{secrets.api_token}}"
+            },
+            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}",
+            "method": "get",
+            "headers": {
+                "Referer": "https://console.boltic.io/",
+                "content-type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "gemini",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "models",
+                            "operation": "models.retrieve_a_model",
+                            "loadOptionsMethod": "getModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model to fetch the details",
+                    "displayName": "Model",
+                    "displayType": "select",
+                    "placeholder": "Select a model"
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Version 1 (Stable)",
+                            "value": "v1"
+                        },
+                        {
+                            "label": "Version 1 Beta (Experimental)",
+                            "value": "v1beta"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API version is required field."
+                        }
+                    },
+                    "description": "Specify the version of the API to use for this request.",
+                    "displayName": "API Version",
+                    "displayType": "select",
+                    "placeholder": "Select API Version"
+                },
+                "name": "api_version"
+            }
+        ]
+    }
+}

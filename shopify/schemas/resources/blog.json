@@ -1,0 +1,459 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Get Blog Listing",
+                        "value": "blog.get_list",
+                        "description": "Get Blogs Listing"
+                    },
+                    {
+                        "label": "Create Blog",
+                        "value": "blog.create",
+                        "description": "Create a new blog"
+                    },
+                    {
+                        "label": "Create Blog Entry",
+                        "value": "blog.create_entry",
+                        "description": "Create a new blog entry"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "blog",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "create_entry": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/blogs/{{parameters.blog_id}}/articles.json",
+            "body": {
+                "article": {
+                    "title": "{{parameters.title}}",
+                    "author": "{{parameters.author}}",
+                    "body_html": "{{parameters.body_html}}",
+                    "published": "{{parameters.published}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the blog where the entry will be created.",
+                    "displayName": "Blog ID",
+                    "displayType": "text",
+                    "placeholder": "Enter blog ID"
+                },
+                "name": "blog_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "blog",
+                            "operation": "blog.create_entry",
+                            "loadOptionsMethod": "get_list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the blog where the entry will be created.",
+                    "displayName": "Blog ID",
+                    "displayType": "select",
+                    "placeholder": "Enter blog ID"
+                },
+                "name": "blog_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The title of the new blog entry.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter article title"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTML content of the blog entry.",
+                    "displayName": "Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter article content"
+                },
+                "name": "body_html"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The author of the blog entry.",
+                    "displayName": "Author",
+                    "displayType": "text",
+                    "placeholder": "Enter author name"
+                },
+                "name": "author"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": true
+                        },
+                        {
+                            "label": "No",
+                            "value": false
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Set to true to publish the article immediately.",
+                    "displayName": "Published",
+                    "displayType": "select"
+                },
+                "name": "published"
+            }
+        ]
+    },
+    "get_list": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections.json?ids={{parameters.ids}}",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The IDs of the custom collections to retrieve.",
+                    "displayName": "Collection IDs",
+                    "displayType": "text",
+                    "placeholder": "Enter comma-separated collection IDs"
+                },
+                "name": "ids"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections.json",
+            "body": {
+                "custom_collection": {
+                    "title": "{{parameters.title}}",
+                    "body_html": "{{parameters.body_html}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The title of the custom collection.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the title of the custom collection"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "height": "200px",
+                        "language": "html",
+                        "fullscreen": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The description of the custom collection.",
+                    "displayName": "Description",
+                    "displayType": "code",
+                    "placeholder": "Enter a description for the custom collection"
+                },
+                "name": "body_html"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/collections/{{parameters.collection_id}}.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the collection to retrieve.",
+                    "displayName": "Collection ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the collection ID"
+                },
+                "name": "collection_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections/{{parameters.custom_collection_id}}.json",
+            "body": {
+                "custom_collection": {
+                    "title": "{{parameters.title}}",
+                    "body_html": "{{parameters.body_html}}"
+                }
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the custom collection to update.",
+                    "displayName": "Custom Collection ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the custom collection ID"
+                },
+                "name": "custom_collection_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The new title of the custom collection.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the new title of the custom collection"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "height": "200px",
+                        "language": "html",
+                        "fullscreen": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The new description of the custom collection.",
+                    "displayName": "Description",
+                    "displayType": "code",
+                    "placeholder": "Enter a new description for the custom collection"
+                },
+                "name": "body_html"
+            }
+        ]
+    },
+    "get_products": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/collections/{{parameters.collection_id}}/products.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the collection to retrieve products for.",
+                    "displayName": "Collection ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the collection ID"
+                },
+                "name": "collection_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections/{{parameters.custom_collection_id}}.json",
+            "method": "delete",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the custom collection to delete.",
+                    "displayName": "Custom Collection ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the custom collection ID"
+                },
+                "name": "custom_collection_id"
+            }
+        ]
+    },
+    "find": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}/transactions.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "transaction",
+                            "operation": "transaction.find",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Select an order"
+                },
+                "name": "order_id"
+            }
+        ]
+    }
+}

@@ -1,0 +1,258 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Build Job",
+                        "value": "job.build"
+                    },
+                    {
+                        "label": "Delete Job",
+                        "value": "job.delete"
+                    },
+                    {
+                        "label": "Get Last Successful Build",
+                        "value": "job.getLatSuccessfulBuild"
+                    },
+                    {
+                        "label": "Get All Job info",
+                        "value": "job.getAllJobInfo"
+                    },
+                    {
+                        "label": "Disable Job",
+                        "value": "job.disable"
+                    },
+                    {
+                        "label": "Enable Job",
+                        "value": "job.enable"
+                    },
+                    {
+                        "label": "Stop Last Build",
+                        "value": "job.stopLastBuild"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "job",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "delete": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.api_url}}/job/{{parameters.jobName}}/doDelete",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.username}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}"
+                },
+                "output": "{{response.status}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the job name you want to delete.",
+                    "displayName": "Job Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the job name"
+                },
+                "name": "jobName"
+            }
+        ]
+    },
+    "disable": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.api_url}}/job/{{parameters.jobName}}/disable",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.username}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}"
+                },
+                "output": "{{response.status}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the job name you want to disable.",
+                    "displayName": "Job Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the job name"
+                },
+                "name": "jobName"
+            }
+        ]
+    },
+    "getalljobinfo": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.api_url}}/api/json?tree=jobs[name,url,builds[number,result,duration,url]{0,20}]",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.username}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "enable": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.api_url}}/job/{{parameters.jobName}}/enable",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.username}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}"
+                },
+                "output": "{{response.status}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the job name you want to enable.",
+                    "displayName": "Job Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the job name"
+                },
+                "name": "jobName"
+            }
+        ]
+    },
+    "stoplastbuild": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.api_url}}/job/{{parameters.jobName}}/lastBuild/stop",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.username}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}"
+                },
+                "output": "{{response.status}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the job name you want to STOP.",
+                    "displayName": "Job Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the job name"
+                },
+                "name": "jobName"
+            }
+        ]
+    },
+    "getlatsuccessfulbuild": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.api_url}}/job/{{parameters.jobName}}/lastSuccessfulBuild/api/json",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.username}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the job name for which you want to fetch build details.",
+                    "displayName": "Job Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the job name"
+                },
+                "name": "jobName"
+            }
+        ]
+    },
+    "build": {
+        "definition": {
+            "url": "https://{{secrets.api_url}}/job/{{parameters.jobName}}/build",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.username}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}"
+                },
+                "output": "{{response.status}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the name of the jenkins job you want to build.",
+                    "displayName": "Job Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the job name"
+                },
+                "name": "jobName"
+            }
+        ]
+    }
+}

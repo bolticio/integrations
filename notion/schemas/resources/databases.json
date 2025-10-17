@@ -1,0 +1,711 @@
+{
+    "getPages": {
+        "definition": {
+            "url": "https://api.notion.com/v1/search",
+            "body": {
+                "query": "",
+                "filter": {
+                    "value": "page",
+                    "property": "object"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "return output.map((page) => { let name = 'Untitled'; const url = page.url; if (url) { const matches = url.match(/https:\\/\\/www\\.notion\\.so\\/(.+)-[a-zA-Z0-9]+$/); if (matches && matches[1]) { name = matches[1].replace(/-/g, ' ').trim(); } } return { id: page.id, name }; });"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Query a Database",
+                        "value": "databases.query"
+                    },
+                    {
+                        "label": "Create a New Database",
+                        "value": "databases.create"
+                    },
+                    {
+                        "label": "Update Database Information",
+                        "value": "databases.update"
+                    },
+                    {
+                        "label": "Retrieve a Database",
+                        "value": "databases.retrieve"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform on Notion databases.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "databases",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getDatabases": {
+        "definition": {
+            "url": "https://api.notion.com/v1/search",
+            "body": {
+                "query": "",
+                "filter": {
+                    "value": "database",
+                    "property": "object"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const updatedRes = (output?.results || []).map((db) => ({ name: db?.title?.[0]?.plain_text || 'Untitled', id: db?.id })); return updatedRes;"
+            }
+        },
+        "parameters": []
+    },
+    "perform": {
+        "definition": {
+            "url": "https://api.notion.com/v1/search",
+            "body": {
+                "sort": {
+                    "direction": "{{parameters.sort}}",
+                    "timestamp": "last_edited_time"
+                },
+                "query": "{{parameters.query}}",
+                "filter": {
+                    "value": "{{parameters.filter}}",
+                    "property": "object"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Search text in page or database titles (e.g., 'Marketing Strategy'). If empty, returns all shared pages and databases or those with titles matching the text.",
+                    "displayName": "Search Query",
+                    "displayType": "text",
+                    "placeholder": "Enter the search query",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "search.perform",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "query"
+            },
+            {
+                "meta": {
+                    "value": "ascending",
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "ascending"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "descending"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Sort the search results in ascending or descending order based on the last edited time.",
+                    "displayName": "Sort Direction",
+                    "displayType": "select",
+                    "placeholder": "Select sort direction",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "search.perform",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort"
+            },
+            {
+                "meta": {
+                    "value": "page",
+                    "options": [
+                        {
+                            "label": "Page",
+                            "value": "page"
+                        },
+                        {
+                            "label": "Database",
+                            "value": "database"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter the search results to include only pages or databases.",
+                    "displayName": "Object Type Filter",
+                    "displayType": "select",
+                    "placeholder": "Filter by object type",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "search.perform",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Token token={{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.notion.com/v1/comments",
+            "body": {
+                "parent": {
+                    "page_id": "{{parameters.page_id}}"
+                },
+                "rich_text": [
+                    {
+                        "text": {
+                            "content": "{{parameters.content}}"
+                        }
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "comments",
+                            "operation": "comments.create",
+                            "loadOptionsMethod": "getPages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [
+                        {
+                            "label": "Side Gig",
+                            "value": "14ad1523-ec7f-8126-93d3-e6a764901aab"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Selecting a page is required for this operation."
+                        }
+                    },
+                    "description": "Select a Notion page where the operation will be performed.",
+                    "displayName": "Page",
+                    "displayType": "select",
+                    "placeholder": "Select a Notion Page"
+                },
+                "name": "page_id"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "maxLength": 1000,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Comment content cannot be empty."
+                        }
+                    },
+                    "description": "The text content of the comment to be added to the selected Notion page.",
+                    "displayName": "Comment Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the comment content",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "comments.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "content"
+            }
+        ]
+    },
+    "retrieve": {
+        "definition": {
+            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Block ID is required to retrieve block children."
+                        }
+                    },
+                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
+                    "displayName": "Block/Page ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Block ID or page ID."
+                },
+                "name": "block_id"
+            }
+        ]
+    },
+    "listall": {
+        "definition": {
+            "url": "https://api.notion.com/v1/users",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "listauser": {
+        "definition": {
+            "url": "https://api.notion.com/v1/users/{{parameters.user_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "users",
+                            "operation": "users.listAUser",
+                            "loadOptionsMethod": "getUsers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "You must select a user to get result for it"
+                        }
+                    },
+                    "displayName": "UserID",
+                    "displayType": "select",
+                    "placeholder": "Select a user"
+                },
+                "name": "user_id"
+            }
+        ]
+    },
+    "retrieve_children": {
+        "definition": {
+            "qs": {
+                "page_size": "{{parameters.page_size}}"
+            },
+            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}/children",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Block ID is required to retrieve block children."
+                        }
+                    },
+                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
+                    "displayName": "Block/Page ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Block ID or page ID."
+                },
+                "name": "block_id"
+            },
+            {
+                "meta": {
+                    "value": 100,
+                    "validation": {
+                        "range": {
+                            "max": 100,
+                            "min": 1
+                        },
+                        "required": false
+                    },
+                    "description": "The maximum number of children to retrieve. Defaults to 100 if not provided.",
+                    "displayName": "Page Size",
+                    "displayType": "number",
+                    "placeholder": "Enter the number of children to retrieve"
+                },
+                "name": "page_size"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Block ID is required to delete a block."
+                        }
+                    },
+                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
+                    "displayName": "Block/Page ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Block ID or page ID."
+                },
+                "name": "block_id"
+            }
+        ]
+    },
+    "query": {
+        "definition": {
+            "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}/query/",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "databases",
+                            "operation": "databases.retrieve",
+                            "loadOptionsMethod": "getDatabases"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "You must select a database to retrieve"
+                        }
+                    },
+                    "description": "Notion database to retrieve.",
+                    "displayName": "Database",
+                    "displayType": "select",
+                    "placeholder": "Select a database"
+                },
+                "name": "database_id"
+            }
+        ]
+    }
+}

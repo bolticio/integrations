@@ -1,0 +1,407 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Contact",
+                        "value": "contact.create",
+                        "description": "Create a new contact in Freshdesk."
+                    },
+                    {
+                        "label": "Delete Contact",
+                        "value": "contact.delete",
+                        "description": "Delete an existing contact from Freshdesk."
+                    },
+                    {
+                        "label": "Get Contact",
+                        "value": "contact.get",
+                        "description": "Retrieve details of a specific contact by ID."
+                    },
+                    {
+                        "label": "Search Contact",
+                        "value": "contact.search",
+                        "description": "Search for contacts by email address."
+                    },
+                    {
+                        "label": "List Contacts",
+                        "value": "contact.list",
+                        "description": "List all contacts in Freshdesk."
+                    },
+                    {
+                        "label": "Update Contact",
+                        "value": "contact.update",
+                        "description": "Update details of an existing contact."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "contact",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getMoreParameters": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contact_fields",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const staticField={name:'unique_external_id',meta:{displayName:'Unique External ID',displayType:'text',placeholder:'Enter Unique External ID',validation:{required:true}}};const skip=new Set(['requester','company']);const typeMap={text:'text',textarea:'textarea',dropdown:'select',auto_complete:'multitext',multi_select_dropdown:'multiselect',radio:'select',number:'number'};const seen=new Set([staticField.name]);const result=[staticField,...output.map(ele=>{if(seen.has(ele.name)||skip.has(ele.name))return null;seen.add(ele.name);const displayType=ele.choices?'select':(typeMap[ele.type]||'text');const obj={name:ele.name,meta:{displayName:ele.label,displayType,placeholder:`${ele.choices?'Select':'Enter'} ${ele.label}`,validation:{required:false}}};if(ele.name==='priority'){obj.meta.displayType='select';obj.meta.options=[{label:'Low',value:1},{label:'Medium',value:2},{label:'High',value:3},{label:'Urgent',value:4}];}else if(ele.choices){obj.meta.htmlProps={allowDynamic:true};if(Array.isArray(ele.choices))obj.meta.options=ele.choices.map(c=>({label:c,value:c}));else obj.meta.options=Object.entries(ele.choices).map(([k,v])=>({label:v,value:k}));}return obj;}).filter(Boolean)];return result;"
+            }
+        }
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers; we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "create": {
+        "config": {
+            "url": "integrations/parameters",
+            "body": {
+                "name": "freshdesk",
+                "secret": "{{parameters.secret}}",
+                "resource": "ticket",
+                "loadParametersMethod": "getMoreParameters"
+            },
+            "method": "post",
+            "urlType": "parameters"
+        },
+        "definition": {
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/tickets",
+            "body": "{{parameters}}",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "get": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts/{{parameters.id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the contact to retrieve.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Contact ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "page": "{{pagination.page}} + 1",
+                    "per_page": "{{pagination.per_page}}"
+                },
+                "type": "page",
+                "default": {
+                    "page": 1,
+                    "per_page": 30
+                },
+                "condition": "{{response.data.meta.total}} > 0"
+            }
+        },
+        "parameters": []
+    },
+    "delete": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts/{{parameters.id}}",
+            "body": "{{parameters}}",
+            "method": "delete",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the contact to delete.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Contact ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "update": {
+        "config": {
+            "url": "integrations/parameters",
+            "body": {
+                "name": "freshdesk",
+                "secret": "{{parameters.secret}}",
+                "resource": "contact",
+                "operation": "contact.update",
+                "loadParametersMethod": "getMoreParameters"
+            },
+            "method": "post",
+            "urlType": "parameters"
+        },
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts/{{parameters.id}}",
+            "body": "{{parameters}}",
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the contact to update.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Contact ID"
+                },
+                "name": "id"
+            }
+        ]
+    }
+}

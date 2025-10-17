@@ -1,0 +1,1530 @@
+{
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/checkout/orders/{{parameters.order_id}}",
+            "method": "GET",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique PayPal order identifier to retrieve details for",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter PayPal order ID"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Order",
+                        "value": "orders.create",
+                        "description": "Create a new PayPal order for payment processing."
+                    },
+                    {
+                        "label": "Confirm Payment Source",
+                        "value": "orders.confirm_payment",
+                        "description": "Confirm a PayPal payment source (e.g., 3D Secure) for an order."
+                    },
+                    {
+                        "label": "Refund Payment",
+                        "value": "orders.refund_payment",
+                        "description": "Refund a PayPal captured payment partially or fully."
+                    },
+                    {
+                        "label": "Get Order Details",
+                        "value": "orders.get_order",
+                        "description": "Retrieve detailed information about a specific PayPal order or payment."
+                    },
+                    {
+                        "label": "List Payments",
+                        "value": "orders.list_payments",
+                        "description": "List PayPal payments with optional filtering."
+                    },
+                    {
+                        "label": "Update Order",
+                        "value": "orders.update",
+                        "description": "Update PayPal order details like amount, shipping, or items."
+                    },
+                    {
+                        "label": "Authorize Payment for Order",
+                        "value": "orders.authorize",
+                        "description": "Authorize a PayPal payment for an order without capturing funds."
+                    },
+                    {
+                        "label": "Capture Payment for Order",
+                        "value": "orders.capture",
+                        "description": "Capture funds for a PayPal order authorization or approval."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "orders",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "generate_next_invoice_number": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/invoicing/generate-next-invoice-number",
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "list_invoices": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/invoicing/invoices",
+            "method": "GET",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "get_invoice": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/invoicing/invoices/{{parameters.invoice_id}}",
+            "method": "GET",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The invoice ID to retrieve details for",
+                    "displayName": "Invoice ID",
+                    "displayType": "text",
+                    "placeholder": "Enter invoice ID"
+                },
+                "name": "invoice_id"
+            }
+        ]
+    },
+    "create_invoice": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/invoicing/invoices",
+            "body": {
+                "items": [
+                    {
+                        "tax": {
+                            "name": "{{parameters.tax_name}}",
+                            "percent": "{{parameters.tax_percent}}"
+                        },
+                        "name": "{{parameters.item_name}}",
+                        "discount": {
+                            "percent": "{{parameters.discount_percent}}"
+                        },
+                        "quantity": "{{parameters.item_quantity}}",
+                        "description": "{{parameters.item_description}}",
+                        "unit_amount": {
+                            "value": "{{parameters.item_unit_amount}}",
+                            "currency_code": "{{parameters.currency_code}}"
+                        },
+                        "unit_of_measure": "{{parameters.unit_of_measure}}"
+                    }
+                ],
+                "amount": {
+                    "breakdown": {
+                        "custom": {
+                            "label": "{{parameters.custom_label}}",
+                            "amount": {
+                                "value": "{{parameters.custom_amount}}",
+                                "currency_code": "{{parameters.currency_code}}"
+                            }
+                        }
+                    }
+                },
+                "detail": {
+                    "invoice_date": "{{parameters.invoice_date}}",
+                    "payment_term": {
+                        "due_date": "{{parameters.due_date}}",
+                        "term_type": "{{parameters.term_type}}"
+                    },
+                    "currency_code": "{{parameters.currency_code}}"
+                },
+                "invoicer": {
+                    "name": {
+                        "surname": "{{parameters.invoicer_surname}}",
+                        "given_name": "{{parameters.invoicer_given_name}}"
+                    },
+                    "phones": [
+                        {
+                            "phone_type": "{{parameters.invoicer_phone_type}}",
+                            "country_code": "{{parameters.invoicer_phone_country_code}}",
+                            "national_number": "{{parameters.invoicer_phone_number}}"
+                        }
+                    ],
+                    "tax_id": "{{parameters.invoicer_tax_id}}",
+                    "address": {
+                        "postal_code": "{{parameters.invoicer_postal_code}}",
+                        "admin_area_1": "{{parameters.invoicer_state}}",
+                        "admin_area_2": "{{parameters.invoicer_city}}",
+                        "country_code": "{{parameters.invoicer_country_code}}",
+                        "address_line_1": "{{parameters.invoicer_address_line_1}}",
+                        "address_line_2": "{{parameters.invoicer_address_line_2}}"
+                    },
+                    "website": "{{parameters.invoicer_website}}",
+                    "logo_url": "{{parameters.invoicer_logo_url}}",
+                    "additional_notes": "{{parameters.invoicer_additional_notes}}"
+                },
+                "primary_recipients": [
+                    {
+                        "billing_info": {
+                            "name": {
+                                "surname": "{{parameters.recipient_surname}}",
+                                "given_name": "{{parameters.recipient_given_name}}"
+                            },
+                            "phones": [
+                                {
+                                    "phone_type": "{{parameters.recipient_phone_type}}",
+                                    "country_code": "{{parameters.recipient_phone_country_code}}",
+                                    "national_number": "{{parameters.recipient_phone_number}}"
+                                }
+                            ],
+                            "address": {
+                                "postal_code": "{{parameters.recipient_postal_code}}",
+                                "admin_area_1": "{{parameters.recipient_state}}",
+                                "admin_area_2": "{{parameters.recipient_city}}",
+                                "country_code": "{{parameters.recipient_country_code}}",
+                                "address_line_1": "{{parameters.recipient_address_line_1}}"
+                            },
+                            "email_address": "{{parameters.recipient_email}}",
+                            "additional_info_value": "{{parameters.recipient_additional_info}}"
+                        },
+                        "shipping_info": {
+                            "name": {
+                                "surname": "{{parameters.recipient_surname}}",
+                                "given_name": "{{parameters.recipient_given_name}}"
+                            },
+                            "address": {
+                                "postal_code": "{{parameters.recipient_postal_code}}",
+                                "admin_area_1": "{{parameters.recipient_state}}",
+                                "admin_area_2": "{{parameters.recipient_city}}",
+                                "country_code": "{{parameters.recipient_country_code}}",
+                                "address_line_1": "{{parameters.recipient_address_line_1}}"
+                            }
+                        }
+                    }
+                ]
+            },
+            "method": "POST",
+            "headers": {
+                "Accept": "application/json",
+                "Prefer": "return=representation",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice date in YYYY-MM-DD format",
+                    "displayName": "Invoice Date",
+                    "displayType": "text",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "invoice_date"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Net 10 days",
+                            "value": "NET_10"
+                        },
+                        {
+                            "label": "Net 15 days",
+                            "value": "NET_15"
+                        },
+                        {
+                            "label": "Net 30 days",
+                            "value": "NET_30"
+                        },
+                        {
+                            "label": "Due on receipt",
+                            "value": "DUE_ON_RECEIPT"
+                        },
+                        {
+                            "label": "Due on date",
+                            "value": "DUE_ON_DATE_SPECIFIED"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Payment term type",
+                    "displayName": "Payment Term Type",
+                    "displayType": "select",
+                    "placeholder": "Select payment term"
+                },
+                "name": "term_type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Payment due date in YYYY-MM-DD format",
+                    "displayName": "Due Date",
+                    "displayType": "text",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "due_date"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Australian Dollar (AUD)",
+                            "value": "AUD"
+                        },
+                        {
+                            "label": "Brazilian Real (BRL)",
+                            "value": "BRL"
+                        },
+                        {
+                            "label": "Canadian Dollar (CAD)",
+                            "value": "CAD"
+                        },
+                        {
+                            "label": "Chinese Renmenbi (CNY)",
+                            "value": "CNY"
+                        },
+                        {
+                            "label": "Czech Koruna (CZK)",
+                            "value": "CZK"
+                        },
+                        {
+                            "label": "Danish Krone (DKK)",
+                            "value": "DKK"
+                        },
+                        {
+                            "label": "Euro (EUR)",
+                            "value": "EUR"
+                        },
+                        {
+                            "label": "Pound Sterling (GBP)",
+                            "value": "GBP"
+                        },
+                        {
+                            "label": "Hong Kong Dollar (HKD)",
+                            "value": "HKD"
+                        },
+                        {
+                            "label": "Hungarian Forint (HUF)",
+                            "value": "HUF"
+                        },
+                        {
+                            "label": "Israeli New Shekel (ILS)",
+                            "value": "ILS"
+                        },
+                        {
+                            "label": "Japanese Yen (JPY)",
+                            "value": "JPY"
+                        },
+                        {
+                            "label": "Malaysian Ringgit (MYR)",
+                            "value": "MYR"
+                        },
+                        {
+                            "label": "Mexican Peso (MXN)",
+                            "value": "MXN"
+                        },
+                        {
+                            "label": "New Zealand Dollar (NZD)",
+                            "value": "NZD"
+                        },
+                        {
+                            "label": "Norwegian Krone (NOK)",
+                            "value": "NOK"
+                        },
+                        {
+                            "label": "Philippine Peso (PHP)",
+                            "value": "PHP"
+                        },
+                        {
+                            "label": "Polish Złoty (PLN)",
+                            "value": "PLN"
+                        },
+                        {
+                            "label": "Russian Ruble (RUB)",
+                            "value": "RUB"
+                        },
+                        {
+                            "label": "Singapore Dollar (SGD)",
+                            "value": "SGD"
+                        },
+                        {
+                            "label": "Swedish Krona (SEK)",
+                            "value": "SEK"
+                        },
+                        {
+                            "label": "Swiss Franc (CHF)",
+                            "value": "CHF"
+                        },
+                        {
+                            "label": "New Taiwan Dollar (TWD)",
+                            "value": "TWD"
+                        },
+                        {
+                            "label": "Thai Baht (THB)",
+                            "value": "THB"
+                        },
+                        {
+                            "label": "US Dollar (USD)",
+                            "value": "USD"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Currency code for the invoice",
+                    "displayName": "Currency",
+                    "displayType": "select",
+                    "placeholder": "Select currency"
+                },
+                "name": "currency_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's first name",
+                    "displayName": "Invoicer First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "invoicer_given_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's last name",
+                    "displayName": "Invoicer Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "invoicer_surname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's street address",
+                    "displayName": "Invoicer Address",
+                    "displayType": "text",
+                    "placeholder": "Enter street address"
+                },
+                "name": "invoicer_address_line_1"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's city",
+                    "displayName": "Invoicer City",
+                    "displayType": "text",
+                    "placeholder": "Enter city"
+                },
+                "name": "invoicer_city"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's state",
+                    "displayName": "Invoicer State",
+                    "displayType": "text",
+                    "placeholder": "Enter state"
+                },
+                "name": "invoicer_state"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's postal code",
+                    "displayName": "Invoicer Postal Code",
+                    "displayType": "text",
+                    "placeholder": "Enter postal code"
+                },
+                "name": "invoicer_postal_code"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "United States",
+                            "value": "US"
+                        },
+                        {
+                            "label": "Canada",
+                            "value": "CA"
+                        },
+                        {
+                            "label": "United Kingdom",
+                            "value": "GB"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's country",
+                    "displayName": "Invoicer Country",
+                    "displayType": "select",
+                    "placeholder": "Select country"
+                },
+                "name": "invoicer_country_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's first name",
+                    "displayName": "Recipient First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient first name"
+                },
+                "name": "recipient_given_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's last name",
+                    "displayName": "Recipient Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient last name"
+                },
+                "name": "recipient_surname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's email address",
+                    "displayName": "Recipient Email",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient email"
+                },
+                "name": "recipient_email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's address",
+                    "displayName": "Recipient Address",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient address"
+                },
+                "name": "recipient_address_line_1"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's city",
+                    "displayName": "Recipient City",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient city"
+                },
+                "name": "recipient_city"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's state",
+                    "displayName": "Recipient State",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient state"
+                },
+                "name": "recipient_state"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's postal code",
+                    "displayName": "Recipient Postal Code",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient postal code"
+                },
+                "name": "recipient_postal_code"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "United States",
+                            "value": "US"
+                        },
+                        {
+                            "label": "Canada",
+                            "value": "CA"
+                        },
+                        {
+                            "label": "United Kingdom",
+                            "value": "GB"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoice recipient's country",
+                    "displayName": "Recipient Country",
+                    "displayType": "select",
+                    "placeholder": "Select recipient country"
+                },
+                "name": "recipient_country_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the item/service being invoiced",
+                    "displayName": "Item Name",
+                    "displayType": "text",
+                    "placeholder": "Enter item name"
+                },
+                "name": "item_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Description of the item/service",
+                    "displayName": "Item Description",
+                    "displayType": "text",
+                    "placeholder": "Enter item description"
+                },
+                "name": "item_description"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 999999,
+                        "min": 1,
+                        "required": true
+                    },
+                    "description": "Quantity of items",
+                    "displayName": "Quantity",
+                    "displayType": "number",
+                    "placeholder": "Enter quantity"
+                },
+                "name": "item_quantity"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 999999.99,
+                        "min": 0.01,
+                        "required": true
+                    },
+                    "description": "Price per unit",
+                    "displayName": "Unit Amount",
+                    "displayType": "number",
+                    "placeholder": "Enter unit price"
+                },
+                "name": "item_unit_amount"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Note to the invoice recipient",
+                    "displayName": "Note",
+                    "displayType": "text",
+                    "placeholder": "Enter note to recipient"
+                },
+                "name": "note"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Private bookkeeping note for merchant",
+                    "displayName": "Memo",
+                    "displayType": "text",
+                    "placeholder": "Enter private memo"
+                },
+                "name": "memo"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Reference data. Includes a post office (PO) number",
+                    "displayName": "Reference",
+                    "displayType": "text",
+                    "placeholder": "Enter reference data"
+                },
+                "name": "reference"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "General terms of the invoice. Can include return or cancellation policy",
+                    "displayName": "Terms and Conditions",
+                    "displayType": "text",
+                    "placeholder": "Enter terms and conditions"
+                },
+                "name": "terms_and_conditions"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Invoicer's address line 2",
+                    "displayName": "Invoicer Address Line 2",
+                    "displayType": "text",
+                    "placeholder": "Enter address line 2"
+                },
+                "name": "invoicer_address_line_2"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's phone country code",
+                    "displayName": "Invoicer Phone Country Code",
+                    "displayType": "text",
+                    "placeholder": "Enter country code"
+                },
+                "name": "invoicer_phone_country_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Invoicer's phone number",
+                    "displayName": "Invoicer Phone Number",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "invoicer_phone_number"
+            },
+            {
+                "meta": {
+                    "value": "MOBILE",
+                    "options": [
+                        {
+                            "label": "Mobile",
+                            "value": "MOBILE"
+                        },
+                        {
+                            "label": "Home",
+                            "value": "HOME"
+                        },
+                        {
+                            "label": "Work",
+                            "value": "WORK"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Invoicer's phone type",
+                    "displayName": "Invoicer Phone Type",
+                    "displayType": "select",
+                    "placeholder": "Select phone type"
+                },
+                "name": "invoicer_phone_type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Invoicer's website",
+                    "displayName": "Invoicer Website",
+                    "displayType": "text",
+                    "placeholder": "Enter website URL"
+                },
+                "name": "invoicer_website"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Invoicer's tax identification number",
+                    "displayName": "Invoicer Tax ID",
+                    "displayType": "text",
+                    "placeholder": "Enter tax ID"
+                },
+                "name": "invoicer_tax_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "URL to invoicer's logo",
+                    "displayName": "Invoicer Logo URL",
+                    "displayType": "text",
+                    "placeholder": "Enter logo URL"
+                },
+                "name": "invoicer_logo_url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Any additional information. Includes business hours",
+                    "displayName": "Invoicer Additional Notes",
+                    "displayType": "text",
+                    "placeholder": "Enter additional notes"
+                },
+                "name": "invoicer_additional_notes"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Recipient's phone country code",
+                    "displayName": "Recipient Phone Country Code",
+                    "displayType": "text",
+                    "placeholder": "Enter country code"
+                },
+                "name": "recipient_phone_country_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Recipient's phone number",
+                    "displayName": "Recipient Phone Number",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "recipient_phone_number"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Home",
+                            "value": "HOME"
+                        },
+                        {
+                            "label": "Mobile",
+                            "value": "MOBILE"
+                        },
+                        {
+                            "label": "Work",
+                            "value": "WORK"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Recipient's phone type",
+                    "displayName": "Recipient Phone Type",
+                    "displayType": "select",
+                    "placeholder": "Select phone type"
+                },
+                "name": "recipient_phone_type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Additional information for recipient",
+                    "displayName": "Recipient Additional Info",
+                    "displayType": "text",
+                    "placeholder": "Enter additional info"
+                },
+                "name": "recipient_additional_info"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the tax (e.g., Sales Tax)",
+                    "displayName": "Tax Name",
+                    "displayType": "text",
+                    "placeholder": "Enter tax name"
+                },
+                "name": "tax_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 100,
+                        "min": 0,
+                        "required": true
+                    },
+                    "description": "Tax percentage (e.g., 7.25)",
+                    "displayName": "Tax Percentage",
+                    "displayType": "number",
+                    "placeholder": "Enter tax percentage"
+                },
+                "name": "tax_percent"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 100,
+                        "min": 0,
+                        "required": false
+                    },
+                    "description": "Discount percentage (e.g., 5)",
+                    "displayName": "Discount Percentage",
+                    "displayType": "number",
+                    "placeholder": "Enter discount percentage"
+                },
+                "name": "discount_percent"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Quantity",
+                            "value": "QUANTITY"
+                        },
+                        {
+                            "label": "Hours",
+                            "value": "HOURS"
+                        },
+                        {
+                            "label": "Amount",
+                            "value": "AMOUNT"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Unit of measure for the item",
+                    "displayName": "Unit of Measure",
+                    "displayType": "select",
+                    "placeholder": "Select unit of measure"
+                },
+                "name": "unit_of_measure"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Whether to allow partial payments",
+                    "displayName": "Allow Partial Payment",
+                    "displayType": "toggle",
+                    "placeholder": "Allow partial payments"
+                },
+                "name": "allow_partial_payment"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 999999.99,
+                        "min": 0.01,
+                        "required": false
+                    },
+                    "description": "Minimum amount due for partial payments",
+                    "displayName": "Minimum Amount Due",
+                    "displayType": "number",
+                    "placeholder": "Enter minimum amount"
+                },
+                "name": "minimum_amount_due"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Whether to allow tips",
+                    "displayName": "Allow Tip",
+                    "displayType": "toggle",
+                    "placeholder": "Allow tips"
+                },
+                "name": "allow_tip"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Whether tax is calculated after discount",
+                    "displayName": "Tax Calculated After Discount",
+                    "displayType": "toggle",
+                    "placeholder": "Tax after discount"
+                },
+                "name": "tax_calculated_after_discount"
+            },
+            {
+                "meta": {
+                    "value": "Packing Charges",
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Label for custom charges (e.g., Packing Charges)",
+                    "displayName": "Custom Charge Label",
+                    "displayType": "text",
+                    "placeholder": "Enter custom charge label"
+                },
+                "name": "custom_label"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Amount for custom charges",
+                    "displayName": "Custom Charge Amount",
+                    "displayType": "number",
+                    "placeholder": "Enter custom charge amount"
+                },
+                "name": "custom_amount"
+            }
+        ]
+    },
+    "create_batch": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v1/payments/payouts",
+            "body": {
+                "items": [
+                    {
+                        "note": "{{parameters.note}}",
+                        "amount": {
+                            "value": "{{parameters.amount}}",
+                            "currency": "{{parameters.currency}}"
+                        },
+                        "receiver": "{{parameters.receiver_email}}",
+                        "recipient_type": "{{parameters.recipient_type}}",
+                        "sender_item_id": "{{parameters.sender_item_id}}"
+                    }
+                ],
+                "sender_batch_header": {
+                    "email_message": "{{parameters.email_message}}",
+                    "email_subject": "{{parameters.email_subject}}",
+                    "sender_batch_id": "{{parameters.sender_batch_id}}"
+                }
+            },
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique ID for this batch payout",
+                    "displayName": "Sender Batch ID",
+                    "displayType": "text",
+                    "placeholder": "Enter unique batch ID"
+                },
+                "name": "sender_batch_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Subject for payout notification email",
+                    "displayName": "Email Subject",
+                    "displayType": "text",
+                    "placeholder": "Enter email subject"
+                },
+                "name": "email_subject"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Message for payout notification email",
+                    "displayName": "Email Message",
+                    "displayType": "text",
+                    "placeholder": "Enter email message"
+                },
+                "name": "email_message"
+            },
+            {
+                "meta": {
+                    "value": "EMAIL",
+                    "options": [
+                        {
+                            "label": "Email",
+                            "value": "EMAIL"
+                        },
+                        {
+                            "label": "Phone",
+                            "value": "PHONE"
+                        },
+                        {
+                            "label": "PayPal ID",
+                            "value": "PAYPAL_ID"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of recipient",
+                    "displayName": "Recipient Type",
+                    "displayType": "select",
+                    "placeholder": "Select recipient type"
+                },
+                "name": "recipient_type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Amount to payout",
+                    "displayName": "Amount",
+                    "displayType": "number",
+                    "placeholder": "Enter payout amount"
+                },
+                "name": "amount"
+            },
+            {
+                "meta": {
+                    "value": "USD",
+                    "options": [
+                        {
+                            "label": "Australian Dollar (AUD)",
+                            "value": "AUD"
+                        },
+                        {
+                            "label": "Brazilian Real (BRL)",
+                            "value": "BRL"
+                        },
+                        {
+                            "label": "Canadian Dollar (CAD)",
+                            "value": "CAD"
+                        },
+                        {
+                            "label": "Chinese Renmenbi (CNY)",
+                            "value": "CNY"
+                        },
+                        {
+                            "label": "Czech Koruna (CZK)",
+                            "value": "CZK"
+                        },
+                        {
+                            "label": "Danish Krone (DKK)",
+                            "value": "DKK"
+                        },
+                        {
+                            "label": "Euro (EUR)",
+                            "value": "EUR"
+                        },
+                        {
+                            "label": "Pound Sterling (GBP)",
+                            "value": "GBP"
+                        },
+                        {
+                            "label": "Hong Kong Dollar (HKD)",
+                            "value": "HKD"
+                        },
+                        {
+                            "label": "Hungarian Forint (HUF)",
+                            "value": "HUF"
+                        },
+                        {
+                            "label": "Israeli New Shekel (ILS)",
+                            "value": "ILS"
+                        },
+                        {
+                            "label": "Japanese Yen (JPY)",
+                            "value": "JPY"
+                        },
+                        {
+                            "label": "Malaysian Ringgit (MYR)",
+                            "value": "MYR"
+                        },
+                        {
+                            "label": "Mexican Peso (MXN)",
+                            "value": "MXN"
+                        },
+                        {
+                            "label": "New Zealand Dollar (NZD)",
+                            "value": "NZD"
+                        },
+                        {
+                            "label": "Norwegian Krone (NOK)",
+                            "value": "NOK"
+                        },
+                        {
+                            "label": "Philippine Peso (PHP)",
+                            "value": "PHP"
+                        },
+                        {
+                            "label": "Polish Złoty (PLN)",
+                            "value": "PLN"
+                        },
+                        {
+                            "label": "Russian Ruble (RUB)",
+                            "value": "RUB"
+                        },
+                        {
+                            "label": "Singapore Dollar (SGD)",
+                            "value": "SGD"
+                        },
+                        {
+                            "label": "Swedish Krona (SEK)",
+                            "value": "SEK"
+                        },
+                        {
+                            "label": "Swiss Franc (CHF)",
+                            "value": "CHF"
+                        },
+                        {
+                            "label": "New Taiwan Dollar (TWD)",
+                            "value": "TWD"
+                        },
+                        {
+                            "label": "Thai Baht (THB)",
+                            "value": "THB"
+                        },
+                        {
+                            "label": "US Dollar (USD)",
+                            "value": "USD"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Currency for the payout",
+                    "displayName": "Currency",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select currency"
+                },
+                "name": "currency"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Note to recipient",
+                    "displayName": "Note",
+                    "displayType": "text",
+                    "placeholder": "Enter note for recipient"
+                },
+                "name": "note"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique ID for this payout item",
+                    "displayName": "Sender Item ID",
+                    "displayType": "text",
+                    "placeholder": "Enter unique item ID"
+                },
+                "name": "sender_item_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Email address of the recipient",
+                    "displayName": "Receiver Email",
+                    "displayType": "text",
+                    "placeholder": "Enter recipient email"
+                },
+                "name": "receiver_email"
+            }
+        ]
+    },
+    "cancel_item": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v1/payments/payouts-item/{{parameters.payout_item_id}}/cancel",
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The payout item ID to cancel",
+                    "displayName": "Payout Item ID",
+                    "displayType": "text",
+                    "placeholder": "Enter payout item ID"
+                },
+                "name": "payout_item_id"
+            }
+        ]
+    },
+    "get_batch": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v1/payments/payouts/{{parameters.batch_id}}",
+            "method": "GET",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The batch payout ID to retrieve",
+                    "displayName": "Batch ID",
+                    "displayType": "text",
+                    "placeholder": "Enter batch payout ID"
+                },
+                "name": "batch_id"
+            }
+        ]
+    },
+    "get_item": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v1/payments/payouts-item/{{parameters.payout_item_id}}",
+            "method": "GET",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The payout item ID to retrieve",
+                    "displayName": "Payout Item ID",
+                    "displayType": "text",
+                    "placeholder": "Enter payout item ID"
+                },
+                "name": "payout_item_id"
+            }
+        ]
+    },
+    "authorize": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/checkout/orders/{{parameters.order_id}}/authorize",
+            "body": {},
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the confirmed order to authorize payment.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter approved order ID"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "capture": {
+        "definition": {
+            "url": "https://{{secrets.environment}}.paypal.com/v2/checkout/orders/{{parameters.order_id}}/capture",
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the confirmed order to capture payment.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter approved order ID"
+                },
+                "name": "order_id"
+            }
+        ]
+    }
+}

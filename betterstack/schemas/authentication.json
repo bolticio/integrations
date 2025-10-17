@@ -1,0 +1,65 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://uptime.betterstack.com/api/v2/monitors?per_page=1",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API secret key is required"
+                        }
+                    },
+                    "description": "Refer to the <a href='https://betterstack.com/docs/uptime/api/getting-started-with-uptime-api/' target='blank'>Better Stack authentication documentation</a> for detailed instructions on getting your API keys.",
+                    "displayName": "API Secret Key",
+                    "displayType": "password",
+                    "placeholder": "",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
+}

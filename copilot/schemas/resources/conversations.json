@@ -1,0 +1,997 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Conversation",
+                        "value": "conversations.conversationsCreate"
+                    },
+                    {
+                        "label": "Get Conversation",
+                        "value": "conversations.conversationsGet"
+                    },
+                    {
+                        "label": "Update Conversation",
+                        "value": "conversations.conversationsUpdate"
+                    },
+                    {
+                        "label": "Delete Conversation",
+                        "value": "conversations.conversationsDelete"
+                    },
+                    {
+                        "label": "Takeover over a Conversation",
+                        "value": "conversations.conversationsTakeover"
+                    },
+                    {
+                        "label": "Send Message",
+                        "value": "conversations.conversationsMessagesCreate"
+                    },
+                    {
+                        "label": "Get all Conversation Messages",
+                        "value": "conversations.conversationsMessagesList"
+                    },
+                    {
+                        "label": "Rate Message",
+                        "value": "conversations.conversationsMessagesFeedback"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "conversationscreate": {
+        "definition": {
+            "url": "https://integrations.copilot.live/v1/conversations",
+            "body": {
+                "id": "{{parameters.id}}",
+                "meta": "{{parameters.meta}}",
+                "title": "{{parameters.title}}",
+                "userId": "{{parameters.userId}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "ID of the conversation (optional)",
+                    "displayName": "ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Conversation title",
+                    "displayName": "Title",
+                    "displayType": "text"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the user who started the conversation",
+                    "displayName": "User ID",
+                    "displayType": "text"
+                },
+                "name": "userId"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "max": 100
+                    },
+                    "description": "custom meta info",
+                    "displayName": "Meta",
+                    "displayType": "keyvalue"
+                },
+                "name": "meta"
+            }
+        ]
+    },
+    "conversationsdelete": {
+        "definition": {
+            "qs": {},
+            "url": "https://integrations.copilot.live/v1/conversations/{{parameters.id}}",
+            "body": {},
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the conversation",
+                    "displayName": "ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "conversationsupdate": {
+        "definition": {
+            "qs": {},
+            "url": "https://integrations.copilot.live/v1/conversations/conversations/{{parameters.id}}",
+            "body": {
+                "meta": "{{parameters.meta}}",
+                "title": "{{parameters.title}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the conversation",
+                    "displayName": "ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Conversation title",
+                    "displayName": "Title",
+                    "displayType": "text"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "max": 100
+                    },
+                    "description": "custom meta object",
+                    "displayName": "Meta",
+                    "displayType": "keyvalue"
+                },
+                "name": "meta"
+            }
+        ]
+    },
+    "conversationsget": {
+        "definition": {
+            "qs": {},
+            "url": "https://integrations.copilot.live/v1/conversations/{{parameters.id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the conversation",
+                    "displayName": "ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "conversationsmessageslist": {
+        "definition": {
+            "qs": {},
+            "url": "https://integrations.copilot.live/v1/conversations/{{parameters.id}}/messages",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the conversation",
+                    "displayName": "ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "conversationsmessagesfeedback": {
+        "definition": {
+            "qs": {},
+            "url": "https://integrations.copilot.live/v1/conversations/{{parameters.conversationId}}/messages",
+            "body": {
+                "id": "{{parameters.id}}",
+                "rating": "{{parameters.rating}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the conversation",
+                    "displayName": "Conversation ID",
+                    "displayType": "text"
+                },
+                "name": "conversationId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the message",
+                    "displayName": "ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "POSITIVE",
+                            "value": "POSITIVE"
+                        },
+                        {
+                            "label": "NEGATIVE",
+                            "value": "NEGATIVE"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Message feedback rating",
+                    "displayName": "Rating",
+                    "displayType": "select"
+                },
+                "name": "rating"
+            }
+        ]
+    },
+    "conversationstakeover": {
+        "definition": {
+            "qs": {},
+            "url": "https://integrations.copilot.live/v1/conversations/{{parameters.id}}/takeover",
+            "body": {
+                "action": "{{parameters.action}}",
+                "customerSupport": {
+                    "id": "{{parameters.customerSupport}}",
+                    "lastName": "{{parameters.lastName}}",
+                    "firstName": "{{parameters.firstName}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the conversation",
+                    "displayName": "ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "join",
+                            "value": "join"
+                        },
+                        {
+                            "label": "leave",
+                            "value": "leave"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Conversation handover action",
+                    "displayName": "Action",
+                    "displayType": "select"
+                },
+                "name": "action"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the agent that updated the conversation state",
+                    "displayName": "Agent ID",
+                    "displayType": "text"
+                },
+                "name": "agentId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "First name of the agent",
+                    "displayName": "Agent first name",
+                    "displayType": "text"
+                },
+                "name": "firstName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Last name of the agent",
+                    "displayName": "Agent last name",
+                    "displayType": "text"
+                },
+                "name": "lastName"
+            }
+        ]
+    },
+    "conversationsmessagescreate": {
+        "definition": {
+            "qs": {
+                "wait": "{{parameters.wait}}",
+                "generateAssistantMessage": "{{parameters.generateAssistantMessage}}"
+            },
+            "url": "https://integrations.copilot.live/v1/conversations/{{parameters.conversationId}}/messages",
+            "body": {
+                "id": "{{parameters.id}}",
+                "meta": "{{parameters.meta}}",
+                "role": "{{parameters.role}}",
+                "userId": "{{parameters.userId}}",
+                "content": "{{parameters.content}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the conversation",
+                    "displayName": "Conversation ID",
+                    "displayType": "text"
+                },
+                "name": "conversationId"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "ID of the message (optional)",
+                    "displayName": "id",
+                    "displayType": "text"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "message content to be sent",
+                    "displayName": "Message Content",
+                    "displayType": "text"
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "assistant",
+                            "value": "assistant"
+                        },
+                        {
+                            "label": "system",
+                            "value": "system"
+                        },
+                        {
+                            "label": "user",
+                            "value": "user"
+                        },
+                        {
+                            "label": "support",
+                            "value": "support"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {},
+                    "description": "Message sender's role",
+                    "displayName": "Sender Role",
+                    "displayType": "select"
+                },
+                "name": "role"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the user who sent the message",
+                    "displayName": "User ID",
+                    "displayType": "text"
+                },
+                "name": "userId"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Generate a new LLM completion for this message. Role must be `user`.",
+                    "displayName": "Generate Completion",
+                    "displayType": "toggle"
+                },
+                "name": "generateAssistantMessage"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Wait for the LLM completion to be generated before returning. Only applicable if `generateAssistantMessage` is true.",
+                    "displayName": "Wait for Completion",
+                    "displayType": "toggle"
+                },
+                "name": "wait"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "max": 100
+                    },
+                    "description": "message custom meta info",
+                    "displayName": "Meta",
+                    "displayType": "keyvalue"
+                },
+                "name": "meta"
+            }
+        ]
+    },
+    "usersget": {
+        "definition": {
+            "qs": {},
+            "url": "https://integrations.copilot.live/v1/users/{{parameters.userId}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the user to retrieve",
+                    "displayName": "User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the User ID"
+                },
+                "name": "userId"
+            }
+        ]
+    },
+    "usersupdate": {
+        "definition": {
+            "url": "https://integrations.copilot.live/v1/users/{{parameters.userId}}",
+            "body": {
+                "meta": "{{parameters.meta}}",
+                "name": "{{parameters.name}}",
+                "email": "{{parameters.email}}",
+                "phone": "{{parameters.phone}}",
+                "device": {
+                    "platform": "{{parameteres.platform}}",
+                    "languages": [
+                        "{{parameteres.languages}}"
+                    ],
+                    "userAgent": "{{parameteres.userAgent}}",
+                    "appVersion": "{{parameteres.appVersion}}"
+                },
+                "hostId": "{{parameters.hostId}}",
+                "location": {
+                    "geo": {
+                        "latitude": "{{parameteres.latitude}}",
+                        "longitude": "{{parameteres.longitude}}"
+                    },
+                    "city": "{{parameteres.city}}",
+                    "state": "{{parameteres.state}}",
+                    "region": "{{parameteres.region}}",
+                    "country": "{{parameteres.country}}",
+                    "postalCode": "{{parameteres.postalCode}}",
+                    "regionCode": "{{parameteres.regionCode}}",
+                    "countryCode": "{{parameteres.countryCode}}"
+                },
+                "surfaces": "{{parameters.surfaces}}",
+                "profilePicUrl": "{{parameters.profilePicUrl}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the user to delete",
+                    "displayName": "User ID",
+                    "displayType": "string",
+                    "placeholder": "Enter the User ID"
+                },
+                "name": "userId"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "External ID of the user",
+                    "displayName": "Host Id",
+                    "displayType": "text"
+                },
+                "name": "hostId"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Name of the user",
+                    "displayName": "Name",
+                    "displayType": "text"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Email of the user",
+                    "displayName": "Email",
+                    "displayType": "text"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Phone number of the user",
+                    "displayName": "Phone",
+                    "displayType": "text"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Profile pic of the user",
+                    "displayName": "Profile Pic URL",
+                    "displayType": "text"
+                },
+                "name": "profilePicUrl"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "max": 100
+                    },
+                    "description": "message custom meta info",
+                    "displayName": "Meta",
+                    "displayType": "keyvalue"
+                },
+                "name": "meta"
+            },
+            {
+                "meta": {
+                    "value": "web",
+                    "options": [
+                        {
+                            "label": "Call",
+                            "value": "call"
+                        },
+                        {
+                            "label": "Hosted-web",
+                            "value": "hosted-web"
+                        },
+                        {
+                            "label": "Web",
+                            "value": "web"
+                        },
+                        {
+                            "label": "WhatsApp",
+                            "value": "whatsapp"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {},
+                    "description": "users device surface",
+                    "displayName": "Surfaces",
+                    "displayType": "multiselect"
+                },
+                "name": "surfaces"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "User Device Agent",
+                    "displayType": "text"
+                },
+                "name": "userAgent"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Device Platform",
+                    "displayType": "text"
+                },
+                "name": "platform"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Device App Version",
+                    "displayType": "text"
+                },
+                "name": "appVersion"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Languages",
+                    "displayType": "multitext"
+                },
+                "name": "languages"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Latitude",
+                    "displayType": "text"
+                },
+                "name": "latitude"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Longitude",
+                    "displayType": "text"
+                },
+                "name": "longitude"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Postal Code",
+                    "displayType": "text"
+                },
+                "name": "postalCode"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Region",
+                    "displayType": "text"
+                },
+                "name": "region"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Region Code",
+                    "displayType": "text"
+                },
+                "name": "regionCode"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "City",
+                    "displayType": "text"
+                },
+                "name": "city"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Timezone",
+                    "displayType": "text"
+                },
+                "name": "timezone"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "Country",
+                    "displayType": "text"
+                },
+                "name": "country"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "displayName": "country Code",
+                    "displayType": "text"
+                },
+                "name": "countryCode"
+            }
+        ]
+    }
+}

@@ -1,0 +1,913 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Image analysis",
+                        "value": "image.imageanalysis",
+                        "description": "Send a completion request to a selected model (text-only format)."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "image",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "generations": {
+        "definition": {
+            "qs": {
+                "id": "{{parameters.generationId}}"
+            },
+            "url": "https://openrouter.ai/api/v1/generation",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "maxlength": 50
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Generation ID is a required field."
+                        }
+                    },
+                    "description": "The unique identifier for a generation request from the Boltic AI. Use this ID to fetch the generated result.",
+                    "displayName": "Generation ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the generation ID"
+                },
+                "name": "generationId"
+            }
+        ]
+    },
+    "multicompletionwithtext": {
+        "definition": {
+            "url": "https://openrouter.ai/api/v1/chat/completions",
+            "body": {
+                "model": "{{parameters.modelId}}",
+                "messages": "{{parameters.chat}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "Boltic_AI",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "chat",
+                            "operation": "chat.chatCompletionWithText",
+                            "activity_id": "{{parameters.activity_id}}",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "Name of the model to use.",
+                    "displayName": "Model",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "modelId"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user",
+                                        "description": "Send a message as a user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant",
+                                        "description": "Send a message as an assistant"
+                                    },
+                                    {
+                                        "label": "System (Message from the assistant)",
+                                        "value": "system",
+                                        "description": "Send a message as an assistant"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Please select the role for the message."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user or the assistant.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "allowDynamic": true,
+                                    "showInfoIcon": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "infoDetail": {
+                                        "infoMsg": "Add message to the content"
+                                    }
+                                },
+                                "description": "This will be the prompt Eg. Tell me a fun fact.",
+                                "displayName": "Content",
+                                "displayType": "textarea",
+                                "placeholder": "Enter the message part."
+                            },
+                            "name": "content"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Add message to the content"
+                        }
+                    },
+                    "description": "Provide the chat history to simulate an ongoing conversation.",
+                    "displayName": "Messages",
+                    "displayType": "array",
+                    "placeholder": "Enter the chat history"
+                },
+                "name": "chat"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    },
+    "get_models": {
+        "definition": {
+            "url": "https://openrouter.ai/api/v1/models",
+            "method": "get",
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "chatcompletionwithtext": {
+        "definition": {
+            "url": "https://openrouter.ai/api/v1/completions",
+            "body": {
+                "model": "{{parameters.modelId}}",
+                "prompt": "{{parameters.content}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "Boltic_AI",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "chat",
+                            "operation": "chat.chatCompletionWithText",
+                            "activity_id": "{{parameters.activity_id}}",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "Name of the model to use.",
+                    "displayName": "Model",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "modelId"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prompt is required field"
+                        }
+                    },
+                    "description": "Provide the prompt.",
+                    "displayName": "Prompt",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the prompt"
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": "{{parameters.headers}}",
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Eg. https://www.example.com"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "You don't have to add authorization headers; we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue"
+                },
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "displayName": "Query String",
+                    "displayType": "keyvalue"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The Payload (Body) of the HTTP Request.",
+                    "displayName": "Body",
+                    "displayType": "code"
+                },
+                "name": "body"
+            }
+        ]
+    },
+    "imageanalysis": {
+        "definition": {
+            "url": "https://openrouter.ai/api/v1/chat/completions",
+            "body": {
+                "model": "{{parameters.modelId}}",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "text": "{{parameters.text}}",
+                                "type": "text"
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": "{{parameters.image_url}}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "max_token": "{{parameters.max_token}}",
+                "temperature": "{{parameters.temperature}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "user",
+                    "options": [
+                        {
+                            "label": "User (Message from the user)",
+                            "value": "user",
+                            "description": "Send a message as a user"
+                        },
+                        {
+                            "label": "Assistant (Message from the assistant)",
+                            "value": "assistant",
+                            "description": "Send a message as an assistant"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please select the role for the message."
+                        }
+                    },
+                    "description": "Specify whether the message is sent by the user or the assistant.",
+                    "displayName": "Message Role",
+                    "displayType": "select",
+                    "placeholder": "Choose the role for this message"
+                },
+                "name": "role"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Anthropic: Claude Opus 4",
+                            "value": "anthropic/claude-opus-4"
+                        },
+                        {
+                            "label": "Anthropic: Claude Sonnet 4",
+                            "value": "anthropic/claude-sonnet-4"
+                        },
+                        {
+                            "label": "Google: Gemini 2.5 Flash Preview 05-20",
+                            "value": "google/gemini-2.5-flash-preview-05-20"
+                        },
+                        {
+                            "label": "Google: Gemini 2.5 Flash Preview 05-20 (thinking)",
+                            "value": "google/gemini-2.5-flash-preview-05-20:thinking"
+                        },
+                        {
+                            "label": "OpenAI: Codex Mini",
+                            "value": "openai/codex-mini"
+                        },
+                        {
+                            "label": "Mistral: Mistral Medium 3",
+                            "value": "mistralai/mistral-medium-3"
+                        },
+                        {
+                            "label": "Google: Gemini 2.5 Pro Preview",
+                            "value": "google/gemini-2.5-pro-preview"
+                        },
+                        {
+                            "label": "Arcee AI: Spotlight",
+                            "value": "arcee-ai/spotlight"
+                        },
+                        {
+                            "label": "OpenGVLab: InternVL3 14B (free)",
+                            "value": "opengvlab/internvl3-14b:free"
+                        },
+                        {
+                            "label": "OpenGVLab: InternVL3 2B (free)",
+                            "value": "opengvlab/internvl3-2b:free"
+                        },
+                        {
+                            "label": "Meta: Llama Guard 4 12B",
+                            "value": "meta-llama/llama-guard-4-12b"
+                        },
+                        {
+                            "label": "Google: Gemini 2.5 Flash Preview 04-17",
+                            "value": "google/gemini-2.5-flash-preview"
+                        },
+                        {
+                            "label": "Google: Gemini 2.5 Flash Preview 04-17 (thinking)",
+                            "value": "google/gemini-2.5-flash-preview:thinking"
+                        },
+                        {
+                            "label": "OpenAI: o4 Mini High",
+                            "value": "openai/o4-mini-high"
+                        },
+                        {
+                            "label": "OpenAI: o3",
+                            "value": "openai/o3"
+                        },
+                        {
+                            "label": "OpenAI: o4 Mini",
+                            "value": "openai/o4-mini"
+                        },
+                        {
+                            "label": "OpenAI: GPT-4.1",
+                            "value": "openai/gpt-4.1"
+                        },
+                        {
+                            "label": "OpenAI: GPT-4.1 Mini",
+                            "value": "openai/gpt-4.1-mini"
+                        },
+                        {
+                            "label": "OpenAI: GPT-4.1 Nano",
+                            "value": "openai/gpt-4.1-nano"
+                        },
+                        {
+                            "label": "Moonshot AI: Kimi VL A3B Thinking (free)",
+                            "value": "moonshotai/kimi-vl-a3b-thinking:free"
+                        },
+                        {
+                            "label": "Meta: Llama 4 Maverick (free)",
+                            "value": "meta-llama/llama-4-maverick:free"
+                        },
+                        {
+                            "label": "Meta: Llama 4 Maverick",
+                            "value": "meta-llama/llama-4-maverick"
+                        },
+                        {
+                            "label": "Meta: Llama 4 Scout (free)",
+                            "value": "meta-llama/llama-4-scout:free"
+                        },
+                        {
+                            "label": "Meta: Llama 4 Scout",
+                            "value": "meta-llama/llama-4-scout"
+                        },
+                        {
+                            "label": "Qwen: Qwen2.5 VL 3B Instruct (free)",
+                            "value": "qwen/qwen2.5-vl-3b-instruct:free"
+                        },
+                        {
+                            "label": "Google: Gemini 2.5 Pro Experimental",
+                            "value": "google/gemini-2.5-pro-exp-03-25"
+                        },
+                        {
+                            "label": "Qwen: Qwen2.5 VL 32B Instruct (free)",
+                            "value": "qwen/qwen2.5-vl-32b-instruct:free"
+                        },
+                        {
+                            "label": "Qwen: Qwen2.5 VL 32B Instruct",
+                            "value": "qwen/qwen2.5-vl-32b-instruct"
+                        },
+                        {
+                            "label": "OpenAI: o1-pro",
+                            "value": "openai/o1-pro"
+                        },
+                        {
+                            "label": "Mistral: Mistral Small 3.1 24B (free)",
+                            "value": "mistralai/mistral-small-3.1-24b-instruct:free"
+                        },
+                        {
+                            "label": "Mistral: Mistral Small 3.1 24B",
+                            "value": "mistralai/mistral-small-3.1-24b-instruct"
+                        },
+                        {
+                            "label": "Google: Gemma 3 1B (free)",
+                            "value": "google/gemma-3-1b-it:free"
+                        },
+                        {
+                            "label": "Google: Gemma 3 4B (free)",
+                            "value": "google/gemma-3-4b-it:free"
+                        },
+                        {
+                            "label": "Google: Gemma 3 4B",
+                            "value": "google/gemma-3-4b-it"
+                        },
+                        {
+                            "label": "Google: Gemma 3 12B (free)",
+                            "value": "google/gemma-3-12b-it:free"
+                        },
+                        {
+                            "label": "Google: Gemma 3 12B",
+                            "value": "google/gemma-3-12b-it"
+                        },
+                        {
+                            "label": "Google: Gemma 3 27B (free)",
+                            "value": "google/gemma-3-27b-it:free"
+                        },
+                        {
+                            "label": "Google: Gemma 3 27B",
+                            "value": "google/gemma-3-27b-it"
+                        },
+                        {
+                            "label": "Microsoft: Phi 4 Multimodal Instruct",
+                            "value": "microsoft/phi-4-multimodal-instruct"
+                        },
+                        {
+                            "label": "Perplexity: Sonar Reasoning Pro",
+                            "value": "perplexity/sonar-reasoning-pro"
+                        },
+                        {
+                            "label": "Perplexity: Sonar Pro",
+                            "value": "perplexity/sonar-pro"
+                        },
+                        {
+                            "label": "OpenAI: GPT-4.5 (Preview)",
+                            "value": "openai/gpt-4.5-preview"
+                        },
+                        {
+                            "label": "Google: Gemini 2.0 Flash Lite",
+                            "value": "google/gemini-2.0-flash-lite-001"
+                        },
+                        {
+                            "label": "Anthropic: Claude 3.7 Sonnet",
+                            "value": "anthropic/claude-3.7-sonnet"
+                        },
+                        {
+                            "label": "Anthropic: Claude 3.7 Sonnet (self-moderated)",
+                            "value": "anthropic/claude-3.7-sonnet:beta"
+                        },
+                        {
+                            "label": "Anthropic: Claude 3.7 Sonnet (thinking)",
+                            "value": "anthropic/claude-3.7-sonnet:thinking"
+                        },
+                        {
+                            "label": "Google: Gemini 2.0 Flash",
+                            "value": "google/gemini-2.0-flash-001"
+                        },
+                        {
+                            "label": "Qwen: Qwen VL Plus",
+                            "value": "qwen/qwen-vl-plus"
+                        },
+                        {
+                            "label": "Qwen: Qwen VL Max",
+                            "value": "qwen/qwen-vl-max"
+                        },
+                        {
+                            "label": "Qwen: Qwen2.5 VL 72B Instruct (free)",
+                            "value": "qwen/qwen2.5-vl-72b-instruct:free"
+                        },
+                        {
+                            "label": "Qwen: Qwen2.5 VL 72B Instruct",
+                            "value": "qwen/qwen2.5-vl-72b-instruct"
+                        },
+                        {
+                            "label": "Perplexity: Sonar",
+                            "value": "perplexity/sonar"
+                        },
+                        {
+                            "label": "MiniMax: MiniMax-01",
+                            "value": "minimax/minimax-01"
+                        },
+                        {
+                            "label": "OpenAI: o1",
+                            "value": "openai/o1"
+                        },
+                        {
+                            "label": "xAI: Grok 2 Vision 1212",
+                            "value": "x-ai/grok-2-vision-1212"
+                        },
+                        {
+                            "label": "OpenAI: GPT-4o-2024-08-06",
+                            "value": "gpt-4o-2024-08-06"
+                        },
+                        {
+                            "label": "OpenAI: GPT-4o-mini-2024-07-18",
+                            "value": "gpt-4o-mini-2024-07-18"
+                        },
+                        {
+                            "label": "OpenAI: GPT-4-0613",
+                            "value": "gpt-4-0613"
+                        },
+                        {
+                            "label": "OpenAI: GPT-3.5-turbo-0125",
+                            "value": "gpt-3.5-turbo-0125"
+                        },
+                        {
+                            "label": "OpenAI: GPT-3.5-turbo-1106",
+                            "value": "gpt-3.5-turbo-1106"
+                        },
+                        {
+                            "label": "OpenAI: GPT-3.5-turbo-0613",
+                            "value": "gpt-3.5-turbo-0613"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "Name of the model to use.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "modelId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prompt is required field"
+                        }
+                    },
+                    "description": "Text prompt to analyse the image",
+                    "displayName": "Prompt",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the Prompt"
+                },
+                "name": "text"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^(https?:\\/\\/).+\\.(jpg|jpeg|png|gif|bmp|webp|svg|tiff|ico)(\\?.*)?$",
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Image URL is required field"
+                        }
+                    },
+                    "description": "Image URL of the image to be analysed.",
+                    "displayName": "Image URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the Image URL"
+                },
+                "name": "image_url"
+            },
+            {
+                "meta": {
+                    "value": 1024,
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
+                    "displayName": "Max Completion Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "max_tokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0.1,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    }
+}

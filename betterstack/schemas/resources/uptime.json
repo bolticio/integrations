@@ -1,0 +1,283 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List all existing monitors",
+                        "value": "uptime.listAllMonitor"
+                    },
+                    {
+                        "label": "List monitor by ID",
+                        "value": "uptime.listMonitorById"
+                    },
+                    {
+                        "label": "Get a monitor's response time",
+                        "value": "uptime.getResponseTime"
+                    },
+                    {
+                        "label": "Get a monitor's availability summary",
+                        "value": "uptime.getAvailability"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "uptime",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getallexistingstatuspage": {
+        "definition": {
+            "qs": {},
+            "url": "https://betteruptime.com/api/v2/status-pages",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "per_page": 20
+                },
+                "type": "url",
+                "default": {
+                    "next_url": null,
+                    "per_page": 20
+                },
+                "next_url": "{{response.data.pagination.next}}",
+                "condition": "{{response.data.pagination.next}} !== null"
+            }
+        },
+        "parameters": []
+    },
+    "getsinglestatuspage": {
+        "definition": {
+            "qs": {},
+            "url": "https://betteruptime.com/api/v2/status-pages/{{parameters.status_page_id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the status page you want to get.",
+                    "displayName": "Status Page Id",
+                    "displayType": "text",
+                    "placeholder": "Enter the Status Page Id"
+                },
+                "name": "status_page_id"
+            }
+        ]
+    },
+    "getavailability": {
+        "definition": {
+            "qs": {
+                "to": "{{parameters.to}}",
+                "from": "{{parameters.from}}"
+            },
+            "url": "https://uptime.betterstack.com/api/v2/monitors/{{parameters.id}}/sla",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Monitor ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Monitor ID"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Start Date",
+                    "displayType": "text",
+                    "placeholder": "Enter the start date in (YYYY-MM-DD) format"
+                },
+                "name": "from"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "End Date",
+                    "displayType": "text",
+                    "placeholder": "Enter the end date in (YYYY-MM-DD) format"
+                },
+                "name": "to"
+            }
+        ]
+    },
+    "getresponsetime": {
+        "definition": {
+            "qs": {},
+            "url": "https://uptime.betterstack.com/api/v2/monitors/{{parameters.id}}/response-times",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Monitor ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Monitor ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "listallmonitor": {
+        "definition": {
+            "qs": {
+                "url": "{{parameters.url}}",
+                "pronounceable_name": "{{parameters.pronounceable_name}}"
+            },
+            "url": "https://uptime.betterstack.com/api/v2/monitors",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "per_page": 20
+                },
+                "type": "url",
+                "default": {
+                    "next_url": null,
+                    "per_page": 20
+                },
+                "next_url": "{{response.data.pagination.next}}",
+                "condition": "{{response.data.pagination.next}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter the url.",
+                    "displayName": "url",
+                    "displayType": "text",
+                    "placeholder": "Enter the url"
+                },
+                "name": "url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter the pronounceable name.",
+                    "displayName": "pronounceable name",
+                    "displayType": "text",
+                    "placeholder": "Enter the pronounceable name"
+                },
+                "name": "pronounceable_name"
+            }
+        ]
+    },
+    "listmonitorbyid": {
+        "definition": {
+            "qs": {},
+            "url": "https://uptime.betterstack.com/api/v2/monitors/{{parameters.id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Monitor ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Monitor ID"
+                },
+                "name": "id"
+            }
+        ]
+    }
+}

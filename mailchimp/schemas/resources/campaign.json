@@ -1,0 +1,606 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Campaign",
+                        "value": "campaign.list"
+                    },
+                    {
+                        "label": "Get Campaign",
+                        "value": "campaign.get"
+                    },
+                    {
+                        "label": "Create Campaign",
+                        "value": "campaign.create"
+                    },
+                    {
+                        "label": "Update Campaign",
+                        "value": "campaign.update"
+                    },
+                    {
+                        "label": "Delete Campaign",
+                        "value": "campaign.delete"
+                    },
+                    {
+                        "label": "Send Campaign",
+                        "value": "campaign.send"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "campaign",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "search": {
+        "definition": {
+            "qs": {
+                "query": "{{parameters.query}}"
+            },
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/search-members",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter Email ID/First Name/Last Name in the search query to find subscribers.",
+                    "displayName": "Search Query",
+                    "displayType": "text",
+                    "placeholder": "Enter search query"
+                },
+                "name": "query"
+            }
+        ]
+    },
+    "edit": {
+        "definition": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/lists/{{parameters.list_id}}/members/{{parameters.email}}",
+            "body": {
+                "status": "{{parameters.status}}",
+                "merge_fields": {
+                    "FNAME": "{{parameters.first_name}}",
+                    "LNAME": "{{parameters.last_name}}",
+                    "ADDRESS": "{{parameters.address}}"
+                }
+            },
+            "method": "patch",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The email address of the subscriber you want to edit.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the email address"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The new email address of the subscriber for updation.",
+                    "displayName": "New Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the new email address"
+                },
+                "name": "new_email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The first name of the subscriber.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The last name of the subscriber.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the last name"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The address of the subscriber.",
+                    "displayName": "Address",
+                    "displayType": "text",
+                    "placeholder": "Enter the address"
+                },
+                "name": "address"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Subscribed",
+                            "value": "subscribed"
+                        },
+                        {
+                            "label": "Unsubscribed",
+                            "value": "unsubscribed"
+                        },
+                        {
+                            "label": "Cleaned",
+                            "value": "cleaned"
+                        },
+                        {
+                            "label": "Pending",
+                            "value": "pending"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The subscription status of the subscriber.",
+                    "displayName": "Subscription Status",
+                    "displayType": "select",
+                    "placeholder": "Select subscription status"
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "add_update": {
+        "definition": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/lists/{{parameters.list_id}}/members/{{parameters.email}}",
+            "body": {
+                "status": "{{parameters.status}}",
+                "email_address": "{{parameters.email}}",
+                "status_if_new": "{{parameters.status_if_new}}"
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The email address of the subscriber you want to add/update.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the email address"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Subscribed",
+                            "value": "subscribed"
+                        },
+                        {
+                            "label": "Unsubscribed",
+                            "value": "unsubscribed"
+                        },
+                        {
+                            "label": "Cleaned",
+                            "value": "cleaned"
+                        },
+                        {
+                            "label": "Pending",
+                            "value": "pending"
+                        },
+                        {
+                            "label": "Transactional",
+                            "value": "transactional"
+                        }
+                    ],
+                    "description": "The subscription status of the subscriber if the email address is not already present on the list.",
+                    "displayName": "Subscription Status (If New)",
+                    "displayType": "select",
+                    "placeholder": "Select subscription status if the email is new"
+                },
+                "name": "status_if_new"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Subscribed",
+                            "value": "subscribed"
+                        },
+                        {
+                            "label": "Unsubscribed",
+                            "value": "unsubscribed"
+                        },
+                        {
+                            "label": "Cleaned",
+                            "value": "cleaned"
+                        },
+                        {
+                            "label": "Pending",
+                            "value": "pending"
+                        }
+                    ],
+                    "description": "The subscription status of the subscriber.",
+                    "displayName": "Subscription Status (for Existing)",
+                    "displayType": "select",
+                    "placeholder": "Select subscription status"
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/campaigns/{{parameters.campaign_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique id for the campaign.",
+                    "displayName": "Campaign ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Campaign ID"
+                },
+                "name": "campaign_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/campaigns/{{parameters.campaign_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique id for the campaign.",
+                    "displayName": "Campaign ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Campaign ID"
+                },
+                "name": "campaign_id"
+            }
+        ]
+    },
+    "send": {
+        "definition": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/campaigns/{{parameters.campaign_id}}/actions/send",
+            "method": "post",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "Your Campaign is not ready to send.{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique id for the campaign to send.",
+                    "displayName": "Campaign ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Campaign ID"
+                },
+                "name": "campaign_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/campaigns",
+            "body": {
+                "type": "{{parameters.type}}",
+                "content": {
+                    "html": "{{parameters.html}}",
+                    "plain_text": "{{parameters.plain_text}}"
+                },
+                "settings": {
+                    "title": "{{parameters.title}}",
+                    "reply_to": "{{parameters.reply_to}}",
+                    "from_name": "{{parameters.from_name}}",
+                    "subject_line": "{{parameters.subject_line}}"
+                },
+                "recipients": {
+                    "list_id": "{{parameters.list_id}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Regular",
+                            "value": "regular"
+                        },
+                        {
+                            "label": "Plain-text",
+                            "value": "plaintext"
+                        },
+                        {
+                            "label": "RSS",
+                            "value": "rss"
+                        },
+                        {
+                            "label": "A/B Split",
+                            "value": "absplit"
+                        },
+                        {
+                            "label": "Variate",
+                            "value": "variate"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The type of campaign to create.",
+                    "displayName": "Campaign Type",
+                    "displayType": "select",
+                    "placeholder": "Select campaign type"
+                },
+                "name": "type"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique id for the next list. <a href='https://mailchimp.com/help/find-audience-id/' target='_blank'>Find your Audience ID</a>",
+                    "displayName": "List (Audience) ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the List ID"
+                },
+                "name": "list_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The subject line for the campaign.",
+                    "displayName": "Campaign Subject Line",
+                    "displayType": "text",
+                    "placeholder": "Enter the subject line"
+                },
+                "name": "subject_line"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The from name for the campaign.",
+                    "displayName": "From Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the from name"
+                },
+                "name": "from_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The reply-to email for the campaign.",
+                    "displayName": "Reply-To Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the reply-to email"
+                },
+                "name": "reply_to"
+            },
+            {
+                "meta": {
+                    "description": "The raw HTML for the campaign.",
+                    "displayName": "HTML Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the HTML content"
+                },
+                "name": "html"
+            },
+            {
+                "meta": {
+                    "description": "The plain-text version of the campaign.",
+                    "displayName": "Plain Text Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the plain text content"
+                },
+                "name": "plain_text"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "type": "{{parameters.type}}",
+                "status": "{{parameters.status}}"
+            },
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/campaigns",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Regular",
+                            "value": "regular"
+                        },
+                        {
+                            "label": "Plain-text",
+                            "value": "plaintext"
+                        },
+                        {
+                            "label": "RSS",
+                            "value": "rss"
+                        },
+                        {
+                            "label": "A/B Split",
+                            "value": "absplit"
+                        },
+                        {
+                            "label": "Variate",
+                            "value": "variate"
+                        }
+                    ],
+                    "description": "The campaign type to filter results.",
+                    "displayName": "Campaign Type",
+                    "displayType": "select",
+                    "placeholder": "Select campaign type"
+                },
+                "name": "type"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Save",
+                            "value": "save"
+                        },
+                        {
+                            "label": "Paused",
+                            "value": "paused"
+                        },
+                        {
+                            "label": "Schedule",
+                            "value": "schedule"
+                        },
+                        {
+                            "label": "Sending",
+                            "value": "sending"
+                        },
+                        {
+                            "label": "Sent",
+                            "value": "sent"
+                        }
+                    ],
+                    "description": "The status of campaign to return.",
+                    "displayName": "Campaign Status",
+                    "displayType": "select",
+                    "placeholder": "Select campaign status"
+                },
+                "name": "status"
+            }
+        ]
+    }
+}

@@ -1,0 +1,388 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create IVR Menu",
+                        "value": "ivr_menus.create",
+                        "description": "Create a new IVR Menu."
+                    },
+                    {
+                        "label": "List all IVR Menus",
+                        "value": "ivr_menus.list",
+                        "description": "List all IVR Menus."
+                    },
+                    {
+                        "label": "Get IVR Menu details by ID",
+                        "value": "ivr_menus.get",
+                        "description": "Get detailed information about all IVR Menus."
+                    },
+                    {
+                        "label": "Update IVR Menu",
+                        "value": "ivr_menus.update",
+                        "description": "Update an existing IVR."
+                    },
+                    {
+                        "label": "Delete IVR Menu",
+                        "value": "ivr_menus.delete",
+                        "description": "Delete an existing IVR."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": [
+                    {
+                        "field": "resource",
+                        "value": "ivr_menus",
+                        "operator": "EQUALS"
+                    }
+                ]
+            },
+            "name": "operation"
+        }
+    ],
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses/{{parameters.address_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "address_id": "{{parameters.address_id}}"
+            },
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.description}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by the Zendesk.",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Address ID"
+                },
+                "name": "address_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses",
+            "body": {
+                "data": "{{secrets}}",
+                "address": {
+                    "zip": "{{parameters.zip}}",
+                    "city": "{{parameters.city}}",
+                    "name": "{{parameters.name}}",
+                    "state": "{{parameters.state}}",
+                    "street": "{{parameters.street}}",
+                    "province": "{{parameters.province}}",
+                    "country_code": "{{parameters.country_code}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.description}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Name of the address.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the Name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Street Address of the address.",
+                    "displayName": "Street Address",
+                    "displayType": "text",
+                    "placeholder": "Enter the Street Address"
+                },
+                "name": "street"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Zip Code of the address.",
+                    "displayName": "Zip Code",
+                    "displayType": "text",
+                    "placeholder": "Enter the Zip Code"
+                },
+                "name": "zip"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Province of the address.",
+                    "displayName": "Province",
+                    "displayType": "text",
+                    "placeholder": "Enter the Province"
+                },
+                "name": "province"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Country Code of the address.",
+                    "displayName": "Country Code",
+                    "displayType": "text",
+                    "placeholder": "Enter the Country Code"
+                },
+                "name": "country_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the City of the address.",
+                    "displayName": "City",
+                    "displayType": "text",
+                    "placeholder": "Enter the City"
+                },
+                "name": "city"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the State of the address.",
+                    "displayName": "State",
+                    "displayType": "text",
+                    "placeholder": "Enter the State"
+                },
+                "name": "state"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses",
+            "body": {
+                "data": "{{secrets}}"
+            },
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.description}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "delete": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses/{{parameters.address_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "address_id": "{{parameters.address_id}}"
+            },
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.description}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by the Zendesk.",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Address ID"
+                },
+                "name": "address_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses/{{parameters.address_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "address": {
+                    "zip": "{{parameters.zip}}",
+                    "city": "{{parameters.city}}",
+                    "name": "{{parameters.name}}",
+                    "state": "{{parameters.state}}",
+                    "street": "{{parameters.street}}",
+                    "province": "{{parameters.province}}",
+                    "country_code": "{{parameters.country_code}}"
+                },
+                "address_id": "{{parameters.address_id}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.description}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by the Zendesk.",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Address ID"
+                },
+                "name": "address_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the updated Name of the address.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the Name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Street Address of the address.",
+                    "displayName": "Street Address",
+                    "displayType": "text",
+                    "placeholder": "Enter the Street Address"
+                },
+                "name": "street"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Zip Code of the address.",
+                    "displayName": "Zip Code",
+                    "displayType": "text",
+                    "placeholder": "Enter the Zip Code"
+                },
+                "name": "zip"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Province of the address.",
+                    "displayName": "Province",
+                    "displayType": "text",
+                    "placeholder": "Enter the Province"
+                },
+                "name": "province"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the Country Code of the address.",
+                    "displayName": "Country Code",
+                    "displayType": "text",
+                    "placeholder": "Enter the Country Code"
+                },
+                "name": "country_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the City of the address.",
+                    "displayName": "City",
+                    "displayType": "text",
+                    "placeholder": "Enter the City"
+                },
+                "name": "city"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the State of the address.",
+                    "displayName": "State",
+                    "displayType": "text",
+                    "placeholder": "Enter the State"
+                },
+                "name": "state"
+            }
+        ]
+    }
+}

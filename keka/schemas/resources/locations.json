@@ -1,0 +1,604 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Get All Locations",
+                        "value": "locations.getAllLocations"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "getallattendancerecords": {
+        "definition": {
+            "qs": {
+                "to": "{{parameters.to}}",
+                "from": "{{parameters.from}}",
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/attendance",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "If <b>To</b> and <b>From</b> date are not provided then it will give last 30 days record.",
+                    "displayName": "From date",
+                    "displayType": "date"
+                },
+                "name": "from"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "If <b>To</b> and <b>From</b> date are not provided then it will give last 30 days record.",
+                    "displayName": "To date",
+                    "displayType": "date"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getalldepartments": {
+        "definition": {
+            "qs": {
+                "departmentIds": "{{parameters.departmentIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/departments",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 20
+                },
+                "type": "url",
+                "default": {
+                    "limit": 20,
+                    "next_url": null
+                },
+                "next_url": "{{response.data.nextPage}}",
+                "condition": "{{response.data.nextPage}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please provide a department id",
+                    "displayName": "Department ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a department id"
+                },
+                "name": "departmentIds"
+            }
+        ]
+    },
+    "getallcaptureschemes": {
+        "definition": {
+            "qs": {
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "captureschemeIds": "{{parameters.captureschemeIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/capturescheme",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please provide a capture scheme id",
+                    "displayName": "Capture Scheme ID",
+                    "displayType": "text",
+                    "placeholder": "Enter capture scheme id"
+                },
+                "name": "captureschemeIds"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getmultipleemployeeattendancerecords": {
+        "definition": {
+            "qs": {
+                "to": "{{parameters.to}}",
+                "from": "{{parameters.from}}",
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "employeeIds": "{{parameters.employeeIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/attendance",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee ID(s) is a required field"
+                        }
+                    },
+                    "description": "Please provide an employee id(s) in comma separated format in case of multiple",
+                    "displayName": "Employee ID(s)",
+                    "displayType": "text"
+                },
+                "name": "employeeIds"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss.SSSZ",
+                        "disabled": false,
+                        "readOnly": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        },
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please select the <b>from date</b>.",
+                    "displayName": "From date",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DD hh:mm:ss"
+                },
+                "name": "from"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss.SSSZ",
+                        "disabled": false,
+                        "readOnly": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        },
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please select the <b>to date</b>.",
+                    "displayName": "To date",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DD hh:mm:ss"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getallholidaycalendars": {
+        "definition": {
+            "qs": {
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "holidaysCalendarIds": "{{parameters.holidaysCalendarIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/holidayscalendar",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please provide a holiday calendar id",
+                    "displayName": "Holiday Calendar ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a holiday calendar id"
+                },
+                "name": "holidaysCalendarIds"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getallshiftpolicies": {
+        "definition": {
+            "qs": {
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "shiftPolicyIds": "{{parameters.shiftPolicyIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/shiftpolicies",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please provide a shift policy id",
+                    "displayName": "Shift Policy ID",
+                    "displayType": "text",
+                    "placeholder": "Enter shift policy id"
+                },
+                "name": "shiftPolicyIds"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getallweeklyoffpolicies": {
+        "definition": {
+            "qs": {
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "weeklyoffPolicyIds": "{{parameters.weeklyoffPolicyIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/weeklyoffpolicies",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please provide a weekly off policy id",
+                    "displayName": "Weekly Off Policy ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a weekly off policy id"
+                },
+                "name": "weeklyoffPolicyIds"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getalltrackingpolicies": {
+        "definition": {
+            "qs": {
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "trackingPolicyIds": "{{parameters.trackingPolicyIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/penalisationpolicies",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please provide a tracking policy id",
+                    "displayName": "Tracking Policy ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a tracking policy id"
+                },
+                "name": "trackingPolicyIds"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getalllocations": {
+        "definition": {
+            "url": "https://{{secretscompany}}.{{secrets.environment}}.com/api/v1/hris/locations",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 20
+                },
+                "type": "url",
+                "default": {
+                    "limit": 20,
+                    "next_url": null
+                },
+                "next_url": "{{response.data.nextPage}}",
+                "condition": "{{response.data.nextPage}} !== null"
+            }
+        },
+        "parameters": []
+    },
+    "getalljobtitles": {
+        "definition": {
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/jobtitles",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 20
+                },
+                "type": "url",
+                "default": {
+                    "limit": 20,
+                    "next_url": null
+                },
+                "next_url": "{{response.data.nextPage}}",
+                "condition": "{{response.data.nextPage}} !== null"
+            }
+        },
+        "parameters": []
+    }
+}

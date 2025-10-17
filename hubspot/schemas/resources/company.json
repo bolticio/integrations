@@ -1,0 +1,463 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Company",
+                        "value": "company.create",
+                        "description": "Adds a new company record to your HubSpot account. You can specify properties like name, domain, phone number, address, and more."
+                    },
+                    {
+                        "label": "Find company",
+                        "value": "company.find",
+                        "description": "Searches for existing company records in HubSpot based on specified filter criteria (e.g., find companies by domain, name, or industry)."
+                    },
+                    {
+                        "label": "Get company",
+                        "value": "company.get",
+                        "description": "Retrieves the details of a specific company record from HubSpot using its unique Company ID."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "company",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getMoreParameters": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/company",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "transform": {
+                "output": "const typeMap = {text:'text',textarea:'textarea',dropdown:'select',auto_complete:'multitext',multi_select_dropdown:'multiselect',radio:'select',number:'number'};const result=output.map(ele=>{const newObj={name:ele.name,meta:{displayName:ele.label,displayType:ele.options&&ele.options.length>0?'select':'text',placeholder:`${ele.options&&ele.options.length>0?'Select':'Enter'} ${ele.label}`,validation:{required:ele.required_for_agents}}};if(ele.options&&ele.options.length>0){newObj.meta.htmlProps={allowDynamic:true};newObj.meta.options=ele.options.map(choice=>({label:choice.label||choice,value:choice.value||choice}));if(ele.type==='multi_select_dropdown'){newObj.meta.value=[];}}if(ele.default===false){newObj.prop='custom_field';}return newObj;}).filter(ele=>ele!==null);const custom_field={name:'custom_field',meta:{children:[],displayType:'object'}};const outputWithCustomField=result.reduce((acc,ele)=>{if(ele.prop==='custom_field'){custom_field.meta.children.push(ele);}else{acc.push(ele);}return acc;},[]);if(custom_field.meta.children.length>0){outputWithCustomField.push(custom_field);} return outputWithCustomField;"
+            }
+        }
+    },
+    "getCompanyProperties": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/properties/company",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/objects/leads",
+            "body": {
+                "properties": {
+                    "hs_lead_name": "{{parameters.hs_lead_name}}",
+                    "hs_lead_type": "{{parameters.hs_lead_type}}",
+                    "hs_lead_label": "{{parameters.hs_lead_label}}"
+                },
+                "associations": [
+                    {
+                        "to": {
+                            "id": "{{parameters.contact_id}}"
+                        },
+                        "types": [
+                            {
+                                "associationTypeId": 578,
+                                "associationCategory": "HUBSPOT_DEFINED"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead name is required field."
+                        }
+                    },
+                    "description": "Enter the name of the lead you want to create.",
+                    "displayName": "Lead Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the lead name"
+                },
+                "name": "hs_lead_name"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "New Business",
+                            "value": "NEW_BUSINESS"
+                        },
+                        {
+                            "label": "Upsell",
+                            "value": "UPSELL"
+                        },
+                        {
+                            "label": "Re-attempting",
+                            "value": "RE_ATTEMPTING"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead type is required field."
+                        }
+                    },
+                    "description": "Specify the type of the lead.",
+                    "displayName": "Lead Type",
+                    "displayType": "select",
+                    "placeholder": "Select the lead type"
+                },
+                "name": "hs_lead_type"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Hot",
+                            "value": "HOT"
+                        },
+                        {
+                            "label": "Warm",
+                            "value": "WARM"
+                        },
+                        {
+                            "label": "Cold",
+                            "value": "COLD"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead label is required field."
+                        }
+                    },
+                    "description": "Specify the label for the lead.",
+                    "displayName": "Lead Label",
+                    "displayType": "select",
+                    "placeholder": "Select the lead label"
+                },
+                "name": "hs_lead_label"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Contact ID is required field."
+                        }
+                    },
+                    "description": "The ID of the contact to associate with the lead.",
+                    "displayName": "Contact ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the contact ID to associate"
+                },
+                "name": "contact_id"
+            }
+        ]
+    },
+    "find": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/objects/tickets/search",
+            "body": {
+                "filterGroups": [
+                    {
+                        "filters": "{{parameters.filters}}"
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "ticket",
+                                        "operation": "ticket.find",
+                                        "loadOptionsMethod": "getTicketProperties"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "name",
+                                    "valueKey": "name"
+                                },
+                                "options": [],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Select the property using which search needs to be performed.",
+                                "displayName": "Search Property Name",
+                                "displayType": "autocomplete",
+                                "placeholder": "Select a property"
+                            },
+                            "name": "propertyName"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "multiple": false,
+                                    "limitTags": 2
+                                },
+                                "options": [
+                                    {
+                                        "label": "Less than",
+                                        "value": "LT"
+                                    },
+                                    {
+                                        "label": "Less than or equal to",
+                                        "value": "LTE"
+                                    },
+                                    {
+                                        "label": "Greater than",
+                                        "value": "GT"
+                                    },
+                                    {
+                                        "label": "Greater than or equal to",
+                                        "value": "GTE"
+                                    },
+                                    {
+                                        "label": "Equal to",
+                                        "value": "EQ"
+                                    },
+                                    {
+                                        "label": "Not equal to",
+                                        "value": "NEQ"
+                                    },
+                                    {
+                                        "label": "Contains",
+                                        "value": "CONTAINS_TOKEN"
+                                    },
+                                    {
+                                        "label": "Starts with",
+                                        "value": "STARTS_WITH"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": false
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Select the operator using which search needs to be performed.",
+                                "displayName": "Search Operator",
+                                "displayType": "autocomplete",
+                                "placeholder": "Select an operator"
+                            },
+                            "name": "operator"
+                        },
+                        {
+                            "meta": {
+                                "readOnly": false,
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "max": 100,
+                                    "min": 1,
+                                    "required": true
+                                },
+                                "description": "Value to be searched in tickets.",
+                                "displayName": "Search Value",
+                                "displayType": "text",
+                                "placeholder": "Enter search value"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "readOnly": true,
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 3
+                    },
+                    "displayName": "Filters",
+                    "displayType": "array"
+                },
+                "name": "filters"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/objects/leads/{{parameters.lead_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead ID is required field."
+                        }
+                    },
+                    "description": "The ID of the lead you want to retrieve.",
+                    "displayName": "Lead ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the lead ID"
+                },
+                "name": "lead_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.hubapi.com/crm/v3/objects/leads/{{parameters.lead_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Lead ID is required field."
+                        }
+                    },
+                    "description": "The ID of the lead you want to delete.",
+                    "displayName": "Lead ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the lead ID"
+                },
+                "name": "lead_id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "limit": "{{parameters.limit}}",
+                "archived": "{{parameters.archived}}"
+            },
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {
+                    "after": "{{response.data.paging.next.after}}"
+                },
+                "default": {
+                    "after": null,
+                    "limit": 100
+                },
+                "condition": "{{response.data.paging}} !== undefined"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Whether to return only results that have been archived",
+                    "displayName": "Archived",
+                    "displayType": "toggle"
+                },
+                "name": "archived"
+            }
+        ]
+    }
+}

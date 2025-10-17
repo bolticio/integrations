@@ -70,7 +70,6 @@ async function main() {
       icon: integration.icon,
       activity_type: integration.activity_type,
       trigger_type: integration.trigger_type,
-      documentation: integration.documentation,
       meta: integration.meta,
     };
 
@@ -116,24 +115,15 @@ async function main() {
     }
 
     if (authentication?.data?.data) {
-      const authJson = authentication.data.data?.content ?? authentication.data.data;
       await fs.writeJson(
         path.join(schemasFolder, "authentication.json"),
-        authJson ?? {},
+        authentication.data.data.content,
         { spaces: 4 }
       );
-      const authDoc =
-        authentication.data.data?.documentation ??
-        authentication.data.data?.content?.documentation ??
-        authentication.data.data?.content;
-      if (authDoc !== undefined && authDoc !== null) {
-        const authMdx =
-          typeof authDoc === "string" ? authDoc : JSON.stringify(authDoc, null, 4);
-        await fs.writeFile(
-          path.join(integrationFolder, "Authentication.mdx"),
-          authMdx
-        );
-      }
+      await fs.writeFile(
+        path.join(integrationFolder, "Authentication.mdx"),
+        JSON.stringify(authentication.data.data.documentation, null, 4)
+      );
     }
     // Webhooks
     let webhook = null;
@@ -153,10 +143,9 @@ async function main() {
     }
 
     if (webhook?.data?.data) {
-      const webhookJson = webhook.data.data?.content ?? webhook.data.data;
       await fs.writeJson(
         path.join(schemasFolder, "webhook.json"),
-        webhookJson ?? {},
+        webhook.data.data.content,
         { spaces: 4 }
       );
     }
@@ -178,10 +167,9 @@ async function main() {
       }
     }
     if (config?.data?.data) {
-      const configJson = config.data.data?.content ?? config.data.data;
       await fs.writeJson(
         path.join(schemasFolder, "base.json"),
-        configJson ?? {},
+        config.data.data.content,
         {
           spaces: 4,
         }
@@ -218,16 +206,14 @@ async function main() {
       await fs.ensureDir(resourcesFolder);
 
       for (const resource of resourcesList) {
-        let merged = {};
-        if (resource && typeof resource === "object") {
-          merged = {
-            ...merged,
-            ...(resource.content && typeof resource.content === "object"
-              ? resource.content
-              : resource),
-          };
-        }
+        // Base content comes only from the resource.content (like CLI)
+        const baseResourceContent =
+          resource && typeof resource === "object" &&
+          resource.content && typeof resource.content === "object"
+            ? resource.content
+            : {};
 
+        // Fetch operations for this resource
         let operationsResp = null;
         try {
           operationsResp = await axios.get(
@@ -251,19 +237,35 @@ async function main() {
           ? operationsResp.data?.data ?? operationsResp.data
           : null;
 
+        // Build operations map keyed by slugged operation name
+        const operationsContent = {};
         if (opsData) {
           if (Array.isArray(opsData)) {
             for (const op of opsData) {
               if (op && typeof op === "object") {
-                merged = { ...merged, ...op.content };
+                const opKey = String(op.name || op.id || "operation")
+                  .toLowerCase()
+                  .replace(/\s+/g, "-");
+                operationsContent[opKey] = op?.content;
               }
             }
           } else if (typeof opsData === "object") {
-            merged = { ...merged, ...opsData.content };
+            const opKey = String(opsData.name || opsData.id || "operation")
+              .toLowerCase()
+              .replace(/\s+/g, "-");
+            operationsContent[opKey] = opsData?.content;
           }
         }
 
-        const resourceName = resource.name || resource.id || "resource";
+        const merged = {
+          ...baseResourceContent,
+          ...operationsContent,
+        };
+
+        // Slug the resource filename like CLI does
+        const resourceName = String(resource.name || resource.id || "resource")
+          .toLowerCase()
+          .replace(/\s+/g, "-");
         const resourceFile = path.join(resourcesFolder, `${resourceName}.json`);
         await fs.writeJson(resourceFile, merged, { spaces: 4 });
       }

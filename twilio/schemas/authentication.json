@@ -1,0 +1,74 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}.json",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "max": 34,
+                        "min": 34,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Account SID is required"
+                        }
+                    },
+                    "description": "Log into your Twilio account and find 'API Credentials' on this page https://www.twilio.com/user/account/settings",
+                    "displayName": "Account SID",
+                    "displayType": "text",
+                    "placeholder": "Enter your Account SID"
+                },
+                "name": "AccountSID"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Auth Token is required"
+                        }
+                    },
+                    "description": "Found directly below your Account SID.",
+                    "displayName": "Auth Token",
+                    "displayType": "password",
+                    "placeholder": "Enter your Auth Token"
+                },
+                "name": "AuthToken"
+            }
+        ]
+    }
+}

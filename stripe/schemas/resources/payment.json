@@ -1,0 +1,359 @@
+{
+    "baseUrl": "https://api.stripe.com/v1",
+    "headers": {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": "Bearer {{secrets.access_token}}"
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List All Payments",
+                        "value": "payment.list"
+                    },
+                    {
+                        "label": "Get Payment Details",
+                        "value": "payment.get"
+                    },
+                    {
+                        "label": "List All Payment Intents",
+                        "value": "payment.intent"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "payment",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "create": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.stripe.com/v1/customers",
+            "body": {
+                "name": "{{parameters.name}}",
+                "email": "{{parameters.email}}",
+                "phone": "{{parameters.phone}}",
+                "description": "{{parameters.description}}",
+                "address[line1]": "{{parameters.address_line1}}",
+                "address[line2]": "{{parameters.address_line2}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyValue": false
+                }
+            },
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Email is required"
+                        }
+                    },
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter customer email"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^(\\+91[\\-\\s]?)?[0]?(91)?[789]\\d{9}$",
+                        "required": false
+                    },
+                    "displayName": "Phone",
+                    "displayType": "phone",
+                    "placeholder": "Enter the phone number"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false,
+                        "requiredDetail": {
+                            "errorMsg": "Description is required"
+                        }
+                    },
+                    "displayName": "Description",
+                    "displayType": "text",
+                    "placeholder": "Enter customer description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Address Line 1",
+                    "displayType": "text",
+                    "placeholder": "Enter address line 1"
+                },
+                "name": "address_line1"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Address Line 2",
+                    "displayType": "text",
+                    "placeholder": "Enter address line 2"
+                },
+                "name": "address_line2"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.stripe.com/v1/customers/{{parameters.id}}",
+            "body": {
+                "name": "{{parameters.name}}",
+                "phone": "{{parameters.phone}}",
+                "description": "{{parameters.description}}",
+                "address[line1]": "{{parameters.address_line1}}",
+                "address[line2]": "{{parameters.address_line2}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Customer ID is required"
+                        }
+                    },
+                    "displayName": "Customer ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Customer ID"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^(\\+91[\\-\\s]?)?[0]?(91)?[789]\\d{9}$",
+                        "required": false
+                    },
+                    "displayName": "Phone",
+                    "displayType": "phone",
+                    "placeholder": "Enter the phone number"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Address Line 1",
+                    "displayType": "text",
+                    "placeholder": "Enter address line 1"
+                },
+                "name": "address_line1"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Address Line 2",
+                    "displayType": "text",
+                    "placeholder": "Enter address line 2"
+                },
+                "name": "address_line2"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "displayName": "Description",
+                    "displayType": "text",
+                    "placeholder": "Enter the new description"
+                },
+                "name": "description"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.stripe.com/v1/charges/{{parameters.id}}",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Payment ID is required"
+                        }
+                    },
+                    "description": "Enter the ID of the payment you want to retrieve.",
+                    "displayName": "Payment ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Payment ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "qs": {},
+            "url": "https://api.stripe.com/v1/customers/{{parameters.id}}",
+            "body": {},
+            "method": "delete",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Customer ID is required"
+                        }
+                    },
+                    "displayName": "Customer ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Customer ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://api.stripe.com/v1/charges",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "intent": {
+        "definition": {
+            "qs": {
+                "customer": "{{parameters.customer_id}}"
+            },
+            "url": "https://api.stripe.com/v1/payment_intents",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    }
+}

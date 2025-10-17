@@ -1,0 +1,70 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Callback",
+                        "value": "rule_engine.callback"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Operations available for the resource.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select and operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "rule_engine",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "callback": {
+        "definition": {
+            "url": "https://api.pim.fynd.com/public/catalog-webhook/v1.0/rules/callback",
+            "body": {
+                "meta": "{{payload.meta}}",
+                "response": "{{parameters.response}}"
+            },
+            "method": "post",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "{}",
+                    "htmlProps": {
+                        "height": "200px",
+                        "language": "json",
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Return an response object to Catalog Cloud Rule as output of your boltic action.",
+                    "displayName": "Return data to Rule",
+                    "displayType": "text",
+                    "placeholder": ""
+                },
+                "name": "response"
+            }
+        ]
+    }
+}

@@ -1,0 +1,61 @@
+{
+    "name": "authentication",
+    "api_key": {
+        "validate": {
+            "url": "https://api.openai.com/v1/models",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API key is required field"
+                        }
+                    },
+                    "description": "Your OpenAI API Key. Refer to the <a href='https://platform.openai.com/docs/api-reference/authentication' target='_blank'>OpenAI API documentation</a> for details.",
+                    "displayName": "API key",
+                    "displayType": "password",
+                    "placeholder": "Enter API key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "api_token"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "api_key",
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "api_key"
+                    }
+                ],
+                "displayName": "Authentication Type",
+                "displayType": "hidden"
+            },
+            "name": "type"
+        }
+    ]
+}
