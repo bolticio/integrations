@@ -1,80 +1,71 @@
 {
-    "id": "2d8b17a3-ee25-4295-9091-7473a8e2047b",
-    "documentation": "# Fynd Commerce ( Application ) Integration\n\nThis guide walks you through setting up the Fynd Commerce ( Application ) integration within Boltic.\n\n## Prerequisites\n\nTo retrieve application credentials, you'll need:\n\n-   A registered <a href=\"https://platform.fynd.com/\" target=\"_blank\" rel=\"noopener\"><span>Fynd Commerce account</span></a> with access to at least one sales channel in your company.\n\n## Setting Up the Fynd Commerce ( Application ) Integration in Boltic\n\n1. **Log In**\n\n    - Log into your <a href=\"https://platform.fynd.com/\" target=\"_blank\" rel=\"noopener\"><span>Fynd Commerce account</span></a>.\n\n2. **Select Company**\n\n    - If you have access to multiple companies, you will be prompted to select one. If not, the system will redirect you to the \"Create Company\" form.\n\n3. **Access Fynd Commerce Dashboard**\n\n    - Once you have selected the company, you will be directed to the Fynd Commerce Dashboard.\n\n4. **Navigate to Developers Tab**\n\n    - Click on the `Developers` tab in the sidebar. This action will open the `APIs & SDKs` page.\n\n5. **Access Application Token**\n\n    - Click on the `Application Token` tab to view a list of application credentials for all sales channels within the current company.\n\n6. **Retrieve Credentials**\n\n    - Locate the application credentials for your specific sales channel. The credentials include your `Application ID` and `Application Token`.\n\n7. **Log into Boltic**\n\n    - Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n8. **Navigate to Integrations**\n\n    - Click on `Sources` and then click on `+ Add New source`.\n\n9. **Select Source Type**\n\n    - On the Set up the source page, search for `Fynd Commerce Application` from the search bar and select it.\n\n10. **Configure Integration**\n\n    - **Name:** Enter a name for the Fynd Commerce integration.\n\n    - **Authentication Type:** Select Authentication Type for the integration.\n\n    - **Application ID:** Enter the application ID obtained from the Fynd Commerce.\n\n    - **Application Token:** Enter the application token obtained from the Fynd Commerce.\n\n11. **Details (Optional)**\n\n    - **Tags:** Add any tags for categorization.\n\n    - **Description:** Provide a brief description of the integration.\n\n12. **Test and Save Integration**\n\n    - Click `Test & Save` to ensure the connection is successful.\n\n    - Once the connection test is successful, your integration will be saved.\n\n## Support\n\nFor further assistance, please contact Fynd Commerce support or refer to our <a href=\"https://platform.fynd.com/help\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n",
-    "integration_id": "c4d7aa98-e426-4e67-9149-3c1a033951de",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://api.fynd.com/service/application/configuration/v1.0/languages",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Access Token",
-                            "value": "access_token"
-                        }
-                    ],
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Application ID is required"
+                        }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
+                    "description": "",
+                    "displayName": "Application ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Application ID"
                 },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://api.fynd.com/service/application/configuration/v1.0/languages",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.error}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+                "name": "api_key"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Application ID is required"
-                            }
-                        },
-                        "description": "",
-                        "displayName": "Application ID",
-                        "displayType": "text",
-                        "placeholder": "Enter Application ID"
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Application Token is required"
+                        }
                     },
-                    "name": "api_key"
+                    "description": "",
+                    "displayName": "Application Token",
+                    "displayType": "password",
+                    "placeholder": "Enter Application Token"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Application Token is required"
-                            }
-                        },
-                        "description": "",
-                        "displayName": "Application Token",
-                        "displayType": "password",
-                        "placeholder": "Enter Application Token"
-                    },
-                    "name": "api_secret"
-                }
-            ]
-        }
-    },
-    "created_by": "ahmedsakri@gofynd.com",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T15:09:57.754Z",
-    "updated_at": "2025-06-11T15:09:57.754Z"
+                "name": "api_secret"
+            }
+        ]
+    }
 }

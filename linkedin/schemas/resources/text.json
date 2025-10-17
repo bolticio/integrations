@@ -1,143 +1,83 @@
 {
+    "definition": {
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "body": {
+            "author": "{{parameters.author}}",
+            "visibility": {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            },
+            "lifecycleState": "PUBLISHED",
+            "specificContent": {
+                "com.linkedin.ugc.ShareContent": {
+                    "shareCommentary": {
+                        "text": "{{parameters.content}}"
+                    },
+                    "shareMediaCategory": "NONE"
+                }
+            }
+        },
+        "method": "post",
+        "headers": {
+            "content-type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data}}"
+            },
+            "output": "{{response.data}}"
+        }
+    },
     "parameters": [
         {
             "meta": {
-                "options": [
-                    {
-                        "label": "Post a text",
-                        "value": "text.create"
-                    }
-                ],
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "linkedin",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "text",
+                        "operation": "text.create",
+                        "loadOptionsMethod": "getLinkedInSubAccounts"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "sub"
+                },
+                "options": [],
                 "validation": {
-                    "required": true
-                },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
-                "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "text",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
-            },
-            "name": "operation"
-        }
-    ],
-    "getLinkedInSubAccounts": {
-        "definition": {
-            "qs": {},
-            "url": "https://api.linkedin.com/v2/userinfo",
-            "method": "get",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "output": "const options = { name: output.name, sub: 'urn:li:person:' + output.sub }; return [options];"
-            }
-        }
-    },
-    "id": "56ef6485-ad24-4b7b-b0bc-24abf9aa59e0",
-    "integration_id": "ce852a50-40f9-4887-b600-75ab6fc6d71d",
-    "resource_id": "af1da6e4-bfe6-437d-b2c8-9a4a90760f1d",
-    "name": "create",
-    "content": {
-        "definition": {
-            "url": "https://api.linkedin.com/v2/ugcPosts",
-            "body": {
-                "author": "{{parameters.author}}",
-                "visibility": {
-                    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
-                },
-                "lifecycleState": "PUBLISHED",
-                "specificContent": {
-                    "com.linkedin.ugc.ShareContent": {
-                        "shareCommentary": {
-                            "text": "{{parameters.content}}"
-                        },
-                        "shareMediaCategory": "NONE"
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Please select author"
                     }
-                }
-            },
-            "method": "post",
-            "headers": {
-                "content-type": "application/json",
-                "Authorization": "Bearer {{secrets.api_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
                 },
-                "output": "{{response.data}}"
-            }
+                "description": "Select Author account",
+                "displayName": "LinkedIn Author Account",
+                "displayType": "select",
+                "placeholder": "Eg: User1"
+            },
+            "name": "author"
         },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "linkedin",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "text",
-                            "operation": "text.create",
-                            "loadOptionsMethod": "getLinkedInSubAccounts"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "sub"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Please select author"
-                        }
-                    },
-                    "description": "Select Author account",
-                    "displayName": "LinkedIn Author Account",
-                    "displayType": "select",
-                    "placeholder": "Eg: User1"
+        {
+            "meta": {
+                "htmlProps": {
+                    "disabled": false,
+                    "overrideDynamicSupport": true
                 },
-                "name": "author"
+                "validation": {
+                    "max": 2000,
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Please add the message"
+                    }
+                },
+                "displayName": "Post",
+                "displayType": "textarea",
+                "placeholder": "Enter the text of the message"
             },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "disabled": false,
-                        "overrideDynamicSupport": true
-                    },
-                    "validation": {
-                        "max": 2000,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Please add the message"
-                        }
-                    },
-                    "displayName": "Post",
-                    "displayType": "textarea",
-                    "placeholder": "Enter the text of the message"
-                },
-                "name": "content"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:47.528Z",
-    "updated_at": "2025-06-11T12:12:47.528Z"
+            "name": "content"
+        }
+    ]
 }

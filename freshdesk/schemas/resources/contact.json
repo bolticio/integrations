@@ -1,116 +1,30 @@
 {
-    "parameters": [
-        {
-            "meta": {
-                "options": [
-                    {
-                        "label": "Create Contact",
-                        "value": "contact.create",
-                        "description": "Create a new contact in Freshdesk."
-                    },
-                    {
-                        "label": "Delete Contact",
-                        "value": "contact.delete",
-                        "description": "Delete an existing contact from Freshdesk."
-                    },
-                    {
-                        "label": "Get Contact",
-                        "value": "contact.get",
-                        "description": "Retrieve details of a specific contact by ID."
-                    },
-                    {
-                        "label": "Search Contact",
-                        "value": "contact.search",
-                        "description": "Search for contacts by email address."
-                    },
-                    {
-                        "label": "List Contacts",
-                        "value": "contact.list",
-                        "description": "List all contacts in Freshdesk."
-                    },
-                    {
-                        "label": "Update Contact",
-                        "value": "contact.update",
-                        "description": "Update details of an existing contact."
-                    }
-                ],
-                "validation": {
-                    "required": true
-                },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
-                "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "contact",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
-            },
-            "name": "operation"
-        }
-    ],
-    "getMoreParameters": {
-        "definition": {
-            "qs": {},
-            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contact_fields",
-            "method": "get",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.code}}",
-                    "message": "{{response.data.description}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "output": "const staticField={name:'unique_external_id',meta:{displayName:'Unique External ID',displayType:'text',placeholder:'Enter Unique External ID',validation:{required:true}}};const skip=new Set(['requester','company']);const typeMap={text:'text',textarea:'textarea',dropdown:'select',auto_complete:'multitext',multi_select_dropdown:'multiselect',radio:'select',number:'number'};const seen=new Set([staticField.name]);const result=[staticField,...output.map(ele=>{if(seen.has(ele.name)||skip.has(ele.name))return null;seen.add(ele.name);const displayType=ele.choices?'select':(typeMap[ele.type]||'text');const obj={name:ele.name,meta:{displayName:ele.label,displayType,placeholder:`${ele.choices?'Select':'Enter'} ${ele.label}`,validation:{required:false}}};if(ele.name==='priority'){obj.meta.displayType='select';obj.meta.options=[{label:'Low',value:1},{label:'Medium',value:2},{label:'High',value:3},{label:'Urgent',value:4}];}else if(ele.choices){obj.meta.htmlProps={allowDynamic:true};if(Array.isArray(ele.choices))obj.meta.options=ele.choices.map(c=>({label:c,value:c}));else obj.meta.options=Object.entries(ele.choices).map(([k,v])=>({label:v,value:k}));}return obj;}).filter(Boolean)];return result;"
-            }
-        }
-    },
-    "id": "c5127ef6-80b0-437a-9604-69f65f58ea3c",
-    "integration_id": "dac62a40-2b33-42f4-87a4-ba8d8540a559",
-    "resource_id": "0ef68d2f-8afb-4511-b746-738086d1486f",
-    "name": "list",
-    "content": {
-        "definition": {
-            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts",
-            "method": "get",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.description}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "page": "{{pagination.page}} + 1",
-                    "per_page": "{{pagination.per_page}}"
-                },
-                "type": "page",
-                "default": {
-                    "page": 1,
-                    "per_page": 30
-                },
-                "condition": "{{response.data.meta.total}} > 0"
-            }
+    "definition": {
+        "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts",
+        "method": "get",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
         },
-        "parameters": []
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.description}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "pagination": {
+            "qs": {
+                "page": "{{pagination.page}} + 1",
+                "per_page": "{{pagination.per_page}}"
+            },
+            "type": "page",
+            "default": {
+                "page": 1,
+                "per_page": 30
+            },
+            "condition": "{{response.data.meta.total}} > 0"
+        }
     },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T12:12:31.173Z",
-    "updated_at": "2025-06-25T14:48:03.804Z"
+    "parameters": []
 }

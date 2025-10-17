@@ -1,279 +1,80 @@
 {
-    "getModels": {
-        "definition": {
-            "qs": {
-                "key": "{{secrets.api_token}}"
+    "definition": {
+        "qs": {
+            "key": "{{secrets.api_token}}"
+        },
+        "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}",
+        "method": "get",
+        "headers": {
+            "Referer": "https://console.boltic.io/",
+            "content-type": "application/json"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
             },
-            "url": "https://generativelanguage.googleapis.com/v1/models",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Referer": "https://console.boltic.io/"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "output": "const updatedOutput = output?.models?.map((model) => { return { name: model.displayName, id: model.name.split('/')[1], }; }); return updatedOutput;"
-            }
+            "output": "{{response.data}}"
         }
     },
     "parameters": [
         {
             "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "gemini",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "models",
+                        "operation": "models.retrieve_a_model",
+                        "loadOptionsMethod": "getModels"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the model to fetch the details",
+                "displayName": "Model",
+                "displayType": "select",
+                "placeholder": "Select a model"
+            },
+            "name": "model"
+        },
+        {
+            "meta": {
                 "options": [
                     {
-                        "label": "Generate Text",
-                        "value": "message.generate_text"
+                        "label": "Version 1 (Stable)",
+                        "value": "v1"
                     },
                     {
-                        "label": "Chat Interaction",
-                        "value": "message.interactive_chat"
+                        "label": "Version 1 Beta (Experimental)",
+                        "value": "v1beta"
                     }
                 ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
                 "validation": {
                     "required": true,
                     "requiredDetail": {
-                        "errorMsg": "Operation is required field."
+                        "errorMsg": "API version is required field."
                     }
                 },
-                "description": "Choose what you want to do with Google Generative AI, such as generating text or interacting via chat.",
-                "displayName": "Operation",
+                "description": "Specify the version of the API to use for this request.",
+                "displayName": "API Version",
                 "displayType": "select",
-                "placeholder": "Select an operation to perform",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "message",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "placeholder": "Select API Version"
             },
-            "name": "operation"
+            "name": "api_version"
         }
-    ],
-    "generate_description": {
-        "definition": {
-            "url": "https://generativeai.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}:generateContent",
-            "body": {
-                "contents": [
-                    {
-                        "parts": [
-                            {
-                                "text": "{{parameteres.prompt}}"
-                            },
-                            {
-                                "inline_data": {
-                                    "data": "{{parameteres.image_path}",
-                                    "mime_type": "image/jpeg"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "method": "post",
-            "headers": {
-                "Accept": "application/json",
-                "Referer": "https://console.boltic.io/",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.candidates[0].text}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "gemini",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "message",
-                            "operation": "message.generate_description",
-                            "loadOptionsMethod": "getModels"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the model to fetch the details",
-                    "displayName": "Model",
-                    "displayType": "select",
-                    "placeholder": "Select a model"
-                },
-                "name": "model"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Version 1 (Stable)",
-                            "value": "v1"
-                        },
-                        {
-                            "label": "Version 1 Beta (Experimental)",
-                            "value": "v1beta"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "An API version is required to proceed."
-                        }
-                    },
-                    "description": "Specify the version of the API to use for this request.",
-                    "displayName": "API Version",
-                    "displayType": "select",
-                    "placeholder": "Select API Version"
-                },
-                "name": "api_version"
-            },
-            {
-                "meta": {
-                    "value": "Describe how this product might be manufactured.",
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Provide the input text prompt to guide the description of the image.",
-                    "displayName": "Prompt",
-                    "displayType": "text",
-                    "placeholder": "Enter the text prompt"
-                },
-                "name": "prompt"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "accept": ".jpg,.png",
-                        "maxSize": 5242880,
-                        "preview": true,
-                        "maxFiles": 2,
-                        "multiple": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Image is a required field"
-                        }
-                    },
-                    "description": "Upload the image that the model will use to generate the description.",
-                    "displayName": "Upload the image",
-                    "displayType": "file"
-                },
-                "name": "image_path"
-            }
-        ]
-    },
-    "id": "84218e27-bbb8-46b0-aa2e-01ac6e50dfa7",
-    "integration_id": "9bc48fde-aab8-47b4-8b12-e9c154df128b",
-    "resource_id": "e066b4d7-b5d8-4576-ae45-6bfcb7b463e7",
-    "name": "retrieve_a_model",
-    "content": {
-        "definition": {
-            "qs": {
-                "key": "{{secrets.api_token}}"
-            },
-            "url": "https://generativelanguage.googleapis.com/{{parameters.api_version}}/models/{{parameters.model}}",
-            "method": "get",
-            "headers": {
-                "Referer": "https://console.boltic.io/",
-                "content-type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "gemini",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "models",
-                            "operation": "models.retrieve_a_model",
-                            "loadOptionsMethod": "getModels"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the model to fetch the details",
-                    "displayName": "Model",
-                    "displayType": "select",
-                    "placeholder": "Select a model"
-                },
-                "name": "model"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Version 1 (Stable)",
-                            "value": "v1"
-                        },
-                        {
-                            "label": "Version 1 Beta (Experimental)",
-                            "value": "v1beta"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "API version is required field."
-                        }
-                    },
-                    "description": "Specify the version of the API to use for this request.",
-                    "displayName": "API Version",
-                    "displayType": "select",
-                    "placeholder": "Select API Version"
-                },
-                "name": "api_version"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:39.677Z",
-    "updated_at": "2025-06-11T12:12:39.677Z"
+    ]
 }

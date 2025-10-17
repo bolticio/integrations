@@ -1,250 +1,42 @@
 {
+    "definition": {
+        "qs": {},
+        "url": "https://api.fynd.com/service/application/catalog/v1.0/follow/{{parameters.collection_type}}/{{parameters.collection_id}}",
+        "body": {},
+        "method": "delete",
+        "headers": {
+            "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": ""
+            },
+            "output": "{{response.data}}"
+        }
+    },
     "parameters": [
         {
             "meta": {
-                "options": [
-                    {
-                        "label": "Retrieve cart details (getCart)",
-                        "value": "cart.getCart",
-                        "description": "Get the current state of the user's shopping cart including items, quantities, prices, and applied discounts."
-                    },
-                    {
-                        "label": "Add to cart (addItems)",
-                        "value": "cart.addItems",
-                        "description": "Add one or more items to the user's shopping cart with specified quantities and variants."
-                    },
-                    {
-                        "label": "Update cart (updateCart)",
-                        "value": "cart.updateCart",
-                        "description": "Modify existing items in the cart including quantity adjustments, variant changes, or removing items."
-                    },
-                    {
-                        "label": "Get saved addresses (getAddresses)",
-                        "value": "cart.getAddresses",
-                        "description": "Retrieve the list of delivery addresses saved in the user's profile for shipping selection."
-                    },
-                    {
-                        "label": "Add new address (addAddress)",
-                        "value": "cart.addAddress",
-                        "description": "Save a new delivery address to the user's profile for current and future orders."
-                    },
-                    {
-                        "label": "Choose delivery address (selectAddress)",
-                        "value": "cart.electAddress",
-                        "description": "Set the delivery address for the current cart from the user's saved addresses."
-                    },
-                    {
-                        "label": "List available coupons (getCoupons)",
-                        "value": "cart.getCoupons",
-                        "description": "Get a list of valid discount coupons that can be applied to the current cart."
-                    },
-                    {
-                        "label": "Apply coupon (applyCoupon)",
-                        "value": "cart.applyCoupon",
-                        "description": "Apply a discount coupon to the current cart to reduce the total amount."
-                    },
-                    {
-                        "label": "Remove coupon (removeCoupon)",
-                        "value": "cart.removeCoupon",
-                        "description": "Remove the currently applied discount coupon from the cart."
-                    }
-                ],
                 "validation": {
-                    "required": true,
-                    "requiredDetail": {
-                        "errorMsg": "Operation is a required field"
-                    }
+                    "required": true
                 },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
-                "displayType": "autocomplete",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "cart",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "description": "Type of collection followed, i.e. products, brands, or collections.",
+                "displayName": "collection_type",
+                "displayType": "text"
             },
-            "name": "operation"
+            "name": "collection_type"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "The ID of the collection type.",
+                "displayName": "collection_id",
+                "displayType": "text"
+            },
+            "name": "collection_id"
         }
-    ],
-    "selectAddress": {
-        "definition": {
-            "qs": {
-                "b": "{{parameters.b}}",
-                "i": "{{parameters.i}}",
-                "buy_now": "{{parameters.buy_now}}",
-                "cart_id": "{{parameters.cart_id}}"
-            },
-            "url": "https://api.fynd.com/service/application/cart/v1.0/select-address",
-            "body": {
-                "id": "{{parameters.id}}",
-                "cart_id": "{{parameters.cart_id}}",
-                "billing_address_id": "{{parameters.billing_address_id}}"
-            },
-            "method": "post",
-            "filters": {
-                "body": {
-                    "allowEmptyValue": false,
-                    "allowEmptyObject": false
-                }
-            },
-            "headers": {
-                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": ""
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {},
-                    "description": "",
-                    "displayName": "cart_id",
-                    "displayType": "text"
-                },
-                "name": "cart_id"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "True",
-                            "value": "true"
-                        },
-                        {
-                            "label": "False",
-                            "value": "false"
-                        }
-                    ],
-                    "validation": {},
-                    "description": "",
-                    "displayName": "buy_now",
-                    "displayType": "select"
-                },
-                "name": "buy_now"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "True",
-                            "value": "true"
-                        },
-                        {
-                            "label": "False",
-                            "value": "false"
-                        }
-                    ],
-                    "validation": {},
-                    "description": "",
-                    "displayName": "i",
-                    "displayType": "select"
-                },
-                "name": "i"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "True",
-                            "value": "true"
-                        },
-                        {
-                            "label": "False",
-                            "value": "false"
-                        }
-                    ],
-                    "validation": {},
-                    "description": "",
-                    "displayName": "b",
-                    "displayType": "select"
-                },
-                "name": "b"
-            },
-            {
-                "meta": {
-                    "validation": {},
-                    "displayName": "id",
-                    "displayType": "text"
-                },
-                "name": "id"
-            },
-            {
-                "meta": {
-                    "validation": {},
-                    "displayName": "billing_address_id",
-                    "displayType": "text"
-                },
-                "name": "billing_address_id"
-            },
-            {
-                "meta": {
-                    "validation": {},
-                    "displayName": "cart_id",
-                    "displayType": "text"
-                },
-                "name": "cart_id"
-            }
-        ]
-    },
-    "id": "4d2604c6-bd73-4e24-8a99-2096757b7f5a",
-    "integration_id": "c4d7aa98-e426-4e67-9149-3c1a033951de",
-    "resource_id": "d9b6b5e7-af6f-44ea-9769-9d2fad9dc0f8",
-    "name": "unfollowById",
-    "content": {
-        "definition": {
-            "qs": {},
-            "url": "https://api.fynd.com/service/application/catalog/v1.0/follow/{{parameters.collection_type}}/{{parameters.collection_id}}",
-            "body": {},
-            "method": "delete",
-            "headers": {
-                "Authorization": "Bearer convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": ""
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Type of collection followed, i.e. products, brands, or collections.",
-                    "displayName": "collection_type",
-                    "displayType": "text"
-                },
-                "name": "collection_type"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the collection type.",
-                    "displayName": "collection_id",
-                    "displayType": "text"
-                },
-                "name": "collection_id"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:20.482Z",
-    "updated_at": "2025-06-11T12:12:20.482Z"
+    ]
 }

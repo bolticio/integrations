@@ -1,71 +1,62 @@
 {
-    "id": "f1ffbe69-1a68-4311-af16-13d9314d41e4",
-    "documentation": "## Hugging Face  \n\nThis guide walks you through setting up the Hugging Face integration in Boltic using API Key authentication.  \n\n## Requirements  \n\nTo set up the Hugging Face integration, you'll need:  \n\n- A <a href=\"https://huggingface.co/join\" target=\"_blank\" rel=\"noopener\"><span>Hugging Face account</span></a>  \n- An API Key for accessing Hugging Face services (obtainable from your <a href=\"https://huggingface.co/settings/tokens\" target=\"_blank\" rel=\"noopener\"><span>Hugging Face account settings</span></a>)  \n\n## Setting Up the Hugging Face Integration in Boltic  \n\n### 1. Log In  \n\nLog into your <a href=\"https://www.boltic.io/\" target=\"_blank\" rel=\"noopener\"><span>Boltic account</span></a> or navigate to the Boltic Open Source / Destination dashboard.  \n\n### 2. Navigate to Integrations from the Primary Menu  \n\nClick on workflows and then click on `+ Add New Source / Destination`.  \n\n### 3. Select Source / Destination Type  \n\nOn the *Set up the Source / Destination* page, search for `Hugging Face` in the search bar and select it.  \n\n### 4. Configure Integration  \n\n#### **Basic Details**  \n\n- **Name:** Enter a name for the Hugging Face integration.  \n- **Description:** Add a description for your Hugging Face connection.  \n\n#### **Authentication**  \n\n1. **Authentication Type:**  \n   - Select `API Key` from the dropdown menu as the authentication type.  \n\n2. **API Key:**  \n   - Enter your Hugging Face API Key in the designated field.  \n   - Ensure you have copied the key from your <a href=\"https://huggingface.co/settings/tokens\" target=\"_blank\" rel=\"noopener\"><span>Hugging Face account settings</span></a>. If you don't have an API Key, generate one by logging into your Hugging Face account and navigating to **Settings > Access Tokens**.  \n\n### 5. Test and Save Integration  \n\n- Click `Test Connection` to ensure the provided API Key is valid and the connection is successful.  \n- Once the connection test is successful, click `Set up Source / Destination` to complete the configuration.  \n",
-    "integration_id": "20535a48-95a8-498d-8111-3a03e746e355",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://huggingface.co/api/whoami-v2",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Access Token",
-                            "value": "access_token"
+                    "validation": {
+                        "required": true,
+                        "requiredDetails": {
+                            "errorMsg": "Access Token is required."
                         }
-                    ],
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "hidden",
-                    "placeholder": "Select an authentication type"
-                },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://huggingface.co/api/whoami-v2",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Bearer {{secrets.access_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.error}}"
                     },
-                    "output": "{{response.data}}"
-                }
-            },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetails": {
-                                "errorMsg": "Access Token is required."
+                    "description": "Refer to the <a href='https://huggingface.co/docs/hub/en/security-tokens' target='blank'>Hugging Face authenticaton documentation</a> for detailed instructions on getting your Access Token.",
+                    "displayName": "Access Token",
+                    "displayType": "password",
+                    "placeholder": "Enter Access Token",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
                             }
-                        },
-                        "description": "Refer to the <a href='https://huggingface.co/docs/hub/en/security-tokens' target='blank'>Hugging Face authenticaton documentation</a> for detailed instructions on getting your Access Token.",
-                        "displayName": "Access Token",
-                        "displayType": "password",
-                        "placeholder": "Enter Access Token",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "access_token"
-                }
-            ]
-        }
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T12:12:45.403Z",
-    "updated_at": "2025-06-25T14:49:37.990Z"
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
 }

@@ -1,148 +1,139 @@
 {
-    "id": "9b90cd45-4423-4a12-a585-a018f479810d",
-    "documentation": "# Fynd Engage\n\nThis document outlines how to authenticate with Fynd Engage in Boltic using **API Key and Secret** authentication.\n\n## Authentication Type\n\n### Access Token\n\nFynd Engage uses an **Access Token** method based on your **API Key** and **API Secret**. These credentials are used to generate authorization headers that authenticate API requests.\n\n## Required Fields\n\n### API Key\n\n- **Description**: Your Fynd API Key.\n- **Where to Find**:  \n- **Login to Fynd Engage - Settings - Generate API KEY - Name API Key - API key and Secret is Generated** \n\n### API Secret\n\n- **Description**: Your Fynd API Secret.\n- **Where to Find**:  \n- **Login to Fynd Engage - Settings - Generate API KEY - Name API Key - API key and Secret is Generated** \n\n---\n\n",
-    "integration_id": "146f9c48-92f7-49ff-9102-a08c28dc0eb1",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://api.engage.fynd.com/service/platform/v1/user/check-user",
+            "body": {
+                "name": "{{secrets.name}}",
+                "email": "{{secrets.email}}",
+                "phone": "{{secrets.phone}}",
+                "userIdentifier": "{{secrets.userIdentifier}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Access Token",
-                            "value": "access_token"
-                        }
-                    ],
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API Key is required"
+                        }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "hidden",
-                    "placeholder": "Select an authentication type"
+                    "description": "Refer to the Fynd API authentication documentation for detailed instructions on getting your API key.",
+                    "displayName": "API Key",
+                    "displayType": "text",
+                    "placeholder": "Enter your API Key"
                 },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://api.engage.fynd.com/service/platform/v1/user/check-user",
-                "body": {
-                    "name": "{{secrets.name}}",
-                    "email": "{{secrets.email}}",
-                    "phone": "{{secrets.phone}}",
-                    "userIdentifier": "{{secrets.userIdentifier}}"
-                },
-                "method": "post",
-                "headers": {
-                    "Content-Type": "application/json",
-                    "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:{{secrets.api_secret}})"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+                "name": "api_key"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "API Key is required"
-                            }
-                        },
-                        "description": "Refer to the Fynd API authentication documentation for detailed instructions on getting your API key.",
-                        "displayName": "API Key",
-                        "displayType": "text",
-                        "placeholder": "Enter your API Key"
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API Secret is required"
+                        }
                     },
-                    "name": "api_key"
+                    "description": "Refer to the Fynd API authentication documentation for detailed instructions on getting your API secret.",
+                    "displayName": "API Secret",
+                    "displayType": "password",
+                    "placeholder": "Enter your API Secret"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "API Secret is required"
-                            }
-                        },
-                        "description": "Refer to the Fynd API authentication documentation for detailed instructions on getting your API secret.",
-                        "displayName": "API Secret",
-                        "displayType": "password",
-                        "placeholder": "Enter your API Secret"
+                "name": "api_secret"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Full Name is required"
+                        }
                     },
-                    "name": "api_secret"
+                    "description": "The full name of the user.",
+                    "displayName": "Full Name",
+                    "displayType": "text",
+                    "placeholder": "Enter full name"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Full Name is required"
-                            }
-                        },
-                        "description": "The full name of the user.",
-                        "displayName": "Full Name",
-                        "displayType": "text",
-                        "placeholder": "Enter full name"
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Email Address is required"
+                        }
                     },
-                    "name": "name"
+                    "description": "The user's email address.",
+                    "displayName": "Email Address",
+                    "displayType": "email",
+                    "placeholder": "Enter email address"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Email Address is required"
-                            }
-                        },
-                        "description": "The user's email address.",
-                        "displayName": "Email Address",
-                        "displayType": "email",
-                        "placeholder": "Enter email address"
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[0-9]{10}$",
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Phone Number is required"
+                        }
                     },
-                    "name": "email"
+                    "description": "The user's phone number.",
+                    "displayName": "Phone Number",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "pattern": "^[0-9]{10}$",
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Phone Number is required"
-                            }
-                        },
-                        "description": "The user's phone number.",
-                        "displayName": "Phone Number",
-                        "displayType": "text",
-                        "placeholder": "Enter phone number"
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "User Identifier is required"
+                        }
                     },
-                    "name": "phone"
+                    "description": "A unique identifier for the user.",
+                    "displayName": "User Identifier",
+                    "displayType": "text",
+                    "placeholder": "Enter user identifier"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "User Identifier is required"
-                            }
-                        },
-                        "description": "A unique identifier for the user.",
-                        "displayName": "User Identifier",
-                        "displayType": "text",
-                        "placeholder": "Enter user identifier"
-                    },
-                    "name": "userIdentifier"
-                }
-            ]
-        }
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:41.027Z",
-    "updated_at": "2025-06-11T12:12:41.027Z"
+                "name": "userIdentifier"
+            }
+        ]
+    }
 }

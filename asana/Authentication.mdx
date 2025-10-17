@@ -1,385 +1,376 @@
 {
-    "id": "22d451ed-57b5-4268-8b50-e4778fb549cb",
-    "documentation": "\n\n# Asana\n\n\n\nThis guide walks you through setting up the Asana integration within Boltic.\n\n\n\n## Prerequisites\n\nTo set up the Asana integration, you'll need:\n\n- An Asana account\n\nIf you don't have an Asana account, you can create one at <a href=\"https://asana.com/create-account\" target=\"_blank\" rel=\"noopener\"><span>Asana Create Account</span></a>.\n\n\n\n## Setting Up the Asana Integration in Boltic\n\n1. **Log In**\n\n   - Log into your Asana account.\n\n\n\n2. **Log into Boltic**\n\n   - Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n\n\n3. **Navigate to Integrations**\n\n   - Click on `Sources` and then click on `+ Add New source`.\n\n\n\n4. **Select Source Type**\n\n   - On the Set up the source page, search for `Asana` from the search bar and select it.\n\n\n\n5. **Authenticate Asana Account**\n\n   - Click `Connect to Asana`.\n\n   - You will be redirected to the Asana website.\n\n   - If you are already logged into Asana, the connection will be automatically established. If not, log into your Asana account.\n\n\n\n6. **Configure Integration**\n\n   - **Name:** Enter a name for the Asana integration.\n\n   - **Workspace:** Select the workspace you want to connect.\n\n\n\n7. **Details (Optional)**\n\n   - **Tags:** Add any tags for categorization.\n\n   - **Description:** Provide a brief description of the integration.\n\n   \n\n8. **Test and Save Integration**\n\n   - Click `Test Connection` to ensure the connection is successful.\n\n   - Once the connection test is successful, click `Set up source` to complete the configuration.\n\n\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n\n",
-    "integration_id": "9b8f8b96-6867-47ea-a67c-e84e17f0d021",
-    "content": {
-        "oauth2": {
-            "token": {
-                "url": "https://app.asana.com/-/oauth_token",
-                "body": {
-                    "code": "{{code}}",
-                    "client_id": "{{secrets.client_id}}",
-                    "grant_type": "authorization_code",
-                    "redirect_uri": "{{secrets.redirect_uri}}",
-                    "client_secret": "{{secrets.client_secret}}"
-                },
-                "method": "post",
-                "headers": {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                "response": {
-                    "output": "{{response.data}}"
-                }
+    "oauth2": {
+        "token": {
+            "url": "https://app.asana.com/-/oauth_token",
+            "body": {
+                "code": "{{code}}",
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "authorization_code",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}"
             },
-            "refresh": {
-                "qs": {
-                    "client_id": "{{secrets.client_id}}",
-                    "grant_type": "refresh_token",
-                    "client_secret": "{{secrets.client_secret}}",
-                    "refresh_token": "{{secrets.refresh_token}}"
-                },
-                "url": "https://app.asana.com/-/oauth_token",
-                "method": "post",
-                "response": {
-                    "error": {
-                        "code": "{{response.data.error}}",
-                        "message": "{{response.data.error_description}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
             },
-            "validate": {
-                "url": "https://app.asana.com/api/1.0/users/me",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Bearer {{secrets.access_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.errors[0].message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "refresh": {
+            "qs": {
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "refresh_token",
+                "client_secret": "{{secrets.client_secret}}",
+                "refresh_token": "{{secrets.refresh_token}}"
             },
-            "authorize": {
-                "qs": {
-                    "scope": "default",
-                    "state": "uuidv4()",
-                    "client_id": "{{secrets.client_id}}",
-                    "redirect_uri": "{{secrets.redirect_uri}}",
-                    "response_type": "code"
+            "url": "https://app.asana.com/-/oauth_token",
+            "method": "post",
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error_description}}"
                 },
-                "url": "https://app.asana.com/-/oauth_authorize",
-                "method": "get",
-                "response": {
-                    "output": "{{response.data}}"
-                }
+                "output": "{{response.data}}"
+            }
+        },
+        "validate": {
+            "url": "https://app.asana.com/api/1.0/users/me",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "value": "v1/asana/oauth2/callback",
-                        "validation": {
-                            "required": true
-                        },
-                        "displayType": "hidden",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "redirect_uri"
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
                 },
-                {
-                    "meta": {
-                        "htmlProps": {
-                            "size": "small",
-                            "style": {
-                                "color": "#ffffff",
-                                "height": "40px",
-                                "padding": "16px",
-                                "fontSize": "14px",
-                                "fontWeight": 700,
-                                "backgroundColor": "#ff592f"
-                            },
-                            "variant": "contained"
-                        },
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Please connect with Asana first"
-                            }
-                        },
-                        "description": "",
-                        "displayName": "Connect Asana Account",
-                        "displayType": "button",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "refresh_token",
-                                    "operator": "EMPTY"
-                                },
-                                {
-                                    "field": "expires_in",
-                                    "operator": "EMPTY"
-                                },
-                                {
-                                    "field": "expiry_date",
-                                    "operator": "EMPTY"
-                                },
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        },
-                        "displayProps": {
-                            "size": "small",
-                            "variant": "contained"
-                        }
-                    },
-                    "name": "oauth2"
-                },
-                {
-                    "meta": {
-                        "htmlProps": {
-                            "size": "small",
-                            "color": "success",
-                            "variant": "contained"
-                        },
-                        "displayName": "Asana Account Connected",
-                        "displayType": "button",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "refresh_token",
-                                    "operator": "NOT_EMPTY"
-                                },
-                                {
-                                    "field": "expires_in",
-                                    "operator": "NOT_EMPTY"
-                                },
-                                {
-                                    "field": "expiry_date",
-                                    "operator": "NOT_EMPTY"
-                                },
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                },
-                                {
-                                    "field": "meta.auth_status",
-                                    "value": "ACTIVE",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "oauth2_connected"
-                },
-                {
-                    "meta": {
-                        "htmlProps": {
-                            "size": "small",
-                            "color": "error",
-                            "variant": "contained"
-                        },
-                        "displayName": "Reconnect Asana",
-                        "displayType": "button",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "refresh_token",
-                                    "operator": "NOT_EMPTY"
-                                },
-                                {
-                                    "field": "expires_in",
-                                    "operator": "NOT_EMPTY"
-                                },
-                                {
-                                    "field": "expiry_date",
-                                    "operator": "NOT_EMPTY"
-                                },
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                },
-                                {
-                                    "field": "meta.auth_status",
-                                    "value": "REVOKED",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "oauth2_reconnect"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "displayName": "Refresh Token",
-                        "displayType": "hidden",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "refresh_token"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "displayName": "Access Token",
-                        "displayType": "hidden",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "access_token"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "displayName": "Expires In",
-                        "displayType": "hidden",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "expires_in"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "displayName": "Expiry Date",
-                        "displayType": "hidden",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "expiry_date"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "displayName": "Auth Status",
-                        "displayType": "hidden",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "oauth2",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "meta.auth_status"
-                }
-            ]
+                "output": "{{response.data}}"
+            }
+        },
+        "authorize": {
+            "qs": {
+                "scope": "default",
+                "state": "uuidv4()",
+                "client_id": "{{secrets.client_id}}",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "response_type": "code"
+            },
+            "url": "https://app.asana.com/-/oauth_authorize",
+            "method": "get",
+            "response": {
+                "output": "{{response.data}}"
+            }
         },
         "parameters": [
             {
                 "meta": {
-                    "value": "oauth2",
-                    "options": [
-                        {
-                            "label": "OAuth2",
-                            "value": "oauth2"
-                        },
-                        {
-                            "label": "Access Token",
-                            "value": "access_token"
-                        }
-                    ],
+                    "value": "v1/asana/oauth2/callback",
                     "validation": {
                         "required": true
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
-                },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://app.asana.com/api/1.0/users/me",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Bearer {{secrets.access_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.errors[0].message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
-            },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Personal access token is mandatory"
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
                             }
+                        ]
+                    }
+                },
+                "name": "redirect_uri"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "style": {
+                            "color": "#ffffff",
+                            "height": "40px",
+                            "padding": "16px",
+                            "fontSize": "14px",
+                            "fontWeight": 700,
+                            "backgroundColor": "#ff592f"
                         },
-                        "description": "Refer to the <a href='https://developers.asana.com/docs/personal-access-token' target='blank'>Asana authenticaton documentation</a> for detailed instructions on getting your access token.",
-                        "displayName": "Personal Access Token",
-                        "displayType": "password",
-                        "placeholder": "",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
+                        "variant": "contained"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please connect with Asana first"
                         }
                     },
-                    "name": "access_token"
-                }
-            ]
-        }
+                    "description": "",
+                    "displayName": "Connect Asana Account",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    },
+                    "displayProps": {
+                        "size": "small",
+                        "variant": "contained"
+                    }
+                },
+                "name": "oauth2"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "color": "success",
+                        "variant": "contained"
+                    },
+                    "displayName": "Asana Account Connected",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "meta.auth_status",
+                                "value": "ACTIVE",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_connected"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "color": "error",
+                        "variant": "contained"
+                    },
+                    "displayName": "Reconnect Asana",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "meta.auth_status",
+                                "value": "REVOKED",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_reconnect"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Refresh Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "refresh_token"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Access Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Expires In",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expires_in"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Expiry Date",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expiry_date"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "displayName": "Auth Status",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "meta.auth_status"
+            }
+        ]
     },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T12:12:16.953Z",
-    "updated_at": "2025-06-26T01:48:00.477Z"
+    "parameters": [
+        {
+            "meta": {
+                "value": "oauth2",
+                "options": [
+                    {
+                        "label": "OAuth2",
+                        "value": "oauth2"
+                    },
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://app.asana.com/api/1.0/users/me",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Personal access token is mandatory"
+                        }
+                    },
+                    "description": "Refer to the <a href='https://developers.asana.com/docs/personal-access-token' target='blank'>Asana authenticaton documentation</a> for detailed instructions on getting your access token.",
+                    "displayName": "Personal Access Token",
+                    "displayType": "password",
+                    "placeholder": "",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
 }

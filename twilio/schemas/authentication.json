@@ -1,83 +1,74 @@
 {
-    "id": "23c6bbc1-9184-41e9-8741-2824d0df1f37",
-    "documentation": "# Twilio\n\nWith Twilio modules in Boltic, you can manage the messages and calls in your Twilio account.\nTo use the Twilio modules, you must have a Twilio account. You can create an account at [Twilio](https://www.twilio.com/login/).\n\n## Authentication Ways\n\n- Auth Token\n\n### Auth Token\n\n- Obtain your SID and Auth Token in Twilio\n    - Log in to your Twilio account.\n\n    - Go to Dashboard > the Develop tab. In the Account info section, copy your Account SID and Auth Token.\n    \n    - Connect Twilio with Boltic - Add SID and Auth Token > Save & Test.\n\n",
-    "integration_id": "01b37a7d-3d5c-4eab-aac0-d82caafb62db",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}.json",
+            "body": {},
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Access Token",
-                            "value": "access_token"
-                        }
-                    ],
                     "validation": {
-                        "required": true
+                        "max": 34,
+                        "min": 34,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Account SID is required"
+                        }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
+                    "description": "Log into your Twilio account and find 'API Credentials' on this page https://www.twilio.com/user/account/settings",
+                    "displayName": "Account SID",
+                    "displayType": "text",
+                    "placeholder": "Enter your Account SID"
                 },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}.json",
-                "body": {},
-                "method": "get",
-                "headers": {
-                    "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+                "name": "AccountSID"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "max": 34,
-                            "min": 34,
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Account SID is required"
-                            }
-                        },
-                        "description": "Log into your Twilio account and find 'API Credentials' on this page https://www.twilio.com/user/account/settings",
-                        "displayName": "Account SID",
-                        "displayType": "text",
-                        "placeholder": "Enter your Account SID"
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Auth Token is required"
+                        }
                     },
-                    "name": "AccountSID"
+                    "description": "Found directly below your Account SID.",
+                    "displayName": "Auth Token",
+                    "displayType": "password",
+                    "placeholder": "Enter your Auth Token"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Auth Token is required"
-                            }
-                        },
-                        "description": "Found directly below your Account SID.",
-                        "displayName": "Auth Token",
-                        "displayType": "password",
-                        "placeholder": "Enter your Auth Token"
-                    },
-                    "name": "AuthToken"
-                }
-            ]
-        }
-    },
-    "created_by": "dev@boltic.io",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T12:12:18.874Z",
-    "updated_at": "2025-10-07T09:52:44.172Z"
+                "name": "AuthToken"
+            }
+        ]
+    }
 }

@@ -1,174 +1,143 @@
 {
+    "definition": {
+        "url": "https://api.line.me/v2/bot/message/push",
+        "body": {
+            "to": "{{parameters.to}}",
+            "messages": "{{parameters.messages}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    },
     "parameters": [
         {
             "meta": {
-                "options": [
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "User ID is a required field."
+                    }
+                },
+                "description": "LINE user ID to whom the message will be sent",
+                "displayName": "Recipient User ID",
+                "displayType": "text",
+                "placeholder": "Enter LINE user ID"
+            },
+            "name": "to"
+        },
+        {
+            "meta": {
+                "children": [
                     {
-                        "label": "Get user profile",
-                        "value": "user.get_user_profile",
-                        "description": "Retrieve the display name, user ID, and profile picture of a LINE user."
+                        "meta": {
+                            "value": "location",
+                            "options": [
+                                {
+                                    "label": "Location",
+                                    "value": "location"
+                                }
+                            ],
+                            "htmlProps": {
+                                "allowDynamic": true
+                            },
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Message Type is a required field."
+                                }
+                            },
+                            "description": "Type of the message",
+                            "displayName": "Message Type",
+                            "displayType": "select",
+                            "defaultValue": "location"
+                        },
+                        "name": "type"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Location title is a required field"
+                                }
+                            },
+                            "description": "Title for the location message Eg. My Location.",
+                            "displayName": "Location Title",
+                            "displayType": "text",
+                            "placeholder": "Enter Location Title"
+                        },
+                        "name": "title"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Address is a required field."
+                                }
+                            },
+                            "description": "Displayed address for the location.",
+                            "displayName": "Address",
+                            "displayType": "textarea",
+                            "placeholder": "Full address of location"
+                        },
+                        "name": "address"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Latitude is a required field."
+                                }
+                            },
+                            "description": "Latitude of the location (e.g., 35.6895).",
+                            "displayName": "Latitude",
+                            "displayType": "number",
+                            "placeholder": "Enter latitude"
+                        },
+                        "name": "latitude"
+                    },
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Longitude is a required field."
+                                }
+                            },
+                            "description": "Longitude of the location (e.g., 139.6917).",
+                            "displayName": "Longitude",
+                            "displayType": "number",
+                            "placeholder": "Enter longitude"
+                        },
+                        "name": "longitude"
                     }
                 ],
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "infoDetail": {
+                        "infoMsg": "You can send multiple location messages in a single request."
+                    },
+                    "requiredDetail": {
+                        "errorMsg": "At least one message is required."
+                    }
                 },
-                "description": "Select the operation you want to performs.",
-                "displayName": "Operation",
-                "displayType": "select",
-                "placeholder": "Select an operation"
+                "description": "List of location messages to be sent.",
+                "displayName": "Messages",
+                "displayType": "array",
+                "placeholder": "Enter location messages"
             },
-            "name": "operation"
+            "name": "messages"
         }
-    ],
-    "id": "114e616a-f555-4f31-8b76-d3840d5538d0",
-    "integration_id": "04bedfb3-0adb-4f28-b6ae-546cfd5f458f",
-    "resource_id": "0f4d58c0-f667-4881-bcbe-57b3f5eb09ee",
-    "name": "send_location",
-    "content": {
-        "definition": {
-            "url": "https://api.line.me/v2/bot/message/push",
-            "body": {
-                "to": "{{parameters.to}}",
-                "messages": "{{parameters.messages}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "User ID is a required field."
-                        }
-                    },
-                    "description": "LINE user ID to whom the message will be sent",
-                    "displayName": "Recipient User ID",
-                    "displayType": "text",
-                    "placeholder": "Enter LINE user ID"
-                },
-                "name": "to"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "value": "location",
-                                "options": [
-                                    {
-                                        "label": "Location",
-                                        "value": "location"
-                                    }
-                                ],
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Message Type is a required field."
-                                    }
-                                },
-                                "description": "Type of the message",
-                                "displayName": "Message Type",
-                                "displayType": "select",
-                                "defaultValue": "location"
-                            },
-                            "name": "type"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Location title is a required field"
-                                    }
-                                },
-                                "description": "Title for the location message Eg. My Location.",
-                                "displayName": "Location Title",
-                                "displayType": "text",
-                                "placeholder": "Enter Location Title"
-                            },
-                            "name": "title"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Address is a required field."
-                                    }
-                                },
-                                "description": "Displayed address for the location.",
-                                "displayName": "Address",
-                                "displayType": "textarea",
-                                "placeholder": "Full address of location"
-                            },
-                            "name": "address"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Latitude is a required field."
-                                    }
-                                },
-                                "description": "Latitude of the location (e.g., 35.6895).",
-                                "displayName": "Latitude",
-                                "displayType": "number",
-                                "placeholder": "Enter latitude"
-                            },
-                            "name": "latitude"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Longitude is a required field."
-                                    }
-                                },
-                                "description": "Longitude of the location (e.g., 139.6917).",
-                                "displayName": "Longitude",
-                                "displayType": "number",
-                                "placeholder": "Enter longitude"
-                            },
-                            "name": "longitude"
-                        }
-                    ],
-                    "validation": {
-                        "required": true,
-                        "infoDetail": {
-                            "infoMsg": "You can send multiple location messages in a single request."
-                        },
-                        "requiredDetail": {
-                            "errorMsg": "At least one message is required."
-                        }
-                    },
-                    "description": "List of location messages to be sent.",
-                    "displayName": "Messages",
-                    "displayType": "array",
-                    "placeholder": "Enter location messages"
-                },
-                "name": "messages"
-            }
-        ]
-    },
-    "created_by": "rahilsiddiqui@gofynd.com",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-24T11:40:30.164Z",
-    "updated_at": "2025-07-03T06:06:18.455Z"
+    ]
 }

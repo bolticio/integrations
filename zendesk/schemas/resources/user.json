@@ -1,251 +1,160 @@
 {
-    "getGroups": {
-        "definition": {
-            "qs": {
-                "exclude_deleted": true
-            },
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups",
-            "method": "get",
-            "headers": {
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.code}}",
-                    "message": "{{response.data.error}}"
+    "definition": {
+        "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket_id}}",
+        "body": {
+            "ticket": {
+                "tags": "{{parameters.tags}}",
+                "comment": {
+                    "body": "{{parameters.description}}"
                 },
-                "output": "{{response.data.groups}}"
+                "subject": "{{parameters.subject}}",
+                "group_id": "{{parameters.group_id}}",
+                "priority": "{{parameters.priority}}",
+                "assignee_id": "{{parameters.assignee_id}}"
             }
+        },
+        "method": "put",
+        "filters": {
+            "body": {
+                "allowEmptyArray": false,
+                "allowEmptyValue": false,
+                "allowEmptyObject": false
+            }
+        },
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
         }
     },
     "parameters": [
         {
             "meta": {
-                "options": [
-                    {
-                        "label": "Get Specific User",
-                        "value": "user.get"
-                    },
-                    {
-                        "label": "Get User List",
-                        "value": "user.getList"
-                    },
-                    {
-                        "label": "Create User",
-                        "value": "user.create"
-                    },
-                    {
-                        "label": "Update User",
-                        "value": "user.update"
-                    },
-                    {
-                        "label": "Delete User",
-                        "value": "user.delete"
-                    }
-                ],
                 "validation": {
                     "required": true
                 },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
-                "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "user",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "description": "Enter the ID of the ticket you want to update",
+                "displayName": "Ticket ID",
+                "displayType": "text",
+                "placeholder": "Enter the ticket ID"
             },
-            "name": "operation"
-        }
-    ],
-    "getOrganizations": {
-        "definition": {
-            "qs": {},
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/organizations",
-            "method": "get",
-            "headers": {
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.code}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data.organizations}}"
-            }
-        }
-    },
-    "id": "47f803c4-afcb-4d3b-b3c3-1bf5f04bf124",
-    "integration_id": "e6b64570-e43f-4e6c-8cce-b7feb243f28c",
-    "resource_id": "ab737106-0af2-44f8-af2c-ab0dd3afee1a",
-    "name": "update",
-    "content": {
-        "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket_id}}",
-            "body": {
-                "ticket": {
-                    "tags": "{{parameters.tags}}",
-                    "comment": {
-                        "body": "{{parameters.description}}"
-                    },
-                    "subject": "{{parameters.subject}}",
-                    "group_id": "{{parameters.group_id}}",
-                    "priority": "{{parameters.priority}}",
-                    "assignee_id": "{{parameters.assignee_id}}"
-                }
-            },
-            "method": "put",
-            "filters": {
-                "body": {
-                    "allowEmptyArray": false,
-                    "allowEmptyValue": false,
-                    "allowEmptyObject": false
-                }
-            },
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
+            "name": "ticket_id"
         },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the subject of the ticket you want to update.",
+                "displayName": "Subject",
+                "displayType": "text",
+                "placeholder": "Enter new ticket subject"
+            },
+            "name": "subject"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Enter the description of the ticket you want to update.",
+                "displayName": "First Comment / Description",
+                "displayType": "textarea",
+                "placeholder": "Enter new ticket description"
+            },
+            "name": "description"
+        },
+        {
+            "meta": {
+                "value": false,
+                "options": [
+                    {
+                        "label": "Urgent",
+                        "value": "urgent"
                     },
-                    "description": "Enter the ID of the ticket you want to update",
-                    "displayName": "Ticket ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the ticket ID"
-                },
-                "name": "ticket_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
+                    {
+                        "label": "High",
+                        "value": "high"
                     },
-                    "description": "Enter the subject of the ticket you want to update.",
-                    "displayName": "Subject",
-                    "displayType": "text",
-                    "placeholder": "Enter new ticket subject"
-                },
-                "name": "subject"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
+                    {
+                        "label": "Normal",
+                        "value": "normal"
                     },
-                    "description": "Enter the description of the ticket you want to update.",
-                    "displayName": "First Comment / Description",
-                    "displayType": "textarea",
-                    "placeholder": "Enter new ticket description"
-                },
-                "name": "description"
+                    {
+                        "label": "Low",
+                        "value": "low"
+                    }
+                ],
+                "description": "Select the priority of the ticket.",
+                "displayName": "Priority",
+                "displayType": "select",
+                "placeholder": "Select the priority for the ticket"
             },
-            {
-                "meta": {
-                    "value": false,
-                    "options": [
-                        {
-                            "label": "Urgent",
-                            "value": "urgent"
-                        },
-                        {
-                            "label": "High",
-                            "value": "high"
-                        },
-                        {
-                            "label": "Normal",
-                            "value": "normal"
-                        },
-                        {
-                            "label": "Low",
-                            "value": "low"
-                        }
-                    ],
-                    "description": "Select the priority of the ticket.",
-                    "displayName": "Priority",
-                    "displayType": "select",
-                    "placeholder": "Select the priority for the ticket"
-                },
-                "name": "priority"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.update",
-                            "loadOptionsMethod": "getAssignees"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
+            "name": "priority"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "zendesk",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "ticket",
+                        "operation": "ticket.update",
+                        "loadOptionsMethod": "getAssignees"
                     },
-                    "options": [],
-                    "description": "Note: the assignee must be in the default group (or specific group selected below) else an error will occur. Defaults to selected zendesk account",
-                    "displayName": "Assignee",
-                    "displayType": "select",
-                    "placeholder": "Select the assignee (agent)"
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
                 },
-                "name": "assignee_id"
+                "options": [],
+                "description": "Note: the assignee must be in the default group (or specific group selected below) else an error will occur. Defaults to selected zendesk account",
+                "displayName": "Assignee",
+                "displayType": "select",
+                "placeholder": "Select the assignee (agent)"
             },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.update",
-                            "loadOptionsMethod": "getGroups"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
+            "name": "assignee_id"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "zendesk",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "ticket",
+                        "operation": "ticket.update",
+                        "loadOptionsMethod": "getGroups"
                     },
-                    "options": [],
-                    "description": "Select the group you want to assign the ticket to.",
-                    "displayName": "Group",
-                    "displayType": "select",
-                    "placeholder": "Select the group"
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
                 },
-                "name": "group_id"
+                "options": [],
+                "description": "Select the group you want to assign the ticket to.",
+                "displayName": "Group",
+                "displayType": "select",
+                "placeholder": "Select the group"
             },
-            {
-                "meta": {
-                    "value": [],
-                    "description": "Enter the tags for the ticket.",
-                    "displayName": "Tags",
-                    "displayType": "multitext"
-                },
-                "name": "tags"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:18.184Z",
-    "updated_at": "2025-06-11T12:12:18.184Z"
+            "name": "group_id"
+        },
+        {
+            "meta": {
+                "value": [],
+                "description": "Enter the tags for the ticket.",
+                "displayName": "Tags",
+                "displayType": "multitext"
+            },
+            "name": "tags"
+        }
+    ]
 }

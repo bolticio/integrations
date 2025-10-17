@@ -1,69 +1,30 @@
 {
-    "parameters": [
-        {
-            "meta": {
-                "options": [
-                    {
-                        "label": "Custom API",
-                        "value": "custom.custom_api"
-                    }
-                ],
-                "validation": {
-                    "required": true
-                },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
-                "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "custom",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
-            },
-            "name": "operation"
-        }
-    ],
-    "id": "c5127ef6-80b0-437a-9604-69f65f58ea3c",
-    "integration_id": "dac62a40-2b33-42f4-87a4-ba8d8540a559",
-    "resource_id": "0ef68d2f-8afb-4511-b746-738086d1486f",
-    "name": "list",
-    "content": {
-        "definition": {
-            "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts",
-            "method": "get",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.description}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "page": "{{pagination.page}} + 1",
-                    "per_page": "{{pagination.per_page}}"
-                },
-                "type": "page",
-                "default": {
-                    "page": 1,
-                    "per_page": 30
-                },
-                "condition": "{{response.data.meta.total}} > 0"
-            }
+    "definition": {
+        "url": "https://{{secrets.company}}.freshdesk.com/api/v2/contacts",
+        "method": "get",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
         },
-        "parameters": []
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.description}}"
+            },
+            "output": "{{response.data}}"
+        },
+        "pagination": {
+            "qs": {
+                "page": "{{pagination.page}} + 1",
+                "per_page": "{{pagination.per_page}}"
+            },
+            "type": "page",
+            "default": {
+                "page": 1,
+                "per_page": 30
+            },
+            "condition": "{{response.data.meta.total}} > 0"
+        }
     },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T12:12:31.173Z",
-    "updated_at": "2025-06-25T14:48:03.804Z"
+    "parameters": []
 }

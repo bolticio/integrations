@@ -1,312 +1,220 @@
 {
+    "definition": {
+        "qs": {},
+        "url": "{{secrets.api_url}}/api/appointments/{{parameters.appointment_id}}",
+        "body": "{{parameters}}",
+        "method": "post",
+        "headers": {
+            "Authorization": "Token token={{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.data.errors.code}}",
+                "message": "{{response.data.errors.message}}"
+            },
+            "output": "{{response.data}}"
+        }
+    },
     "parameters": [
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "ID of the appointment to update.",
+                "displayName": "Appointment ID",
+                "displayType": "number",
+                "placeholder": "Enter Appointment ID"
+            },
+            "name": "appointment_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Title of the appointment.",
+                "displayName": "Title",
+                "displayType": "text",
+                "placeholder": "Enter title"
+            },
+            "name": "title"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Timestamp that denotes the start of appointment.",
+                "displayName": "From Date",
+                "displayType": "text",
+                "placeholder": "Enter from date"
+            },
+            "name": "from_date"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": true
+                },
+                "description": "Timestamp that denotes the end of appointment.",
+                "displayName": "End Date",
+                "displayType": "text",
+                "placeholder": "Enter end date"
+            },
+            "name": "end_date"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Timezone that the appointment is scheduled in.",
+                "displayName": "Time Zone",
+                "displayType": "text",
+                "placeholder": "Enter time zone"
+            },
+            "name": "time_zone"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "Description of the appointment.",
+                "displayName": "Description",
+                "displayType": "textarea",
+                "placeholder": "Enter the description"
+            },
+            "name": "description"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "freshsales",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "appointment",
+                        "operation": "appointment.update",
+                        "loadOptionsMethod": "getUsers"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "display_name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "validation": {
+                    "required": false
+                },
+                "description": "ID of the user who created the appointment.",
+                "displayName": "Creater ID",
+                "displayType": "select",
+                "placeholder": "Enter the creater id"
+            },
+            "name": "creater_id"
+        },
         {
             "meta": {
                 "options": [
                     {
-                        "label": "Create Account",
-                        "value": "account.create"
+                        "label": "Lead",
+                        "value": "Lead"
                     },
                     {
-                        "label": "Delete Account",
-                        "value": "account.delete"
+                        "label": "Contact",
+                        "value": "Contact"
                     },
                     {
-                        "label": "Get Account",
-                        "value": "account.get"
+                        "label": "SalesAccount",
+                        "value": "SalesAccount"
                     },
                     {
-                        "label": "List Accounts",
-                        "value": "account.list"
-                    },
-                    {
-                        "label": "Update Account",
-                        "value": "account.update"
+                        "label": "Deal",
+                        "value": "Deal"
                     }
                 ],
                 "validation": {
-                    "required": true
+                    "required": false
                 },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
+                "description": "Targetable type e.g lead or contact or account.",
+                "displayName": "Target Type",
                 "displayType": "select",
-                "placeholder": "Select an operation",
+                "placeholder": "Enter the targetable type"
+            },
+            "name": "targetable_type"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
+                },
+                "description": "ID of lead/contact/account against whom appointment has been created.",
+                "displayName": "Target ID",
+                "displayType": "number",
+                "placeholder": "Enter the targetable id",
                 "dependencies": {
                     "conditions": [
                         {
-                            "field": "resource",
-                            "value": "account",
-                            "operator": "EQUALS"
+                            "field": "targetable_type",
+                            "operator": "NOT_EMPTY"
                         }
                     ]
                 }
             },
-            "name": "operation"
-        }
-    ],
-    "getAccountViews": {
-        "definition": {
-            "qs": {},
-            "url": "{{secrets.api_url}}/api/sales_accounts/filters",
-            "method": "get",
-            "headers": {
-                "Authorization": "Token token={{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.errors.code}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data.filters}}"
-            }
-        }
-    },
-    "getMoreParameters": {
-        "definition": {
-            "qs": {},
-            "url": "{{secrets.api_url}}/api/settings/sales_accounts/fields",
-            "method": "get",
-            "headers": {
-                "Authorization": "Token token={{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.errors.code}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data.fields}}"
-            },
-            "transform": {
-                "output": "const result = output.sort((a, b) => a.position - b.position).map((ele) => { const excludeParameters = [ 'phone_numbers', 'sales_accounts', 'active_sales_sequences', 'last_contacted', 'last_contacted_mode', 'last_contacted_sales_activity_mode', 'last_contacted_via_sales_activity', 'completed_sales_sequences', 'last_seen', 'lead_score', 'recent_note', 'creater_id', 'created_at', 'updater_id', 'updated_at', 'web_form_ids', 'last_assigned_at', ]; if (!excludeParameters.includes(ele.name)) { const typeMap = { text: 'text', textarea: 'textarea', dropdown: 'select', auto_complete: 'multitext', multi_select_dropdown: 'multiselect', radio: 'select', number: 'number', }; const placeholderPrefix = ['select', 'multiselect', 'radio'].includes( typeMap[ele.type] ) ? 'Select' : 'Enter'; const requiredParameters = ['emails', 'first_name']; const newObj = { name: ele.name, meta: { displayName: ele.label, displayType: typeMap[ele.type] || 'text', placeholder: `${placeholderPrefix} ${ele.label}`, validation: { required: requiredParameters.includes(ele.name) || ele.required, }, }, }; if (['dropdown', 'radio', 'multi_select_dropdown'].includes(ele.type)) { newObj.meta.htmlProps = { allowDynamic: true }; if (ele.choices && ele.choices.length) { newObj.meta.options = ele.choices.map((choice) => ({ label: choice.value, value: choice.id, })); } else { newObj.meta.displayType = 'text'; } if (ele.type === 'multi_select_dropdown') { newObj.meta.value = []; } } if (ele.default === false) { newObj.prop = 'custom_field'; } return newObj; } return null; }).filter((ele) => ele !== null); let custom_field = { name: 'custom_field', meta: { children: [], displayType: 'object', }, }; const outputWithCustomField = result.reduce((acc, ele) => { if (ele.prop === 'custom_field') { custom_field.meta.children.push(ele); } else { acc.push(ele); } return acc; }, []); if (custom_field.meta.children.length > 0) { outputWithCustomField.push(custom_field); } return outputWithCustomField"
-            }
-        }
-    },
-    "id": "9f526361-eef6-4618-829c-6fc90b20d488",
-    "integration_id": "0a73626f-df7b-45b3-9254-01c282852f5c",
-    "resource_id": "bdd6222a-e1ce-45ff-8040-c70d223bafb2",
-    "name": "update",
-    "content": {
-        "definition": {
-            "qs": {},
-            "url": "{{secrets.api_url}}/api/appointments/{{parameters.appointment_id}}",
-            "body": "{{parameters}}",
-            "method": "post",
-            "headers": {
-                "Authorization": "Token token={{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.errors.code}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
+            "name": "targetable_id"
         },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "ID of the appointment to update.",
-                    "displayName": "Appointment ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Appointment ID"
+        {
+            "meta": {
+                "validation": {
+                    "required": false
                 },
-                "name": "appointment_id"
+                "description": "Location of the appointment.",
+                "displayName": "Location",
+                "displayType": "text",
+                "placeholder": "Enter location"
             },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Title of the appointment.",
-                    "displayName": "Title",
-                    "displayType": "text",
-                    "placeholder": "Enter title"
+            "name": "location"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "required": false
                 },
-                "name": "title"
+                "description": "All attendees associated to the appointment.",
+                "displayName": "Attendees",
+                "displayType": "multitext",
+                "placeholder": "Enter the email address"
             },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
+            "name": "appointment_attendees_attributes"
+        },
+        {
+            "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "freshsales",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "appointment",
+                        "operation": "appointment.update",
+                        "loadOptionsMethod": "getOutcome"
                     },
-                    "description": "Timestamp that denotes the start of appointment.",
-                    "displayName": "From Date",
-                    "displayType": "text",
-                    "placeholder": "Enter from date"
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
                 },
-                "name": "from_date"
+                "options": [],
+                "validation": {
+                    "required": false
+                },
+                "description": "Outcome ID for the appointment.",
+                "displayName": "Outcome ID",
+                "displayType": "select",
+                "placeholder": "Enter the outcome ID"
             },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Timestamp that denotes the end of appointment.",
-                    "displayName": "End Date",
-                    "displayType": "text",
-                    "placeholder": "Enter end date"
-                },
-                "name": "end_date"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Timezone that the appointment is scheduled in.",
-                    "displayName": "Time Zone",
-                    "displayType": "text",
-                    "placeholder": "Enter time zone"
-                },
-                "name": "time_zone"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Description of the appointment.",
-                    "displayName": "Description",
-                    "displayType": "textarea",
-                    "placeholder": "Enter the description"
-                },
-                "name": "description"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "freshsales",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "appointment",
-                            "operation": "appointment.update",
-                            "loadOptionsMethod": "getUsers"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "display_name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "ID of the user who created the appointment.",
-                    "displayName": "Creater ID",
-                    "displayType": "select",
-                    "placeholder": "Enter the creater id"
-                },
-                "name": "creater_id"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Lead",
-                            "value": "Lead"
-                        },
-                        {
-                            "label": "Contact",
-                            "value": "Contact"
-                        },
-                        {
-                            "label": "SalesAccount",
-                            "value": "SalesAccount"
-                        },
-                        {
-                            "label": "Deal",
-                            "value": "Deal"
-                        }
-                    ],
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Targetable type e.g lead or contact or account.",
-                    "displayName": "Target Type",
-                    "displayType": "select",
-                    "placeholder": "Enter the targetable type"
-                },
-                "name": "targetable_type"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "ID of lead/contact/account against whom appointment has been created.",
-                    "displayName": "Target ID",
-                    "displayType": "number",
-                    "placeholder": "Enter the targetable id",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "targetable_type",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "targetable_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Location of the appointment.",
-                    "displayName": "Location",
-                    "displayType": "text",
-                    "placeholder": "Enter location"
-                },
-                "name": "location"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "All attendees associated to the appointment.",
-                    "displayName": "Attendees",
-                    "displayType": "multitext",
-                    "placeholder": "Enter the email address"
-                },
-                "name": "appointment_attendees_attributes"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "freshsales",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "appointment",
-                            "operation": "appointment.update",
-                            "loadOptionsMethod": "getOutcome"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Outcome ID for the appointment.",
-                    "displayName": "Outcome ID",
-                    "displayType": "select",
-                    "placeholder": "Enter the outcome ID"
-                },
-                "name": "outcome_id"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:19.587Z",
-    "updated_at": "2025-06-11T12:12:19.587Z"
+            "name": "outcome_id"
+        }
+    ]
 }

@@ -1,77 +1,68 @@
 {
-    "id": "cb709b7b-e437-47c0-8759-a1f7c6b02b39",
-    "documentation": "# HubSpot Authentication\n\n## Overview\n\nHubSpot's free CRM powers your customer support, sales, and marketing with easy-to-use features like live chat, meeting scheduling, and email tracking.\n\n## Authentication Ways\n\n-   Private App Access Token\n\n## Private App Access Token\n\nTo authenticate with HubSpot using a Private App, you need to create a Private App and generate an Access Token.\n\n**Steps:**\n1. Log in to your HubSpot account.\n2. Go to **Settings** > **Integrations** > **Private Apps**.\n3. Click **Create a private app**.\n4. Enter a name and description for your app.\n5. **Add the following scopes to your Private App:**\n\n    ```\n    crm.objects.subscriptions.write\n    crm.objects.line_items.read\n    crm.objects.line_items.write\n    crm.schemas.line_items.read\n    forms\n    tickets\n    communication_preferences.read\n    crm.lists.read\n    crm.objects.contacts.read\n    crm.objects.subscriptions.read\n    crm.schemas.subscriptions.read\n    crm.schemas.commercepayments.read\n    crm.objects.commercepayments.read \n    crm.objects.contacts.write\n    crm.objects.users.write\n    crm.objects.marketing_events.read\n    crm.objects.marketing_events.write\n    crm.objects.companies.write\n    crm.schemas.contacts.read\n    crm.pipelines.orders.write\n    crm.pipelines.orders.read\n    crm.objects.leads.read\n    crm.objects.leads.write\n    crm.lists.write\n    crm.objects.companies.read\n    crm.objects.deals.read\n    crm.objects.deals.write\n    crm.schemas.companies.read\n    crm.schemas.companies.write\n    crm.schemas.contacts.write\n    crm.schemas.deals.read\n    crm.schemas.deals.write\n    crm.objects.owners.read\n    settings.users.read\n    crm.objects.users.read\n    ```\n\n6. Click **Create app** and copy your Access Token. Store it securely.\n\nFor more details, see the <a href=\"https://developers.hubspot.com/beta-docs/guides/apps/private-apps/overview\" target=\"_blank\" rel=\"noopener\"><span>HubSpot Private App documentation</span></a>\n\n\n",
-    "integration_id": "f7c6b482-894a-4c9f-94d6-4a32f154b980",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Private App Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Authentication Type is required field"
+                    }
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://api.hubapi.com/integrations/v1/me",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Private App Access Token",
-                            "value": "access_token"
-                        }
-                    ],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Authentication Type is required field"
+                            "errorMsg": "Private App Access Token is required field"
                         }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "hidden",
-                    "placeholder": "Select an authentication type"
-                },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://api.hubapi.com/integrations/v1/me",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Bearer {{secrets.access_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
-            },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Private App Access Token is required field"
+                    "description": "Refer to the <a href='https://developers.hubspot.com/beta-docs/guides/apps/private-apps/overview' target='blank'>HubSpot authenticaton documentation</a> for detailed instructions on getting your private app access token.",
+                    "displayName": "Private App Access Token",
+                    "displayType": "password",
+                    "placeholder": "",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
                             }
-                        },
-                        "description": "Refer to the <a href='https://developers.hubspot.com/beta-docs/guides/apps/private-apps/overview' target='blank'>HubSpot authenticaton documentation</a> for detailed instructions on getting your private app access token.",
-                        "displayName": "Private App Access Token",
-                        "displayType": "password",
-                        "placeholder": "",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "access_token"
-                }
-            ]
-        }
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T12:12:42.013Z",
-    "updated_at": "2025-07-03T06:06:49.202Z"
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
 }

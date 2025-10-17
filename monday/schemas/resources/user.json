@@ -1,114 +1,53 @@
 {
-    "getUsers": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": {},
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
+    "definition": {
+        "url": "https://api.monday.com/v2",
+        "body": "{{parameters}}",
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "{{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.errors[0].message}}"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data.users}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `{ users { id name } }` })"
-            }
+            "output": "{{response.data}}"
+        },
+        "transform": {
+            "body": "return JSON.stringify({ query: `query { boards (ids: {{parameters.board_id}}) { name state permissions items_page {items {id name} }  } }` })"
         }
     },
     "parameters": [
         {
             "meta": {
-                "options": [
-                    {
-                        "label": "Get User Details",
-                        "value": "user.get_user_details",
-                        "description": "Gets user profile details including contact info, team memberships, and role information."
-                    }
-                ],
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "monday",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "board",
+                        "operation": "board.get_board_values",
+                        "loadOptionsMethod": "getBoard"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
                 "validation": {
                     "required": true
                 },
-                "description": "Select the operation to be performed",
-                "displayName": "Operation",
+                "description": "Select the board containing the items and values which needs to be retrieved",
+                "displayName": "Board",
                 "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "user",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "placeholder": "Select a board"
             },
-            "name": "operation"
+            "name": "board_id"
         }
-    ],
-    "id": "b065b179-dbf1-46fc-82e1-1e72d0973f73",
-    "integration_id": "eea02631-186e-4a1a-8170-525871a4a683",
-    "resource_id": "b3bd19fd-1a5c-48f2-a3c7-03d419b48c75",
-    "name": "get_board_values",
-    "content": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": "{{parameters}}",
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `query { boards (ids: {{parameters.board_id}}) { name state permissions items_page {items {id name} }  } }` })"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "board",
-                            "operation": "board.get_board_values",
-                            "loadOptionsMethod": "getBoard"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the board containing the items and values which needs to be retrieved",
-                    "displayName": "Board",
-                    "displayType": "select",
-                    "placeholder": "Select a board"
-                },
-                "name": "board_id"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "ahmedsakri@gofynd.com",
-    "created_at": "2025-06-11T12:12:40.579Z",
-    "updated_at": "2025-06-25T14:50:00.758Z"
+    ]
 }

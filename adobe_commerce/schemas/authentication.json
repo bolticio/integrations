@@ -1,167 +1,158 @@
 {
-    "id": "53616333-3cf5-4c36-a5ea-f1707d8ff762",
-    "documentation": "# Adobe Commerce \n\n## Overview\n\nWith Adobe Commerce modules in Boltic, you can manage your store’s products, orders, customers, and more.\n\nTo get started with Adobe Commerce Account \n<a href=\"https://business.adobe.com/products/magento/magento-commerce.html\" target=\"_blank\" rel=\"noopener\">Adobe Commerce Website</a>.\n\n\n# Authentication\n\n\n##  Access Token Authentication\n\nThis method uses your **Admin Username and Password** to obtain a access token.\n\n  - **Access Token:** Use your Admin Username and Password to generate a session token.  <a href=\"https://experienceleague.adobe.com/en/docs/commerce-admin/start/admin/admin-signin\" target=\"_blank\" rel=\"noopener\"> <span> Documentation</span> </a>\n\n## Troubleshooting\n\nIf the connection fails:\n\n-   Ensure your **Admin Username and Password** is correct.\n-   Confirm that your Adobe Commerce has the required access .\n-   Verify your network connection.\n\n\n## Conclusion\n\nAfter successfully setting up your Admin Username and Password key, you should be able to authenticate and start interacting with the Adobe Commerce through Boltic.\n\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\">Support Documentation</a>.\n",
-    "integration_id": "edeb3598-38fd-40ea-b38f-ece3e1e6f1f3",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "description": "Choose the authentication method for Adobe Commerce",
+                "displayName": "Authentication Type",
+                "displayType": "hidden",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "token": {
+            "url": "https://{{secrets.domain}}/rest/V1/integration/admin/token",
+            "body": {
+                "password": "{{secrets.password}}",
+                "username": "{{secrets.username}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const expiresIn = 1800, expiryDate = Date.now() + expiresIn * 1000; return {\"access_token\": output, expires_in: expiresIn, expiry_date: expiryDate };"
+            }
+        },
+        "refresh": {
+            "url": "https://{{secrets.domain}}/rest/V1/integration/admin/token",
+            "body": {
+                "password": "{{secrets.password}}",
+                "username": "{{secrets.username}}",
+                "grant_type": "refresh_token"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const expiresIn = 1800, expiryDate = Date.now() + expiresIn * 1000; return {\"access_token\": output.message, expires_in: expiresIn, expiry_date: expiryDate };"
+            }
+        },
+        "validate": {
+            "log": {
+                "sanitize": [
+                    "request.headers.authorization"
+                ]
+            },
+            "url": "https://{{secrets.domain}}/rest/V1/store/websites",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Access Token",
-                            "value": "access_token"
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Adobe Commerce Domain is required"
                         }
-                    ],
-                    "description": "Choose the authentication method for Adobe Commerce",
-                    "displayName": "Authentication Type",
-                    "displayType": "hidden",
-                    "placeholder": "Select an authentication type"
+                    },
+                    "description": "Enter your Adobe Commerce domain (e.g. xxxx.mestores.com)",
+                    "displayName": "Adobe Commerce Domain",
+                    "displayType": "text",
+                    "placeholder": "Enter your Adobe Commerce domain",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "type"
+                "name": "domain"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Username is required"
+                        }
+                    },
+                    "description": "Enter your Adobe Commerce username",
+                    "displayName": "Username",
+                    "displayType": "text",
+                    "placeholder": "Enter your Adobe Commerce username",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "username"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Password is required"
+                        }
+                    },
+                    "description": "Enter your Adobe Commerce password",
+                    "displayName": "Password",
+                    "displayType": "password",
+                    "placeholder": "Enter your Adobe Commerce password",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "password"
             }
-        ],
-        "access_token": {
-            "token": {
-                "url": "https://{{secrets.domain}}/rest/V1/integration/admin/token",
-                "body": {
-                    "password": "{{secrets.password}}",
-                    "username": "{{secrets.username}}"
-                },
-                "method": "post",
-                "headers": {
-                    "Content-Type": "application/json"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                },
-                "transform": {
-                    "output": "const expiresIn = 1800, expiryDate = Date.now() + expiresIn * 1000; return {\"access_token\": output, expires_in: expiresIn, expiry_date: expiryDate };"
-                }
-            },
-            "refresh": {
-                "url": "https://{{secrets.domain}}/rest/V1/integration/admin/token",
-                "body": {
-                    "password": "{{secrets.password}}",
-                    "username": "{{secrets.username}}",
-                    "grant_type": "refresh_token"
-                },
-                "method": "post",
-                "headers": {
-                    "Content-Type": "application/json"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                },
-                "transform": {
-                    "output": "const expiresIn = 1800, expiryDate = Date.now() + expiresIn * 1000; return {\"access_token\": output.message, expires_in: expiresIn, expiry_date: expiryDate };"
-                }
-            },
-            "validate": {
-                "log": {
-                    "sanitize": [
-                        "request.headers.authorization"
-                    ]
-                },
-                "url": "https://{{secrets.domain}}/rest/V1/store/websites",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Bearer {{secrets.access_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
-            },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Adobe Commerce Domain is required"
-                            }
-                        },
-                        "description": "Enter your Adobe Commerce domain (e.g. xxxx.mestores.com)",
-                        "displayName": "Adobe Commerce Domain",
-                        "displayType": "text",
-                        "placeholder": "Enter your Adobe Commerce domain",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "domain"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Username is required"
-                            }
-                        },
-                        "description": "Enter your Adobe Commerce username",
-                        "displayName": "Username",
-                        "displayType": "text",
-                        "placeholder": "Enter your Adobe Commerce username",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "username"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Password is required"
-                            }
-                        },
-                        "description": "Enter your Adobe Commerce password",
-                        "displayName": "Password",
-                        "displayType": "password",
-                        "placeholder": "Enter your Adobe Commerce password",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "password"
-                }
-            ]
-        }
-    },
-    "created_by": "ruchivishwakarma@fynd-external.com",
-    "modified_by": "ruchivishwakarma@fynd-external.com",
-    "created_at": "2025-06-17T04:52:45.992Z",
-    "updated_at": "2025-06-17T13:39:52.970Z"
+        ]
+    }
 }

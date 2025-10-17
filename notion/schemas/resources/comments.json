@@ -1,125 +1,50 @@
 {
-    "getPages": {
-        "definition": {
-            "url": "https://api.notion.com/v1/search",
-            "body": {
-                "sort": {
-                    "direction": "ascending",
-                    "timestamp": "last_edited_time"
-                },
-                "query": "",
-                "filter": {
-                    "value": "page",
-                    "property": "object"
-                }
+    "definition": {
+        "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}/query/",
+        "body": {},
+        "method": "post",
+        "headers": {
+            "Authorization": "Bearer {{secrets.access_token}}",
+            "Notion-Version": "2022-06-28"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.message}}"
             },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}",
-                "Notion-Version": "2022-06-28"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response?.data?.error?.message}}"
-                },
-                "output": "{{response.data.results}}"
-            },
-            "transform": {
-                "output": "return output.map((page) => { let name = 'Untitled'; const url = page.url; if (url) { const matches = url.match(/https:\\/\\/www\\.notion\\.so\\/(.+)-[a-zA-Z0-9]+$/); if (matches && matches[1]) { name = matches[1].replace(/-/g, ' ').trim(); } } return { id: page.id, name }; });"
-            }
+            "output": "{{response.data}}"
         }
     },
     "parameters": [
         {
             "meta": {
-                "options": [
-                    {
-                        "label": "Create a New Comment",
-                        "value": "comments.create"
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "notion",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "databases",
+                        "operation": "databases.retrieve",
+                        "loadOptionsMethod": "getDatabases"
                     },
-                    {
-                        "label": "Retrieve Comments",
-                        "value": "comments.retrieve"
-                    }
-                ],
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "You must select a database to retrieve"
+                    }
                 },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
+                "description": "Notion database to retrieve.",
+                "displayName": "Database",
                 "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "comments",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "placeholder": "Select a database"
             },
-            "name": "operation"
+            "name": "database_id"
         }
-    ],
-    "id": "2ce07888-1a01-42cc-8339-b2f76210dde6",
-    "integration_id": "205ed6b2-b093-4a2e-84de-060169477856",
-    "resource_id": "01b4a54f-a383-4670-baf0-6bb4d5f6ab81",
-    "name": "query",
-    "content": {
-        "definition": {
-            "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}/query/",
-            "body": {},
-            "method": "post",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}",
-                "Notion-Version": "2022-06-28"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "notion",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "databases",
-                            "operation": "databases.retrieve",
-                            "loadOptionsMethod": "getDatabases"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "You must select a database to retrieve"
-                        }
-                    },
-                    "description": "Notion database to retrieve.",
-                    "displayName": "Database",
-                    "displayType": "select",
-                    "placeholder": "Select a database"
-                },
-                "name": "database_id"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:29.161Z",
-    "updated_at": "2025-06-11T12:12:29.161Z"
+    ]
 }

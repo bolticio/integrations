@@ -1,231 +1,170 @@
 {
+    "definition": {
+        "qs": {
+            "after": "{{parameters.after}}",
+            "event": "{{parameters.event}}",
+            "before": "{{parameters.before}}",
+            "format": "{{parameters.format}}",
+            "offset": "{{parameters.offset}}",
+            "person_id": "{{parameters.person_id}}",
+            "distinct_id": "{{parameters.distinct_id}}"
+        },
+        "url": "https://app.posthog.com/api/projects/{{parameters.project_id}}/events",
+        "method": "get",
+        "filters": {
+            "body": {
+                "allowEmptyArray": false,
+                "allowEmptyValue": false,
+                "allowEmptyObject": false
+            }
+        },
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.detail}}"
+            },
+            "output": "{{response.data.results}}"
+        },
+        "pagination": {
+            "qs": {
+                "limit": 100
+            },
+            "type": "url",
+            "default": {
+                "limit": 100,
+                "next_url": null
+            },
+            "next_url": "{{response.data.next}}",
+            "condition": "{{response.data.next}} !== null"
+        }
+    },
     "parameters": [
         {
             "meta": {
+                "config": {
+                    "url": "integrations/options",
+                    "body": {
+                        "name": "posthog",
+                        "secret": "{{parameters.secret}}",
+                        "resource": "events",
+                        "operation": "events.get",
+                        "loadOptionsMethod": "getProjects"
+                    },
+                    "method": "post",
+                    "urlType": "options",
+                    "labelKey": "name",
+                    "valueKey": "id"
+                },
+                "options": [],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
+                "validation": {
+                    "max": 40,
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Project name is required."
+                    }
+                },
+                "description": "Project ID of the project you're trying to access.",
+                "displayName": "Projects",
+                "displayType": "select",
+                "placeholder": "Select a project"
+            },
+            "name": "project_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "max": 30,
+                    "required": false
+                },
+                "description": "Only return events with a timestamp after this time.",
+                "displayName": "After",
+                "displayType": "text",
+                "placeholder": "Enter the timestamp in ISO 8601 format"
+            },
+            "name": "after"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "max": 30,
+                    "required": false
+                },
+                "description": "Only return events with a timestamp before this time.",
+                "displayName": "Before",
+                "displayType": "text",
+                "placeholder": "Enter the timestamp in ISO 8601 format"
+            },
+            "name": "before"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "max": 40,
+                    "required": false
+                },
+                "description": "Filter list by distinct ID.",
+                "displayName": "Distinct ID",
+                "displayType": "text",
+                "placeholder": "Enter the ID."
+            },
+            "name": "distinct_id"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "max": 30,
+                    "required": false
+                },
+                "description": "Filter list by event. For example user sign up or $pageview.",
+                "displayName": "Event Name",
+                "displayType": "text",
+                "placeholder": "Enter the event name."
+            },
+            "name": "event"
+        },
+        {
+            "meta": {
+                "validation": {
+                    "min": 1,
+                    "required": false
+                },
+                "description": "The initial index from which to return the results.",
+                "displayName": "Offset Index",
+                "displayType": "number",
+                "placeholder": "Enter the offset index."
+            },
+            "name": "offset"
+        },
+        {
+            "meta": {
+                "value": "json",
                 "options": [
                     {
-                        "label": "Get Event",
-                        "value": "events.get"
+                        "label": "CSV",
+                        "value": "csv"
                     },
                     {
-                        "label": "List Events",
-                        "value": "events.list"
+                        "label": "JSON",
+                        "value": "json"
                     }
                 ],
                 "validation": {
-                    "required": true
+                    "max": 4,
+                    "required": false
                 },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
+                "description": "Select a format type.",
+                "displayName": "Format",
                 "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "events",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "placeholder": "Select a format"
             },
-            "name": "operation"
+            "name": "format"
         }
-    ],
-    "getProjects": {
-        "definition": {
-            "qs": {},
-            "url": "https://app.posthog.com/api/projects",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.detail}}"
-                },
-                "output": "{{response.data.results}}"
-            }
-        }
-    },
-    "id": "6380666d-794b-48bd-ba8e-422f93e32887",
-    "integration_id": "c6d2b2b6-fd92-439b-b7ee-df42610d1a0c",
-    "resource_id": "2b3331ef-3477-4d2b-88ca-3df7be488f93",
-    "name": "list",
-    "content": {
-        "definition": {
-            "qs": {
-                "after": "{{parameters.after}}",
-                "event": "{{parameters.event}}",
-                "before": "{{parameters.before}}",
-                "format": "{{parameters.format}}",
-                "offset": "{{parameters.offset}}",
-                "person_id": "{{parameters.person_id}}",
-                "distinct_id": "{{parameters.distinct_id}}"
-            },
-            "url": "https://app.posthog.com/api/projects/{{parameters.project_id}}/events",
-            "method": "get",
-            "filters": {
-                "body": {
-                    "allowEmptyArray": false,
-                    "allowEmptyValue": false,
-                    "allowEmptyObject": false
-                }
-            },
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.detail}}"
-                },
-                "output": "{{response.data.results}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 100
-                },
-                "type": "url",
-                "default": {
-                    "limit": 100,
-                    "next_url": null
-                },
-                "next_url": "{{response.data.next}}",
-                "condition": "{{response.data.next}} !== null"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "posthog",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "events",
-                            "operation": "events.get",
-                            "loadOptionsMethod": "getProjects"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "max": 40,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Project name is required."
-                        }
-                    },
-                    "description": "Project ID of the project you're trying to access.",
-                    "displayName": "Projects",
-                    "displayType": "select",
-                    "placeholder": "Select a project"
-                },
-                "name": "project_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "max": 30,
-                        "required": false
-                    },
-                    "description": "Only return events with a timestamp after this time.",
-                    "displayName": "After",
-                    "displayType": "text",
-                    "placeholder": "Enter the timestamp in ISO 8601 format"
-                },
-                "name": "after"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "max": 30,
-                        "required": false
-                    },
-                    "description": "Only return events with a timestamp before this time.",
-                    "displayName": "Before",
-                    "displayType": "text",
-                    "placeholder": "Enter the timestamp in ISO 8601 format"
-                },
-                "name": "before"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "max": 40,
-                        "required": false
-                    },
-                    "description": "Filter list by distinct ID.",
-                    "displayName": "Distinct ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the ID."
-                },
-                "name": "distinct_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "max": 30,
-                        "required": false
-                    },
-                    "description": "Filter list by event. For example user sign up or $pageview.",
-                    "displayName": "Event Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the event name."
-                },
-                "name": "event"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": false
-                    },
-                    "description": "The initial index from which to return the results.",
-                    "displayName": "Offset Index",
-                    "displayType": "number",
-                    "placeholder": "Enter the offset index."
-                },
-                "name": "offset"
-            },
-            {
-                "meta": {
-                    "value": "json",
-                    "options": [
-                        {
-                            "label": "CSV",
-                            "value": "csv"
-                        },
-                        {
-                            "label": "JSON",
-                            "value": "json"
-                        }
-                    ],
-                    "validation": {
-                        "max": 4,
-                        "required": false
-                    },
-                    "description": "Select a format type.",
-                    "displayName": "Format",
-                    "displayType": "select",
-                    "placeholder": "Select a format"
-                },
-                "name": "format"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:21.885Z",
-    "updated_at": "2025-06-11T12:12:21.885Z"
+    ]
 }

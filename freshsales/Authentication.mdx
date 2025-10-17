@@ -1,139 +1,130 @@
 {
-    "id": "f51cbe9a-c7b1-4ee3-b22c-e013258bdb18",
-    "documentation": "\n\n# Freshsales\n\n\n\nThis guide walks you through setting up the Freshsales integration within Boltic.\n\n\n\n## Prerequisites\n\nTo set up the Freshsales integration, you'll need:\n\n- A Freshsales account\n\n- The Freshsales domain name\n\n- The Freshsales API Key\n\n\n\n## Setting Up the Freshsales Integration in Boltic\n\n\n\n1. **Log In**\n\n   - Log into your Freshsales account dashboard.\n\n\n\n2. **Obtain API Key**\n\n   - Click on your **Profile Icon** > **Settings** > **API Settings**.\n\n   - In the API Settings tab, complete the authentication to view your API Key.\n\n   - Copy the API Key to your clipboard.\n\n\n\n3. **Log into Boltic**\n\n   - Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n\n\n4. **Navigate to Integrations**\n\n   - Click on `Sources` and then click on `+ Add New source`.\n\n\n\n5. **Select Source Type**\n\n   - On the Set up the source page, search for `Freshsales` from the search bar and select it.\n\n\n\n6. **Configure Integration**\n\n   - **Name:** Enter a name for the Freshsales integration.\n\n   - **Domain:** Enter your Freshsales domain name. For example, if your Freshsales URL is `www.xyz.myfreshworks.com/crm/sales`, your domain is `xyz`.\n\n   - **API Key:** Paste the API Key copied from the Freshsales API Settings.\n\n\n\n7. **Details (Optional)**\n\n   - **Tags:** Add any tags for categorization.\n\n   - **Description:** Provide a brief description of the integration.\n\n\n\n8. **Test and Save Integration**\n\n   - Click `Test Connection` to ensure the provided details are correct and the connection is successful.\n\n   - Once the connection test is successful, click `Set up source` to complete the configuration.\n\n\n\n## Setting Up Freshsales Webhooks\n\n\n\nFreshsales uses webhooks to trigger a scenario when an event occurs. To set up a webhook:\n\n\n1. Add a Freshsales instant module to your scenario and click **Create a webhook**.\n\n\n2. **Webhook Name:** Enter a name for the webhook (optional).\n\n\n3. **Connection:** Select the corresponding connection for the webhook.\n\n\n4. Click **Save** and then **Copy address to clipboard**.\n\n\n5. Log in to your Freshsales account using <a href=\"https://support.freshsales.io/support/solutions/articles/50000003583-how-to-configure-a-workflow-\"  target=\"_blank\" rel=\"noopener\"><span>Login to the Freshsales Account</span></a>.\n\n1. **How do I find my Freshsales API Key?**\n\n   - Navigate to your Freshsales account settings and look for the API Settings tab to find your API Key. Follow the instructions provided earlier in this guide.\n\n\n\n2. **What should I do if my connection fails?**\n\n   - Ensure your API Key is correct.\n\n   - Verify the domain name and ensure there are no typos.\n\n   - Check your network connection and firewall settings.\n\n\n\n3. **How often is the data synced?**\n\n   - The data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.\n\n\n\n4. **Can I customize the data being synced?**\n\n   - Yes, you can customize the data being synced by adjusting the settings during the setup process.\n\n\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n\n",
-    "integration_id": "0a73626f-df7b-45b3-9254-01c282852f5c",
-    "content": {
-        "api_key": {
-            "validate": {
-                "url": "{{secrets.api_url}}/api/settings/sales_accounts/fields",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Token token={{secrets.api_key}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+    "api_key": {
+        "validate": {
+            "url": "{{secrets.api_url}}/api/settings/sales_accounts/fields",
+            "method": "get",
+            "headers": {
+                "Authorization": "Token token={{secrets.api_key}}"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "options": [
-                            {
-                                "label": "{{domain}}.myfreshworks.com/crm/sales",
-                                "value": "https://{{secrets.domain}}.myfreshworks.com/crm/sales"
-                            },
-                            {
-                                "label": "{{domain}}.freshsales.io",
-                                "value": "https://{{secrets.domain}}.freshsales.io"
-                            },
-                            {
-                                "label": "{{domain}}.freshworks.com/crm/sales",
-                                "value": "https://{{secrets.domain}}.freshworks.com/crm/sales"
-                            }
-                        ],
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "API URL is required"
-                            }
-                        },
-                        "description": "Choose an API URL endpoint.",
-                        "displayName": "API URL",
-                        "displayType": "select",
-                        "placeholder": "Select an API URL",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "api_key",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "api_url"
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Domain is required"
-                            }
-                        },
-                        "description": "The domain in the Freshworks CRM org URL. For example, in <a href='https://boltic.myfreshworks.com' target='_blank'>https://boltic.myfreshworks.com</a>, the domain is boltic.",
-                        "displayName": "Domain",
-                        "displayType": "text",
-                        "placeholder": "Enter Domain",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "api_key",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "domain"
-                },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "API key is required"
-                            }
-                        },
-                        "description": "Refer to the <a href='https://developer.freshsales.io/api/#authentication' target='blank'>Freshsales API authenticaton documentation</a> for detailed instructions on getting your API key.",
-                        "displayName": "API Key",
-                        "displayType": "password",
-                        "placeholder": "Enter API Key",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "api_key",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "api_key"
-                }
-            ]
+                "output": "{{response.data}}"
+            }
         },
         "parameters": [
             {
                 "meta": {
-                    "value": "api_key",
                     "options": [
                         {
-                            "label": "API Key",
-                            "value": "api_key"
+                            "label": "{{domain}}.myfreshworks.com/crm/sales",
+                            "value": "https://{{secrets.domain}}.myfreshworks.com/crm/sales"
+                        },
+                        {
+                            "label": "{{domain}}.freshsales.io",
+                            "value": "https://{{secrets.domain}}.freshsales.io"
+                        },
+                        {
+                            "label": "{{domain}}.freshworks.com/crm/sales",
+                            "value": "https://{{secrets.domain}}.freshworks.com/crm/sales"
                         }
                     ],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Authentication type is required"
+                            "errorMsg": "API URL is required"
                         }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
+                    "description": "Choose an API URL endpoint.",
+                    "displayName": "API URL",
                     "displayType": "select",
-                    "placeholder": "Select an authentication type"
+                    "placeholder": "Select an API URL",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "type"
+                "name": "api_url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Domain is required"
+                        }
+                    },
+                    "description": "The domain in the Freshworks CRM org URL. For example, in <a href='https://boltic.myfreshworks.com' target='_blank'>https://boltic.myfreshworks.com</a>, the domain is boltic.",
+                    "displayName": "Domain",
+                    "displayType": "text",
+                    "placeholder": "Enter Domain",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "domain"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "API key is required"
+                        }
+                    },
+                    "description": "Refer to the <a href='https://developer.freshsales.io/api/#authentication' target='blank'>Freshsales API authenticaton documentation</a> for detailed instructions on getting your API key.",
+                    "displayName": "API Key",
+                    "displayType": "password",
+                    "placeholder": "Enter API Key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "api_key"
             }
         ]
     },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:19.447Z",
-    "updated_at": "2025-06-11T12:12:19.447Z"
+    "parameters": [
+        {
+            "meta": {
+                "value": "api_key",
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "api_key"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Authentication type is required"
+                    }
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
 }

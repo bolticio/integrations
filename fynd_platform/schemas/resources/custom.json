@@ -1,201 +1,162 @@
 {
+    "definition": {
+        "qs": "{{parameters.query_params}}",
+        "url": "{{parameters.base_url}}",
+        "body": "{{parameters.body}}",
+        "method": "{{parameters.method}}",
+        "headers": {
+            "Authorization": "Bearer {{secrets.access_token}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response}}",
+                "message": "{{response}}"
+            },
+            "output": "{{response.data}}"
+        }
+    },
     "parameters": [
         {
             "meta": {
+                "value": "get",
                 "options": [
                     {
-                        "label": "Custom API",
-                        "value": "custom.custom_api"
+                        "label": "GET",
+                        "value": "get",
+                        "description": "Retrieve data from the specified resource without modifying it. Safe and idempotent operation."
+                    },
+                    {
+                        "label": "PUT",
+                        "value": "put",
+                        "description": "Replace or create a resource at the specified location. Idempotent operation that updates entire resource."
+                    },
+                    {
+                        "label": "POST",
+                        "value": "post",
+                        "description": "Create a new resource or trigger a processing action. Non-idempotent operation for new data."
+                    },
+                    {
+                        "label": "PATCH",
+                        "value": "patch",
+                        "description": "Partially modify an existing resource. Used for incremental updates to specific fields."
+                    },
+                    {
+                        "label": "DELETE",
+                        "value": "delete",
+                        "description": "Remove the specified resource. Idempotent operation that permanently removes data."
                     }
                 ],
                 "validation": {
                     "required": true
                 },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
-                "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "custom",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "description": "The HTTP Method to be used for the request.",
+                "displayName": "Method",
+                "displayType": "select"
             },
-            "name": "operation"
-        }
-    ],
-    "id": "2ebc7f18-f592-4fde-b4f8-d6a31b4266a4",
-    "integration_id": "4543d0da-859f-4ace-bcbd-22a432f8bd5d",
-    "resource_id": "921d5001-0759-488f-ad32-b8e410256517",
-    "name": "custom_api",
-    "content": {
-        "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response}}",
-                    "message": "{{response}}"
-                },
-                "output": "{{response.data}}"
-            }
+            "name": "method"
         },
-        "parameters": [
-            {
-                "meta": {
-                    "value": "get",
-                    "options": [
-                        {
-                            "label": "GET",
-                            "value": "get",
-                            "description": "Retrieve data from the specified resource without modifying it. Safe and idempotent operation."
-                        },
-                        {
-                            "label": "PUT",
-                            "value": "put",
-                            "description": "Replace or create a resource at the specified location. Idempotent operation that updates entire resource."
-                        },
-                        {
-                            "label": "POST",
-                            "value": "post",
-                            "description": "Create a new resource or trigger a processing action. Non-idempotent operation for new data."
-                        },
-                        {
-                            "label": "PATCH",
-                            "value": "patch",
-                            "description": "Partially modify an existing resource. Used for incremental updates to specific fields."
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete",
-                            "description": "Remove the specified resource. Idempotent operation that permanently removes data."
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
-                    "displayType": "select"
+        {
+            "meta": {
+                "validation": {
+                    "required": true
                 },
-                "name": "method"
+                "description": "The URL of the HTTP Request.",
+                "displayName": "Base URL",
+                "displayType": "text",
+                "placeholder": "Eg. https://www.example.com"
             },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
-                    "displayType": "text",
-                    "placeholder": "Eg. https://www.example.com"
-                },
-                "name": "base_url"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
+            "name": "base_url"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Key is required"
+                                }
                             },
-                            "name": "key"
+                            "displayName": "key",
+                            "displayType": "text"
                         },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
+                        "name": "key"
                     },
-                    "description": "You don't have to add authorization headers, we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue"
-                },
-                "name": "headers"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Value is required"
+                                }
                             },
-                            "name": "key"
+                            "displayName": "value",
+                            "displayType": "text"
                         },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "displayName": "Query String",
-                    "displayType": "keyvalue"
+                        "name": "value"
+                    }
+                ],
+                "htmlProps": {
+                    "allowAdd": true
                 },
-                "name": "query_params"
+                "description": "You don't have to add authorization headers, we already did that for you.",
+                "displayName": "Headers",
+                "displayType": "keyvalue"
             },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
+            "name": "headers"
+        },
+        {
+            "meta": {
+                "children": [
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Key is required"
+                                }
+                            },
+                            "displayName": "key",
+                            "displayType": "text"
+                        },
+                        "name": "key"
                     },
-                    "description": "The Payload (Body) of the HTTP Request.",
-                    "displayName": "Body",
-                    "displayType": "code"
+                    {
+                        "meta": {
+                            "validation": {
+                                "required": true,
+                                "requiredDetail": {
+                                    "errorMsg": "Value is required"
+                                }
+                            },
+                            "displayName": "value",
+                            "displayType": "text"
+                        },
+                        "name": "value"
+                    }
+                ],
+                "htmlProps": {
+                    "allowAdd": true
                 },
-                "name": "body"
-            }
-        ]
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:21.004Z",
-    "updated_at": "2025-06-11T12:12:21.004Z"
+                "displayName": "Query String",
+                "displayType": "keyvalue"
+            },
+            "name": "query_params"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "size": "md",
+                    "language": "json",
+                    "fullscreen": true,
+                    "showSuggestions": true
+                },
+                "description": "The Payload (Body) of the HTTP Request.",
+                "displayName": "Body",
+                "displayType": "code"
+            },
+            "name": "body"
+        }
+    ]
 }

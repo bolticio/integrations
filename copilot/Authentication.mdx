@@ -1,102 +1,93 @@
 {
-    "id": "0022027f-5a92-4438-8808-6a0799877830",
-    "documentation": null,
-    "integration_id": "f1ab10ab-6751-4c18-b4ca-8ef8a5d23ccf",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Integration ID & Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Please select an authentication type from the list"
+                    }
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://integrations.copilot.live/v1/details",
+            "method": "get",
+            "headers": {
+                "x-integration-id": "{{secrets.integration_id}}",
+                "x-integration-token": "{{secrets.integration_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Integration ID & Token",
-                            "value": "access_token"
-                        }
-                    ],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Please select an authentication type from the list"
+                            "errorMsg": "Integration ID is required"
                         }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
+                    "description": "The App ID for your Copilot created on <a href='https://platform.copilot.live' target='_blank'>https://platform.copilot.live</a>",
+                    "displayName": "Copilot Integration ID",
+                    "displayType": "text",
+                    "placeholder": "xxxxxx......",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://integrations.copilot.live/v1/details",
-                "method": "get",
-                "headers": {
-                    "x-integration-id": "{{secrets.integration_id}}",
-                    "x-integration-token": "{{secrets.integration_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+                "name": "integration_id"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Integration ID is required"
-                            }
-                        },
-                        "description": "The App ID for your Copilot created on <a href='https://platform.copilot.live' target='_blank'>https://platform.copilot.live</a>",
-                        "displayName": "Copilot Integration ID",
-                        "displayType": "text",
-                        "placeholder": "xxxxxx......",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Integration Token is required"
                         }
                     },
-                    "name": "integration_id"
+                    "description": "The Integration Token for your Copilot created on <a href='https://platform.copilot.live' target='_blank'>https://platform.copilot.live</a>",
+                    "displayName": "Copilot Integration Token",
+                    "displayType": "password",
+                    "placeholder": "intg-xxxxxx......",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Integration Token is required"
-                            }
-                        },
-                        "description": "The Integration Token for your Copilot created on <a href='https://platform.copilot.live' target='_blank'>https://platform.copilot.live</a>",
-                        "displayName": "Copilot Integration Token",
-                        "displayType": "password",
-                        "placeholder": "intg-xxxxxx......",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "integration_token"
-                }
-            ]
-        }
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:28.756Z",
-    "updated_at": "2025-06-11T12:12:28.756Z"
+                "name": "integration_token"
+            }
+        ]
+    }
 }

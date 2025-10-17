@@ -1,93 +1,84 @@
 {
-    "id": "3613db5e-77ac-4e71-8174-3ec28b0e6017",
-    "documentation": "# Mailchimp Integration\n\nThis guide walks you through setting up the Mailchimp integration within Boltic.\n\n## Prerequisites\n\nTo set up the Mailchimp integration, you'll need:\n\n- Mailchimp API key or OAuth2 credentials (client ID and client secret)\n- Data center prefix from your API key\n- Admin access to the Mailchimp account\n\n## Setting Up the Mailchimp Integration in Boltic\n\n### 1. Log In\n\nLog into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n### 2. Navigate to Integrations from the Primary Menu\n\nClick on **Sources** and then click on **+ Add New source**.\n\n### 3. Select Source Type\n\nOn the **Set up the source** page, search for Mailchimp from the search bar and select it.\n\n### 4. Configure Integration\n\n#### API Key Authentication\n\n- **Authentication Type:** Select: `API Key`\n- **API Key:** Enter: Your Mailchimp API Key. Refer to the Mailchimp API authentication documentation for detailed instructions on getting your API key.\n- **Data Center:** Enter: The server prefix from your API key (e.g., us1).\n\n#### OAuth2 Authentication (Currently commented out, uncomment to use)\n\n- **Authentication Type:** Select: `OAuth2`\n- **Client ID:** Enter: Your Mailchimp app client ID.\n- **Client Secret:** Enter: Your Mailchimp app client secret.\n- **Redirect URI:** Enter: `v1/mailchimp/oauth2/callback`.\n- **Connect Mailchimp Account:** Button: Click to connect your Mailchimp account. Follow the on-screen instructions to complete the OAuth2 flow.\n- **Mailchimp Account Connected:** Button: Once connected, this will confirm your Mailchimp account is linked.\n\n### 5. Test and Save Integration\n\nClick **Test Connection** to ensure the provided details are correct and the connection is successful. Once the connection test is successful, click **Set up source** to complete the configuration.\n\n## Troubleshooting\n\nIf you encounter any issues during setup:\n\n- **Check API Key or OAuth2 credentials:** Ensure the provided details are correct and have the necessary permissions.\n- **Verify Data Center Prefix:** Confirm the data center prefix from your API key is correct.\n- **Network Issues:** Check for any network issues that might be affecting connectivity.\n\n## Frequently Asked Questions (FAQs)\n\n1. **How do I find my Mailchimp API key?**\n\n   To find your Mailchimp API key, navigate to your Mailchimp account settings and look for the API key section. You can also refer to Mailchimp's official documentation for detailed instructions.\n\n2. **What should I do if my connection fails?**\n\n   Ensure your API key or OAuth2 credentials are correct.\n   Verify the data center prefix and ensure there are no typos.\n   Check your network connection and firewall settings.\n\n3. **How often is the data synced?**\n\n   The data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.\n\n4. **Can I customize the data being synced?**\n\n   Yes, you can customize the data being synced by adjusting the settings during the setup process.\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our Support Documentation.\n",
-    "integration_id": "b6e85361-648e-4149-aa09-7691f89a31a1",
-    "content": {
-        "api_key": {
-            "validate": {
-                "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/",
-                "method": "get",
-                "headers": {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization": "Basic convertBufferBase64String(X:{{secrets.api_key}})"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.detail}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+    "api_key": {
+        "validate": {
+            "url": "https://{{secrets.data_center}}.api.mailchimp.com/3.0/",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String(X:{{secrets.api_key}})"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "description": "Refer to <a href='https://mailchimp.com/help/about-api-keys/' target='_blank'>the Mailchimp API authentication documentation</a> for detailed instructions on getting your API key.",
-                        "displayName": "API Key",
-                        "displayType": "password",
-                        "placeholder": "Enter API Key",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "api_key",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "api_key"
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "description": "Enter the server prefix from your API key. It's typically the part after the dash in your API key.",
-                        "displayName": "Data Center",
-                        "displayType": "text",
-                        "placeholder": "Enter Server Prefix (e.g., us1)",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "api_key",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "data_center"
-                }
-            ]
+                "output": "{{response.data}}"
+            }
         },
         "parameters": [
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "API Key",
-                            "value": "api_key"
-                        }
-                    ],
                     "validation": {
                         "required": true
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
+                    "description": "Refer to <a href='https://mailchimp.com/help/about-api-keys/' target='_blank'>the Mailchimp API authentication documentation</a> for detailed instructions on getting your API key.",
+                    "displayName": "API Key",
+                    "displayType": "password",
+                    "placeholder": "Enter API Key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "type"
+                "name": "api_key"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the server prefix from your API key. It's typically the part after the dash in your API key.",
+                    "displayName": "Data Center",
+                    "displayType": "text",
+                    "placeholder": "Enter Server Prefix (e.g., us1)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "data_center"
             }
         ]
     },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:22.291Z",
-    "updated_at": "2025-06-11T12:12:22.291Z"
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "api_key"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
 }

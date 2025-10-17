@@ -1,178 +1,128 @@
 {
+    "definition": {
+        "url": "https://api.firecrawl.dev/v1/scrape",
+        "body": {
+            "url": "{{parameters.url}}",
+            "formats": "{{parameters.formats}}",
+            "timeout": "{{parameters.timeout}}",
+            "parsePDF": "{{parameters.parsePDF}}",
+            "onlyMainContent": "{{parameters.onlyMainContent}}"
+        },
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{secrets.api_key}}"
+        },
+        "response": {
+            "error": {
+                "code": "{{response.status}}",
+                "message": "{{response.data.error}}"
+            },
+            "output": "{{response.data}}"
+        }
+    },
     "parameters": [
         {
             "meta": {
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "URL is required field"
+                    }
+                },
+                "description": "Enter the URL you want to scrape.",
+                "displayName": "URL",
+                "displayType": "url",
+                "placeholder": "Enter the URL"
+            },
+            "name": "url"
+        },
+        {
+            "meta": {
+                "value": [
+                    "markdown"
+                ],
                 "options": [
                     {
-                        "label": "Scrape URL",
-                        "value": "scrape_url.scrape",
-                        "description": "Scrape content from a single URL."
+                        "label": "Markdown",
+                        "value": "markdown"
                     },
                     {
-                        "label": "Batch Scrape",
-                        "value": "scrape_url.batch_scrape",
-                        "description": "Scrape content from multiple URLs in batch."
+                        "label": "HTML",
+                        "value": "html"
                     },
                     {
-                        "label": "Batch Scrape Status",
-                        "value": "scrape_url.scrape_status",
-                        "description": "Check the status of a batch scrape job."
+                        "label": "Raw HTML",
+                        "value": "rawHtml"
+                    },
+                    {
+                        "label": "Screenshot",
+                        "value": "screenshot"
+                    },
+                    {
+                        "label": "Links",
+                        "value": "links"
                     }
                 ],
+                "htmlProps": {
+                    "allowDynamic": true
+                },
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Output Formats is required field"
+                    }
                 },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operation",
-                "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": {
-                    "conditions": [
-                        {
-                            "field": "resource",
-                            "value": "scrape_url",
-                            "operator": "EQUALS"
-                        }
-                    ]
-                }
+                "description": "Choose one or more output formats (e.g., markdown, html, screenshot, links, rawHtml).",
+                "displayName": "Output Formats",
+                "displayType": "multiselect",
+                "placeholder": "Select output formats"
             },
-            "name": "operation"
-        }
-    ],
-    "id": "daed72d2-b954-48e9-ae89-40ce53bce7b2",
-    "integration_id": "ddd3a2b3-474c-4b1e-9195-5000ac0d1445",
-    "resource_id": "ffcc361f-2548-404e-ac99-87d017a1b8a0",
-    "name": "scrape",
-    "content": {
-        "definition": {
-            "url": "https://api.firecrawl.dev/v1/scrape",
-            "body": {
-                "url": "{{parameters.url}}",
-                "formats": "{{parameters.formats}}",
-                "timeout": "{{parameters.timeout}}",
-                "parsePDF": "{{parameters.parsePDF}}",
-                "onlyMainContent": "{{parameters.onlyMainContent}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
+            "name": "formats"
         },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "URL is required field"
-                        }
-                    },
-                    "description": "Enter the URL you want to scrape.",
-                    "displayName": "URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL"
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
                 },
-                "name": "url"
+                "validation": {
+                    "required": false
+                },
+                "description": "Return only the main content of the page (excluding headers, nav, footers, etc.).",
+                "displayName": "Only Main Content",
+                "displayType": "toggle",
+                "placeholder": "Enter Only Main Content"
             },
-            {
-                "meta": {
-                    "value": [
-                        "markdown"
-                    ],
-                    "options": [
-                        {
-                            "label": "Markdown",
-                            "value": "markdown"
-                        },
-                        {
-                            "label": "HTML",
-                            "value": "html"
-                        },
-                        {
-                            "label": "Raw HTML",
-                            "value": "rawHtml"
-                        },
-                        {
-                            "label": "Screenshot",
-                            "value": "screenshot"
-                        },
-                        {
-                            "label": "Links",
-                            "value": "links"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Output Formats is required field"
-                        }
-                    },
-                    "description": "Choose one or more output formats (e.g., markdown, html, screenshot, links, rawHtml).",
-                    "displayName": "Output Formats",
-                    "displayType": "multiselect",
-                    "placeholder": "Select output formats"
+            "name": "onlyMainContent"
+        },
+        {
+            "meta": {
+                "value": 30000,
+                "validation": {
+                    "min": 1000,
+                    "required": false
                 },
-                "name": "formats"
+                "description": "Maximum duration in milliseconds to wait for the page to respond.",
+                "displayName": "Timeout (ms)",
+                "displayType": "number",
+                "placeholder": "Enter Timeout"
             },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Return only the main content of the page (excluding headers, nav, footers, etc.).",
-                    "displayName": "Only Main Content",
-                    "displayType": "toggle",
-                    "placeholder": "Enter Only Main Content"
+            "name": "timeout"
+        },
+        {
+            "meta": {
+                "htmlProps": {
+                    "allowDynamic": true
                 },
-                "name": "onlyMainContent"
+                "validation": {
+                    "required": false
+                },
+                "description": "Extract and convert PDF content to markdown.",
+                "displayName": "Parse PDF",
+                "displayType": "toggle",
+                "placeholder": "Enter Parse PDF"
             },
-            {
-                "meta": {
-                    "value": 30000,
-                    "validation": {
-                        "min": 1000,
-                        "required": false
-                    },
-                    "description": "Maximum duration in milliseconds to wait for the page to respond.",
-                    "displayName": "Timeout (ms)",
-                    "displayType": "number",
-                    "placeholder": "Enter Timeout"
-                },
-                "name": "timeout"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Extract and convert PDF content to markdown.",
-                    "displayName": "Parse PDF",
-                    "displayType": "toggle",
-                    "placeholder": "Enter Parse PDF"
-                },
-                "name": "parsePDF"
-            }
-        ]
-    },
-    "created_by": "rahilsiddiqui@gofynd.com",
-    "modified_by": "rahilsiddiqui@gofynd.com",
-    "created_at": "2025-07-10T07:18:01.662Z",
-    "updated_at": "2025-07-18T13:07:32.433Z"
+            "name": "parsePDF"
+        }
+    ]
 }

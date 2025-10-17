@@ -1,78 +1,69 @@
 {
-    "id": "607f0333-d64b-450b-9cc4-76f1762f18d2",
-    "documentation": "# LinkedIn Authentication code\n\n## Authorization Code Flow (3-legged OAuth)\n\nStep 1: Configure Your Application\nStep 2: Request an Authorization Code\n \n## The Authorization Code Flow is used for applications to request permission from a LinkedIn member to access their account data. The level of access or profile detail is explicitly requested using the scope parameter during the authorization process outlined below. This workflow will send a consent prompt to a selected member, and once approved your application may begin making API calls on behalf of that member.\n\nThis approval process ensures that LinkedIn members are aware of what level of detail an application may access or action it may perform on their behalf.\n\nIf multiple scopes are requested, the user must be consent to all of them and may not select individual scopes. For the benefit of your LinkedIn users, please ensure that your application requests the least number of scope permissions.\n\n Note\n\n## Generate a Token Manually Using the Developer Portal\nThe LinkedIn Developer Portal has a token generator for manually creating tokens. Visit the LinkedIn Developer Portal Token Generator or follow the steps outlined in Developer Portal Tools.\n\n## Authorization Code Flow\nConfigure your application in the Developer Portal to obtain Client ID and Client Secret.\nYour application directs the browser to LinkedIn's OAuth 2.0 authorization page where the member authenticates.\nAfter authentication, LinkedIn's authorization server passes an authorization code to your application.\nYour application sends this code to LinkedIn and LinkedIn returns an access token.\nYour application uses this token to make API calls on behalf of the member.\nauth flow\n\n## How to Implement 3-legged OAuth\nFollow the steps given below to implement the 3-legged OAuth for LinkedIn APIs:\n\n## Prerequisites\n-   A LinkedIn Developer application to create a new application or select your existing application\n-   Prior authorization access granted for at least one 3-legged OAuth permission.\n-   The permission request workflow is outlined in the Getting Access section.\n\n## Step 1: Configure Your Application\nSelect your application in the LinkedIn Developer Portal.\nClick the Auth tab to view your application credentials.\nAdd the redirect (callback) URL via HTTPS to your server.\n Note\n\n## LinkedIn servers will only communicate with URLs that you have identified as trusted.\n\nURLs must be absolute:\nhttps://dev.example.com/auth/linkedin/callback\nnot /auth/linkedin/callback\nparameters are ignored:\nhttps://dev.example.com/auth/linkedin/callback?id=1\nwill be https://dev.example.com/auth/linkedin/callback\nURLs cannot include a #\nhttps://dev.example.com/auth/linkedin/callback#linkedin is invalid.\nIf you are using Postman to test this flow, use https://oauth.pstmn.io/v1/callback as your redirect URL and enable Authorize using browser.\n\n## Redirect URLs\n\nEach application is assigned a unique Client ID (Consumer key/API key) and Client Secret. Please make a note of these values as they will be integrated into your application. Your Client Secret protects your application's security so be sure to keep it secure!\n\n## OAuth Values\n\n Warning\n\nDo not share your Client Secret value with anyone, and do not pass it in the URL when making API calls, or URI query-string parameters, or post in support forums, chat, etc.\n\n## Step 2: Request an Authorization Code\nTo request an authorization code, you must direct the member's browser to LinkedIn's OAuth 2.0 authorization page, where the member either accepts or denies your application's permission request.",
-    "integration_id": "ce852a50-40f9-4887-b600-75ab6fc6d71d",
-    "content": {
-        "api_key": {
-            "validate": {
-                "url": "https://api.linkedin.com/v2/userinfo",
-                "method": "get",
-                "headers": {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer {{secrets.api_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.message}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+    "api_key": {
+        "validate": {
+            "url": "https://api.linkedin.com/v2/userinfo",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Please add the API key as it cannot be empty"
-                            }
-                        },
-                        "description": "Your Linkedin API Key. Navigate to the <a href='https://www.linkedin.com/developers/tools/oauth/token-generator?clientId=77klpugw1fujy1' target='_blank'> LinkedIn API documentation </a> for more details.",
-                        "displayName": "API Key",
-                        "displayType": "password",
-                        "placeholder": "Enter API Key",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "api_key",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "api_token"
-                }
-            ]
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
         },
         "parameters": [
             {
                 "meta": {
-                    "value": "api_key",
-                    "options": [
-                        {
-                            "label": "API Key",
-                            "value": "api_key"
-                        }
-                    ],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Please select the Authentication type as it cannot be empty"
+                            "errorMsg": "Please add the API key as it cannot be empty"
                         }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
+                    "description": "Your Linkedin API Key. Navigate to the <a href='https://www.linkedin.com/developers/tools/oauth/token-generator?clientId=77klpugw1fujy1' target='_blank'> LinkedIn API documentation </a> for more details.",
+                    "displayName": "API Key",
+                    "displayType": "password",
+                    "placeholder": "Enter API Key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "api_key",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "type"
+                "name": "api_token"
             }
         ]
     },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:47.407Z",
-    "updated_at": "2025-06-11T12:12:47.407Z"
+    "parameters": [
+        {
+            "meta": {
+                "value": "api_key",
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "api_key"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Please select the Authentication type as it cannot be empty"
+                    }
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
 }

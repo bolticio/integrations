@@ -1,112 +1,103 @@
 {
-    "id": "ef9fdcdf-6dc9-4dd1-a440-c685f8f400e5",
-    "documentation": "# Zendesk\n\nThis guide walks you through setting up the Zendesk integration within Boltic.\n\n## Prerequisites\n\nTo set up the Zendesk integration, you'll need:\n\n-   The Zendesk subdomain name\n\n-   The Zendesk email address\n\n-   The Zendesk personal access token or password\n\n-   Admin access to the Zendesk account\n\n## Setting Up the Zendesk Integration in Boltic\n\n1.  **Log In**\n\n    -   Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n2.  **Navigate to Integrations from the Primary Menu**\n\n    -   Click on `Sources` and then click on `+ Add New source`.\n\n3.  **Select Source Type**\n\n    -   On the Set up the source page, search for `Zendesk` from the search bar and select it.\n\n4.  **Configure Integration**\n\n    -   **Name:** Enter a name for the Zendesk integration.\n\n    -   **Subdomain:** Enter your Zendesk subdomain. For example, if your Zendesk account is `https://example.zendesk.com`, enter `example` as your domain.\n\n    -   **Email:** Enter the email address associated with your Zendesk account.\n\n    -   **Personal Access Token or Password:** Enter your Zendesk password or personal access token (Incase of API Token please append token to the email field). Do note we need to enable API access in your Zendesk account before using this method. For more information, visit [Managing access to the Zendesk API](https://support.zendesk.com/hc/en-us/articles/4408889192858-Managing-access-to-the-Zendesk-API).\n\n5.  **Details (Optional)**\n\n    -   **Tags:** Add any tags for categorization.\n\n    -   **Description:** Provide a brief description of the integration.\n\n6.  **Test and Save Integration**\n\n    -   Click `Test Connection` to ensure the provided details are correct and the connection is successful.\n\n    -   Once the connection test is successful, click `Set up source` to complete the configuration.\n\n## Troubleshooting\n\nIf you encounter any issues during setup:\n\n-   **Check Access Token:** Ensure the provided personal access token is correct and has the necessary permissions.\n\n-   **Verify Domain URL:** Confirm the domain URL is correct.\n\n-   **Network Issues:** Check for any network issues that might be affecting connectivity.\n\n## Frequently Asked Questions (FAQs)\n\n1.  **How do I find my Zendesk personal access token?**\n\n-   To find your Zendesk personal access token, navigate to your Zendesk account settings and look for the API token section. You can also refer to <a href=\"https://support.zendesk.com/hc/en-us/articles/4408889192858-Managing-access-to-the-Zendesk-API\"  target=\"_blank\" rel=\"noopener\"><span>Zendesk's official documentation</span></a>.\n\n2.  **What should I do if my connection fails?**\n\n-   Ensure your password or personal access token is correct.\n\n-   Verify the subdomain and email address and ensure there are no typos.\n\n-   Check your network connection and firewall settings.\n\n3.  **How often is the data synced?**\n\n-   The data sync frequency is determined by the settings configured during setup. You can customize the sync frequency as needed.\n\n4.  **Can I customize the data being synced?**\n\n-   Yes, you can customize the data being synced by adjusting the settings during the setup process.\n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n",
-    "integration_id": "e6b64570-e43f-4e6c-8cce-b7feb243f28c",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Email and Password",
+                        "value": "email_password"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "email_password": {
+        "validate": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/account/settings",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "Email and Password",
-                            "value": "email_password"
-                        }
-                    ],
                     "validation": {
                         "required": true
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
+                    "description": "Enter the domain of your Zendesk account. For example, if your Zendesk account is `https://example.zendesk.com`, enter `example` as your domain.",
+                    "displayName": "Subdomain",
+                    "displayType": "text",
+                    "placeholder": "Enter zendesk subdomain",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "email_password",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "type"
-            }
-        ],
-        "email_password": {
-            "validate": {
-                "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/account/settings",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.error}}"
-                    },
-                    "output": "{{response.data}}"
-                }
+                "name": "subdomain"
             },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "description": "Enter the domain of your Zendesk account. For example, if your Zendesk account is `https://example.zendesk.com`, enter `example` as your domain.",
-                        "displayName": "Subdomain",
-                        "displayType": "text",
-                        "placeholder": "Enter zendesk subdomain",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "email_password",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
                     },
-                    "name": "subdomain"
+                    "description": "Enter email account of your Zendesk account.",
+                    "displayName": "Email Address",
+                    "displayType": "text",
+                    "placeholder": "Enter user email address",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "email_password",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "description": "Enter email account of your Zendesk account.",
-                        "displayName": "Email Address",
-                        "displayType": "text",
-                        "placeholder": "Enter user email address",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "email_password",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
                     },
-                    "name": "email"
+                    "description": "Enter user password or API Token (Incase of API Token please append <b>token</b> to the email field).Please do enable API access in your Zendesk account before using this method. For more information, visit <a href='https://support.zendesk.com/hc/en-us/articles/4408889192858-Managing-access-to-the-Zendesk-API' target='_blank'>Managing access to the Zendesk API</a>.",
+                    "displayName": "Password or API Token",
+                    "displayType": "password",
+                    "placeholder": "Enter user password or API Token",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "email_password",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true
-                        },
-                        "description": "Enter user password or API Token (Incase of API Token please append <b>token</b> to the email field).Please do enable API access in your Zendesk account before using this method. For more information, visit <a href='https://support.zendesk.com/hc/en-us/articles/4408889192858-Managing-access-to-the-Zendesk-API' target='_blank'>Managing access to the Zendesk API</a>.",
-                        "displayName": "Password or API Token",
-                        "displayType": "password",
-                        "placeholder": "Enter user password or API Token",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "email_password",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "password"
-                }
-            ]
-        }
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:18.056Z",
-    "updated_at": "2025-06-11T12:12:18.056Z"
+                "name": "password"
+            }
+        ]
+    }
 }

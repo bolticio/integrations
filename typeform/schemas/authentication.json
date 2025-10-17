@@ -1,77 +1,68 @@
 {
-    "id": "6a66dc39-89de-4b52-b2d8-d0fe567fb334",
-    "documentation": "# Typeform\n\n\n\nThis guide walks you through setting up the Typeform integration within Boltic.\n\n\n\n## Prerequisites\n\nTo set up the Typeform integration, you'll need:\n\n- A Typeform account\n\nIf you don't have a Typeform account, you can create one at <a href=\"https://www.typeform.com/signup/\" target=\"_blank\" rel=\"noopener\"><span>Typeform Create Account</span></a>.\n\n\n\n## Setting Up the Typeform Integration in Boltic\n\n1. **Log In**\n\n   - Log into your Typeform account.\n\n\n\n2. **Log into Boltic**\n\n   - Log into your Boltic account or navigate to the Boltic Open Source dashboard.\n\n\n\n3. **Navigate to Integrations**\n\n   - Click on `Sources` and then click on `+ Add New source`.\n\n\n\n4. **Select Source Type**\n\n   - On the Set up the source page, search for `Typeform` from the search bar and select it.\n\n\n\n5. **Authenticate Typeform Account**\n\n   - Click `Connect to Typeform`.\n\n   - You will be redirected to the Typeform website.\n\n   - If you are already logged into Typeform, the connection will be automatically established. If not, log into your Typeform account.\n\n\n\n6. **Configure Integration**\n\n   - **Name:** Enter a name for the Typeform integration.\n\n   - **Workspace:** Select the workspace you want to connect.\n\n\n\n7. **Details (Optional)**\n\n   - **Tags:** Add any tags for categorization.\n\n   - **Description:** Provide a brief description of the integration.\n\n\n\n8. **Test and Save Integration**\n\n   - Click `Test Connection` to ensure the connection is successful.\n\n   - Once the connection test is successful, click `Set up source` to complete the configuration.\n\n   \n\n## Support\n\nIf you need further assistance, please contact Boltic support or visit our <a href=\"https://docs.boltic.io\" target=\"_blank\" rel=\"noopener\"><span>Support Documentation</span></a>.\n",
-    "integration_id": "8e39e9bb-e383-4ae8-ade8-b18ad6466ebc",
-    "content": {
+    "parameters": [
+        {
+            "meta": {
+                "value": "access_token",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "access_token"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Authentication type is required"
+                    }
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ],
+    "access_token": {
+        "validate": {
+            "url": "https://api.typeform.com/workspaces",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
-                    "value": "access_token",
-                    "options": [
-                        {
-                            "label": "Access Token",
-                            "value": "access_token"
-                        }
-                    ],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Authentication type is required"
+                            "errorMsg": "Access token is required"
                         }
                     },
-                    "description": "Choose the type of authentication you want to use.",
-                    "displayName": "Authentication Type",
-                    "displayType": "select",
-                    "placeholder": "Select an authentication type"
-                },
-                "name": "type"
-            }
-        ],
-        "access_token": {
-            "validate": {
-                "url": "https://api.typeform.com/workspaces",
-                "method": "get",
-                "headers": {
-                    "Authorization": "Bearer {{secrets.access_token}}"
-                },
-                "response": {
-                    "error": {
-                        "code": "{{response.status}}",
-                        "message": "{{response.data.description}}"
-                    },
-                    "output": "{{response.data}}"
-                }
-            },
-            "parameters": [
-                {
-                    "meta": {
-                        "validation": {
-                            "required": true,
-                            "requiredDetail": {
-                                "errorMsg": "Access token is required"
+                    "description": "Refer to the <a href='https://www.typeform.com/developers/get-started/personal-access-token/' target='_blank'>Typeform API documentation</a> to obtain your access token.",
+                    "displayName": "Personal Access Token",
+                    "displayType": "password",
+                    "placeholder": "Enter your Typeform Access Token",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "access_token",
+                                "operator": "EQUALS"
                             }
-                        },
-                        "description": "Refer to the <a href='https://www.typeform.com/developers/get-started/personal-access-token/' target='_blank'>Typeform API documentation</a> to obtain your access token.",
-                        "displayName": "Personal Access Token",
-                        "displayType": "password",
-                        "placeholder": "Enter your Typeform Access Token",
-                        "dependencies": {
-                            "conditions": [
-                                {
-                                    "field": "type",
-                                    "value": "access_token",
-                                    "operator": "EQUALS"
-                                }
-                            ]
-                        }
-                    },
-                    "name": "access_token"
-                }
-            ]
-        }
-    },
-    "created_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "modified_by": "00000000000000000000000000000000eabe80b1f89dc01f3f7d24b69c949006",
-    "created_at": "2025-06-11T12:12:26.615Z",
-    "updated_at": "2025-06-11T12:12:26.615Z"
+                        ]
+                    }
+                },
+                "name": "access_token"
+            }
+        ]
+    }
 }
