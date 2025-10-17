@@ -184,15 +184,28 @@ async function main() {
     }
 
     // Resources + Operations merged
-    const resourcesResp = await axios.get(
-      RESOURCE_URL.replace("{integration_id}", integration.id),
-      { headers }
-    );
-    
-    const resourcesList = Array.isArray(resourcesResp.data?.data)
-      ? resourcesResp.data.data
-      : Array.isArray(resourcesResp.data)
-      ? resourcesResp.data
+    let resourcesResp = null;
+    try {
+      resourcesResp = await axios.get(
+        RESOURCE_URL.replace("{integration_id}", integration.id),
+        { headers }
+      );
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.warn(
+          `Resources not found for ${integration.name} (${integration.id}) - skipping`
+        );
+      } else {
+        throw e;
+      }
+    }
+
+    const resourcesList = resourcesResp
+      ? Array.isArray(resourcesResp.data?.data)
+        ? resourcesResp.data.data
+        : Array.isArray(resourcesResp.data)
+        ? resourcesResp.data
+        : []
       : [];
 
     if (resourcesList.length > 0) {
@@ -210,15 +223,23 @@ async function main() {
           };
         }
 
-        const operationsResp = await axios
-          .get(
+        let operationsResp = null;
+        try {
+          operationsResp = await axios.get(
             OPERATION_URL.replace("{integration_id}", integration.id).replace(
-              "{resource_id}",
-              resource.id
+              "{resource_id}", resource.id
             ),
             { headers }
-          )
-          .catch(() => null);
+          );
+        } catch (e) {
+          if (e.response && e.response.status === 404) {
+            console.warn(
+              `Operations not found for ${integration.name} (${integration.id}) resource ${resource.id} - skipping`
+            );
+          } else {
+            throw e;
+          }
+        }
 
         const opsData = operationsResp
           ? operationsResp.data?.data ?? operationsResp.data
