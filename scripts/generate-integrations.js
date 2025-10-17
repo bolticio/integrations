@@ -121,7 +121,7 @@ async function main() {
       );
       await fs.writeFile(
         path.join(integrationFolder, "Authentication.mdx"),
-        JSON.stringify(authentication.data.data.content, null, 4)
+        JSON.stringify(authentication.data.data.content.documentation, null, 4)
       );
     }
     // Webhooks
