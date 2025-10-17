@@ -252,7 +252,7 @@ async function main() {
 
         const resourceName = resource.name || resource.id || "resource";
         const resourceFile = path.join(resourcesFolder, `${resourceName}.json`);
-        await fs.writeJson(resourceFile, merged.content, { spaces: 4 });
+        await fs.writeJson(resourceFile, merged, { spaces: 4 });
       }
     }
   }
