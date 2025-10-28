@@ -84,14 +84,14 @@ async function main() {
     if (integration.activity_type) {
       await fs.writeFile(
         path.join(documentations, "integration.mdx"),
-        integration.documentation || ""
+        integration.documentation.integration || ""
       );
     }
 
     if (integration.trigger_type === "CloudTrigger") {
       await fs.writeFile(
         path.join(documentations, "trigger.mdx"),
-        integration.documentation || ""
+        integration.documentation.trigger || ""
       );
     }
 
