@@ -5,7 +5,8 @@
                 "options": [
                     {
                         "label": "Custom API",
-                        "value": "custom.custom_api"
+                        "value": "custom.custom_api",
+                        "description": "Make a custom HTTP request"
                     }
                 ],
                 "validation": {
@@ -77,7 +78,8 @@
                     },
                     "description": "The HTTP Method to be used for the request.",
                     "displayName": "Method",
-                    "displayType": "select"
+                    "displayType": "select",
+                    "placeholder": "Select method"
                 },
                 "name": "method"
             },
@@ -86,7 +88,7 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The URL of the HTTP Request.",
+                    "description": "The URL of the HTTP request.",
                     "displayName": "Base URL",
                     "displayType": "text",
                     "placeholder": "Eg. https://www.example.com"
@@ -126,9 +128,10 @@
                     "htmlProps": {
                         "allowAdd": true
                     },
-                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "description": "You don't have to add authorization headers; they're added automatically.",
                     "displayName": "Headers",
-                    "displayType": "keyvalue"
+                    "displayType": "keyvalue",
+                    "placeholder": "Add header key-value pairs"
                 },
                 "name": "headers"
             },
@@ -165,8 +168,10 @@
                     "htmlProps": {
                         "allowAdd": true
                     },
+                    "description": "Optional query string parameters as key-value pairs.",
                     "displayName": "Query String",
-                    "displayType": "keyvalue"
+                    "displayType": "keyvalue",
+                    "placeholder": "Add query key-value pairs"
                 },
                 "name": "query_params"
             },
@@ -178,11 +183,65 @@
                         "fullscreen": true,
                         "showSuggestions": true
                     },
-                    "description": "The Payload (Body) of the HTTP Request.",
+                    "description": "The payload (body) of the HTTP request.",
                     "displayName": "Body",
-                    "displayType": "code"
+                    "displayType": "code",
+                    "placeholder": "Enter JSON body"
                 },
                 "name": "body"
+            }
+        ]
+    },
+    "searchissuestext": {
+        "definition": {
+            "qs": {
+                "query": "{{parameters.query}}",
+                "maxResults": "{{parameters.maxResults}}"
+            },
+            "url": "https://{{secrets.domain}}/rest/api/3/issue/picker",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errorMessages[0]}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Text query is required."
+                        }
+                    },
+                    "description": "A string to search for issues.",
+                    "displayName": "Text Query",
+                    "displayType": "text",
+                    "placeholder": "Enter text search query here"
+                },
+                "name": "query"
+            },
+            {
+                "meta": {
+                    "value": 50,
+                    "validation": {
+                        "max": 1000,
+                        "min": 1,
+                        "required": false
+                    },
+                    "description": "The maximum number of items to return. Max is 1000.",
+                    "displayName": "Max Results",
+                    "displayType": "number",
+                    "placeholder": "Enter max results"
+                },
+                "name": "maxResults"
             }
         ]
     },
@@ -291,62 +350,12 @@
             }
         ]
     },
-    "searchissuestext": {
+    "get": {
         "definition": {
             "qs": {
-                "query": "{{parameters.query}}",
-                "maxResults": "{{parameters.maxResults}}"
+                "expand": "{{parameters.expand}}"
             },
-            "url": "https://{{secrets.domain}}/rest/api/3/issue/picker",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errorMessages[0]}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Text query is required."
-                        }
-                    },
-                    "description": "A string to search for issues.",
-                    "displayName": "Text Query",
-                    "displayType": "text",
-                    "placeholder": "Enter text search query here"
-                },
-                "name": "query"
-            },
-            {
-                "meta": {
-                    "value": 50,
-                    "validation": {
-                        "max": 1000,
-                        "min": 1,
-                        "required": false
-                    },
-                    "description": "The maximum number of items to return. Max is 1000.",
-                    "displayName": "Max Results",
-                    "displayType": "number",
-                    "placeholder": "Enter max results"
-                },
-                "name": "maxResults"
-            }
-        ]
-    },
-    "getstatuses": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/api/3/project/{{parameters.projectIdOrKey}}/statuses",
+            "url": "https://{{secrets.domain}}/rest/api/2/project/{{parameters.projectIdOrKey}}",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -366,12 +375,24 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "A unique identifier for your jira project.",
+                    "description": "A unique identifire for your jira project.",
                     "displayName": "Project Id or Key",
                     "displayType": "text",
                     "placeholder": "Enter Project Id or Key here"
                 },
                 "name": "projectIdOrKey"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Use expand to include additional information in the response. This parameter accepts a comma-separated list. Note that the project description, issue types, and project lead are included in all responses by default.",
+                    "displayName": "Expand",
+                    "displayType": "text",
+                    "placeholder": "Enter comma seperated expand options"
+                },
+                "name": "expand"
             }
         ]
     },
@@ -421,12 +442,9 @@
             }
         ]
     },
-    "get": {
+    "getstatuses": {
         "definition": {
-            "qs": {
-                "expand": "{{parameters.expand}}"
-            },
-            "url": "https://{{secrets.domain}}/rest/api/2/project/{{parameters.projectIdOrKey}}",
+            "url": "https://{{secrets.domain}}/rest/api/3/project/{{parameters.projectIdOrKey}}/statuses",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -446,24 +464,293 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "A unique identifire for your jira project.",
+                    "description": "A unique identifier for your jira project.",
                     "displayName": "Project Id or Key",
                     "displayType": "text",
                     "placeholder": "Enter Project Id or Key here"
                 },
                 "name": "projectIdOrKey"
+            }
+        ]
+    },
+    "createissue": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/api/3/issue",
+            "body": {
+                "fields": {
+                    "project": {
+                        "key": "{{parameters.project_key}}"
+                    },
+                    "summary": "{{parameters.summary}}",
+                    "assignee": {
+                        "accountId": "{{parameters.assignee_account_id}}"
+                    },
+                    "priority": {
+                        "name": "{{parameters.priority_name}}"
+                    },
+                    "issuetype": {
+                        "name": "{{parameters.issue_type_name}}"
+                    },
+                    "description": {
+                        "type": "doc",
+                        "content": [
+                            {
+                                "type": "paragraph",
+                                "content": [
+                                    {
+                                        "text": "{{parameters.description}}",
+                                        "type": "text"
+                                    }
+                                ]
+                            }
+                        ],
+                        "version": 1
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.access_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transformation": {
+                "body": "function transformBody(){try{if(body&&body.fields){delete body.fields.priority;}}catch(e){}const f=body&&body.fields?body.fields:{};const out={project:f.project,summary:f.summary,issuetype:f.issuetype};const has=v=>v!=null&&String(v).trim()!=='';const desc=(parameters.description??parameters.descripiton);if(has(desc)){out.description={type:'doc',version:1,content:[{type:'paragraph',content:[{type:'text',text:String(desc).trim()}]}]};}if(has(parameters.priority)&&has(parameters.priority_name)){out.priority=String(parameters.priority_name).trim();}if(has(parameters.assignee_account_id)){out.assignee={accountId:String(parameters.assignee_account_id).trim()};}return {...body,fields:out};}return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "jira",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "issue",
+                            "operation": "issue.createIssue",
+                            "loadOptionsMethod": "getAllProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "key"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The Jira project key where the issue will be created e.g., Support",
+                    "displayName": "Project Key",
+                    "displayType": "select",
+                    "placeholder": "Select Project Key",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "issue",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "issue.createIssue",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "project_key"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "jira",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "issue",
+                            "operation": "issue.createIssue",
+                            "project_key": "{{parameters.project_key}}",
+                            "loadOptionsMethod": "getAllAccounts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "accountId",
+                        "condition": "{{parameters.project_key}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The Atlassian accountId of the assignee.",
+                    "displayName": "Assignee Account ID",
+                    "displayType": "select",
+                    "placeholder": "Select Assignee Account ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "issue",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "issue.createIssue",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "project_key",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "assignee_account_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "jira",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "issue",
+                            "operation": "issue.createIssue",
+                            "loadOptionsMethod": "getAllIssues"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "name"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the Jira issue type available for the chosen project.",
+                    "displayName": "Issue Type",
+                    "displayType": "select",
+                    "placeholder": "Select Issue Type",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "issue",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "issue.createIssue",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "project_key",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "issue_type_name"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "Use expand to include additional information in the response. This parameter accepts a comma-separated list. Note that the project description, issue types, and project lead are included in all responses by default.",
-                    "displayName": "Expand",
+                    "description": "A short, descriptive summary of the issue.",
+                    "displayName": "Summary",
                     "displayType": "text",
-                    "placeholder": "Enter comma seperated expand options"
+                    "placeholder": "Enter issue summary"
                 },
-                "name": "expand"
+                "name": "summary"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Issue description (stored as Jira ADF).",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter description..."
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "jira",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "issue",
+                            "operation": "issue.createIssue",
+                            "loadOptionsMethod": "getAllPriorities"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "name"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a priority by name.",
+                    "displayName": "Priority",
+                    "displayType": "select",
+                    "placeholder": "Select Priority",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "issue",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "issue.createIssue",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "priority_name"
             }
         ]
     }
