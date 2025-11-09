@@ -131,6 +131,7 @@ integration-name/
 - [zendesk](./zendesk/)
 - [Zendesk_Talk](./Zendesk_Talk/)
 - [Zoho_CRM](./Zoho_CRM/)
+- [Zoho_Desk](./Zoho_Desk/)
 <!-- INTEGRATIONS_INDEX:END -->
 
 ## 🔒 Licensing

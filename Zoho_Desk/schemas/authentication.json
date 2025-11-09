@@ -1,0 +1,305 @@
+{
+    "oauth2": {
+        "token": {
+            "url": "https://accounts.zoho.in/oauth/v2/token",
+            "body": {
+                "code": "{{code}}",
+                "scope": "Desk.tickets.ALL,Desk.tickets.READ,Desk.tickets.WRITE,Desk.tickets.UPDATE,Desk.tickets.CREATE,Desk.tickets.DELETE,Desk.contacts.READ,Desk.contacts.WRITE,Desk.contacts.UPDATE,Desk.contacts.CREATE,Desk.tasks.ALL,Desk.tasks.WRITE,Desk.tasks.READ,Desk.tasks.CREATE,Desk.tasks.UPDATE,Desk.tasks.DELETE,Desk.basic.READ,Desk.basic.CREATE,Desk.settings.ALL,Desk.settings.WRITE,Desk.settings.READ,Desk.settings.CREATE,Desk.settings.UPDATE,Desk.settings.DELETE,Desk.search.READ,Desk.events.ALL,Desk.events.READ,Desk.events.WRITE,Desk.events.CREATE,Desk.events.UPDATE,Desk.events.DELETE,Desk.articles.READ,Desk.articles.CREATE,Desk.articles.UPDATE,Desk.articles.DELETE",
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "authorization_code",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error_description}}"
+                },
+                "output": {
+                    "expires_in": "{{response.data.expires_in}}",
+                    "token_type": "Bearer",
+                    "access_token": "{{response.data.access_token}}",
+                    "refresh_token": "{{response.data.refresh_token}}"
+                }
+            }
+        },
+        "refresh": {
+            "qs": {
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "refresh_token",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}",
+                "refresh_token": "{{secrets.refresh_token}}"
+            },
+            "url": "https://accounts.zoho.in/oauth/v2/token",
+            "method": "post",
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error_description}}"
+                },
+                "output": {
+                    "expires_in": "{{response.data.expires_in}}",
+                    "token_type": "Bearer",
+                    "access_token": "{{response.data.access_token}}"
+                }
+            }
+        },
+        "validate": {
+            "url": "https://desk.zoho.in/api/v1/tickets",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "authorize": {
+            "qs": {
+                "scope": "Desk.tickets.READ,Desk.tickets.WRITE,Desk.tickets.UPDATE,Desk.tickets.CREATE,Desk.contacts.READ,Desk.contacts.WRITE,Desk.contacts.UPDATE,Desk.contacts.CREATE,Desk.tasks.READ,Desk.tasks.WRITE,Desk.tasks.UPDATE,Desk.tasks.CREATE,Desk.basic.READ,Desk.basic.WRITE,Desk.basic.UPDATE,Desk.basic.CREATE,Desk.settings.READ,Desk.settings.WRITE,Desk.settings.UPDATE,Desk.settings.CREATE,Desk.search.READ,Desk.events.READ,Desk.events.WRITE,Desk.events.UPDATE,Desk.events.CREATE,Desk.articles.READ,Desk.articles.WRITE,Desk.articles.UPDATE,Desk.articles.CREATE, Desk.activities.calls.READ , Desk.activities.READ , Desk.calls.READ",
+                "state": "{{uuidv4()}}",
+                "prompt": "consent",
+                "client_id": "{{secrets.client_id}}",
+                "access_type": "offline",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "response_type": "code"
+            },
+            "url": "https://accounts.zoho.in/oauth/v2/auth",
+            "method": "get",
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "v1/zoho_desk/oauth2/callback",
+                    "displayName": "Redirect URI",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "redirect_uri"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "style": {
+                            "color": "#ffffff",
+                            "height": "40px",
+                            "padding": "16px",
+                            "fontSize": "14px",
+                            "fontWeight": 700,
+                            "backgroundColor": "#ff592f"
+                        },
+                        "variant": "contained"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please connect with Zoho Desk first"
+                        }
+                    },
+                    "description": "Connect your Zoho Desk account to get started",
+                    "displayName": "Connect Zoho Desk Account",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "variant": "contained"
+                    },
+                    "description": "Oauth 2.0 successful.",
+                    "displayName": "Zoho Desk Account Connected",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_connected"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "variant": "contained"
+                    },
+                    "description": "Reconnect your Zoho Desk account.",
+                    "displayName": "Reconnect Zoho Desk",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "meta.auth_status",
+                                "value": "REVOKED",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_reconnect"
+            },
+            {
+                "meta": {
+                    "displayName": "Refresh Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "refresh_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Access Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Expiry Date",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expiry_date"
+            },
+            {
+                "meta": {
+                    "displayName": "Expires In",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expires_in"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "oauth2",
+                "options": [
+                    {
+                        "label": "OAuth2",
+                        "value": "oauth2"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
+}
