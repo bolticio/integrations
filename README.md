@@ -129,6 +129,7 @@ integration-name/
 - [WooCommerce](./WooCommerce/)
 - [xai_grok](./xai_grok/)
 - [zendesk](./zendesk/)
+- [Zendesk_Gather](./Zendesk_Gather/)
 - [Zendesk_Talk](./Zendesk_Talk/)
 - [Zoho_CRM](./Zoho_CRM/)
 - [Zoho_Desk](./Zoho_Desk/)

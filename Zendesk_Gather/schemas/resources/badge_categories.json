@@ -1,0 +1,258 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Badge Category",
+                        "value": "badge_categories.create",
+                        "description": "Add A New Badge To Recognize Community Members"
+                    },
+                    {
+                        "label": "List Badge Categories",
+                        "value": "badge_categories.list",
+                        "description": "Retrieve All Badges Available In The Community"
+                    },
+                    {
+                        "label": "Get By Badge Category ID",
+                        "value": "badge_categories.get",
+                        "description": "Display Details Of A Single Badge"
+                    },
+                    {
+                        "label": "Delete Badge Category",
+                        "value": "badge_categories.delete",
+                        "description": "Remove A Badge From The Community"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select The Operation You Want To Perform",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": [
+                    {
+                        "field": "resource",
+                        "value": "badge_categories",
+                        "operator": "EQUALS"
+                    }
+                ]
+            },
+            "name": "operation"
+        }
+    ],
+    "delete": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badges/{{parameters.badge_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "badge": {
+                    "badge_id": "{{parameters.badge_id}}"
+                }
+            },
+            "method": "DELETE",
+            "headers": {
+                "Accept": "application/json",
+                "ContentType": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "status": "{{response.status}}",
+                    "details": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The Badge ID You Want To Delete",
+                    "displayName": "Badge ID",
+                    "displayType": "text",
+                    "placeholder": "Enter The Badge ID"
+                },
+                "name": "badge_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_assignments",
+            "body": {
+                "data": "{{secrets}}",
+                "badge_assignment": {
+                    "user_id": "{{parameters.user_id}}",
+                    "badge_id": "{{parameters.badge_id}}"
+                }
+            },
+            "method": "POST",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "status": "{{response.status}}",
+                    "details": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The Badge ID Of The Badge Assignment",
+                    "displayName": "Badge ID",
+                    "displayType": "text",
+                    "placeholder": "Enter The Badge ID"
+                },
+                "name": "badge_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The User ID Of The Badge Assignment",
+                    "displayName": "User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter The User ID"
+                },
+                "name": "user_id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_assignments",
+            "body": {
+                "data": "{{secrets}}"
+            },
+            "method": "GET",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "status": "{{response.status}}",
+                    "details": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_categories/{{parameters.badge_category_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "badge_category": {
+                    "badge_category_id": "{{parameters.badge_category_id}}"
+                }
+            },
+            "method": "GET",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "status": "{{response.status}}",
+                    "details": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The Badge Category Id For Category",
+                    "displayName": "Badge Category ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Badge Category ID"
+                },
+                "name": "badge_category_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badges/{{parameters.badge_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "badge": {
+                    "name": "{{parameters.name}}",
+                    "description": "{{parameters.description}}",
+                    "badge_category_id": "{{parameters.badge_category_id}}"
+                }
+            },
+            "method": "PUT",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "status": "{{response.status}}",
+                    "details": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The Badge Category ID For Updating The Existing Badge",
+                    "displayName": "Badge Category ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Badge Category ID"
+                },
+                "name": "badge_category_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The Name For Updating The Existing Badge",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter The Badge Name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The Description For Updating The Existing Badge",
+                    "displayName": "Description",
+                    "displayType": "text",
+                    "placeholder": "Enter Description"
+                },
+                "name": "description"
+            }
+        ]
+    }
+}
