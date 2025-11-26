@@ -116,6 +116,7 @@ integration-name/
 - [PayPal](./PayPal/)
 - [PDF.co](./PDF.co/)
 - [perplexity](./perplexity/)
+- [Pipedrive](./Pipedrive/)
 - [pixelbin](./pixelbin/)
 - [postgresql](./postgresql/)
 - [posthog](./posthog/)
