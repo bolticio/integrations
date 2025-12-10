@@ -1,4 +1,23 @@
 {
+    "listall": {
+        "definition": {
+            "url": "https://api.notion.com/v1/users",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
     "getUsers": {
         "definition": {
             "qs": {},
@@ -20,6 +39,55 @@
                 "output": "const updatedRes = output?.results?.map(function (db) { return { name: db?.name || 'Unnamed', id: db?.id || null, }; }); return updatedRes;"
             }
         }
+    },
+    "listauser": {
+        "definition": {
+            "url": "https://api.notion.com/v1/users/{{parameters.user_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "users",
+                            "operation": "users.listAUser",
+                            "loadOptionsMethod": "getUsers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "You must select a user to get result for it"
+                        }
+                    },
+                    "displayName": "UserID",
+                    "displayType": "select",
+                    "placeholder": "Select a user"
+                },
+                "name": "user_id"
+            }
+        ]
     },
     "parameters": [
         {
@@ -331,18 +399,32 @@
     },
     "create": {
         "definition": {
-            "url": "https://api.notion.com/v1/comments",
+            "url": "https://api.notion.com/v1/databases/",
             "body": {
-                "parent": {
-                    "page_id": "{{parameters.page_id}}"
+                "icon": {
+                    "type": "emoji",
+                    "emoji": "{{parameters.icon}}"
                 },
-                "rich_text": [
+                "cover": {
+                    "external": {
+                        "url": "{{parameters.cover}}"
+                    }
+                },
+                "title": [
                     {
                         "text": {
-                            "content": "{{parameters.content}}"
-                        }
+                            "link": null,
+                            "content": "{{parameters.title}}"
+                        },
+                        "type": "text"
                     }
-                ]
+                ],
+                "parent": {
+                    "type": "page_id",
+                    "page_id": "{{parameters.page_id}}"
+                },
+                "properties": "{{parameters.properties}}",
+                "propertyTitle": "{{parameters.propertyTitle}}"
             },
             "method": "post",
             "headers": {
@@ -356,6 +438,9 @@
                     "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const updatedBody = { ...body }; updatedBody.properties = updatedBody.properties.reduce((acc, property) => { acc[property.propertyName] = { [property.propertyValue]: {} }; return acc; }, {}); if (updatedBody.propertyTitle) { updatedBody.properties[`${updatedBody.propertyTitle}`] = { title: {} }; } if (!updatedBody.icon || !updatedBody.icon.emoji || Object.keys(updatedBody.icon).length === 0) { delete updatedBody.icon; } if (!updatedBody.cover || !updatedBody.cover.external || !updatedBody.cover.external.url || Object.keys(updatedBody.cover).length === 0) { delete updatedBody.cover; } delete updatedBody.propertyTitle; return updatedBody;"
             }
         },
         "parameters": [
@@ -366,8 +451,8 @@
                         "body": {
                             "name": "notion",
                             "secret": "{{parameters.secret}}",
-                            "resource": "comments",
-                            "operation": "comments.create",
+                            "resource": "databases",
+                            "operation": "databases.create",
                             "loadOptionsMethod": "getPages"
                         },
                         "method": "post",
@@ -375,53 +460,157 @@
                         "labelKey": "name",
                         "valueKey": "id"
                     },
-                    "options": [
-                        {
-                            "label": "Side Gig",
-                            "value": "14ad1523-ec7f-8126-93d3-e6a764901aab"
-                        }
-                    ],
+                    "options": [],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Selecting a page is required for this operation."
+                            "errorMsg": "Parent page ID is required to create the database."
                         }
                     },
-                    "description": "Select a Notion page where the operation will be performed.",
-                    "displayName": "Page",
+                    "description": "Select the Notion page to create DB.",
+                    "displayName": "page",
                     "displayType": "select",
-                    "placeholder": "Select a Notion Page"
+                    "placeholder": "Select a page"
                 },
                 "name": "page_id"
             },
             {
                 "meta": {
-                    "htmlProps": {
-                        "overrideDynamicSupport": true
-                    },
                     "validation": {
-                        "required": true,
-                        "maxLength": 1000,
-                        "minLength": 1,
-                        "requiredDetail": {
-                            "errorMsg": "Comment content cannot be empty."
-                        }
+                        "required": false
                     },
-                    "description": "The text content of the comment to be added to the selected Notion page.",
-                    "displayName": "Comment Content",
-                    "displayType": "textarea",
-                    "placeholder": "Enter the comment content",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "operation",
-                                "value": "comments.create",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
+                    "description": "An emoji to represent the database.",
+                    "displayName": "Database icon",
+                    "displayType": "text",
+                    "placeholder": "Enter an emoji"
                 },
-                "name": "content"
+                "name": "icon"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A header or banner image URL for the database.",
+                    "displayName": "Database Cover",
+                    "displayType": "text",
+                    "placeholder": "Enter the database cover URL"
+                },
+                "name": "cover"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The title of the Notion database to be updated.",
+                    "displayName": "Database Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the title of the database"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The title of the Notion database row to be created.",
+                    "displayName": "Property Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the title of the database coloumns"
+                },
+                "name": "propertyTitle"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Property Name",
+                                "displayType": "text",
+                                "placeholder": "Enter the name for the properites"
+                            },
+                            "name": "propertyName"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Title",
+                                        "value": "title"
+                                    },
+                                    {
+                                        "label": "URL",
+                                        "value": "url"
+                                    },
+                                    {
+                                        "label": "Email",
+                                        "value": "email"
+                                    },
+                                    {
+                                        "label": "Files",
+                                        "value": "file"
+                                    },
+                                    {
+                                        "label": "Checkbox",
+                                        "value": "checkbox"
+                                    },
+                                    {
+                                        "label": "Created By",
+                                        "value": "created_by"
+                                    },
+                                    {
+                                        "label": "Created Time",
+                                        "value": "created_time"
+                                    },
+                                    {
+                                        "label": "Date",
+                                        "value": "date"
+                                    },
+                                    {
+                                        "label": "Last Edited By",
+                                        "value": "last_edited_by"
+                                    },
+                                    {
+                                        "label": "Last Edited Time",
+                                        "value": "last_edited_time"
+                                    },
+                                    {
+                                        "label": "People",
+                                        "value": "people"
+                                    },
+                                    {
+                                        "label": "Phone Number",
+                                        "value": "phone_number"
+                                    },
+                                    {
+                                        "label": "Rich Text",
+                                        "value": "rich_text"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Choose the type of authentication you want to use.",
+                                "displayName": "Property Value",
+                                "displayType": "select",
+                                "placeholder": "Select an property type"
+                            },
+                            "name": "propertyValue"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "An array of properites . Each object should have a label and value.",
+                    "displayName": "Properties",
+                    "displayType": "array"
+                },
+                "name": "properties"
             }
         ]
     },
@@ -459,12 +648,11 @@
             }
         ]
     },
-    "listall": {
+    "delete": {
         "definition": {
-            "url": "https://api.notion.com/v1/users",
-            "method": "get",
+            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}",
+            "method": "delete",
             "headers": {
-                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}",
                 "Notion-Version": "2022-06-28"
             },
@@ -476,54 +664,21 @@
                 "output": "{{response.data}}"
             }
         },
-        "parameters": []
-    },
-    "listauser": {
-        "definition": {
-            "url": "https://api.notion.com/v1/users/{{parameters.user_id}}",
-            "method": "get",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}",
-                "Notion-Version": "2022-06-28"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
         "parameters": [
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "notion",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "users",
-                            "operation": "users.listAUser",
-                            "loadOptionsMethod": "getUsers"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "You must select a user to get result for it"
+                            "errorMsg": "Block ID is required to delete a block."
                         }
                     },
-                    "displayName": "UserID",
-                    "displayType": "select",
-                    "placeholder": "Select a user"
+                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
+                    "displayName": "Block/Page ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Block ID or page ID."
                 },
-                "name": "user_id"
+                "name": "block_id"
             }
         ]
     },
@@ -581,40 +736,6 @@
             }
         ]
     },
-    "delete": {
-        "definition": {
-            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}",
-            "method": "delete",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}",
-                "Notion-Version": "2022-06-28"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Block ID is required to delete a block."
-                        }
-                    },
-                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
-                    "displayName": "Block/Page ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the Block ID or page ID."
-                },
-                "name": "block_id"
-            }
-        ]
-    },
     "query": {
         "definition": {
             "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}/query/",
@@ -662,6 +783,217 @@
                     "placeholder": "Select a database"
                 },
                 "name": "database_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}",
+            "body": {
+                "icon": {
+                    "type": "emoji",
+                    "emoji": "{{parameters.icon}}"
+                },
+                "cover": {
+                    "type": "external",
+                    "external": {
+                        "url": "{{parameters.cover}}"
+                    }
+                },
+                "title": [
+                    {
+                        "text": {
+                            "content": "{{parameters.title}}"
+                        }
+                    }
+                ],
+                "properties": "{{parameters.properties}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Notion-Version": "2022-06-28"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const updatedBody = { ...body }; updatedBody.properties = updatedBody.properties.reduce((acc, property) => { acc[property.propertyName] = { [property.propertyValue]: {} }; return acc; }, {}); if (updatedBody.propertyTitle) { updatedBody.properties[updatedBody.propertyTitle] = { title: {} }; } if (!updatedBody.icon || !updatedBody.icon.emoji || Object.keys(updatedBody.icon).length === 0) { delete updatedBody.icon; } if (!updatedBody.cover || !updatedBody.cover.external || !updatedBody.cover.external.url || Object.keys(updatedBody.cover).length === 0) { delete updatedBody.cover; } if (!updatedBody.title || !Array.isArray(updatedBody.title) || updatedBody.title.length === 0 || !updatedBody.title[0]?.text?.content) { delete updatedBody.title; } delete updatedBody.propertyTitle; return updatedBody;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "databases",
+                            "operation": "databases.update",
+                            "loadOptionsMethod": "getDatabases"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Database ID is required to update the database."
+                        }
+                    },
+                    "description": "Select the Notion database to update.",
+                    "displayName": "Database",
+                    "displayType": "select",
+                    "placeholder": "Select a database"
+                },
+                "name": "database_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The title of the Notion database to be updated.",
+                    "displayName": "Database Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the title of the database"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "An emoji to represent the database.",
+                    "displayName": "Database icon",
+                    "displayType": "text",
+                    "placeholder": "Enter an emoji"
+                },
+                "name": "icon"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A header or banner image URL for the database.",
+                    "displayName": "Database Cover",
+                    "displayType": "text",
+                    "placeholder": "Enter the database cover URL"
+                },
+                "name": "cover"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The title of the Notion database row to be created.",
+                    "displayName": "Property Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the title of the database coloumns"
+                },
+                "name": "propertyTitle"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Property Name",
+                                "displayType": "text",
+                                "placeholder": "Enter the name for the properites"
+                            },
+                            "name": "propertyName"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Title",
+                                        "value": "title"
+                                    },
+                                    {
+                                        "label": "URL",
+                                        "value": "url"
+                                    },
+                                    {
+                                        "label": "Email",
+                                        "value": "email"
+                                    },
+                                    {
+                                        "label": "Files",
+                                        "value": "file"
+                                    },
+                                    {
+                                        "label": "Checkbox",
+                                        "value": "checkbox"
+                                    },
+                                    {
+                                        "label": "Created By",
+                                        "value": "created_by"
+                                    },
+                                    {
+                                        "label": "Created Time",
+                                        "value": "created_time"
+                                    },
+                                    {
+                                        "label": "Date",
+                                        "value": "date"
+                                    },
+                                    {
+                                        "label": "Last Edited By",
+                                        "value": "last_edited_by"
+                                    },
+                                    {
+                                        "label": "Last Edited Time",
+                                        "value": "last_edited_time"
+                                    },
+                                    {
+                                        "label": "People",
+                                        "value": "people"
+                                    },
+                                    {
+                                        "label": "Phone Number",
+                                        "value": "phone_number"
+                                    },
+                                    {
+                                        "label": "Rich Text",
+                                        "value": "rich_text"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Choose the type of authentication you want to use.",
+                                "displayName": "Property Value",
+                                "displayType": "select",
+                                "placeholder": "Select an property type"
+                            },
+                            "name": "propertyValue"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "An array of properites . Each object should have a label and value.",
+                    "displayName": "Properties",
+                    "displayType": "array"
+                },
+                "name": "properties"
             }
         ]
     }
