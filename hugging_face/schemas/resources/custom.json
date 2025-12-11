@@ -30,7 +30,7 @@
     ],
     "object_detection": {
         "definition": {
-            "url": "https://api-inference.huggingface.co/models/{{parameters.model}}",
+            "url": "https://router.huggingface.co/hf-inference/models/{{parameters.model}}",
             "body": {
                 "inputs": "{{parameters.image_url}}"
             },
@@ -94,7 +94,7 @@
     },
     "question_answering": {
         "definition": {
-            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "url": "https://router.huggingface.co/hf-inference/models/{{parameters.models}}",
             "body": {
                 "inputs": {
                     "context": "{{parameters.context}}",
@@ -173,9 +173,10 @@
     },
     "feature": {
         "definition": {
-            "url": "https://api-inference.huggingface.co/models/{{parameters.model}}",
+            "url": "https://router.huggingface.co/sambanova/v1/embeddings",
             "body": {
-                "inputs": "{{parameters.input_text}}"
+                "input": "{{parameters.input_text}}",
+                "model": "{{parameters.model}}"
             },
             "method": "post",
             "headers": {
@@ -237,7 +238,7 @@
     },
     "fill": {
         "definition": {
-            "url": "https://api-inference.huggingface.co/models/FacebookAI/xlm-roberta-base",
+            "url": "https://router.huggingface.co/hf-inference/models/google-bert/bert-base-uncased",
             "body": {
                 "inputs": "{{parameters.input}}"
             },
@@ -299,180 +300,9 @@
             }
         ]
     },
-    "classify": {
-        "definition": {
-            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
-            "body": {
-                "inputs": "{{parameters.text}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "hugging_face",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "text_functions",
-                            "operation": "text_functions.classify",
-                            "loadOptionsMethod": "getModelsClassification"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "modelId",
-                        "valueKey": "modelId"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the model for classification.",
-                    "displayName": "Models",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a model"
-                },
-                "name": "models"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Provide the text for classification.",
-                    "displayName": "Text to Classify",
-                    "displayType": "text",
-                    "placeholder": "Enter the text to classify"
-                },
-                "name": "text"
-            }
-        ]
-    },
-    "imagetexttotext": {
-        "definition": {
-            "url": "https://router.huggingface.co/{{parameters.models}}/v1/chat/completions",
-            "body": {
-                "model": "accounts/fireworks/models/llama-v3p2-11b-vision-instruct",
-                "stream": false,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "text": "{{parameters.text}}",
-                                "type": "text"
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": "{{parameters.image_url}}"
-                                }
-                            }
-                        ]
-                    }
-                ],
-                "max_tokens": 500
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "fireworks-ai",
-                            "value": "fireworks-ai"
-                        },
-                        {
-                            "label": "google/gemma-3-27b-it",
-                            "value": "google/gemma-3-27b-it"
-                        },
-                        {
-                            "label": "google/gemma-3-4b-it",
-                            "value": "google/gemma-3-4b-it"
-                        },
-                        {
-                            "label": "allenai/olmOCR-7B-0225-preview",
-                            "value": "allenai/olmOCR-7B-0225-preview"
-                        },
-                        {
-                            "label": "unsloth/gemma-3-27b-it-GGUF",
-                            "value": "unsloth/gemma-3-27b-it-GGUF"
-                        },
-                        {
-                            "label": "allenai/olmOCR-7B-0225-preview",
-                            "value": "allenai/olmOCR-7B-0225-preview"
-                        },
-                        {
-                            "label": "Qwen/Qwen2.5-VL-7B-Instruct",
-                            "value": "Qwen/Qwen2.5-VL-7B-Instruct"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the model for image-to-text generation.",
-                    "displayName": "Models",
-                    "displayType": "select",
-                    "placeholder": "Select a model"
-                },
-                "name": "models"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Provide the image URL for image to text.",
-                    "displayName": "Image URL",
-                    "displayType": "text",
-                    "placeholder": "Enter the image URL"
-                },
-                "name": "image_url"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Provide the context for image.",
-                    "displayName": "Text to describe the Image",
-                    "displayType": "text",
-                    "placeholder": "Enter the text"
-                },
-                "name": "text"
-            }
-        ]
-    },
     "segment": {
         "definition": {
-            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "url": "https://router.huggingface.co/hf-inference/models/{{parameters.models}}",
             "body": {
                 "inputs": "{{parameters.image_url}}"
             },
@@ -534,11 +364,141 @@
             }
         ]
     },
+    "classify": {
+        "definition": {
+            "url": "https://router.huggingface.co/hf-inference/models/{{parameters.models}}",
+            "body": {
+                "inputs": "{{parameters.text}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "text_functions",
+                            "operation": "text_functions.classify",
+                            "loadOptionsMethod": "getModelsClassification"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for classification.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the text for classification.",
+                    "displayName": "Text to Classify",
+                    "displayType": "text",
+                    "placeholder": "Enter the text to classify"
+                },
+                "name": "text"
+            }
+        ]
+    },
+    "summarize": {
+        "definition": {
+            "url": "https://router.huggingface.co/hf-inference/models/{{parameters.models}}",
+            "body": {
+                "inputs": "{{parameters.text}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "hugging_face",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "text_functions",
+                            "operation": "text_functions.summarize",
+                            "loadOptionsMethod": "getModelsSummarization"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "modelId",
+                        "valueKey": "modelId"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the model for summarization.",
+                    "displayName": "Models",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "models"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the text you want summarized.",
+                    "displayName": "Text to Summarize",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the text to summarize"
+                },
+                "name": "text"
+            }
+        ]
+    },
     "generate": {
         "definition": {
-            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "url": "https://router.huggingface.co/hf-inference/models/{{parameters.models}}",
             "body": {
-                "inputs": "{{parameters.prompt}}"
+                "model": "{{parameters.models}}",
+                "stream": false,
+                "messages": "{{parameters.prompt}}"
             },
             "method": "post",
             "headers": {
@@ -598,11 +558,19 @@
             }
         ]
     },
-    "summarize": {
+    "chat": {
         "definition": {
-            "url": "https://api-inference.huggingface.co/models/{{parameters.models}}",
+            "url": "https://router.huggingface.co/v1/chat/completions",
             "body": {
-                "inputs": "{{parameters.text}}"
+                "model": "{{parameters.model}}",
+                "stream": false,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "{{parameters.content}}"
+                    }
+                ],
+                "max_tokens": "500"
             },
             "method": "post",
             "headers": {
@@ -620,45 +588,56 @@
         "parameters": [
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "hugging_face",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "text_functions",
-                            "operation": "text_functions.summarize",
-                            "loadOptionsMethod": "getModelsSummarization"
+                    "options": [
+                        {
+                            "label": "Google/gemma-2-2b-it",
+                            "value": "google/gemma-2-2b-it"
                         },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "modelId",
-                        "valueKey": "modelId"
-                    },
-                    "options": [],
+                        {
+                            "label": "Meta-llama/Meta-Llama-3.1-8B-Instruct",
+                            "value": "meta-llama/Meta-Llama-3.1-8B-Instruct"
+                        },
+                        {
+                            "label": "Microsoft/Phi-3-mini-4k-instruct",
+                            "value": "microsoft/Phi-3-mini-4k-instruct"
+                        },
+                        {
+                            "label": "Qwen/Qwen2.5-7B-Instruct",
+                            "value": "qwen/Qwen2.5-7B-Instruct"
+                        },
+                        {
+                            "label": "Meta-llama/Llama-3.2-11B-Vision-Instruct",
+                            "value": "meta-llama/Llama-3.2-11B-Vision-Instruct"
+                        },
+                        {
+                            "label": "Qwen/Qwen2-VL-7B-Instruct",
+                            "value": "qwen/Qwen2-VL-7B-Instruct"
+                        }
+                    ],
                     "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the model for summarization.",
+                    "description": "Select the model for Chat completion.",
                     "displayName": "Models",
-                    "displayType": "autocomplete",
+                    "displayType": "select",
                     "placeholder": "Select a model"
                 },
-                "name": "models"
+                "name": "model"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Provide the text you want summarized.",
-                    "displayName": "Text to Summarize",
+                    "description": "Eg. What is the capital of France?",
+                    "displayName": "Content",
                     "displayType": "textarea",
-                    "placeholder": "Enter the text to summarize"
+                    "placeholder": "Enter the content of the message"
                 },
-                "name": "text"
+                "name": "content"
             }
         ]
     }
