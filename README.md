@@ -120,6 +120,7 @@ integration-name/
 - [pixelbin](./pixelbin/)
 - [postgresql](./postgresql/)
 - [posthog](./posthog/)
+- [Razorpay](./Razorpay/)
 - [Redis](./Redis/)
 - [shopify](./shopify/)
 - [stripe](./stripe/)
