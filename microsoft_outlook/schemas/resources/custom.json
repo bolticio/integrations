@@ -1,0 +1,1282 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Custom API",
+                        "value": "custom.custom_api",
+                        "description": "Send requests using an endpoint URL and HTTP methods."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "custom",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "send_mail": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/sendMail",
+            "body": {
+                "message": {
+                    "body": {
+                        "content": "{{parameters.content}}",
+                        "contentType": "Text"
+                    },
+                    "subject": "{{parameters.subject}}",
+                    "ccRecipients": [
+                        {
+                            "emailAddress": {
+                                "address": "{{parameters.ccRecipients_address}}"
+                            }
+                        }
+                    ],
+                    "toRecipients": [
+                        {
+                            "emailAddress": {
+                                "address": "{{parameters.recipients_address}}"
+                            }
+                        }
+                    ]
+                },
+                "saveToSentItems": "true"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.status}}"
+            },
+            "transform": {
+                "body": "const toList=body.message.toRecipients[0].emailAddress.address.split(',').map(addr=>({emailAddress:{address:addr.trim()}})).filter(r=>r.emailAddress.address);const ccRaw=body.message.ccRecipients?.[0]?.emailAddress?.address||'';const ccList=ccRaw?ccRaw.split(',').map(addr=>({emailAddress:{address:addr.trim()}})).filter(r=>r.emailAddress.address):[];body.message.toRecipients=toList;if(ccList.length>0){body.message.ccRecipients=ccList;}else{delete body.message.ccRecipients;}return body;",
+                "output": "return { message: 'Mail Sent successfully' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the subject of the mail you want to send.",
+                    "displayName": "Subject",
+                    "displayType": "text",
+                    "placeholder": "Enter the subject of mail"
+                },
+                "name": "subject"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "maxRows": 4,
+                        "minRows": 4
+                    },
+                    "validation": {
+                        "required": true,
+                        "maxLength": 300,
+                        "minLength": 10,
+                        "requiredDetail": {
+                            "errorMsg": "Content of Mail is required"
+                        }
+                    },
+                    "description": "Enter the content of the mail you want to send.",
+                    "displayName": "Content of Mail",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the Content of mail here"
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                        "required": true
+                    },
+                    "description": "Enter the address of the recipient you want to share mail with.",
+                    "displayName": "Recipients Address",
+                    "displayType": "email",
+                    "placeholder": "Enter the recipients address"
+                },
+                "name": "recipients_address"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                        "required": false
+                    },
+                    "description": "Provide the email address of the recipient to be added to CC.",
+                    "displayName": "Cc",
+                    "displayType": "email",
+                    "placeholder": "Enter the Cc address"
+                },
+                "name": "ccRecipients_address"
+            }
+        ]
+    },
+    "find_mail": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/messages?$search=\"{{parameters.search_query}}\"",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "ConsistencyLevel": "eventual"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.value}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Search term to find emails (matches subject, body, from, etc.)",
+                    "displayName": "Search Query",
+                    "displayType": "text",
+                    "placeholder": "Enter search text like subject, body or from"
+                },
+                "name": "search_query"
+            }
+        ]
+    },
+    "reply_mail": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/messages/{{parameters.message_id}}/reply",
+            "body": {
+                "comment": "{{parameters.comment}}",
+                "recipients_address": "{{parameters.recipients_address}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const toList = body.recipients_address ? body.recipients_address.split(',').map(addr=>({emailAddress:{address:addr.trim()}})).filter(r=>r.emailAddress.address):[]; return toList.length>0 ? {comment: body.comment, message: {toRecipients: toList}} : {comment: body.comment};",
+                "output": "return { message: 'Mail Replied Successfully' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "mail",
+                            "operation": "mail.reply_mail",
+                            "loadOptionsMethod": "loadMessages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "subject",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a message To Reply",
+                    "displayName": "Reply To Mail",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a message by Subject"
+                },
+                "name": "message_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The comment you want to add in your reply.",
+                    "displayName": "Reply Comment",
+                    "displayType": "textarea",
+                    "placeholder": "Enter your reply text here"
+                },
+                "name": "comment"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                        "required": false
+                    },
+                    "description": "Override recipients for the reply. If left blank, the original sender(s) will be used.",
+                    "displayName": "Recipients Address",
+                    "displayType": "email",
+                    "placeholder": "Enter recipients for reply (comma separated)"
+                },
+                "name": "recipients_address"
+            }
+        ]
+    },
+    "create_draft_mail": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/messages",
+            "body": {
+                "body": {
+                    "content": "{{parameters.content}}",
+                    "contentType": "HTML"
+                },
+                "subject": "{{parameters.subject}}",
+                "ccRecipients": [
+                    {
+                        "emailAddress": {
+                            "address": "{{parameters.ccRecipients_address}}"
+                        }
+                    }
+                ],
+                "toRecipients": [
+                    {
+                        "emailAddress": {
+                            "address": "{{parameters.recipients_address}}"
+                        }
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const toList=body.toRecipients[0].emailAddress.address.split(',').map(addr=>({emailAddress:{address:addr.trim()}})).filter(r=>r.emailAddress.address);const ccRaw=body.ccRecipients?.[0]?.emailAddress?.address||'';const ccList=ccRaw?ccRaw.split(',').map(addr=>({emailAddress:{address:addr.trim()}})).filter(r=>r.emailAddress.address):[];body.toRecipients=toList;if(ccList.length>0){body.ccRecipients=ccList;}else{delete body.ccRecipients;}return body;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Subject of the draft email",
+                    "displayName": "Draft Mail Subject",
+                    "displayType": "text",
+                    "placeholder": "Enter draft subject"
+                },
+                "name": "subject"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "maxRows": 6,
+                        "minRows": 4
+                    },
+                    "validation": {
+                        "required": true,
+                        "minLength": 5
+                    },
+                    "description": "The body content of the draft email",
+                    "displayName": "Draft Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the content of draft"
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "To whom the draft mail is addressed",
+                    "displayName": "Recipients Address",
+                    "displayType": "text",
+                    "placeholder": "Enter recipients (comma separated)"
+                },
+                "name": "recipients_address"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Optional CC recipients for the draft",
+                    "displayName": "CC Recipients Address",
+                    "displayType": "text",
+                    "placeholder": "Enter CC addresses (comma separated)"
+                },
+                "name": "Cc"
+            }
+        ]
+    },
+    "send_draft_mail": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/messages/{{parameters.draft_id}}/send",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return { message: 'Mail Sent successfully' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "mail",
+                            "operation": "mail.send_draft_mail",
+                            "loadOptionsMethod": "loadDraftMessages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "subject",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a Draft message To send",
+                    "displayName": "Draft message to send",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a Draft message by Subject",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "mail.send_draft_mail",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "draft_id"
+            }
+        ]
+    },
+    "create_contact": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/contacts",
+            "body": {
+                "surname": "{{parameters.surname}}",
+                "jobTitle": "{{parameters.jobTitle}}",
+                "givenName": "{{parameters.givenName}}",
+                "department": "{{parameters.department}}",
+                "companyName": "{{parameters.companyName}}",
+                "mobilePhone": "{{parameters.mobilePhone}}",
+                "emailAddresses": [
+                    {
+                        "name": "{{parameters.fullName}}",
+                        "address": "{{parameters.email}}"
+                    }
+                ],
+                "officeLocation": "{{parameters.officeLocation}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const c=v=>{if(v===undefined||v===null)return'';if(typeof v==='number')return v.toString();if(typeof v==='string'&&v.startsWith('{{'))return'';return v;};body.givenName=c(body.givenName);body.surname=c(body.surname);const e=c(body.emailAddresses?.[0]?.address);const n=c(body.emailAddresses?.[0]?.name);body.emailAddresses=n?[{address:e,name:n}]:[{address:e}];body.mobilePhone=c(body.mobilePhone);body.jobTitle=c(body.jobTitle);body.companyName=c(body.companyName);body.department=c(body.department);body.officeLocation=c(body.officeLocation);return body;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Given name of the contact",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "givenName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Surname of the contact",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "surname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Full name for the email address",
+                    "displayName": "Full Name",
+                    "displayType": "text",
+                    "placeholder": "Enter full name"
+                },
+                "name": "fullName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                        "required": true
+                    },
+                    "description": "Email address of the contact",
+                    "displayName": "Email Address",
+                    "displayType": "email",
+                    "placeholder": "Enter email"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Mobile phone number",
+                    "displayName": "Mobile Phone",
+                    "displayType": "number",
+                    "placeholder": "Enter mobile number"
+                },
+                "name": "mobilePhone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Job title of the contact",
+                    "displayName": "Job Title",
+                    "displayType": "text",
+                    "placeholder": "Enter job title"
+                },
+                "name": "jobTitle"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Company of the contact",
+                    "displayName": "Company Name",
+                    "displayType": "text",
+                    "placeholder": "Enter company name"
+                },
+                "name": "companyName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Department of the contact",
+                    "displayName": "Department",
+                    "displayType": "text",
+                    "placeholder": "Enter department"
+                },
+                "name": "department"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Office location of the contact",
+                    "displayName": "Office Location",
+                    "displayType": "text",
+                    "placeholder": "Enter office location"
+                },
+                "name": "officeLocation"
+            }
+        ]
+    },
+    "update_contact": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/contacts/{{parameters.contact_id}}",
+            "body": {
+                "surname": "{{parameters.surname}}",
+                "jobTitle": "{{parameters.jobTitle}}",
+                "givenName": "{{parameters.givenName}}",
+                "department": "{{parameters.department}}",
+                "companyName": "{{parameters.companyName}}",
+                "mobilePhone": "{{parameters.mobilePhone}}",
+                "emailAddresses": [
+                    {
+                        "name": "{{parameters.fullName}}",
+                        "address": "{{parameters.emailAddress}}"
+                    }
+                ],
+                "officeLocation": "{{parameters.officeLocation}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const c=v=>{if(v===undefined||v===null)return'';if(typeof v==='number')return v.toString();if(typeof v==='string'&&v.startsWith('{{'))return'';return v;};body.givenName=c(body.givenName);body.surname=c(body.surname);const e=c(body.emailAddresses?.[0]?.address);const n=c(body.emailAddresses?.[0]?.name);body.emailAddresses=n?[{address:e,name:n}]:[{address:e}];body.mobilePhone=c(body.mobilePhone);body.jobTitle=c(body.jobTitle);body.companyName=c(body.companyName);body.department=c(body.department);body.officeLocation=c(body.officeLocation);return body;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contacts",
+                            "operation": "contacts.update_contact",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a contact to update",
+                    "displayName": "Contact Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a contact"
+                },
+                "name": "contact_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "First name of the contact",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "givenName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Last name of the contact",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "surname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Full name of the contact",
+                    "displayName": "Full Name",
+                    "displayType": "text",
+                    "placeholder": "Enter full name"
+                },
+                "name": "fullName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                        "required": false
+                    },
+                    "description": "Primary email of the contact",
+                    "displayName": "Email Address",
+                    "displayType": "email",
+                    "placeholder": "Enter email address"
+                },
+                "name": "emailAddress"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Mobile phone number of the contact",
+                    "displayName": "Mobile Phone",
+                    "displayType": "number",
+                    "placeholder": "Enter mobile phone number"
+                },
+                "name": "mobilePhone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Job title of the contact",
+                    "displayName": "Job Title",
+                    "displayType": "text",
+                    "placeholder": "Enter job title"
+                },
+                "name": "jobTitle"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Company name of the contact",
+                    "displayName": "Company Name",
+                    "displayType": "text",
+                    "placeholder": "Enter company name"
+                },
+                "name": "companyName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Department of the contact",
+                    "displayName": "Department",
+                    "displayType": "text",
+                    "placeholder": "Enter department"
+                },
+                "name": "department"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Office location of the contact",
+                    "displayName": "Office Location",
+                    "displayType": "text",
+                    "placeholder": "Enter office location"
+                },
+                "name": "officeLocation"
+            }
+        ]
+    },
+    "create_event": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/calendars/{{parameters.calendar_id}}/events",
+            "body": {
+                "end": {
+                    "dateTime": "{{parameters.endDateTime}}",
+                    "timeZone": "{{parameters.timeZone}}"
+                },
+                "body": {
+                    "content": "{{parameters.content}}",
+                    "contentType": "HTML"
+                },
+                "start": {
+                    "dateTime": "{{parameters.startDateTime}}",
+                    "timeZone": "{{parameters.timeZone}}"
+                },
+                "subject": "{{parameters.subject}}",
+                "location": {
+                    "displayName": "{{parameters.location}}"
+                },
+                "attendees": "{{parameters.attendees}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (body.attendees) {\n  let attendees = [];\n  let parts = body.attendees.split('/').map(p => p.trim()).filter(p => p);\n  attendees = parts.map(p => {\n    let [email, name] = p.split(',').map(x => x.trim());\n    return {\n      emailAddress: {\n        address: email || '',\n        name: name || ''\n      },\n      type: 'required'\n    };\n  }).filter(a => a.emailAddress.address);\n  body.attendees = attendees;\n}\nreturn body;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "calendar",
+                            "operation": "calendar.create_event",
+                            "loadOptionsMethod": "loadCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a Microsoft Outlook calendar to create the event in",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a calendar"
+                },
+                "name": "calendar_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Title of the event",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter event title"
+                },
+                "name": "subject"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Description of the event",
+                    "displayName": "Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter event description"
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please enter date and start time",
+                    "displayName": "Enter Date And Start Time",
+                    "displayType": "datetime",
+                    "placeholder": "Please enter date and start time"
+                },
+                "name": "startDateTime"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please enter date and end time",
+                    "displayName": "Enter Date And End Time",
+                    "displayType": "datetime",
+                    "placeholder": "Please enter date and end time"
+                },
+                "name": "endDateTime"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Time zone of the event",
+                    "displayName": "Time Zone",
+                    "displayType": "text",
+                    "placeholder": "e.g. India Standard Time"
+                },
+                "name": "timeZone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Location of the event",
+                    "displayName": "Location",
+                    "displayType": "text",
+                    "placeholder": "Enter location"
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Insert Attendees With Mail and Name",
+                    "displayName": "Attendees",
+                    "displayType": "textarea",
+                    "placeholder": "e.g. 'john@example.com,John Doe / jane@example.com,Jane Smith' "
+                },
+                "name": "attendees"
+            }
+        ]
+    },
+    "update_event": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/calendars/{{parameters.calendar_id}}/events/{{parameters.event_id}}",
+            "body": {
+                "end": {
+                    "dateTime": "{{parameters.endDateTime}}",
+                    "timeZone": "{{parameters.timeZone}}"
+                },
+                "body": {
+                    "content": "{{parameters.content}}",
+                    "contentType": "HTML"
+                },
+                "start": {
+                    "dateTime": "{{parameters.startDateTime}}",
+                    "timeZone": "{{parameters.timeZone}}"
+                },
+                "subject": "{{parameters.subject}}",
+                "location": {
+                    "displayName": "{{parameters.location}}"
+                },
+                "attendees": "{{parameters.attendees}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (body.attendees) {\n  let attendees = [];\n  let parts = body.attendees.split('/').map(p => p.trim()).filter(p => p);\n  attendees = parts.map(p => {\n    let [email, name] = p.split(',').map(x => x.trim());\n    return {\n      emailAddress: {\n        address: email || '',\n        name: name || ''\n      },\n      type: 'required'\n    };\n  }).filter(a => a.emailAddress.address);\n  body.attendees = attendees;\n}\nreturn body;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "calendar",
+                            "operation": "calendar.update_event",
+                            "loadOptionsMethod": "loadCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a Microsoft Outlook calendar to update the event in",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a calendar"
+                },
+                "name": "calendar_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "calendar",
+                            "operation": "calendar.update_event",
+                            "calendar_id": "{{parameters.calendar_id}}",
+                            "loadOptionsMethod": "loadEvents"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "subject",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the event to update",
+                    "displayName": "Event",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select an event",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "calendar_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "event_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Title of the event",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter event title",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "subject"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Description of the event",
+                    "displayName": "Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter event description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please enter date and start time",
+                    "displayName": "Enter Date And Start Time",
+                    "displayType": "datetime",
+                    "placeholder": "Please enter date and start time",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "startDateTime"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please enter date and end time",
+                    "displayName": "Enter Date And End Time",
+                    "displayType": "datetime",
+                    "placeholder": "Please enter date and end time",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "endDateTime"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Time zone of the event",
+                    "displayName": "Time Zone",
+                    "displayType": "text",
+                    "placeholder": "e.g. India Standard Time",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "timeZone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Location of the event",
+                    "displayName": "Location",
+                    "displayType": "text",
+                    "placeholder": "Enter location",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Insert Attendees With Mail and Name",
+                    "displayName": "Attendees",
+                    "displayType": "textarea",
+                    "placeholder": "e.g. 'john@example.com,John Doe / jane@example.com,Jane Smith' ",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "attendees"
+            }
+        ]
+    },
+    "add_attendees": {
+        "definition": {
+            "url": "https://graph.microsoft.com/v1.0/me/calendars/{{parameters.calendar_id}}/events/{{parameters.event_id}}",
+            "body": {
+                "attendees": "{{parameters.attendees}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (body.attendees) {\n  let attendees = [];\n  let parts = body.attendees.split('/').map(p => p.trim()).filter(p => p);\n  attendees = parts.map(p => {\n    let [email, name] = p.split(',').map(x => x.trim());\n    return {\n      emailAddress: {\n        address: email || '',\n        name: name || ''\n      },\n      type: 'required'\n    };\n  }).filter(a => a.emailAddress.address);\n  body.attendees = attendees;\n}\nreturn body;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "calendar",
+                            "operation": "calendar.update_event",
+                            "loadOptionsMethod": "loadCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose Microsoft Outlook calendar to Add Attendees in event",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a calendar"
+                },
+                "name": "calendar_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_outlook",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "calendar",
+                            "operation": "calendar.update_event",
+                            "calendar_id": "{{parameters.calendar_id}}",
+                            "loadOptionsMethod": "loadEvents"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "subject",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the event to add attendees",
+                    "displayName": "Event",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select an event",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "calendar_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "event_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Insert Attendees With Mail and Name",
+                    "displayName": "Attendees",
+                    "displayType": "textarea",
+                    "placeholder": "e.g.'john@example.com,John Doe / jane@example.com,Jane Smith' ",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "event_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "attendees"
+            }
+        ]
+    }
+}

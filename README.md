@@ -103,6 +103,8 @@ integration-name/
 - [mailchimp](./mailchimp/)
 - [mailerlite](./mailerlite/)
 - [mailmodo](./mailmodo/)
+- [microsoft_outlook](./microsoft_outlook/)
+- [microsoft_to_do](./microsoft_to_do/)
 - [monday](./monday/)
 - [mongodb](./mongodb/)
 - [mssql](./mssql/)
