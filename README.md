@@ -84,6 +84,7 @@ integration-name/
 - [freshdesk](./freshdesk/)
 - [freshsales](./freshsales/)
 - [fynd_engage](./fynd_engage/)
+- [Fynd_Intelligence](./Fynd_Intelligence/)
 - [fynd_platform](./fynd_platform/)
 - [fynd_platform_application](./fynd_platform_application/)
 - [fynd_tms](./fynd_tms/)
