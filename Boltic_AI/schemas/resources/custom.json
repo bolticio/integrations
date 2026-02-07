@@ -52,10 +52,8 @@
         "parameters": [
             {
                 "meta": {
-                    "htmlProps": {
-                        "maxlength": 50
-                    },
                     "validation": {
+                        "max": 50,
                         "required": true,
                         "requiredDetail": {
                             "errorMsg": "Generation ID is a required field."
@@ -67,168 +65,6 @@
                     "placeholder": "Enter the generation ID"
                 },
                 "name": "generationId"
-            }
-        ]
-    },
-    "multicompletionwithtext": {
-        "definition": {
-            "url": "https://openrouter.ai/api/v1/chat/completions",
-            "body": {
-                "model": "{{parameters.modelId}}",
-                "messages": "{{parameters.chat}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "Boltic_AI",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "chat",
-                            "operation": "chat.chatCompletionWithText",
-                            "activity_id": "{{parameters.activity_id}}",
-                            "loadOptionsMethod": "getAllModels"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Model is required field"
-                        }
-                    },
-                    "description": "Name of the model to use.",
-                    "displayName": "Model",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a model"
-                },
-                "name": "modelId"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "value": "user",
-                                "options": [
-                                    {
-                                        "label": "User (Message from the user)",
-                                        "value": "user",
-                                        "description": "Send a message as a user"
-                                    },
-                                    {
-                                        "label": "Assistant (Message from the assistant)",
-                                        "value": "assistant",
-                                        "description": "Send a message as an assistant"
-                                    },
-                                    {
-                                        "label": "System (Message from the assistant)",
-                                        "value": "system",
-                                        "description": "Send a message as an assistant"
-                                    }
-                                ],
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Please select the role for the message."
-                                    }
-                                },
-                                "description": "Specify whether the message is sent by the user or the assistant.",
-                                "displayName": "Message Role",
-                                "displayType": "select",
-                                "placeholder": "Choose the role for this message"
-                            },
-                            "name": "role"
-                        },
-                        {
-                            "meta": {
-                                "htmlProps": {
-                                    "allowDynamic": true,
-                                    "showInfoIcon": true
-                                },
-                                "validation": {
-                                    "required": true,
-                                    "infoDetail": {
-                                        "infoMsg": "Add message to the content"
-                                    }
-                                },
-                                "description": "This will be the prompt Eg. Tell me a fun fact.",
-                                "displayName": "Content",
-                                "displayType": "textarea",
-                                "placeholder": "Enter the message part."
-                            },
-                            "name": "content"
-                        }
-                    ],
-                    "validation": {
-                        "required": true,
-                        "infoDetail": {
-                            "infoMsg": "Add message to the content"
-                        }
-                    },
-                    "description": "Provide the chat history to simulate an ongoing conversation.",
-                    "displayName": "Messages",
-                    "displayType": "array",
-                    "placeholder": "Enter the chat history"
-                },
-                "name": "chat"
-            },
-            {
-                "meta": {
-                    "value": "1024",
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
-                    "displayName": "Max Output Tokens",
-                    "displayType": "number",
-                    "placeholder": "Specify the maximum tokens to generate"
-                },
-                "name": "maxOutputTokens"
-            },
-            {
-                "meta": {
-                    "max": 2,
-                    "min": 0,
-                    "step": 0.1,
-                    "value": 0.7,
-                    "htmlProps": {
-                        "showInfoIcon": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "infoDetail": {
-                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
-                        }
-                    },
-                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
-                    "displayName": "Temperature",
-                    "displayType": "slider"
-                },
-                "name": "temperature"
             }
         ]
     },
@@ -245,114 +81,6 @@
             }
         },
         "parameters": []
-    },
-    "chatcompletionwithtext": {
-        "definition": {
-            "url": "https://openrouter.ai/api/v1/completions",
-            "body": {
-                "model": "{{parameters.modelId}}",
-                "prompt": "{{parameters.content}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "Boltic_AI",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "chat",
-                            "operation": "chat.chatCompletionWithText",
-                            "activity_id": "{{parameters.activity_id}}",
-                            "loadOptionsMethod": "getAllModels"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Model is required field"
-                        }
-                    },
-                    "description": "Name of the model to use.",
-                    "displayName": "Model",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a model"
-                },
-                "name": "modelId"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Prompt is required field"
-                        }
-                    },
-                    "description": "Provide the prompt.",
-                    "displayName": "Prompt",
-                    "displayType": "textarea",
-                    "placeholder": "Enter the prompt"
-                },
-                "name": "content"
-            },
-            {
-                "meta": {
-                    "value": "1024",
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
-                    "displayName": "Max Output Tokens",
-                    "displayType": "number",
-                    "placeholder": "Specify the maximum tokens to generate"
-                },
-                "name": "maxOutputTokens"
-            },
-            {
-                "meta": {
-                    "max": 2,
-                    "min": 0,
-                    "step": 0.1,
-                    "value": 0.7,
-                    "htmlProps": {
-                        "showInfoIcon": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "infoDetail": {
-                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
-                        }
-                    },
-                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
-                    "displayName": "Temperature",
-                    "displayType": "slider"
-                },
-                "name": "temperature"
-            }
-        ]
     },
     "custom_api": {
         "definition": {
@@ -400,7 +128,8 @@
                     },
                     "description": "The HTTP Method to be used for the request.",
                     "displayName": "Method",
-                    "displayType": "select"
+                    "displayType": "select",
+                    "placeholder": "Select the HTTP method for the request"
                 },
                 "name": "method"
             },
@@ -451,7 +180,8 @@
                     },
                     "description": "You don't have to add authorization headers; we already did that for you.",
                     "displayName": "Headers",
-                    "displayType": "keyvalue"
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter additional header for the request"
                 },
                 "name": "headers"
             },
@@ -488,8 +218,10 @@
                     "htmlProps": {
                         "allowAdd": true
                     },
+                    "description": "Enter the query parameters.",
                     "displayName": "Query String",
-                    "displayType": "keyvalue"
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter query parameters"
                 },
                 "name": "query_params"
             },
@@ -503,7 +235,8 @@
                     },
                     "description": "The Payload (Body) of the HTTP Request.",
                     "displayName": "Body",
-                    "displayType": "code"
+                    "displayType": "code",
+                    "placeholder": "Enter payload (body) of the HTTP request"
                 },
                 "name": "body"
             }
@@ -511,28 +244,27 @@
     },
     "imageanalysis": {
         "definition": {
-            "url": "https://openrouter.ai/api/v1/chat/completions",
+            "url": "https://openrouter.ai/api/v1/responses",
             "body": {
-                "model": "{{parameters.modelId}}",
-                "messages": [
+                "input": [
                     {
                         "role": "user",
+                        "type": "message",
                         "content": [
                             {
                                 "text": "{{parameters.text}}",
-                                "type": "text"
+                                "type": "input_text"
                             },
                             {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": "{{parameters.image_url}}"
-                                }
+                                "type": "input_image",
+                                "image_url": "{{parameters.image_url}}"
                             }
                         ]
                     }
                 ],
-                "max_token": "{{parameters.max_token}}",
-                "temperature": "{{parameters.temperature}}"
+                "model": "{{parameters.modelId}}",
+                "temperature": "{{parameters.temperature}}",
+                "max_output_tokens": "{{parameters.max_token}}"
             },
             "method": "post",
             "headers": {
@@ -545,6 +277,9 @@
                     "message": "{{response.data.error.message}}"
                 },
                 "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const b = { ...body }; const t = Number(b.temperature); if (!Number.isNaN(t) && t === 0) { delete b.temperature; } return b;"
             }
         },
         "parameters": [
@@ -869,7 +604,7 @@
                     },
                     "description": "Image URL of the image to be analysed.",
                     "displayName": "Image URL",
-                    "displayType": "text",
+                    "displayType": "url",
                     "placeholder": "Enter the Image URL"
                 },
                 "name": "image_url"
@@ -890,7 +625,527 @@
             {
                 "meta": {
                     "max": 2,
-                    "min": 0.1,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    },
+    "send_reply": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/reply",
+            "body": {
+                "messages": "{{parameters.messages}}",
+                "replyToken": "{{parameters.replyToken}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{parameters.api_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.message}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reply token is required."
+                        }
+                    },
+                    "description": "Reply token received from a webhook event.",
+                    "displayName": "Reply Token",
+                    "displayType": "text",
+                    "placeholder": "Enter the reply token"
+                },
+                "name": "replyToken"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "text",
+                                        "value": "text"
+                                    },
+                                    {
+                                        "label": "sticker",
+                                        "value": "sticker"
+                                    },
+                                    {
+                                        "label": "image",
+                                        "value": "image"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message type is required."
+                                    }
+                                },
+                                "description": "Type of the message (e.g., text, sticker, image)",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "e.g., text"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message text is required."
+                                    }
+                                },
+                                "description": "The content of the message to send.",
+                                "displayName": "Message Text",
+                                "displayType": "text",
+                                "placeholder": "Enter the message content"
+                            },
+                            "name": "text",
+                            "condition": "type == 'text'"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Sticker packageId is required."
+                                    }
+                                },
+                                "description": "LINE Sticker Package ID.",
+                                "displayName": "Sticker Package ID",
+                                "displayType": "text",
+                                "placeholder": "e.g., 446"
+                            },
+                            "name": "packageId",
+                            "condition": "type == 'sticker'"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "StickerId is required."
+                                    }
+                                },
+                                "description": "LINE Sticker ID within the package.",
+                                "displayName": "Sticker ID",
+                                "displayType": "text",
+                                "placeholder": "e.g., 1988"
+                            },
+                            "name": "stickerId",
+                            "condition": "type == 'sticker'"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is required."
+                        }
+                    },
+                    "description": "List of messages to be sent, including message type and text.",
+                    "displayName": "Messages",
+                    "displayType": "array"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "send_message": {
+        "definition": {
+            "url": "https://api.line.me/v2/bot/message/push",
+            "body": {
+                "to": "{{parameters.to}}",
+                "messages": "{{parameters.messages}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_token}}",
+                "X-Line-Retry-Key": "{{uuid}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.message}}",
+                    "message": "LINE API Error"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The User ID of the recepient to send the message to.",
+                    "displayName": "To",
+                    "displayType": "text",
+                    "placeholder": "Enter User ID"
+                },
+                "name": "to"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "text",
+                                        "value": "text"
+                                    },
+                                    {
+                                        "label": "sticker",
+                                        "value": "sticker"
+                                    },
+                                    {
+                                        "label": "image",
+                                        "value": "image"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message type is required."
+                                    }
+                                },
+                                "description": "Type of the message (e.g., text, sticker, image)",
+                                "displayName": "Message Type",
+                                "displayType": "select",
+                                "placeholder": "Select message type"
+                            },
+                            "name": "type"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Message text is required."
+                                    }
+                                },
+                                "description": "The text content of the message.",
+                                "displayName": "Message Text",
+                                "displayType": "text",
+                                "placeholder": "Enter the message content"
+                            },
+                            "name": "text",
+                            "condition": "type == 'text'"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Sticker packageId is required."
+                                    }
+                                },
+                                "description": "LINE Sticker Package ID.",
+                                "displayName": "Sticker Package ID",
+                                "displayType": "text",
+                                "placeholder": "e.g., 446"
+                            },
+                            "name": "packageId",
+                            "condition": "type == 'sticker'"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "StickerId is required."
+                                    }
+                                },
+                                "description": "LINE Sticker ID within the package.",
+                                "displayName": "Sticker ID",
+                                "displayType": "text",
+                                "placeholder": "e.g., 1988"
+                            },
+                            "name": "stickerId",
+                            "condition": "type == 'sticker'"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one message is required."
+                        }
+                    },
+                    "description": "List of messages to be sent, including message type and content.",
+                    "displayName": "Messages",
+                    "displayType": "array"
+                },
+                "name": "messages"
+            }
+        ]
+    },
+    "multicompletionwithtext": {
+        "definition": {
+            "url": "https://openrouter.ai/api/v1/responses",
+            "body": {
+                "input": "{{parameters.chat}}",
+                "model": "{{parameters.modelId}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "Boltic_AI",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "chat",
+                            "operation": "chat.chatCompletionWithText",
+                            "activity_id": "{{parameters.activity_id}}",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "Name of the model to use.",
+                    "displayName": "Model",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "modelId"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "user",
+                                "options": [
+                                    {
+                                        "label": "User (Message from the user)",
+                                        "value": "user",
+                                        "description": "Send a message as a user"
+                                    },
+                                    {
+                                        "label": "Assistant (Message from the assistant)",
+                                        "value": "assistant",
+                                        "description": "Send a message as an assistant"
+                                    },
+                                    {
+                                        "label": "System (Message from the assistant)",
+                                        "value": "system",
+                                        "description": "Send a message as an assistant"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Please select the role for the message."
+                                    }
+                                },
+                                "description": "Specify whether the message is sent by the user or the assistant.",
+                                "displayName": "Message Role",
+                                "displayType": "select",
+                                "placeholder": "Choose the role for this message"
+                            },
+                            "name": "role"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "allowDynamic": true,
+                                    "showInfoIcon": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "infoDetail": {
+                                        "infoMsg": "Add message to the content"
+                                    }
+                                },
+                                "description": "This will be the prompt Eg. Tell me a fun fact.",
+                                "displayName": "Content",
+                                "displayType": "textarea",
+                                "placeholder": "Enter the message part."
+                            },
+                            "name": "content"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the chat history to simulate an ongoing conversation.",
+                    "displayName": "Messages",
+                    "displayType": "array"
+                },
+                "name": "chat"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
+                    "step": 0.1,
+                    "value": 0.7,
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "infoDetail": {
+                            "infoMsg": "Choose a value between 0.1 (Very Deterministic) and 2.0 (Highly Random)"
+                        }
+                    },
+                    "description": "Control the randomness of the response. Lower values produce more deterministic outputs. Default is 0.7.",
+                    "displayName": "Temperature",
+                    "displayType": "slider"
+                },
+                "name": "temperature"
+            }
+        ]
+    },
+    "chatcompletionwithtext": {
+        "definition": {
+            "url": "https://openrouter.ai/api/v1/responses",
+            "body": {
+                "input": "{{parameters.content}}",
+                "model": "{{parameters.modelId}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "Boltic_AI",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "chat",
+                            "operation": "chat.chatCompletionWithText",
+                            "activity_id": "{{parameters.activity_id}}",
+                            "loadOptionsMethod": "getAllModels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required field"
+                        }
+                    },
+                    "description": "Name of the model to use.",
+                    "displayName": "Model",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a model"
+                },
+                "name": "modelId"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "showInfoIcon": true
+                    },
+                    "description": "Aadhaar is a twelve-digit unique identity number that can be obtained voluntarily by all residents of India, based on their biometrics and demographic data.",
+                    "displayName": "Prompt",
+                    "displayType": "text",
+                    "placeholder": "XXXX-XXXX-XXXX-XXXX"
+                },
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "value": "1024",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
+                    "displayName": "Max Output Tokens",
+                    "displayType": "number",
+                    "placeholder": "Specify the maximum tokens to generate"
+                },
+                "name": "maxOutputTokens"
+            },
+            {
+                "meta": {
+                    "max": 2,
+                    "min": 0,
                     "step": 0.1,
                     "value": 0.7,
                     "htmlProps": {
