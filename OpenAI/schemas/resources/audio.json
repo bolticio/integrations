@@ -32,13 +32,13 @@
     ],
     "auto": {
         "definition": {
-            "url": "https://api.openai.com/v1/responses",
+            "url": "https://api.openai.com/v1/chat/completions",
             "body": {
-                "input": "{{parameters.chat}}",
                 "model": "{{parameters.model}}",
                 "tools": "{{parameters.function_declarations}}",
+                "messages": "{{parameters.chat}}",
                 "temperature": "{{parameters.temperature}}",
-                "max_output_tokens": "{{parameters.maxOutputTokens}}"
+                "max_completion_tokens": "{{parameters.maxCompletionTokens}}"
             },
             "method": "post",
             "headers": {
@@ -53,7 +53,7 @@
                 "output": "{{response.data}}"
             },
             "transform": {
-                "body": "const updatedBody = { ...body }; const tools = Array.isArray(updatedBody.tools) ? updatedBody.tools : []; updatedBody.tools = tools.map((tool) => ({ type: 'function', name: tool.name, description: tool.description, parameters: { type: 'object', properties: Object.fromEntries((tool.properties || []).map((param) => [ param.property_name, { type: param.property_data_type, description: param.property_description, ...(param.enum ? { enum: param.enum } : {}) } ])), required: (tool.properties || []).filter((p) => p.required === true || p.required === 'true').map((p) => p.property_name) } })); if (!updatedBody.tool_choice) updatedBody.tool_choice = 'auto'; const t = Number(updatedBody.temperature); if (!Number.isNaN(t) && t === 0) delete updatedBody.temperature; return updatedBody;"
+                "body": "const updatedBody={...body};const tools=Array.isArray(updatedBody.tools)?updatedBody.tools:[];updatedBody.tools=tools.map(tool=>({type:'function',function:{name:tool.name,description:tool.description,parameters:{type:'object',properties:Object.fromEntries((tool.properties||[]).map(param=>[param.property_name,{type:param.property_data_type,description:param.property_description,...(param.enum?{enum:param.enum}:{})}])),required:(tool.properties||[]).filter(p=>p.required===true||p.required==='true').map(p=>p.property_name)}}}));if(!updatedBody.tool_choice)updatedBody.tool_choice='auto';return updatedBody;"
             }
         },
         "parameters": [
@@ -280,14 +280,14 @@
                 "meta": {
                     "value": 1024,
                     "validation": {
-                        "required": true
+                        "required": false
                     },
                     "description": "Limit the number of tokens generated in the response. Defaults to 1024.",
                     "displayName": "Max Output Tokens",
                     "displayType": "number",
                     "placeholder": "Specify the maximum tokens to generate"
                 },
-                "name": "maxOutputTokens"
+                "name": "maxCompletionTokens"
             },
             {
                 "meta": {
@@ -299,7 +299,7 @@
                         "showInfoIcon": true
                     },
                     "validation": {
-                        "required": true,
+                        "required": false,
                         "infoDetail": {
                             "infoMsg": "Choose a value between 0(Very Deterministic) and 2 (Highly Random)"
                         }
@@ -314,28 +314,30 @@
     },
     "imageanalysis": {
         "definition": {
-            "url": "https://api.openai.com/v1/responses",
+            "url": "https://api.openai.com/v1/chat/completions",
             "body": {
-                "input": [
+                "model": "{{parameters.modelId}}",
+                "messages": [
                     {
                         "role": "{{parameters.role}}",
                         "content": [
                             {
                                 "text": "{{parameters.text}}",
-                                "type": "input_text"
+                                "type": "text"
                             },
                             {
-                                "type": "input_image",
-                                "image_url": "{{parameters.image_url}}"
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": "{{parameters.image_url}}"
+                                }
                             }
                         ]
                     }
                 ],
-                "model": "{{parameters.modelId}}",
                 "temperature": "{{parameters.temperature}}",
                 "presence_penalty": 0,
                 "frequency_penalty": 0,
-                "max_output_tokens": "{{parameters.maxCompletionTokens}}"
+                "max_completion_tokens": "{{parameters.maxCompletionTokens}}"
             },
             "method": "post",
             "headers": {
@@ -458,7 +460,7 @@
                 "meta": {
                     "value": 1024,
                     "validation": {
-                        "required": true
+                        "required": false
                     },
                     "description": "An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
                     "displayName": "Max Completion Tokens",
@@ -477,7 +479,7 @@
                         "showInfoIcon": true
                     },
                     "validation": {
-                        "required": true,
+                        "required": false,
                         "infoDetail": {
                             "infoMsg": "Choose a value between 0(Very Deterministic) and 2 (Highly Random)"
                         }
@@ -658,13 +660,13 @@
     },
     "chatcompletionwithtext": {
         "definition": {
-            "url": "https://api.openai.com/v1/responses",
+            "url": "https://api.openai.com/v1/chat/completions",
             "body": {
-                "input": "{{parameters.chat}}",
                 "model": "{{parameters.modelId}}",
                 "top_p": "{{parameters.top_p}}",
+                "messages": "{{parameters.chat}}",
                 "temperature": "{{parameters.temperature}}",
-                "max_output_tokens": "{{parameters.maxCompletionTokens}}"
+                "max_completion_tokens": "{{parameters.maxCompletionTokens}}"
             },
             "method": "post",
             "headers": {
@@ -677,9 +679,6 @@
                     "message": "{{response.data.error.message}}"
                 },
                 "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "function transformBody(){ const b = { ...body }; const t = Number(b.temperature); if (!Number.isNaN(t) && t === 0) { delete b.temperature; } return b; } return transformBody();"
             }
         },
         "parameters": [
@@ -793,7 +792,7 @@
                 "meta": {
                     "value": 1024,
                     "validation": {
-                        "required": true
+                        "required": false
                     },
                     "description": "An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
                     "displayName": "Max Completion Tokens",
@@ -809,7 +808,7 @@
                     "step": 0.1,
                     "value": 0.7,
                     "htmlProps": {
-                        "showInfoIcon": true
+                        "showInfoIcon": false
                     },
                     "validation": {
                         "required": false,
@@ -846,23 +845,23 @@
     },
     "chatcompletionwithtextsingle": {
         "definition": {
-            "url": "https://api.openai.com/v1/responses",
+            "url": "https://api.openai.com/v1/chat/completions",
             "body": {
-                "input": [
+                "model": "{{parameters.modelId}}",
+                "top_p": "{{parameters.top_p}}",
+                "messages": [
                     {
                         "role": "{{parameters.role}}",
                         "content": [
                             {
                                 "text": "{{parameters.content}}",
-                                "type": "input_text"
+                                "type": "text"
                             }
                         ]
                     }
                 ],
-                "model": "{{parameters.modelId}}",
-                "top_p": "{{parameters.top_p}}",
-                "max_tokens": "{{parameters.maxCompletionTokens}}",
-                "temperature": "{{parameters.temperature}}"
+                "temperature": "{{parameters.temperature}}",
+                "max_completion_tokens": "{{parameters.maxCompletionTokens}}"
             },
             "method": "post",
             "headers": {
@@ -875,9 +874,6 @@
                     "message": "{{response.data.error.message}}"
                 },
                 "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "function transformBody(){ const b = { ...body }; const t = Number(b.temperature); if (!Number.isNaN(t) && t === 0) { delete b.temperature; } return b; } return transformBody();"
             }
         },
         "parameters": [
