@@ -127,6 +127,7 @@ integration-name/
 - [posthog](./posthog/)
 - [Razorpay](./Razorpay/)
 - [Redis](./Redis/)
+- [Salla](./Salla/)
 - [shopify](./shopify/)
 - [stripe](./stripe/)
 - [telegram](./telegram/)

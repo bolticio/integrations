@@ -1,0 +1,324 @@
+{
+    "oauth2": {
+        "token": {
+            "url": "https://accounts.salla.sa/oauth2/token",
+            "body": {
+                "code": "{{code}}",
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "authorization_code",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "refresh": {
+            "url": "https://accounts.salla.sa/oauth2/token",
+            "body": {
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "refresh_token",
+                "client_secret": "{{secrets.client_secret}}",
+                "refresh_token": "{{secrets.refresh_token}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "validate": {
+            "qs": {
+                "page": 1
+            },
+            "url": "https://api.salla.dev/admin/v2/customers",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "authorize": {
+            "qs": {
+                "scope": "offline_access orders.read_write products.read_write customers.read_write webhooks.read_write",
+                "client_id": "{{secrets.client_id}}",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "response_type": "code"
+            },
+            "url": "https://accounts.salla.sa/oauth2/auth",
+            "method": "get",
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "oauth2",
+                    "options": [
+                        {
+                            "label": "Salla OAuth 2.0",
+                            "value": "oauth2",
+                            "description": "Connect your Salla account with OAuth 2.0."
+                        }
+                    ],
+                    "displayName": "Authentication Type",
+                    "displayType": "hidden"
+                },
+                "name": "type"
+            },
+            {
+                "meta": {
+                    "value": "v1/salla/oauth2/callback",
+                    "displayName": "Redirect URI",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "redirect_uri"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "style": {
+                            "color": "#ffffff",
+                            "height": "40px",
+                            "padding": "16px",
+                            "fontSize": "14px",
+                            "fontWeight": 700,
+                            "backgroundColor": "#ff592f"
+                        },
+                        "variant": "contained"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please connect with your Salla account"
+                        }
+                    },
+                    "description": "Click to connect your Salla account.",
+                    "displayName": "Connect Salla Account",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "style": {
+                            "color": "#ffffff",
+                            "backgroundColor": "#28A745"
+                        },
+                        "variant": "contained"
+                    },
+                    "description": "Your Salla account is connected.",
+                    "displayName": "Salla Account Connected",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_connected"
+            },
+            {
+                "meta": {
+                    "displayName": "Refresh Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "refresh_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Access Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Expires In",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expires_in"
+            },
+            {
+                "meta": {
+                    "displayName": "Expiry Date",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expiry_date"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "oauth2",
+                "options": [
+                    {
+                        "label": "Salla OAuth 2.0",
+                        "value": "oauth2",
+                        "description": "Connect your Salla account with OAuth 2.0."
+                    }
+                ],
+                "displayName": "Authentication Type",
+                "displayType": "hidden"
+            },
+            "name": "type"
+        },
+        {
+            "meta": {
+                "value": "",
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Client ID is required field"
+                    }
+                },
+                "description": "Application client ID.",
+                "displayName": "Client ID",
+                "displayType": "text",
+                "placeholder": "Enter client ID",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "type",
+                            "value": "oauth2",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "client_id"
+        },
+        {
+            "meta": {
+                "value": "",
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Client secret is required field"
+                    }
+                },
+                "description": "Application client secret.",
+                "displayName": "Client Secret",
+                "displayType": "text",
+                "placeholder": "Enter client secret",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "type",
+                            "value": "oauth2",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "client_secret"
+        }
+    ]
+}
