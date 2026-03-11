@@ -5,12 +5,12 @@
                 "options": [
                     {
                         "label": "List Product Tags",
-                        "value": "productTags.getProductTags",
+                        "value": "productTags.getproducttags",
                         "description": "List product tags in the store."
                     },
                     {
                         "label": "Create Product Tag",
-                        "value": "productTags.createProductTag",
+                        "value": "productTags.createproducttag",
                         "description": "Create a new product tag."
                     }
                 ],
@@ -34,400 +34,6 @@
             "name": "operation"
         }
     ],
-    "getproducttags": {
-        "definition": {
-            "qs": {
-                "perPage": 100
-            },
-            "url": "https://api.salla.dev/admin/v2/products/tags",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "page": "{{pagination.page}} + 1"
-                },
-                "type": "page",
-                "default": {
-                    "page": 1
-                },
-                "condition": "{{response.data.pagination.totalPages}} >= {{pagination.page}}"
-            }
-        },
-        "parameters": []
-    },
-    "createproducttag": {
-        "definition": {
-            "url": "https://api.salla.dev/admin/v2/products/tags",
-            "body": {
-                "tag_name": "{{parameters.tag_name}}"
-            },
-            "method": "post",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Name for the new tag.",
-                    "displayName": "Tag Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the tag name"
-                },
-                "name": "tag_name"
-            }
-        ]
-    },
-    "changeproductstatus": {
-        "definition": {
-            "url": "https://api.salla.dev/admin/v2/products/{{parameters.productId}}/status",
-            "body": {
-                "status": "{{parameters.status}}"
-            },
-            "method": "post",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Product ID to update.",
-                    "displayName": "Product ID",
-                    "displayType": "number",
-                    "placeholder": "Enter the product ID"
-                },
-                "name": "productId"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "sale",
-                            "value": "sale"
-                        },
-                        {
-                            "label": "out",
-                            "value": "out"
-                        },
-                        {
-                            "label": "hidden",
-                            "value": "hidden"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "New product status.",
-                    "displayName": "Status",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the status"
-                },
-                "name": "status"
-            }
-        ]
-    },
-    "updatebulkproductprices": {
-        "definition": {
-            "url": "https://api.salla.dev/admin/v2/products/prices/bulkPrice",
-            "body": {
-                "products": "{{parameters.products}}"
-            },
-            "method": "post",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true
-                                },
-                                "description": "Enter the product ID.",
-                                "displayName": "Product ID",
-                                "displayType": "number",
-                                "placeholder": "Enter the product ID"
-                            },
-                            "name": "id"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true
-                                },
-                                "description": "Enter the new price.",
-                                "displayName": "Price",
-                                "displayType": "number",
-                                "placeholder": "Enter the new price"
-                            },
-                            "name": "price"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Enter the cost price.",
-                                "displayName": "Cost Price",
-                                "displayType": "number",
-                                "placeholder": "Enter the cost price"
-                            },
-                            "name": "cost_price"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Enter the sale price.",
-                                "displayName": "Sale Price",
-                                "displayType": "number",
-                                "placeholder": "Enter the sale price"
-                            },
-                            "name": "sale_price"
-                        },
-                        {
-                            "meta": {
-                                "value": "",
-                                "readOnly": false,
-                                "htmlProps": {
-                                    "views": [
-                                        "year",
-                                        "month",
-                                        "day"
-                                    ],
-                                    "format": "YYYY-MM-DD",
-                                    "disabled": false,
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Enter the sale end date.",
-                                "displayName": "Sale End Date",
-                                "displayType": "date",
-                                "placeholder": "Select the sale end date"
-                            },
-                            "name": "sale_end"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "Enter product details to bulk update product prices.",
-                    "displayName": "Products",
-                    "displayType": "array"
-                },
-                "name": "products"
-            }
-        ]
-    },
-    "getproductdetails": {
-        "definition": {
-            "url": "https://api.salla.dev/admin/v2/products/{{parameters.productId}}",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Product ID to retrieve.",
-                    "displayName": "Product ID",
-                    "displayType": "number",
-                    "placeholder": "Enter the product ID"
-                },
-                "name": "productId"
-            }
-        ]
-    },
-    "deleteproduct": {
-        "definition": {
-            "url": "https://api.salla.dev/admin/v2/products/{{parameters.productId}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Product ID to delete.",
-                    "displayName": "Product ID",
-                    "displayType": "number",
-                    "placeholder": "Enter the product ID"
-                },
-                "name": "productId"
-            }
-        ]
-    },
-    "getproducts": {
-        "definition": {
-            "qs": {
-                "status": "{{parameters.status}}",
-                "keyword": "{{parameters.keyword}}",
-                "perPage": 100,
-                "category": "{{parameters.category}}"
-            },
-            "url": "https://api.salla.dev/admin/v2/products",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "page": "{{pagination.page}} + 1"
-                },
-                "type": "page",
-                "default": {
-                    "page": 1
-                },
-                "condition": "{{response.data.pagination.totalPages}} >= {{pagination.page}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Filter by product name or SKU.",
-                    "displayName": "Keyword",
-                    "displayType": "text",
-                    "placeholder": "Enter the product name or SKU name"
-                },
-                "name": "keyword"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Filter by category name.",
-                    "displayName": "Category",
-                    "displayType": "text",
-                    "placeholder": "Enter the category name"
-                },
-                "name": "category"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "sale",
-                            "value": "sale"
-                        },
-                        {
-                            "label": "out",
-                            "value": "out"
-                        },
-                        {
-                            "label": "hidden",
-                            "value": "hidden"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Filter by product status.",
-                    "displayName": "Status",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select product status"
-                },
-                "name": "status"
-            }
-        ]
-    },
     "create": {
         "definition": {
             "url": "https://api.salla.dev/admin/v2/products",
@@ -700,13 +306,12 @@
             }
         ]
     },
-    "updatebulkquantities": {
+    "custom_api": {
         "definition": {
-            "url": "https://api.salla.dev/admin/v2/products/quantities/bulk",
-            "body": {
-                "products": "{{parameters.products}}"
-            },
-            "method": "post",
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -723,156 +328,221 @@
         "parameters": [
             {
                 "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select",
+                    "placeholder": "Select HTTP method"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "text",
+                    "placeholder": "Enter the URL"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
                     "children": [
                         {
                             "meta": {
-                                "value": "",
-                                "options": [
-                                    {
-                                        "label": "ID",
-                                        "value": "id",
-                                        "description": "for dynamic input, enter 'id'"
-                                    },
-                                    {
-                                        "label": "Variant Id",
-                                        "value": "variant_id",
-                                        "description": "for dynamic input, enter 'variant_id'"
-                                    },
-                                    {
-                                        "label": "SKU",
-                                        "value": "sku",
-                                        "description": "for dynamic input, enter 'sku'"
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
                                     }
-                                ],
-                                "htmlProps": {
-                                    "allowDynamic": true
                                 },
-                                "validation": {
-                                    "required": true
-                                },
-                                "description": "Identifier Type. Value can either be id, variant_id or sku.",
-                                "displayName": "ID Type",
-                                "displayType": "autocomplete",
-                                "placeholder": "Select the type of ID"
+                                "displayName": "key",
+                                "displayType": "text"
                             },
-                            "name": "identifer_type"
+                            "name": "key"
                         },
                         {
                             "meta": {
                                 "validation": {
-                                    "required": true
-                                },
-                                "description": "Identifier value (product ID, variant ID, or SKU).",
-                                "displayName": "Id",
-                                "displayType": "text",
-                                "placeholder": "Enter product, variant or SKU ID"
-                            },
-                            "name": "identifer"
-                        },
-                        {
-                            "meta": {
-                                "value": "",
-                                "options": [
-                                    {
-                                        "label": "overwrite",
-                                        "value": "overwrite",
-                                        "description": "Overwrite current quantity"
-                                    },
-                                    {
-                                        "label": "increment",
-                                        "value": "increment",
-                                        "description": "Increment current quantity"
-                                    },
-                                    {
-                                        "label": "decrement",
-                                        "value": "decrement",
-                                        "description": "Decrement current quantity"
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
                                     }
-                                ],
-                                "htmlProps": {
-                                    "allowDynamic": true
                                 },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Mode of quantity update.",
-                                "displayName": "Update Mode",
-                                "displayType": "autocomplete",
-                                "placeholder": "Select the mode of quantity update"
+                                "displayName": "value",
+                                "displayType": "text"
                             },
-                            "name": "mode"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Branch ID.",
-                                "displayName": "Branch ID",
-                                "displayType": "number",
-                                "placeholder": "Enter branch ID"
-                            },
-                            "name": "branch"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Reason ID for the change.",
-                                "displayName": "Reason ID",
-                                "displayType": "number",
-                                "placeholder": "Enter reason ID"
-                            },
-                            "name": "reason_id"
-                        },
-                        {
-                            "meta": {
-                                "value": true,
-                                "readOnly": false,
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "disabled": false
-                                },
-                                "description": "Set to allow unlimited quantity. If unlimited quantity is set to No, you must specify the Quantity.",
-                                "displayName": "Unlimited Quantity",
-                                "displayType": "toggle",
-                                "placeholder": "Enable for unlimited quantity"
-                            },
-                            "name": "unlimited_quantity"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Enter quantity value to bulk update. If unlimited quantity is set to No, you must specify the Quantity.",
-                                "displayName": "Quantity",
-                                "displayType": "number",
-                                "placeholder": "Enter quantity"
-                            },
-                            "name": "quantity"
+                            "name": "value"
                         }
                     ],
                     "htmlProps": {
                         "allowAdd": true
                     },
-                    "description": "Products to update.",
-                    "displayName": "Products",
-                    "displayType": "array"
+                    "description": "You don't have to add authorization headers, we already did that for you.",
+                    "displayName": "Headers",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add header key–value pairs"
                 },
-                "name": "products"
+                "name": "headers"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "Optional query string parameters to be sent with the request.",
+                    "displayName": "Query String",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add query string key–value pairs"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The payload (body) of the HTTP request.",
+                    "displayName": "Body",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON body (optional)"
+                },
+                "name": "body"
             }
         ]
     },
-    "getproductquantities": {
+    "getorderhistories": {
         "definition": {
             "qs": {
                 "perPage": 100
             },
-            "url": "https://api.salla.dev/admin/v2/products/quantities",
+            "url": "https://api.salla.dev/admin/v2/orders/{{parameters.order_id}}/histories",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Order ID to list history for.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter order ID"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "deleteorderitem": {
+        "definition": {
+            "url": "https://api.salla.dev/admin/v2/orders/items/{{parameters.item_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Order item ID to delete.",
+                    "displayName": "Item ID",
+                    "displayType": "text",
+                    "placeholder": "Enter order ID"
+                },
+                "name": "item_id"
+            }
+        ]
+    },
+    "getorderstatuses": {
+        "definition": {
+            "qs": {
+                "perPage": 100
+            },
+            "url": "https://api.salla.dev/admin/v2/orders/statuses",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -895,6 +565,359 @@
                     "page": 1
                 },
                 "condition": "{{response.data.pagination.totalPages}} >= {{pagination.page}}"
+            }
+        },
+        "parameters": []
+    },
+    "getorderstatusdetails": {
+        "definition": {
+            "url": "https://api.salla.dev/admin/v2/orders/statuses/{{parameters.status_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Order status ID to retrieve.",
+                    "displayName": "Status ID",
+                    "displayType": "number",
+                    "placeholder": "Enter order status ID"
+                },
+                "name": "status_id"
+            }
+        ]
+    },
+    "getorderdetails": {
+        "definition": {
+            "url": "https://api.salla.dev/admin/v2/orders/{{parameters.orderId}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Order ID to retrieve.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter order ID"
+                },
+                "name": "orderId"
+            }
+        ]
+    },
+    "getorderitems": {
+        "definition": {
+            "qs": {
+                "order_id": "{{parameters.order_Id}}"
+            },
+            "url": "https://api.salla.dev/admin/v2/orders/items",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Order ID to list items for.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter order ID"
+                },
+                "name": "order_Id"
+            }
+        ]
+    },
+    "getorders": {
+        "definition": {
+            "qs": {
+                "city": "{{parameters.cityId}}",
+                "country": "{{parameters.countryId}}",
+                "perPage": 100,
+                "sort_by": "{{parameters.sort_by}}",
+                "to_date": "{{parameters.to_date}}",
+                "from_date": "{{parameters.from_date}}",
+                "created_by": "{{parameters.createdbyId}}",
+                "customer_id": "{{parameters.customer_id}}"
+            },
+            "url": "https://api.salla.dev/admin/v2/orders",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "page": "{{pagination.page}} + 1"
+                },
+                "type": "page",
+                "default": {
+                    "page": 1
+                },
+                "condition": "{{response.data.pagination.totalPages}} >= {{pagination.page}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "readOnly": false,
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Get a list of orders created on or after this date (required for date-based filtering).",
+                    "displayName": "From Date",
+                    "displayType": "date",
+                    "placeholder": "Select the from date"
+                },
+                "name": "from_date"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "readOnly": false,
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Get a list of orders created on or before this date (required for date-based filtering).",
+                    "displayName": "To Date",
+                    "displayType": "date",
+                    "placeholder": "Select the to date"
+                },
+                "name": "to_date"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "salla",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.getOrders",
+                            "loadOptionsMethod": "getCountryOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter by country.",
+                    "displayName": "Country",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a country"
+                },
+                "name": "countryId"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "salla",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "countryId": "{{parameters.countryId}}",
+                            "operation": "orders.getOrders",
+                            "loadOptionsMethod": "getCitiesOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "name",
+                        "condition": "{{parameters.countryId}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter by city. For dynamic input enter city ID.",
+                    "displayName": "City",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a city",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "countryId",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "cityId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter by customer ID.",
+                    "displayName": "Customer ID",
+                    "displayType": "number",
+                    "placeholder": "Enter customer ID"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "id",
+                            "value": "id",
+                            "description": "Order ID"
+                        },
+                        {
+                            "label": "total",
+                            "value": "total",
+                            "description": "Order Total"
+                        },
+                        {
+                            "label": "updated_at",
+                            "value": "updated_at",
+                            "description": "Updated Date"
+                        },
+                        {
+                            "label": "created_at",
+                            "value": "created_at",
+                            "description": "Created Date"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Sort results by.",
+                    "displayName": "Sort By",
+                    "displayType": "autocomplete",
+                    "placeholder": "created_at"
+                },
+                "name": "sort_by"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "salla",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.getOrders",
+                            "loadOptionsMethod": "getEmployeesOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter by employee who created the order. For dynamic input enter employee ID.",
+                    "displayName": "Created By",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select an employee"
+                },
+                "name": "createdbyId"
+            }
+        ]
+    },
+    "getquantitychangereasons": {
+        "definition": {
+            "url": "https://api.salla.dev/admin/v2/products/quantities/quantity-change-reason",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.data}}"
             }
         },
         "parameters": []

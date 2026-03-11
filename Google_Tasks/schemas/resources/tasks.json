@@ -1,0 +1,842 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Get Tasks",
+                        "value": "tasks.getTasks",
+                        "description": "Get a list of all tasks."
+                    },
+                    {
+                        "label": "Get Task Details",
+                        "value": "tasks.getTaskDetailsByID",
+                        "description": "Get a specific task."
+                    },
+                    {
+                        "label": "Create Task",
+                        "value": "tasks.createTask",
+                        "description": "Create a new task."
+                    },
+                    {
+                        "label": "Update Task",
+                        "value": "tasks.updateTask",
+                        "description": "Update a task."
+                    },
+                    {
+                        "label": "Delete Task",
+                        "value": "tasks.deleteTaskByID",
+                        "description": "Delete a specific task."
+                    },
+                    {
+                        "label": "Move Task to Another Task List",
+                        "value": "tasks.moveTaskToTaskList",
+                        "description": "Move a task to another task list."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "tasks",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getTaskListsDetails": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.items}}"
+            }
+        },
+        "parameters": []
+    },
+    "getTasksByTaskListID": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/lists/{{parameters.tasklist_id}}/tasks",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.items}}"
+            },
+            "transform": {
+                "output": "return '{{parameters.isNotCompleted}}' === 'true' ? (Array.isArray(output) ? output.filter(t => t && t.status !== 'completed') : []) : output;"
+            },
+            "pagination": {
+                "qs": {
+                    "pageToken": "{{response.data.nextPageToken}}",
+                    "maxResults": 100
+                },
+                "type": "cursor",
+                "default": {
+                    "pageToken": null,
+                    "maxResults": 100
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        }
+    },
+    "gettasklists": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.items}}"
+            },
+            "pagination": {
+                "qs": {
+                    "pageToken": "{{response.data.nextPageToken}}",
+                    "maxResults": 100
+                },
+                "type": "cursor",
+                "default": {
+                    "pageToken": null,
+                    "maxResults": 100
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        },
+        "parameters": []
+    },
+    "createtasklist": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
+            "body": {
+                "title": "{{parameters.title}}"
+            },
+            "method": "POST",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter a task list title.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter a task list title"
+                },
+                "name": "title"
+            }
+        ]
+    },
+    "gettasklistbyid": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/users/@me/lists/{{parameters.tasklist_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasklists",
+                            "operation": "tasklists.getTaskListByID",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            }
+        ]
+    },
+    "deletetasklistbyid": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/users/@me/lists/{{parameters.tasklist_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "let data = output; data='Task list has been removed successfully!'; return data"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasklists",
+                            "operation": "tasklists.deleteTaskListByID",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list to delete. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            }
+        ]
+    },
+    "gettasks": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/lists/{{parameters.tasklist_id}}/tasks",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.items}}"
+            },
+            "pagination": {
+                "qs": {
+                    "pageToken": "{{response.data.nextPageToken}}",
+                    "maxResults": 100
+                },
+                "type": "cursor",
+                "default": {
+                    "pageToken": null,
+                    "maxResults": 100
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.getTasks",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            }
+        ]
+    },
+    "createtask": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/lists/{{parameters.tasklist_id}}/tasks",
+            "body": {
+                "notes": "{{parameters.notes}}",
+                "title": "{{parameters.title}}",
+                "status": "{{parameters.status}}",
+                "deleted": "{{parameters.deleted}}"
+            },
+            "method": "POST",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.createTask",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 1024,
+                        "required": true
+                    },
+                    "description": "Enter the task title (max 1024 characters).",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter a task title"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "maxRows": 4,
+                        "minRows": 4
+                    },
+                    "validation": {
+                        "required": false,
+                        "maxLength": 8192
+                    },
+                    "description": "Notes for the task (max 8192 characters).",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter notes"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Needs Action",
+                            "value": "needsAction"
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "completed"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Select a status.",
+                    "displayName": "Status",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a status"
+                },
+                "name": "status"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Indicates whether the task has been deleted.",
+                    "displayName": "Deleted",
+                    "displayType": "toggle",
+                    "placeholder": "Enable to mark the task as deleted"
+                },
+                "name": "deleted"
+            }
+        ]
+    },
+    "updatetasklisttitle": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/users/@me/lists/{{parameters.tasklist_id}}",
+            "body": {
+                "title": "{{parameters.title}}"
+            },
+            "method": "PATCH",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasklists",
+                            "operation": "tasklists.updateTaskListTitle",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list to rename. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the new task list title.",
+                    "displayName": "New Title",
+                    "displayType": "text",
+                    "placeholder": "Enter a new title"
+                },
+                "name": "title"
+            }
+        ]
+    },
+    "gettaskdetailsbyid": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/lists/{{parameters.tasklist_id}}/tasks/{{parameters.task_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.getTasks",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.getTaskDetailsByID",
+                            "tasklist_id": "{{parameters.tasklist_id}}",
+                            "loadOptionsMethod": "getTasksByTaskListID"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id",
+                        "condition": "{{parameters.tasklist_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task to fetch details. For dynamic input enter task ID.",
+                    "displayName": "Task",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "tasklist_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task_id"
+            }
+        ]
+    },
+    "deletetaskbyid": {
+        "definition": {
+            "url": "https://tasks.googleapis.com/tasks/v1/lists/{{parameters.tasklist_id}}/tasks/{{parameters.task_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "let data = output; data='Task has been removed successfully!'; return data"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.deleteTaskByID",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list to delete a task from. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.deleteTaskByID",
+                            "tasklist_id": "{{parameters.tasklist_id}}",
+                            "loadOptionsMethod": "getTasksByTaskListID"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id",
+                        "condition": "{{parameters.tasklist_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task to delete. For dynamic input enter task ID.",
+                    "displayName": "Task",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "tasklist_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task_id"
+            }
+        ]
+    },
+    "movetasktotasklist": {
+        "definition": {
+            "qs": {
+                "destinationTasklist": "{{parameters.newTasklist_id}}"
+            },
+            "url": "https://tasks.googleapis.com/tasks/v1/lists/{{parameters.tasklist_id}}/tasks/{{parameters.task_id}}/move",
+            "method": "POST",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.createTask",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task list. For dynamic input enter task list ID.",
+                    "displayName": "Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task list"
+                },
+                "name": "tasklist_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.deleteTaskByID",
+                            "tasklist_id": "{{parameters.tasklist_id}}",
+                            "isNotCompleted": "true",
+                            "loadOptionsMethod": "getTasksByTaskListID"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id",
+                        "condition": "{{parameters.tasklist_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a task to move. For dynamic input enter task ID.",
+                    "displayName": "Task",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "tasklist_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_tasks",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "tasks",
+                            "operation": "tasks.move",
+                            "loadOptionsMethod": "getTaskListsDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id",
+                        "condition": "{{parameters.task_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a destination task list. For dynamic input enter new task list ID.",
+                    "displayName": "Destination Task List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a destination task list",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "tasklist_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "task_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "newTasklist_id"
+            }
+        ]
+    }
+}
