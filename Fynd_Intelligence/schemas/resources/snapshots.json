@@ -1,7 +1,35 @@
 {
-    "getReports": {
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Share Snapshot via Email",
+                        "value": "snapshots.share_snapshot_via_email",
+                        "description": "Create a dashboard snapshot job and notify recipients via email."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operations",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": [
+                    {
+                        "field": "resource",
+                        "value": "snapshots",
+                        "operator": "EQUALS"
+                    }
+                ]
+            },
+            "name": "operation"
+        }
+    ],
+    "getDashboards": {
         "definition": {
-            "url": "https://api.intelligence.fynd.com/___/internal/analytics/reports?page=1&pageSize=100",
+            "url": "https://api.intelligence.fynd.com/___/internal/analytics/dashboards",
             "body": {
                 "company_id": "{{secrets.company_id}}",
                 "product_line": "{{parameters.product_line}}"
@@ -15,80 +43,10 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.message}}"
                 },
-                "output": "{{response.data.data.result.reports}}"
-            }
-        }
-    },
-    "parameters": [
-        {
-            "meta": {
-                "options": [
-                    {
-                        "label": "Generate Report",
-                        "value": "reports.generate_report",
-                        "description": "Generate analytics reports for selected product line and report template"
-                    }
-                ],
-                "validation": {
-                    "required": true
-                },
-                "description": "Select the operation you want to perform.",
-                "displayName": "Operations",
-                "displayType": "select",
-                "placeholder": "Select an operation",
-                "dependencies": [
-                    {
-                        "field": "resource",
-                        "value": "reports",
-                        "operator": "EQUALS"
-                    }
-                ]
-            },
-            "name": "operation"
-        }
-    ],
-    "getSalesChannels": {
-        "definition": {
-            "qs": {
-                "page_no": 1,
-                "page_size": 100,
-                "company_id": "{{secrets.company_id}}"
-            },
-            "url": "https://api.fynd.com/service/platform/configuration/v1.0/company/{{secrets.company_id}}/application",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data.items}}"
-            }
-        }
-    },
-    "getReportQuestions": {
-        "definition": {
-            "url": "https://api.intelligence.fynd.com/___/internal/analytics/reports?page=1&pageSize=100",
-            "body": {
-                "user_id": "{{secrets.api_key}}",
-                "company_id": "{{secrets.company_id}}",
-                "product_line": "{{parameters.product_line}}"
-            },
-            "method": "POST",
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data.data.result.reports}}"
+                "output": "{{response.data.data.result}}"
             },
             "transform": {
-                "output": "const reports = output; const selectedReport = reports.find(r => r.id === '{{parameters.report_id}}'); if (!selectedReport || !selectedReport.questions) return []; const questions = selectedReport.questions; let hasDateFields = false; let hasSalesChannelField = false; const isSalesChannelField = (key) => { return questions[key].type === 'salesChannel'; }; const typeMapping = {}; for (const key in questions) { typeMapping[key] = questions[key].type || 'string'; if (questions[key].type === 'salesChannel') { hasSalesChannelField = true; } if (questions[key].type === 'date') { hasDateFields = true; } } const questionFields = Object.keys(questions).filter(key => key !== 'timezone' && questions[key].type !== 'date' && !isSalesChannelField(key)).map(key => { const q = questions[key]; return { name: key, meta: { displayName: `${q.label || key}${q.required ? ' ' : ''}`, displayType: 'text', placeholder: `Enter ${q.label || key} (type: ${q.type || 'string'})`, description: `Type: ${q.type || 'string'}, Required: ${q.required || false}, Default: ${JSON.stringify(q.default || '')}`, validation: { required: q.required || false }, htmlProps: { allowDynamic: true, 'data-type': q.type || 'string' } } }; }); if (hasDateFields) { questionFields.unshift({ name: 'time_gap', meta: { displayName: 'Time Gap ', displayType: 'select', placeholder: 'Select time gap', description: 'Select the time period for date-based filtering in this report', options: [ { label: 'One Day', value: 'ONE_DAY' }, { label: 'One Week', value: 'ONE_WEEK' }, { label: 'One Month', value: 'ONE_MONTH' } ], validation: { required: true, requiredDetail: { errorMsg: 'Time gap is required for reports with date fields' } }, htmlProps: { allowDynamic: false } } }); } if (hasSalesChannelField) { questionFields.unshift({ name: 'sales_channel_id', meta: { config: { url: 'integrations/options', body: { isFp: true, resource: 'reports', operation: 'reports.generate_report', loadOptionsMethod: 'getSalesChannels', secret: '{{parameters.secret}}' }, method: 'post', urlType: 'options', labelKey: 'name', valueKey: '_id' }, options: [], validation: { required: true, requiredDetail: { errorMsg: 'Sales Channel is required' } }, description: 'Select the sales channel for which you want to generate reports.', displayName: 'Sales Channel', displayType: 'autocomplete', placeholder: 'Select a sales channel' } }); } questionFields.push({ name: '__field_types__', meta: { displayType: 'hidden', value: JSON.stringify(typeMapping), htmlProps: { hidden: true } } }); return questionFields;"
+                "body": "const params = {{parameters}}; return { product_line: params.product_line || 'COMMERCE', company_id: Number('{{secrets.company_id}}') };"
             }
         }
     },
