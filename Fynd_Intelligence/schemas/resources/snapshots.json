@@ -27,29 +27,6 @@
             "name": "operation"
         }
     ],
-    "getDashboards": {
-        "definition": {
-            "url": "https://api.intelligence.fynd.com/___/internal/analytics/dashboards",
-            "body": {
-                "company_id": "{{secrets.company_id}}",
-                "product_line": "{{parameters.product_line}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data.data.result}}"
-            },
-            "transform": {
-                "body": "const params = {{parameters}}; return { product_line: params.product_line || 'COMMERCE', company_id: Number('{{secrets.company_id}}') };"
-            }
-        }
-    },
     "generate_report": {
         "config": {
             "url": "integrations/parameters",
@@ -244,31 +221,17 @@
             },
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "secret": "{{parameters.secret}}",
-                            "resource": "snapshots",
-                            "operation": "snapshots.share_snapshot_via_email",
-                            "product_line": "{{parameters.product_line}}",
-                            "loadOptionsMethod": "getDashboards"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "value"
-                    },
-                    "options": [],
+                    "value": "fc-company-dashboard",
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Dashboard is required"
+                            "errorMsg": "Dashboard ID is required"
                         }
                     },
-                    "description": "Select dashboard from the fetched list.",
-                    "displayName": "Dashboards",
-                    "displayType": "select",
-                    "placeholder": "Select dashboard"
+                    "description": "Dashboard identifier to capture snapshot for.",
+                    "displayName": "Dashboard ID",
+                    "displayType": "text",
+                    "placeholder": "Enter dashboard ID (e.g., fc-company-dashboard)"
                 },
                 "name": "dashboard_id"
             },
@@ -286,6 +249,44 @@
                     "placeholder": "user@example.com or user1@example.com,user2@example.com"
                 },
                 "name": "notification_email_id"
+            }
+        ]
+    },
+    "query": {
+        "definition": {
+            "url": "https://api.intelligence.fynd.com/___/internal/analytics/query?page_size=200&page_number=1",
+            "body": {
+                "query": "{{parameters.query}}",
+                "user_id": "{{secrets.api_key}}",
+                "company_id": "{{secrets.company_id}}"
+            },
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "SQL query is required"
+                        }
+                    },
+                    "description": "Enter the SQL query to run against analytics data.",
+                    "displayName": "SQL Query",
+                    "displayType": "text",
+                    "placeholder": "SELECT * FROM ... LIMIT 10"
+                },
+                "name": "query"
             }
         ]
     }
