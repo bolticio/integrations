@@ -1,0 +1,260 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Custom API Request",
+                        "value": "custom.custom_api",
+                        "description": "Make a custom request to a Granola API endpoint."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the Granola custom API operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "custom",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "get_note": {
+        "definition": {
+            "url": "https://public-api.granola.ai/v1/notes/{{parameters.note_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^not_[a-zA-Z0-9]{14}$",
+                        "required": true
+                    },
+                    "description": "The Granola note ID to retrieve.",
+                    "displayName": "Note ID",
+                    "displayType": "text",
+                    "placeholder": "not_1d3tmYTlCICgjy"
+                },
+                "name": "note_id"
+            }
+        ]
+    },
+    "list_notes": {
+        "definition": {
+            "qs": {
+                "page_size": 30,
+                "created_after": "{{parameters.created_after}}",
+                "updated_after": "{{parameters.updated_after}}",
+                "created_before": "{{parameters.created_before}}"
+            },
+            "url": "https://public-api.granola.ai/v1/notes",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.notes}}"
+            },
+            "pagination": {
+                "qs": {
+                    "cursor": "{{response.data.cursor}}",
+                    "page_size": 30,
+                    "created_after": "{{parameters.created_after}}",
+                    "updated_after": "{{parameters.updated_after}}",
+                    "created_before": "{{parameters.created_before}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "cursor": null,
+                    "page_size": 30
+                },
+                "condition": "{{response.data.hasMore}} === true && {{response.data.cursor}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Return notes created before this date.",
+                    "displayName": "Created Before",
+                    "displayType": "date",
+                    "placeholder": "Select created before date"
+                },
+                "name": "created_before"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Return notes created after this date.",
+                    "displayName": "Created After",
+                    "displayType": "date",
+                    "placeholder": "Select created after date"
+                },
+                "name": "created_after"
+            },
+            {
+                "meta": {
+                    "validation": {},
+                    "description": "Return notes updated after this date.",
+                    "displayName": "Updated After",
+                    "displayType": "date",
+                    "placeholder": "Select updated after date"
+                },
+                "name": "updated_after"
+            }
+        ]
+    },
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL(){var u=(typeof parameters!=='undefined'&&parameters&&parameters.base_url!=null)?parameters.base_url:'{{parameters.base_url}}';u=String(u).trim().replace(/\\s+/g,'').replace(/^\\\"|\\\"$/g,'');if(!u)throw new Error('Invalid base_url');return u;}return transformURL();",
+                "error": "if (error.code == 'undefined') { return { message: 'Invalid URL: the provided value is not a valid HTTP/HTTPS URL', code: 400 }; } return error;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP Method to be used for the request.",
+                    "displayName": "Method",
+                    "displayType": "select",
+                    "placeholder": "Select HTTP method"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The URL of the HTTP Request.",
+                    "displayName": "Base URL",
+                    "displayType": "url",
+                    "placeholder": "Eg. https://public-api.granola.ai/v1/notes"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "Optional query string parameters to be sent with the request.",
+                    "displayName": "Query String",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add query string key-value pairs"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The payload (body) of the HTTP request.",
+                    "displayName": "Body",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON body (optional)"
+                },
+                "name": "body"
+            }
+        ]
+    }
+}

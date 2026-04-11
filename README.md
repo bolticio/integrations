@@ -95,6 +95,7 @@ integration-name/
 - [Google_Programmable_Search](./Google_Programmable_Search/)
 - [Google_Tasks](./Google_Tasks/)
 - [google_translate](./google_translate/)
+- [Granola](./Granola/)
 - [hubspot](./hubspot/)
 - [hugging_face](./hugging_face/)
 - [interakt](./interakt/)
