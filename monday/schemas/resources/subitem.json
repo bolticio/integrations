@@ -325,77 +325,6 @@
             }
         ]
     },
-    "create": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": "{{parameters}}",
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `mutation { create_group (board_id: {{parameters.board_id}}, group_name: \"{{parameters.group_name}}\") { id } }` })"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "group",
-                            "operation": "group.create",
-                            "loadOptionsMethod": "getBoard"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the target board where the new group will be created to organize your items.",
-                    "displayName": "Board",
-                    "displayType": "select",
-                    "placeholder": "Select a board"
-                },
-                "name": "board_id"
-            },
-            {
-                "meta": {
-                    "readOnly": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "max": 50,
-                        "min": 3,
-                        "required": true
-                    },
-                    "description": "Enter a descriptive name for the new group (3-50 characters)",
-                    "displayName": "Group Name",
-                    "displayType": "text",
-                    "placeholder": "Name of the new group"
-                },
-                "name": "group_name"
-            }
-        ]
-    },
     "get_subitem_values": {
         "definition": {
             "url": "https://api.monday.com/v2",
@@ -489,7 +418,7 @@
             }
         ]
     },
-    "duplicate": {
+    "create": {
         "definition": {
             "url": "https://api.monday.com/v2",
             "body": {},
@@ -506,7 +435,7 @@
                 "output": "{{response.data}}"
             },
             "transform": {
-                "body": "return JSON.stringify({ query: `mutation { duplicate_group (board_id: {{parameters.board_id}}, group_id: \"{{parameters.group_id}}\") { id } }` })"
+                "body": "return JSON.stringify({ query: `mutation { create_subitem (parent_item_id: {{parameters.parent_item_id}}, item_name: \"{{parameters.subitem_name}}\") { id board { id } } }` })"
             }
         },
         "parameters": [
@@ -517,8 +446,8 @@
                         "body": {
                             "name": "monday",
                             "secret": "{{parameters.secret}}",
-                            "resource": "group",
-                            "operation": "group.duplicate",
+                            "resource": "subitem",
+                            "operation": "subitem.create",
                             "loadOptionsMethod": "getBoard"
                         },
                         "method": "post",
@@ -533,7 +462,7 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the board containing the group which needs to duplicated.",
+                    "description": "Select the board of the item where subitem is to be created.",
                     "displayName": "Board",
                     "displayType": "select",
                     "placeholder": "Select a board"
@@ -548,98 +477,13 @@
                             "name": "monday",
                             "secret": "{{parameters.secret}}",
                             "board_id": "{{parameters.board_id}}",
-                            "resource": "group",
-                            "operation": "group.duplicate",
-                            "loadOptionsMethod": "getGroup"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "title",
-                        "valueKey": "id",
-                        "condition": "{{parameters.board_id}}"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the group to create an exact copy of, including all its items.",
-                    "displayName": "Group",
-                    "displayType": "select",
-                    "placeholder": "Select a Group"
-                },
-                "name": "group_id"
-            }
-        ]
-    },
-    "delete": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": {},
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `mutation { delete_group (board_id: {{parameters.board_id}}, group_id: \"{{parameters.group_id}}\") { id deleted } }` })"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "group",
-                            "operation": "group.delete",
-                            "loadOptionsMethod": "getBoard"
+                            "resource": "subitem",
+                            "operation": "subitem.create",
+                            "loadOptionsMethod": "getBoardItems"
                         },
                         "method": "post",
                         "urlType": "options",
                         "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the board containing the group which needs to be deleted.",
-                    "displayName": "Board",
-                    "displayType": "select",
-                    "placeholder": "Select a board"
-                },
-                "name": "board_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "board_id": "{{parameters.board_id}}",
-                            "resource": "group",
-                            "operation": "group.delete",
-                            "loadOptionsMethod": "getGroup"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "title",
                         "valueKey": "id",
                         "condition": "{{parameters.board_id}}"
                     },
@@ -650,10 +494,10 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the specific group to be permanently deleted along with all its items.",
-                    "displayName": "Group",
+                    "description": "Select the item whose subitem needs to be created.",
+                    "displayName": "Item",
                     "displayType": "select",
-                    "placeholder": "Select a Group",
+                    "placeholder": "Select an item",
                     "dependencies": {
                         "conditions": [
                             {
@@ -663,198 +507,7 @@
                         ]
                     }
                 },
-                "name": "group_id"
-            }
-        ]
-    },
-    "archive": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": {},
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `mutation { archive_group (board_id: {{parameters.board_id}}, group_id: \"{{parameters.group_id}}\") { id archived } }` })"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "group",
-                            "operation": "group.archive",
-                            "loadOptionsMethod": "getBoard"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the board containing the group which needs to be archived.",
-                    "displayName": "Board",
-                    "displayType": "select",
-                    "placeholder": "Select a board"
-                },
-                "name": "board_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "board_id": "{{parameters.board_id}}",
-                            "resource": "group",
-                            "operation": "group.archive",
-                            "loadOptionsMethod": "getGroup"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "title",
-                        "valueKey": "id",
-                        "condition": "{{parameters.board_id}}"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the group to archive (items will remain accessible but hidden from view).",
-                    "displayName": "Group",
-                    "displayType": "select",
-                    "placeholder": "Select a Group"
-                },
-                "name": "group_id"
-            }
-        ]
-    },
-    "get_group_details": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": {},
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data.boards[0].groups}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `query { boards (ids: {{parameters.board_id}}) { groups { title id } } }` })"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "group",
-                            "operation": "group.get_group_details",
-                            "loadOptionsMethod": "getBoard"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the board whose group details needs to be retrieved.",
-                    "displayName": "Board",
-                    "displayType": "select",
-                    "placeholder": "Select a board"
-                },
-                "name": "board_id"
-            }
-        ]
-    },
-    "create_column": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": "{{parameters}}",
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `mutation { create_column(board_id: {{parameters.board_id}}, title: \"{{parameters.title}}\", ${typeof {{parameters.description}} !== 'undefined' && {{parameters.description}} !== '' ? `description: \"{{parameters.description}}\",` : ''} column_type: {{parameters.column_type}}) { id title description } }` })"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "board",
-                            "operation": "board.create_column",
-                            "loadOptionsMethod": "getBoard"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the board where a new column need to be added",
-                    "displayName": "Board",
-                    "displayType": "select",
-                    "placeholder": "Select a board"
-                },
-                "name": "board_id"
+                "name": "parent_item_id"
             },
             {
                 "meta": {
@@ -867,256 +520,20 @@
                         "min": 3,
                         "required": true
                     },
-                    "description": "Enter a name for the new column (3-50 characters)",
-                    "displayName": "Column Name",
+                    "description": "Name of the new Subitem",
+                    "displayName": "Subitem Name",
                     "displayType": "text",
-                    "placeholder": "Enter name of column"
+                    "placeholder": "Enter the subitem name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "parent_item_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
                 },
-                "name": "title"
-            },
-            {
-                "meta": {
-                    "readOnly": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "max": 50,
-                        "min": 3,
-                        "required": false
-                    },
-                    "description": "Optional description explaining the purpose of this column",
-                    "displayName": "Column Description",
-                    "displayType": "text",
-                    "placeholder": "Enter description of column"
-                },
-                "name": "description"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "auto_number",
-                            "value": "auto_number"
-                        },
-                        {
-                            "label": "long_text",
-                            "value": "long_text"
-                        },
-                        {
-                            "label": "board_relation",
-                            "value": "board_relation"
-                        },
-                        {
-                            "label": "mirror",
-                            "value": "mirror"
-                        },
-                        {
-                            "label": "button",
-                            "value": "button"
-                        },
-                        {
-                            "label": "name",
-                            "value": "name"
-                        },
-                        {
-                            "label": "checkbox",
-                            "value": "checkbox"
-                        },
-                        {
-                            "label": "numbers",
-                            "value": "numbers"
-                        },
-                        {
-                            "label": "color_picker",
-                            "value": "color_picker"
-                        },
-                        {
-                            "label": "people",
-                            "value": "people"
-                        },
-                        {
-                            "label": "country",
-                            "value": "country"
-                        },
-                        {
-                            "label": "phone",
-                            "value": "phone"
-                        },
-                        {
-                            "label": "creation_log",
-                            "value": "creation_log"
-                        },
-                        {
-                            "label": "progress",
-                            "value": "progress"
-                        },
-                        {
-                            "label": "date",
-                            "value": "date"
-                        },
-                        {
-                            "label": "rating",
-                            "value": "rating"
-                        },
-                        {
-                            "label": "dependency",
-                            "value": "dependency"
-                        },
-                        {
-                            "label": "status",
-                            "value": "status"
-                        },
-                        {
-                            "label": "doc",
-                            "value": "doc"
-                        },
-                        {
-                            "label": "subtasks",
-                            "value": "subtasks"
-                        },
-                        {
-                            "label": "dropdown",
-                            "value": "dropdown"
-                        },
-                        {
-                            "label": "tags",
-                            "value": "tags"
-                        },
-                        {
-                            "label": "email",
-                            "value": "email"
-                        },
-                        {
-                            "label": "team",
-                            "value": "team"
-                        },
-                        {
-                            "label": "file",
-                            "value": "file"
-                        },
-                        {
-                            "label": "text",
-                            "value": "text"
-                        },
-                        {
-                            "label": "formula",
-                            "value": "formula"
-                        },
-                        {
-                            "label": "timeline",
-                            "value": "timeline"
-                        },
-                        {
-                            "label": "hour",
-                            "value": "hour"
-                        },
-                        {
-                            "label": "time_tracking",
-                            "value": "time_tracking"
-                        },
-                        {
-                            "label": "item_assignees",
-                            "value": "item_assignees"
-                        },
-                        {
-                            "label": "vote",
-                            "value": "vote"
-                        },
-                        {
-                            "label": "item_id",
-                            "value": "item_id"
-                        },
-                        {
-                            "label": "week",
-                            "value": "week"
-                        },
-                        {
-                            "label": "last_updated",
-                            "value": "last_updated"
-                        },
-                        {
-                            "label": "world_clock",
-                            "value": "world_clock"
-                        },
-                        {
-                            "label": "link",
-                            "value": "link"
-                        },
-                        {
-                            "label": "location",
-                            "value": "location"
-                        }
-                    ],
-                    "readOnly": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Column type is a required field"
-                        }
-                    },
-                    "description": "Type of the new column",
-                    "displayName": "Column Type",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select type of new column"
-                },
-                "name": "column_type"
-            }
-        ]
-    },
-    "get_board_values": {
-        "definition": {
-            "url": "https://api.monday.com/v2",
-            "body": "{{parameters}}",
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "return JSON.stringify({ query: `query { boards (ids: {{parameters.board_id}}) { name state permissions items_page {items {id name} }  } }` })"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "monday",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "board",
-                            "operation": "board.get_board_values",
-                            "loadOptionsMethod": "getBoard"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the board containing the items and values which needs to be retrieved",
-                    "displayName": "Board",
-                    "displayType": "select",
-                    "placeholder": "Select a board"
-                },
-                "name": "board_id"
+                "name": "subitem_name"
             }
         ]
     }

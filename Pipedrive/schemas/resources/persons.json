@@ -596,33 +596,23 @@
             }
         ]
     },
-    "addactivity": {
+    "addperson": {
         "definition": {
-            "url": "https://api.pipedrive.com/api/v2/activities",
+            "url": "https://api.pipedrive.com/api/v2/persons",
             "body": {
-                "busy": "{{parameters.busy}}",
-                "done": "{{parameters.done}}",
-                "note": "{{parameters.note}}",
-                "type": "{{parameters.type}}",
+                "name": "{{parameters.name}}",
+                "emails": "{{parameters.emails}}",
                 "org_id": "{{parameters.org_id}}",
-                "deal_id": "{{parameters.deal_id}}",
-                "lead_id": "{{parameters.lead_id}}",
-                "subject": "{{parameters.subject}}",
-                "due_date": "{{parameters.due_date}}",
-                "due_time": "{{parameters.due_time}}",
-                "duration": "{{parameters.duration}}",
-                "location": "{{parameters.location}}",
+                "phones": "{{parameters.phones}}",
                 "owner_id": "{{parameters.owner_id}}",
-                "priority": "{{parameters.priority}}",
-                "attendees": "{{parameters.attendees}}",
-                "project_id": "{{parameters.project_id}}",
-                "participants": "{{parameters.participants}}",
-                "public_description": "{{parameters.public_description}}"
+                "label_ids": "{{parameters.label_ids}}",
+                "visible_to": "{{parameters.visible_to}}"
             },
             "method": "post",
             "headers": {
                 "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
+                "x-api-token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
             },
             "response": {
                 "error": {
@@ -632,77 +622,31 @@
                 "output": "{{response.data}}"
             },
             "transform": {
-                "body": "const b={...body};if(Array.isArray(b.participants)){b.participants=b.participants.filter(p=>p&&p.person_id!==''&&p.person_id!==undefined&&p.person_id!==null);if(b.participants.length===0)delete b.participants;}if(Array.isArray(b.attendees)){b.attendees=b.attendees.filter(a=>a&&a.person_id!==''&&a.person_id!==undefined&&a.person_id!==null);if(b.attendees.length===0)delete b.attendees;}return b;"
+                "body": "const b = { ...body }; if (Array.isArray({{parameters.label_ids}})) { const ints = {{parameters.label_ids}}.map(v => parseInt(v)); b.label_ids = ints; } return b;"
             }
         },
         "parameters": [
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Name is required field"
+                        }
                     },
-                    "description": "The subject or title of the activity",
-                    "displayName": "Subject",
+                    "description": "The name of the person",
+                    "displayName": "Name",
                     "displayType": "text",
-                    "placeholder": "Subject"
+                    "placeholder": "Enter Name"
                 },
-                "name": "subject"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "pipedrive",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.addactivity",
-                            "loadOptionsMethod": "getallactivitytypes"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "key_string"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The type or category of the activity",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Type",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "secret",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "resource",
-                                "value": "activities",
-                                "operator": "EQUALS"
-                            },
-                            {
-                                "field": "operation",
-                                "value": "activities.addactivity",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "type"
+                "name": "name"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the user who owns the activity",
+                    "description": "The ID of the user who owns the person",
                     "displayName": "Owner ID",
                     "displayType": "number",
                     "placeholder": "Enter Owner ID"
@@ -714,31 +658,7 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the deal linked to the activity",
-                    "displayName": "Deal ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Deal ID"
-                },
-                "name": "deal_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the lead linked to the activity",
-                    "displayName": "Lead ID",
-                    "displayType": "text",
-                    "placeholder": "Lead ID"
-                },
-                "name": "lead_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the organization linked to the activity",
+                    "description": "The ID of the organization linked to the person",
                     "displayName": "Organization ID",
                     "displayType": "number",
                     "placeholder": "Enter Organization ID"
@@ -747,226 +667,18 @@
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the project linked to the activity",
-                    "displayName": "Project ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Project ID"
-                },
-                "name": "project_id"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "views": [
-                            "year",
-                            "month",
-                            "day"
-                        ],
-                        "format": "YYYY-MM-DD",
-                        "disabled": false
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The Due Date for the activity (YYYY-MM-DD)",
-                    "displayName": "Due Date",
-                    "displayType": "date",
-                    "placeholder": "Select Due Date"
-                },
-                "name": "due_date"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The due time for the activity (HH:MM)",
-                    "displayName": "Due Time",
-                    "displayType": "text",
-                    "placeholder": "HH:MM"
-                },
-                "name": "due_time"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Duration in minutes or HH:MM",
-                    "displayName": "Duration",
-                    "displayType": "text",
-                    "placeholder": "e.g. 01:30"
-                },
-                "name": "duration"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Whether the activity marks the assignee as busy in their calendar",
-                    "displayName": "Busy Flag",
-                    "displayType": "toggle",
-                    "placeholder": "Busy Flag"
-                },
-                "name": "busy"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Whether the activity is marked as done",
-                    "displayName": "Done Status",
-                    "displayType": "toggle",
-                    "placeholder": "Done Status"
-                },
-                "name": "done"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "description": "The complete address string.",
-                                "displayName": "Full Address",
-                                "displayType": "text",
-                                "placeholder": "Full Address"
-                            },
-                            "name": "value",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Country name of the address.",
-                                "displayName": "Country",
-                                "displayType": "text",
-                                "placeholder": "Country"
-                            },
-                            "name": "country",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "State, province, or region of the address.",
-                                "displayName": "Admin Area Level 1",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 1"
-                            },
-                            "name": "admin_area_level_1",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "County, district, or municipality of the address.",
-                                "displayName": "Admin Area Level 2",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 2"
-                            },
-                            "name": "admin_area_level_2",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "City or locality name.",
-                                "displayName": "Locality",
-                                "displayType": "text",
-                                "placeholder": "Locality"
-                            },
-                            "name": "locality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Subdivision, neighborhood, or area name.",
-                                "displayName": "Sublocality",
-                                "displayType": "text",
-                                "placeholder": "Sublocality"
-                            },
-                            "name": "sublocality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or road name.",
-                                "displayName": "Route",
-                                "displayType": "text",
-                                "placeholder": "Route"
-                            },
-                            "name": "route",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or building number.",
-                                "displayName": "Street Number",
-                                "displayType": "text",
-                                "placeholder": "Street Number"
-                            },
-                            "name": "street_number",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "ZIP or postal code.",
-                                "displayName": "Postal Code",
-                                "displayType": "text",
-                                "placeholder": "Postal Code"
-                            },
-                            "name": "postal_code",
-                            "validation": {
-                                "required": false
-                            }
-                        }
-                    ],
-                    "readOnly": false,
-                    "description": "Object containing address details including country, administrative levels, and postal code.",
-                    "displayName": "Location",
-                    "displayType": "object"
-                },
-                "name": "location"
-            },
-            {
-                "meta": {
                     "children": [
                         {
                             "meta": {
                                 "validation": {
-                                    "required": false
+                                    "required": true
                                 },
-                                "description": "The ID of the person who is a participant",
-                                "displayName": "Participant Person ID",
-                                "displayType": "number",
-                                "placeholder": "Enter Participant Person ID"
+                                "description": "The Email of the person",
+                                "displayName": "Email Address",
+                                "displayType": "text",
+                                "placeholder": "Email Address"
                             },
-                            "name": "person_id"
+                            "name": "value"
                         },
                         {
                             "meta": {
@@ -977,71 +689,27 @@
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "Mark as the primary participant",
-                                "displayName": "Is Primary Participant?",
+                                "description": "Mark as primary email",
+                                "displayName": "Is Primary Email?",
                                 "displayType": "toggle"
                             },
                             "name": "primary"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "List of participants linked to the activity or deal",
-                    "displayName": "Participants",
-                    "displayType": "array"
-                },
-                "name": "participants"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Email address of the attendee",
-                                "displayName": "Attendee Email",
-                                "displayType": "text",
-                                "placeholder": "Attendee Email"
-                            },
-                            "name": "email"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Name of the attendee",
-                                "displayName": "Attendee Name",
-                                "displayType": "text",
-                                "placeholder": "Attendee Name"
-                            },
-                            "name": "name"
                         },
                         {
                             "meta": {
                                 "value": "",
                                 "options": [
                                     {
-                                        "label": "Accepted",
-                                        "value": "accepted"
+                                        "label": "Work",
+                                        "value": "work"
                                     },
                                     {
-                                        "label": "Declined",
-                                        "value": "declined"
+                                        "label": "Home",
+                                        "value": "home"
                                     },
                                     {
-                                        "label": "Tentative",
-                                        "value": "tentative"
-                                    },
-                                    {
-                                        "label": "Needs Action",
-                                        "value": "needsAction"
+                                        "label": "Other",
+                                        "value": "other"
                                     }
                                 ],
                                 "htmlProps": {
@@ -1050,12 +718,40 @@
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "Invitation response status",
-                                "displayName": "Status",
+                                "description": "Select Email Type",
+                                "displayName": "Email Type",
                                 "displayType": "select",
-                                "placeholder": "Status"
+                                "placeholder": "Email Type"
                             },
-                            "name": "status"
+                            "name": "label"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The emails of the person",
+                    "displayName": "Emails",
+                    "displayType": "array"
+                },
+                "name": "emails"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The Phone Number of the person",
+                                "displayName": "Phone Number",
+                                "displayType": "text",
+                                "placeholder": "Phone Number"
+                            },
+                            "name": "value"
                         },
                         {
                             "meta": {
@@ -1066,23 +762,45 @@
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "Mark if this attendee is the event organizer",
-                                "displayName": "Is Organizer?",
+                                "description": "Mark as primary phone",
+                                "displayName": "Is Primary Phone?",
                                 "displayType": "toggle"
                             },
-                            "name": "is_organizer"
+                            "name": "primary"
                         },
                         {
                             "meta": {
+                                "value": "",
+                                "options": [
+                                    {
+                                        "label": "Work",
+                                        "value": "work"
+                                    },
+                                    {
+                                        "label": "Home",
+                                        "value": "home"
+                                    },
+                                    {
+                                        "label": "Mobile",
+                                        "value": "mobile"
+                                    },
+                                    {
+                                        "label": "Other",
+                                        "value": "other"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "The user ID of the attendee (if linked to a Pipedrive user)",
-                                "displayName": "Attendee User ID",
-                                "displayType": "number",
-                                "placeholder": "Enter Attendee User ID"
+                                "description": "Select Phone Type",
+                                "displayName": "Phone Type",
+                                "displayType": "select",
+                                "placeholder": "Phone Type"
                             },
-                            "name": "user_id"
+                            "name": "label"
                         }
                     ],
                     "htmlProps": {
@@ -1091,23 +809,45 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "List of attendees with their details and invitation status. This feature is only available for paid plans.",
-                    "displayName": "Attendees",
+                    "description": "The phones of the person",
+                    "displayName": "Phones",
                     "displayType": "array"
                 },
-                "name": "attendees"
+                "name": "phones"
             },
             {
                 "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Owner only",
+                            "value": 1
+                        },
+                        {
+                            "label": "Owner's visibility group",
+                            "value": 3
+                        },
+                        {
+                            "label": "Entire company",
+                            "value": 7
+                        },
+                        {
+                            "label": "Owner's visibility group and sub-groups",
+                            "value": 5
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "The public description of the activity",
-                    "displayName": "Public Description",
-                    "displayType": "textarea",
-                    "placeholder": "Public Description"
+                    "description": "The visibility of the person",
+                    "displayName": "Visible To",
+                    "displayType": "select",
+                    "placeholder": "Visible To"
                 },
-                "name": "public_description"
+                "name": "visible_to"
             },
             {
                 "meta": {
@@ -1117,9 +857,9 @@
                         "body": {
                             "name": "pipedrive",
                             "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.addactivity",
-                            "loadOptionsMethod": "getpriorityoptions"
+                            "resource": "persons",
+                            "operation": "persons.addperson",
+                            "loadOptionsMethod": "getallpersonslabels"
                         },
                         "method": "post",
                         "urlType": "options",
@@ -1133,44 +873,244 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The priority of the activity. Mappable to a specific string using activityFields API.",
-                    "displayName": "Priority",
-                    "displayType": "select",
-                    "placeholder": "Priority"
+                    "description": "The IDs of labels assigned to the person",
+                    "displayName": "Label",
+                    "displayType": "multiselect",
+                    "placeholder": "Label",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "persons",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "persons.addperson",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "priority"
+                "name": "label_ids"
+            }
+        ]
+    },
+    "searchpersons": {
+        "definition": {
+            "qs": {
+                "term": "{{parameters.term}}",
+                "fields": "{{parameters.fields}}",
+                "exact_match": "{{parameters.exact_match}}",
+                "include_fields": "{{parameters.include_fields}}",
+                "organization_id": "{{parameters.organization_id}}"
+            },
+            "url": "https://api.pipedrive.com/api/v2/persons/search",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data.data.items}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 20,
+                    "cursor": "{{response.data.additional_data.next_cursor}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "limit": 20,
+                    "cursor": null
+                },
+                "condition": "{{response.data.additional_data.next_cursor}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Search Term is required field"
+                        }
+                    },
+                    "description": "The search term to look for. Minimum 2 characters (or 1 if using exact_match)",
+                    "displayName": "Search Term",
+                    "displayType": "text",
+                    "placeholder": "Enter Search Term"
+                },
+                "name": "term"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Email",
+                            "value": "email"
+                        },
+                        {
+                            "label": "Notes",
+                            "value": "notes"
+                        },
+                        {
+                            "label": "Phone",
+                            "value": "phone"
+                        },
+                        {
+                            "label": "Name",
+                            "value": "name"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The fields to perform the search from. Defaults to all of them",
+                    "displayName": "Search Fields",
+                    "displayType": "select",
+                    "placeholder": "Search Fields"
+                },
+                "name": "fields"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "When enabled, only full exact matches against the given term are returned",
+                    "displayName": "Exact Match",
+                    "displayType": "toggle",
+                    "placeholder": "Exact Match"
+                },
+                "name": "exact_match"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Additional notes or details",
-                    "displayName": "Note",
-                    "displayType": "textarea",
-                    "placeholder": "Note"
+                    "description": "Will filter persons by the provided organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Organization ID"
                 },
-                "name": "note"
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Picture",
+                            "value": "person.picture"
+                        },
+                        {
+                            "label": "Open Deals Count",
+                            "value": "person.open_deals_count"
+                        },
+                        {
+                            "label": "Small Picture",
+                            "value": "person.small_picture"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Supports including optional fields in the results",
+                    "displayName": "Include Fields",
+                    "displayType": "multiselect",
+                    "placeholder": "Include Fields"
+                },
+                "name": "include_fields"
             }
         ]
     },
-    "getallactivities": {
+    "mergepersons": {
+        "definition": {
+            "url": "https://api.pipedrive.com/v1/persons/{{parameters.id}}/merge",
+            "body": {
+                "merge_with_id": "{{parameters.merge_with_id}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Person ID is required field"
+                        }
+                    },
+                    "description": "The unique identifier of the specific person you want to merge",
+                    "displayName": "Person ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Person ID"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Merge With ID is required field"
+                        }
+                    },
+                    "description": "The ID of the person that will not be overwritten. This person's data will be prioritized",
+                    "displayName": "Merge With ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Merge With ID"
+                },
+                "name": "merge_with_id"
+            }
+        ]
+    },
+    "getallpersons": {
         "definition": {
             "qs": {
                 "ids": "{{parameters.ids}}",
-                "done": "{{parameters.done}}",
                 "org_id": "{{parameters.org_id}}",
-                "deal_id": "{{parameters.deal_id}}",
-                "lead_id": "{{parameters.lead_id}}",
                 "sort_by": "{{parameters.sort_by}}",
                 "owner_id": "{{parameters.owner_id}}",
-                "person_id": "{{parameters.person_id}}",
                 "updated_since": "{{parameters.updated_since}}",
                 "updated_until": "{{parameters.updated_until}}",
                 "include_fields": "{{parameters.include_fields}}",
                 "sort_direction": "{{parameters.sort_direction}}"
             },
-            "url": "https://api.pipedrive.com/api/v2/activities",
+            "url": "https://api.pipedrive.com/api/v2/persons",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -1203,9 +1143,9 @@
                         "required": false
                     },
                     "description": "Optional comma separated string array of up to 100 entity ids to fetch",
-                    "displayName": "Activity IDs",
+                    "displayName": "Person IDs",
                     "displayType": "text",
-                    "placeholder": "Activity IDs"
+                    "placeholder": "Enter Person IDs"
                 },
                 "name": "ids"
             },
@@ -1214,7 +1154,7 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "If supplied, only activities owned by the specified user are returned",
+                    "description": "If supplied, only persons owned by the specified user are returned",
                     "displayName": "Owner ID",
                     "displayType": "number",
                     "placeholder": "Enter Owner ID"
@@ -1226,43 +1166,7 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "If supplied, only activities linked to the specified deal are returned",
-                    "displayName": "Deal ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Deal ID"
-                },
-                "name": "deal_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities linked to the specified lead are returned",
-                    "displayName": "Lead ID",
-                    "displayType": "text",
-                    "placeholder": "Lead ID"
-                },
-                "name": "lead_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities whose primary participant is the given person are returned",
-                    "displayName": "Person ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Person ID"
-                },
-                "name": "person_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities linked to the specified organization are returned",
+                    "description": "If supplied, only persons linked to the specified organization are returned",
                     "displayName": "Organization ID",
                     "displayType": "number",
                     "placeholder": "Enter Organization ID"
@@ -1271,29 +1175,13 @@
             },
             {
                 "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "If supplied, only activities with specified 'done' flag value are returned",
-                    "displayName": "Done Status",
-                    "displayType": "toggle",
-                    "placeholder": "Done Status"
-                },
-                "name": "done"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Only items with update_time ≥ this (RFC3339)",
+                    "description": "If set, only persons with an update_time later than or equal to this time are returned (RFC3339 format)",
                     "displayName": "Updated Since",
                     "displayType": "text",
-                    "placeholder": "YYYY-MM-DDTHH:mm:ssZ"
+                    "placeholder": "Enter Updated Since"
                 },
                 "name": "updated_since"
             },
@@ -1302,10 +1190,10 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Only items with update_time < this (RFC3339)",
+                    "description": "If set, only persons with an update_time earlier than this time are returned (RFC3339 format)",
                     "displayName": "Updated Until",
                     "displayType": "text",
-                    "placeholder": "YYYY-MM-DDTHH:mm:ssZ"
+                    "placeholder": "Enter Updated Until"
                 },
                 "name": "updated_until"
             },
@@ -1324,10 +1212,6 @@
                         {
                             "label": "Add Time",
                             "value": "add_time"
-                        },
-                        {
-                            "label": "Due Date",
-                            "value": "due_date"
                         }
                     ],
                     "htmlProps": {
@@ -1336,7 +1220,7 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The field to sort the results by",
+                    "description": "The field to sort by",
                     "displayName": "Sort By",
                     "displayType": "select",
                     "placeholder": "Sort By"
@@ -1362,7 +1246,7 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The direction to sort the results",
+                    "description": "The sorting direction",
                     "displayName": "Sort Direction",
                     "displayType": "select",
                     "placeholder": "Sort Direction"
@@ -1374,67 +1258,96 @@
                     "value": "",
                     "options": [
                         {
-                            "label": "Attendees",
-                            "value": "attendees"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Optional comma separated string array of additional fields to include",
-                    "displayName": "Include Fields",
-                    "displayType": "select",
-                    "placeholder": "Include Fields"
-                },
-                "name": "include_fields"
-            }
-        ]
-    },
-    "getactivitydetails": {
-        "definition": {
-            "qs": {
-                "include_fields": "{{parameters.include_fields}}"
-            },
-            "url": "https://api.pipedrive.com/api/v2/activities/{{parameters.id}}",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Activity ID is required field"
-                        }
-                    },
-                    "description": "The unique identifier of the activity",
-                    "displayName": "Activity ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Activity ID"
-                },
-                "name": "id"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
+                            "label": "Next Activity ID",
+                            "value": "next_activity_id"
+                        },
                         {
-                            "label": "Attendees",
-                            "value": "attendees"
+                            "label": "Last Activity ID",
+                            "value": "last_activity_id"
+                        },
+                        {
+                            "label": "Open Deals Count",
+                            "value": "open_deals_count"
+                        },
+                        {
+                            "label": "Related Open Deals Count",
+                            "value": "related_open_deals_count"
+                        },
+                        {
+                            "label": "Closed Deals Count",
+                            "value": "closed_deals_count"
+                        },
+                        {
+                            "label": "Related Closed Deals Count",
+                            "value": "related_closed_deals_count"
+                        },
+                        {
+                            "label": "Participant Open Deals Count",
+                            "value": "participant_open_deals_count"
+                        },
+                        {
+                            "label": "Participant Closed Deals Count",
+                            "value": "participant_closed_deals_count"
+                        },
+                        {
+                            "label": "Email Messages Count",
+                            "value": "email_messages_count"
+                        },
+                        {
+                            "label": "Activities Count",
+                            "value": "activities_count"
+                        },
+                        {
+                            "label": "Done Activities Count",
+                            "value": "done_activities_count"
+                        },
+                        {
+                            "label": "Undone Activities Count",
+                            "value": "undone_activities_count"
+                        },
+                        {
+                            "label": "Files Count",
+                            "value": "files_count"
+                        },
+                        {
+                            "label": "Notes Count",
+                            "value": "notes_count"
+                        },
+                        {
+                            "label": "Followers Count",
+                            "value": "followers_count"
+                        },
+                        {
+                            "label": "Won Deals Count",
+                            "value": "won_deals_count"
+                        },
+                        {
+                            "label": "Related Won Deals Count",
+                            "value": "related_won_deals_count"
+                        },
+                        {
+                            "label": "Lost Deals Count",
+                            "value": "lost_deals_count"
+                        },
+                        {
+                            "label": "Related Lost Deals Count",
+                            "value": "related_lost_deals_count"
+                        },
+                        {
+                            "label": "Last Incoming Mail Time",
+                            "value": "last_incoming_mail_time"
+                        },
+                        {
+                            "label": "Last Outgoing Mail Time",
+                            "value": "last_outgoing_mail_time"
+                        },
+                        {
+                            "label": "Marketing Status",
+                            "value": "marketing_status"
+                        },
+                        {
+                            "label": "DOI Status",
+                            "value": "doi_status"
                         }
                     ],
                     "htmlProps": {
@@ -1443,42 +1356,32 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Optional comma separated string array of additional fields to include",
+                    "description": "Optional additional fields to include in the response",
                     "displayName": "Include Fields",
-                    "displayType": "select",
+                    "displayType": "multiselect",
                     "placeholder": "Include Fields"
                 },
                 "name": "include_fields"
             }
         ]
     },
-    "updateactivity": {
+    "updateperson": {
         "definition": {
-            "url": "https://api.pipedrive.com/api/v2/activities/{{parameters.id}}",
+            "url": "https://api.pipedrive.com/api/v2/persons/{{parameters.id}}",
             "body": {
-                "busy": "{{parameters.busy}}",
-                "done": "{{parameters.done}}",
-                "note": "{{parameters.note}}",
-                "type": "{{parameters.type}}",
+                "name": "{{parameters.name}}",
+                "emails": "{{parameters.emails}}",
                 "org_id": "{{parameters.org_id}}",
-                "deal_id": "{{parameters.deal_id}}",
-                "lead_id": "{{parameters.lead_id}}",
-                "subject": "{{parameters.subject}}",
-                "due_date": "{{parameters.due_date}}",
-                "due_time": "{{parameters.due_time}}",
-                "duration": "{{parameters.duration}}",
-                "location": "{{parameters.location}}",
+                "phones": "{{parameters.phones}}",
                 "owner_id": "{{parameters.owner_id}}",
-                "priority": "{{parameters.priority}}",
-                "attendees": "{{parameters.attendees}}",
-                "project_id": "{{parameters.project_id}}",
-                "participants": "{{parameters.participants}}",
-                "public_description": "{{parameters.public_description}}"
+                "label_ids": "{{parameters.label_ids}}",
+                "visible_to": "{{parameters.visible_to}}"
             },
             "method": "patch",
             "headers": {
                 "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
+                "x-api-token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
             },
             "response": {
                 "error": {
@@ -1488,7 +1391,7 @@
                 "output": "{{response.data}}"
             },
             "transform": {
-                "body": "const b={...body};if(Array.isArray(b.participants)){b.participants=b.participants.filter(p=>p&&p.person_id!==''&&p.person_id!==undefined&&p.person_id!==null);if(b.participants.length===0)delete b.participants;}if(Array.isArray(b.attendees)){b.attendees=b.attendees.filter(a=>a&&a.person_id!==''&&a.person_id!==undefined&&a.person_id!==null);if(b.attendees.length===0)delete b.attendees;}return b;"
+                "body": "const b = { ...body }; if (Array.isArray({{parameters.label_ids}})) { const ints = {{parameters.label_ids}}.map(v => parseInt(v)); b.label_ids = ints; } return b;"
             }
         },
         "parameters": [
@@ -1497,13 +1400,13 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Activity ID is required field"
+                            "errorMsg": "Person ID is required field"
                         }
                     },
-                    "description": "The unique identifier of the activity",
-                    "displayName": "Activity ID",
+                    "description": "The unique identifier of the specific person you want to update",
+                    "displayName": "Person ID",
                     "displayType": "number",
-                    "placeholder": "Enter Activity ID"
+                    "placeholder": "Enter Person ID"
                 },
                 "name": "id"
             },
@@ -1512,68 +1415,19 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The subject or title of the activity",
-                    "displayName": "Subject",
+                    "description": "The name of the person",
+                    "displayName": "Name",
                     "displayType": "text",
-                    "placeholder": "Subject"
+                    "placeholder": "Enter Name"
                 },
-                "name": "subject"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "pipedrive",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.updateactivity",
-                            "loadOptionsMethod": "getallactivitytypes"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "key_string"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The type or category of the activity",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Type",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "secret",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "resource",
-                                "value": "activities",
-                                "operator": "EQUALS"
-                            },
-                            {
-                                "field": "operation",
-                                "value": "activities.updateactivity",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "type"
+                "name": "name"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the user who owns the activity",
+                    "description": "The ID of the user who owns the person",
                     "displayName": "Owner ID",
                     "displayType": "number",
                     "placeholder": "Enter Owner ID"
@@ -1585,31 +1439,7 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the deal linked to the activity",
-                    "displayName": "Deal ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Deal ID"
-                },
-                "name": "deal_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the lead linked to the activity",
-                    "displayName": "Lead ID",
-                    "displayType": "text",
-                    "placeholder": "Lead ID"
-                },
-                "name": "lead_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the organization linked to the activity",
+                    "description": "The ID of the organization linked to the person",
                     "displayName": "Organization ID",
                     "displayType": "number",
                     "placeholder": "Enter Organization ID"
@@ -1618,226 +1448,17 @@
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the project linked to the activity",
-                    "displayName": "Project ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Project ID"
-                },
-                "name": "project_id"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "views": [
-                            "year",
-                            "month",
-                            "day"
-                        ],
-                        "format": "YYYY-MM-DD",
-                        "disabled": false
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The Due Date for the activity (YYYY-MM-DD)",
-                    "displayName": "Due Date",
-                    "displayType": "date",
-                    "placeholder": "Select Due Date"
-                },
-                "name": "due_date"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The due time for the activity (HH:MM)",
-                    "displayName": "Due Time",
-                    "displayType": "text",
-                    "placeholder": "HH:MM"
-                },
-                "name": "due_time"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Duration in minutes or HH:MM",
-                    "displayName": "Duration",
-                    "displayType": "text",
-                    "placeholder": "e.g. 01:30"
-                },
-                "name": "duration"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Whether the activity marks the assignee as busy in their calendar",
-                    "displayName": "Busy Flag",
-                    "displayType": "toggle",
-                    "placeholder": "Busy Flag"
-                },
-                "name": "busy"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Whether the activity is marked as done",
-                    "displayName": "Done Status",
-                    "displayType": "toggle",
-                    "placeholder": "Done Status"
-                },
-                "name": "done"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "description": "The complete address string.",
-                                "displayName": "Full Address",
-                                "displayType": "text",
-                                "placeholder": "Full Address"
-                            },
-                            "name": "value",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Country name of the address.",
-                                "displayName": "Country",
-                                "displayType": "text",
-                                "placeholder": "Country"
-                            },
-                            "name": "country",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "State, province, or region of the address.",
-                                "displayName": "Admin Area Level 1",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 1"
-                            },
-                            "name": "admin_area_level_1",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "County, district, or municipality of the address.",
-                                "displayName": "Admin Area Level 2",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 2"
-                            },
-                            "name": "admin_area_level_2",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "City or locality name.",
-                                "displayName": "Locality",
-                                "displayType": "text",
-                                "placeholder": "Locality"
-                            },
-                            "name": "locality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Subdivision, neighborhood, or area name.",
-                                "displayName": "Sublocality",
-                                "displayType": "text",
-                                "placeholder": "Sublocality"
-                            },
-                            "name": "sublocality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or road name.",
-                                "displayName": "Route",
-                                "displayType": "text",
-                                "placeholder": "Route"
-                            },
-                            "name": "route",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or building number.",
-                                "displayName": "Street Number",
-                                "displayType": "text",
-                                "placeholder": "Street Number"
-                            },
-                            "name": "street_number",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "ZIP or postal code.",
-                                "displayName": "Postal Code",
-                                "displayType": "text",
-                                "placeholder": "Postal Code"
-                            },
-                            "name": "postal_code",
-                            "validation": {
-                                "required": false
-                            }
-                        }
-                    ],
-                    "readOnly": false,
-                    "description": "Object containing address details including country, administrative levels, and postal code.",
-                    "displayName": "Location",
-                    "displayType": "object"
-                },
-                "name": "location"
-            },
-            {
-                "meta": {
                     "children": [
                         {
                             "meta": {
                                 "validation": {
-                                    "required": false
+                                    "required": true
                                 },
-                                "description": "The ID of the person who is a participant",
-                                "displayName": "Participant Person ID",
-                                "displayType": "number",
-                                "placeholder": "Participant Person ID"
+                                "displayName": "Email Address",
+                                "displayType": "text",
+                                "placeholder": "Email Address"
                             },
-                            "name": "person_id"
+                            "name": "value"
                         },
                         {
                             "meta": {
@@ -1848,71 +1469,27 @@
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "Mark as the primary participant",
-                                "displayName": "Is Primary Participant?",
+                                "description": "Mark as primary email",
+                                "displayName": "Is Primary Email?",
                                 "displayType": "toggle"
                             },
                             "name": "primary"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "List of participants linked to the activity or deal",
-                    "displayName": "Participants",
-                    "displayType": "array"
-                },
-                "name": "participants"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Email address of the attendee",
-                                "displayName": "Attendee Email",
-                                "displayType": "text",
-                                "placeholder": "Attendee Email"
-                            },
-                            "name": "email"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Name of the attendee",
-                                "displayName": "Attendee Name",
-                                "displayType": "text",
-                                "placeholder": "Attendee Name"
-                            },
-                            "name": "name"
                         },
                         {
                             "meta": {
                                 "value": "",
                                 "options": [
                                     {
-                                        "label": "Accepted",
-                                        "value": "accepted"
+                                        "label": "Work",
+                                        "value": "work"
                                     },
                                     {
-                                        "label": "Declined",
-                                        "value": "declined"
+                                        "label": "Home",
+                                        "value": "home"
                                     },
                                     {
-                                        "label": "Tentative",
-                                        "value": "tentative"
-                                    },
-                                    {
-                                        "label": "Needs Action",
-                                        "value": "needsAction"
+                                        "label": "Other",
+                                        "value": "other"
                                     }
                                 ],
                                 "htmlProps": {
@@ -1921,12 +1498,38 @@
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "Invitation response status",
-                                "displayName": "Status",
+                                "displayName": "Email Type",
                                 "displayType": "select",
-                                "placeholder": "Status"
+                                "placeholder": "Select email type"
                             },
-                            "name": "status"
+                            "name": "label"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The emails of the person",
+                    "displayName": "Emails",
+                    "displayType": "array"
+                },
+                "name": "emails"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Phone Number",
+                                "displayType": "text",
+                                "placeholder": "Phone Number"
+                            },
+                            "name": "value"
                         },
                         {
                             "meta": {
@@ -1937,23 +1540,45 @@
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "Mark if this attendee is the event organizer",
-                                "displayName": "Is Organizer?",
+                                "description": "Mark as primary phone",
+                                "displayName": "Is Primary Phone?",
                                 "displayType": "toggle"
                             },
-                            "name": "is_organizer"
+                            "name": "primary"
                         },
                         {
                             "meta": {
+                                "value": "",
+                                "options": [
+                                    {
+                                        "label": "Work",
+                                        "value": "work"
+                                    },
+                                    {
+                                        "label": "Home",
+                                        "value": "home"
+                                    },
+                                    {
+                                        "label": "Mobile",
+                                        "value": "mobile"
+                                    },
+                                    {
+                                        "label": "Other",
+                                        "value": "other"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
                                 "validation": {
                                     "required": false
                                 },
-                                "description": "The user ID of the attendee (if linked to a Pipedrive user)",
-                                "displayName": "Attendee User ID",
-                                "displayType": "number",
-                                "placeholder": "EnterAttendee User ID"
+                                "description": "Select Phone Type",
+                                "displayName": "Phone Type",
+                                "displayType": "select",
+                                "placeholder": "Select Phone Type"
                             },
-                            "name": "user_id"
+                            "name": "label"
                         }
                     ],
                     "htmlProps": {
@@ -1962,23 +1587,45 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "List of attendees with their details and invitation status. This feature is only available for paid plans.",
-                    "displayName": "Attendees",
+                    "description": "The phones of the person",
+                    "displayName": "Phones",
                     "displayType": "array"
                 },
-                "name": "attendees"
+                "name": "phones"
             },
             {
                 "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Owner only",
+                            "value": 1
+                        },
+                        {
+                            "label": "Owner's visibility group",
+                            "value": 3
+                        },
+                        {
+                            "label": "Entire company",
+                            "value": 7
+                        },
+                        {
+                            "label": "Owner's visibility group and sub-groups",
+                            "value": 5
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "The public description of the activity",
-                    "displayName": "Public Description",
-                    "displayType": "textarea",
-                    "placeholder": "Public Description"
+                    "description": "The visibility of the person",
+                    "displayName": "Visible To",
+                    "displayType": "select",
+                    "placeholder": "Visible To"
                 },
-                "name": "public_description"
+                "name": "visible_to"
             },
             {
                 "meta": {
@@ -1988,9 +1635,9 @@
                         "body": {
                             "name": "pipedrive",
                             "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.updateactivity",
-                            "loadOptionsMethod": "getpriorityoptions"
+                            "resource": "persons",
+                            "operation": "persons.updateperson",
+                            "loadOptionsMethod": "getallpersonslabels"
                         },
                         "method": "post",
                         "urlType": "options",
@@ -2004,30 +1651,39 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The priority of the activity. Mappable to a specific string using activityFields API.",
-                    "displayName": "Priority",
-                    "displayType": "select",
-                    "placeholder": "Priority"
+                    "description": "The IDs of labels assigned to the person",
+                    "displayName": "Label",
+                    "displayType": "multiselect",
+                    "placeholder": "Label",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "persons",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "persons.updateperson",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "priority"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Additional notes or details",
-                    "displayName": "Note",
-                    "displayType": "textarea",
-                    "placeholder": "Note"
-                },
-                "name": "note"
+                "name": "label_ids"
             }
         ]
     },
-    "getallactivityfields": {
+    "getpersondetails": {
         "definition": {
-            "url": "https://api.pipedrive.com/v1/activityFields",
+            "qs": {
+                "include_fields": "{{parameters.include_fields}}"
+            },
+            "url": "https://api.pipedrive.com/api/v2/persons/{{parameters.id}}",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -2041,11 +1697,183 @@
                 "output": "{{response.data}}"
             }
         },
-        "parameters": []
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Person ID is required field"
+                        }
+                    },
+                    "description": "The unique identifier of the specific person you want to retrieve",
+                    "displayName": "Person ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Person ID"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Next Activity ID",
+                            "value": "next_activity_id"
+                        },
+                        {
+                            "label": "Last Activity ID",
+                            "value": "last_activity_id"
+                        },
+                        {
+                            "label": "Open Deals Count",
+                            "value": "open_deals_count"
+                        },
+                        {
+                            "label": "Related Open Deals Count",
+                            "value": "related_open_deals_count"
+                        },
+                        {
+                            "label": "Closed Deals Count",
+                            "value": "closed_deals_count"
+                        },
+                        {
+                            "label": "Related Closed Deals Count",
+                            "value": "related_closed_deals_count"
+                        },
+                        {
+                            "label": "Participant Open Deals Count",
+                            "value": "participant_open_deals_count"
+                        },
+                        {
+                            "label": "Participant Closed Deals Count",
+                            "value": "participant_closed_deals_count"
+                        },
+                        {
+                            "label": "Email Messages Count",
+                            "value": "email_messages_count"
+                        },
+                        {
+                            "label": "Activities Count",
+                            "value": "activities_count"
+                        },
+                        {
+                            "label": "Done Activities Count",
+                            "value": "done_activities_count"
+                        },
+                        {
+                            "label": "Undone Activities Count",
+                            "value": "undone_activities_count"
+                        },
+                        {
+                            "label": "Files Count",
+                            "value": "files_count"
+                        },
+                        {
+                            "label": "Notes Count",
+                            "value": "notes_count"
+                        },
+                        {
+                            "label": "Followers Count",
+                            "value": "followers_count"
+                        },
+                        {
+                            "label": "Won Deals Count",
+                            "value": "won_deals_count"
+                        },
+                        {
+                            "label": "Related Won Deals Count",
+                            "value": "related_won_deals_count"
+                        },
+                        {
+                            "label": "Lost Deals Count",
+                            "value": "lost_deals_count"
+                        },
+                        {
+                            "label": "Related Lost Deals Count",
+                            "value": "related_lost_deals_count"
+                        },
+                        {
+                            "label": "Last Incoming Mail Time",
+                            "value": "last_incoming_mail_time"
+                        },
+                        {
+                            "label": "Last Outgoing Mail Time",
+                            "value": "last_outgoing_mail_time"
+                        },
+                        {
+                            "label": "Marketing Status",
+                            "value": "marketing_status"
+                        },
+                        {
+                            "label": "DOI Status",
+                            "value": "doi_status"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Optional additional fields to include in the response",
+                    "displayName": "Include Fields",
+                    "displayType": "multiselect",
+                    "placeholder": "Include Fields"
+                },
+                "name": "include_fields"
+            }
+        ]
     },
-    "deleteactivitytype": {
+    "listpersonfieldupdates": {
         "definition": {
-            "url": "https://api.pipedrive.com/v1/activityTypes/{{parameters.id}}",
+            "url": "https://api.pipedrive.com/v1/persons/{{parameters.id}}/changelog",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 20,
+                    "cursor": "{{response.data.additional_data.next_cursor}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "limit": 20,
+                    "cursor": null
+                },
+                "condition": "{{response.data.additional_data.next_cursor}} !== null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Person ID is required field"
+                        }
+                    },
+                    "description": "The unique identifier of the specific person you want to retrieve",
+                    "displayName": "Person ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Person ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "deleteperson": {
+        "definition": {
+            "url": "https://api.pipedrive.com/api/v2/persons/{{parameters.id}}",
             "method": "delete",
             "headers": {
                 "Accept": "application/json",
@@ -2065,59 +1893,25 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Activity Type ID is required field"
+                            "errorMsg": "Person ID is required field"
                         }
                     },
-                    "description": "The unique identifier of the activity type",
-                    "displayName": "Activity Type ID",
+                    "description": "The unique identifier of the specific person you want to delete",
+                    "displayName": "Person ID",
                     "displayType": "number",
-                    "placeholder": "Enter Activity Type ID"
+                    "placeholder": "Enter Person ID"
                 },
                 "name": "id"
             }
         ]
     },
-    "deleteactivity": {
-        "definition": {
-            "url": "https://api.pipedrive.com/api/v2/activities/{{parameters.id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Activity ID is required field"
-                        }
-                    },
-                    "description": "The unique identifier of the activity",
-                    "displayName": "Activity ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Activity ID"
-                },
-                "name": "id"
-            }
-        ]
-    },
-    "deletemultipleactivitytypes": {
+    "listpersonfiles": {
         "definition": {
             "qs": {
-                "ids": "{{parameters.ids}}"
+                "sort": "{{parameters.sort}}"
             },
-            "url": "https://api.pipedrive.com/v1/activityTypes",
-            "method": "delete",
+            "url": "https://api.pipedrive.com/v1/persons/{{parameters.id}}/files",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
                 "x-api-token": "{{secrets.api_key}}"
@@ -2127,7 +1921,19 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.error}}"
                 },
-                "output": "{{response.data}}"
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 20,
+                    "start": "{{response.data.additional_data.pagination.start}} + {{pagination.limit}}"
+                },
+                "type": "offset",
+                "default": {
+                    "limit": 20,
+                    "start": 0
+                },
+                "condition": "{{response.data.additional_data.pagination.more_items_in_collection}} === true"
             }
         },
         "parameters": [
@@ -2136,114 +1942,27 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Activity Type IDs is required field"
+                            "errorMsg": "Person ID is required field"
                         }
                     },
-                    "description": "The comma-separated activity type IDs",
-                    "displayName": "Activity Type IDs",
-                    "displayType": "text",
-                    "placeholder": "Activity Type IDs"
-                },
-                "name": "ids"
-            }
-        ]
-    },
-    "updateactivitytype": {
-        "definition": {
-            "url": "https://api.pipedrive.com/v1/activityTypes/{{parameters.id}}",
-            "body": {
-                "name": "{{parameters.name}}",
-                "color": "{{parameters.color}}",
-                "icon_key": "{{parameters.icon_key}}"
-            },
-            "method": "put",
-            "headers": {
-                "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Activity Type ID is required field"
-                        }
-                    },
-                    "description": "The unique identifier of the activity type",
-                    "displayName": "Activity Type ID",
+                    "description": "The unique identifier of the specific person you want to retrieve",
+                    "displayName": "Person ID",
                     "displayType": "number",
-                    "placeholder": "Enter Activity Type ID"
+                    "placeholder": "Enter Person ID"
                 },
                 "name": "id"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The name of the activity type",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Name"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
                     "value": "",
                     "options": [
                         {
-                            "label": "Task",
-                            "value": "task"
+                            "label": "ID",
+                            "value": "id"
                         },
                         {
-                            "label": "Email",
-                            "value": "email"
-                        },
-                        {
-                            "label": "Meeting",
-                            "value": "meeting"
-                        },
-                        {
-                            "label": "Deadline",
-                            "value": "deadline"
-                        },
-                        {
-                            "label": "Call",
-                            "value": "call"
-                        },
-                        {
-                            "label": "Lunch",
-                            "value": "lunch"
-                        },
-                        {
-                            "label": "Calendar",
-                            "value": "calendar"
-                        },
-                        {
-                            "label": "Document",
-                            "value": "document"
-                        },
-                        {
-                            "label": "Smartphone",
-                            "value": "smartphone"
-                        },
-                        {
-                            "label": "Camera",
-                            "value": "camera"
-                        },
-                        {
-                            "label": "Presentation",
-                            "value": "presentation"
+                            "label": "Update Time",
+                            "value": "update_time"
                         }
                     ],
                     "htmlProps": {
@@ -2252,36 +1971,19 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Icon graphic to use for representing this activity type",
-                    "displayName": "Icon Key",
+                    "description": "Field names and sorting mode separated by a comma",
+                    "displayName": "Sort",
                     "displayType": "select",
-                    "placeholder": "Icon Key"
+                    "placeholder": "Sort"
                 },
-                "name": "icon_key"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "6-character HEX color (e.g. FFFFFF)",
-                    "displayName": "Color",
-                    "displayType": "text",
-                    "placeholder": "FFFFFF"
-                },
-                "name": "color"
+                "name": "sort"
             }
         ]
     },
-    "addnewactivitytype": {
+    "listpersonfollowers": {
         "definition": {
-            "url": "https://api.pipedrive.com/v1/activityTypes",
-            "body": {
-                "name": "{{parameters.name}}",
-                "color": "{{parameters.color}}",
-                "icon_key": "{{parameters.icon_key}}"
-            },
-            "method": "post",
+            "url": "https://api.pipedrive.com/api/v2/persons/{{parameters.id}}/followers",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
                 "x-api-token": "{{secrets.api_key}}"
@@ -2291,7 +1993,19 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.error}}"
                 },
-                "output": "{{response.data}}"
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 20,
+                    "cursor": "{{response.data.additional_data.next_cursor}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "limit": 20,
+                    "cursor": null
+                },
+                "condition": "{{response.data.additional_data.next_cursor}} !== null"
             }
         },
         "parameters": [
@@ -2300,92 +2014,15 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Name is required field"
+                            "errorMsg": "Person ID is required field"
                         }
                     },
-                    "description": "The name of the activity type",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Name"
+                    "description": "The unique identifier of the specific person you want to retrieve",
+                    "displayName": "Person ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Person ID"
                 },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "Task",
-                            "value": "task"
-                        },
-                        {
-                            "label": "Email",
-                            "value": "email"
-                        },
-                        {
-                            "label": "Meeting",
-                            "value": "meeting"
-                        },
-                        {
-                            "label": "Deadline",
-                            "value": "deadline"
-                        },
-                        {
-                            "label": "Call",
-                            "value": "call"
-                        },
-                        {
-                            "label": "Lunch",
-                            "value": "lunch"
-                        },
-                        {
-                            "label": "Calendar",
-                            "value": "calendar"
-                        },
-                        {
-                            "label": "Document",
-                            "value": "document"
-                        },
-                        {
-                            "label": "Smartphone",
-                            "value": "smartphone"
-                        },
-                        {
-                            "label": "Camera",
-                            "value": "camera"
-                        },
-                        {
-                            "label": "Presentation",
-                            "value": "presentation"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Icon Key is required field"
-                        }
-                    },
-                    "description": "Icon graphic to use for representing this activity type",
-                    "displayName": "Icon Key",
-                    "displayType": "select",
-                    "placeholder": "Icon Key"
-                },
-                "name": "icon_key"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "6-character HEX color (e.g. FFFFFF)",
-                    "displayName": "Color",
-                    "displayType": "text",
-                    "placeholder": "FFFFFF"
-                },
-                "name": "color"
+                "name": "id"
             }
         ]
     }

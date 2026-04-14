@@ -546,10 +546,13 @@
     "list": {
         "definition": {
             "qs": {},
-            "url": "https://dev.azure.com/{{secrets.organization_id}}/_apis/projects?api-version=6.0",
-            "body": {},
-            "method": "get",
+            "url": "https://dev.azure.com/{{secrets.organization_id}}/{{parameters.project}}/_apis/wit/wiql?api-version=6.0",
+            "body": {
+                "query": "SELECT * FROM WorkItems WHERE [System.WorkItemType] = 'Task'"
+            },
+            "method": "post",
             "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Basic convertBufferBase64String('':{{secrets.access_token}})"
             },
             "response": {
@@ -560,6 +563,21 @@
                 "output": "{{response.data}}"
             }
         },
-        "parameters": []
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Project is a required field"
+                        }
+                    },
+                    "displayName": "Project",
+                    "displayType": "text",
+                    "placeholder": "Enter the Project name"
+                },
+                "name": "project"
+            }
+        ]
     }
 }

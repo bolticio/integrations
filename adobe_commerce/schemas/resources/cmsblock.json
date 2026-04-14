@@ -44,11 +44,23 @@
             "name": "operation"
         }
     ],
-    "customerattributeget": {
+    "create": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/attribute/{{parameters.attributeCode}}",
-            "method": "get",
+            "url": "https://{{secrets.domain}}/rest/default/V1/cmsBlock",
+            "body": {
+                "block": {
+                    "id": "{{parameters.id}}",
+                    "title": "{{parameters.title}}",
+                    "active": "{{parameters.active}}",
+                    "content": "{{parameters.content}}",
+                    "identifier": "{{parameters.identifier}}",
+                    "update_time": "{{parameters.update_time}}",
+                    "creation_time": "{{parameters.creation_time}}"
+                }
+            },
+            "method": "post",
             "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -63,181 +75,114 @@
             {
                 "meta": {
                     "validation": {
-                        "required": true
+                        "required": false
                     },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "description": "The ID of the CMS block.",
+                    "displayName": "ID",
+                    "displayType": "number",
+                    "placeholder": "Enter the block ID (optional for new blocks)"
                 },
-                "name": "attributeCode"
-            }
-        ]
-    },
-    "customercustomlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/custom",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
+                "name": "id"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "customerformlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/form/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
+                    "description": "A unique string identifier for the CMS block.",
+                    "displayName": "Identifier",
                     "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "placeholder": "Enter the block identifier"
                 },
-                "name": "attributeCode"
-            }
-        ]
-    },
-    "customeraddresslist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
+                "name": "identifier"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "get": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "customeraddressattributeget": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/attribute/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code for the customer address attribute.",
-                    "displayName": "Attribute Code",
+                    "description": "The title of the CMS block.",
+                    "displayName": "Title",
                     "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "placeholder": "Enter the block title"
                 },
-                "name": "attributeCode"
-            }
-        ]
-    },
-    "customeraddressformlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/form/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
+                "name": "title"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "description": "The HTML/text content of the CMS block.",
+                    "displayName": "Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the block content"
                 },
-                "name": "attributeCode"
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 1,
+                            "seconds": 1
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The creation timestamp of the CMS block.",
+                    "displayName": "Creation Time",
+                    "displayType": "datetime",
+                    "placeholder": "Enter creation time (YYYY-MM-DD HH:MM:SS)"
+                },
+                "name": "creation_time"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 1,
+                            "seconds": 1
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The update timestamp of the CMS block.",
+                    "displayName": "Update Time",
+                    "displayType": "datetime",
+                    "placeholder": "Enter update time (YYYY-MM-DD HH:MM:SS)"
+                },
+                "name": "update_time"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Whether the CMS block is active.",
+                    "displayName": "Active",
+                    "displayType": "toggle"
+                },
+                "name": "active"
             }
         ]
     },
-    "customeraddresscustomlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/custom",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "track": {
+    "list": {
         "definition": {
             "qs": {
                 "searchCriteria[pageSize]": "{{parameters.pageSize}}"
             },
-            "url": "https://{{secrets.domain}}/rest/default/V1/shipments",
+            "url": "https://{{secrets.domain}}/rest/default/V1/cmsBlock/search",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -258,7 +203,6 @@
                         "min": 1,
                         "required": true
                     },
-                    "description": "The number of records to retrieve per page.",
                     "displayName": "Page Size",
                     "displayType": "number",
                     "placeholder": "Enter the number of records per page"
@@ -267,13 +211,10 @@
             }
         ]
     },
-    "sendemail": {
+    "delete": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/shipment/{{parameters.id}}/emails",
-            "body": {
-                "email": "{{parameters.email}}"
-            },
-            "method": "post",
+            "url": "https://{{secrets.domain}}/rest/default/V1/cmsBlock/{{parameters.id}}",
+            "method": "delete",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
@@ -291,24 +232,42 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The ID of the shipment to send an email for.",
-                    "displayName": "Shipment ID",
+                    "description": "The ID of the CMS block to delete.",
+                    "displayName": "Block ID",
                     "displayType": "text",
-                    "placeholder": "Enter the shipment ID"
+                    "placeholder": "Enter the Block ID"
                 },
                 "name": "id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/default/V1/cmsBlock/{{parameters.block_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
             },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The email address to send the shipment details to.",
-                    "displayName": "Email",
+                    "description": "The ID of the CMS block to retrieve.",
+                    "displayName": "Block ID",
                     "displayType": "text",
-                    "placeholder": "Enter the email address"
+                    "placeholder": "Enter the Block ID"
                 },
-                "name": "email"
+                "name": "block_id"
             }
         ]
     }

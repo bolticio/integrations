@@ -175,14 +175,15 @@
             }
         }
     },
-    "create": {
+    "add_task_in_section": {
         "definition": {
-            "url": "https://app.asana.com/api/1.0/projects",
-            "body": "{{parameters}}",
+            "qs": {
+                "task": "{{parameters.task}}"
+            },
+            "url": "https://app.asana.com/api/1.0/sections/{{parameters.section}}/addTask",
             "method": "post",
             "headers": {
                 "Accept": "application/json",
-                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -191,24 +192,9 @@
                     "message": "{{response.data.errors[0].message}}"
                 },
                 "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "if (body) return {data: body};"
             }
         },
         "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the name of the project you want to create.",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the project"
-                },
-                "name": "name"
-            },
             {
                 "meta": {
                     "config": {
@@ -216,8 +202,8 @@
                         "body": {
                             "name": "asana",
                             "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.create",
+                            "resource": "task",
+                            "operation": "task.add_task_in_section",
                             "loadOptionsMethod": "getWorkspaces"
                         },
                         "method": "post",
@@ -229,195 +215,7 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the workspace in which you want to create the project.",
-                    "displayName": "Workspace Name",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a workspace"
-                },
-                "name": "workspace"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the team you want to associate with the project.",
-                    "displayName": "Team ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the team ID"
-                },
-                "name": "team"
-            },
-            {
-                "meta": {
-                    "value": "none",
-                    "options": [
-                        {
-                            "label": "Dark Blue",
-                            "value": "dark-blue"
-                        },
-                        {
-                            "label": "Dark Brown",
-                            "value": "dark-brown"
-                        },
-                        {
-                            "label": "Dark Green",
-                            "value": "dark-green"
-                        },
-                        {
-                            "label": "Dark Orange",
-                            "value": "dark-orange"
-                        },
-                        {
-                            "label": "Dark Pink",
-                            "value": "dark-pink"
-                        },
-                        {
-                            "label": "Dark Purple",
-                            "value": "dark-purple"
-                        },
-                        {
-                            "label": "Dark Red",
-                            "value": "dark-red"
-                        },
-                        {
-                            "label": "Dark Teal",
-                            "value": "dark-teal"
-                        },
-                        {
-                            "label": "Dark Warm Gray",
-                            "value": "dark-warm-gray"
-                        },
-                        {
-                            "label": "Light Blue",
-                            "value": "light-blue"
-                        },
-                        {
-                            "label": "Light Green",
-                            "value": "light-green"
-                        },
-                        {
-                            "label": "Light Orange",
-                            "value": "light-orange"
-                        },
-                        {
-                            "label": "Light Pink",
-                            "value": "light-pink"
-                        },
-                        {
-                            "label": "Light Purple",
-                            "value": "light-purple"
-                        },
-                        {
-                            "label": "Light Red",
-                            "value": "light-red"
-                        },
-                        {
-                            "label": "Light Teal",
-                            "value": "light-teal"
-                        },
-                        {
-                            "label": "Light Warm Gray",
-                            "value": "light-warm-gray"
-                        },
-                        {
-                            "label": "Light Yellow",
-                            "value": "light-yellow"
-                        },
-                        {
-                            "label": "None",
-                            "value": "none"
-                        }
-                    ],
-                    "description": "Select the color for the project.",
-                    "displayName": "Color",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a color"
-                },
-                "name": "color"
-            },
-            {
-                "meta": {
-                    "description": "Enter any notes you want to add to the project.",
-                    "displayName": "Notes",
-                    "displayType": "textarea",
-                    "placeholder": "Enter notes"
-                },
-                "name": "notes"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the project.",
-                    "displayName": "Project ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the project ID"
-                },
-                "name": "project"
-            }
-        ]
-    },
-    "find_project": {
-        "definition": {
-            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "asana",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.find_project",
-                            "loadOptionsMethod": "getWorkspaces"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "gid"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the workspace of the project to be searched.",
+                    "description": "Select the workspace in which tasks is to be added.",
                     "displayName": "Workspace Name",
                     "displayType": "autocomplete",
                     "placeholder": "Select a workspace"
@@ -431,8 +229,8 @@
                         "body": {
                             "name": "asana",
                             "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.find_project",
+                            "resource": "task",
+                            "operation": "task.add_task_in_section",
                             "workspace": "{{parameters.workspace}}",
                             "loadOptionsMethod": "getProjects"
                         },
@@ -444,101 +242,12 @@
                     },
                     "options": [],
                     "htmlProps": {
-                        "allowDynamic": false
+                        "allowDynamic": true
                     },
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the project.",
-                    "displayName": "Project Name",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select Projects",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "workspace",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "project"
-            }
-        ]
-    },
-    "find_section_in_project": {
-        "definition": {
-            "url": "https://app.asana.com/api/1.0/sections/{{parameters.section}}",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "transform": {
-                "output": "const getSectionByName => output.filter(output => output.name.toLowerCase().includes({{parameters.section_name}}.toLowerCase())); return {{parameters.section_name}};"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "asana",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.find_section_in_project",
-                            "loadOptionsMethod": "getWorkspaces"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "gid"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the workspace of the project in which sections are to be searched.",
-                    "displayName": "Workspace Name",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a workspace"
-                },
-                "name": "workspace"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "asana",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.find_section_in_project",
-                            "workspace": "{{parameters.workspace}}",
-                            "loadOptionsMethod": "getProjects"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "gid",
-                        "condition": "{{parameters.workspace}}"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": false
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the project in which you search section.",
+                    "description": "Select the project in which tasks is to be added.",
                     "displayName": "Project Name",
                     "displayType": "autocomplete",
                     "placeholder": "Select Projects",
@@ -561,16 +270,16 @@
                             "name": "asana",
                             "secret": "{{parameters.secret}}",
                             "project": "{{parameters.project}}",
-                            "resource": "project",
-                            "operation": "project.find_section_in_project",
+                            "resource": "task",
+                            "operation": "task.add_task_in_section",
                             "workspace": "{{parameters.workspace}}",
-                            "loadOptionsMethod": "getSections"
+                            "loadOptionsMethod": "getTasks"
                         },
                         "method": "post",
                         "urlType": "options",
                         "labelKey": "name",
                         "valueKey": "gid",
-                        "condition": "{{parameters.workspace}}"
+                        "condition": "{{parameters.project}}"
                     },
                     "options": [],
                     "htmlProps": {
@@ -579,10 +288,10 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the section which is to be searched.",
-                    "displayName": "Section",
+                    "description": "Select the task which is to be added in a section.",
+                    "displayName": "Task Name",
                     "displayType": "autocomplete",
-                    "placeholder": "Select Section",
+                    "placeholder": "Select Task",
                     "dependencies": {
                         "conditions": [
                             {
@@ -592,320 +301,53 @@
                         ]
                     }
                 },
+                "name": "task"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.add_task_in_section",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getSections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.task}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the section in which aforementioned task needs to be added.",
+                    "displayName": "Section",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Section"
+                },
                 "name": "section"
             }
         ]
     },
-    "delete": {
-        "definition": {
-            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the project you want to delete.",
-                    "displayName": "Project ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the project ID"
-                },
-                "name": "project"
-            }
-        ]
-    },
-    "list": {
+    "attach_file": {
         "definition": {
             "qs": {
-                "archived": "{{parameters.archived}}",
-                "workspace": "{{parameters.workspace}}"
+                "url": "{{parameters.files}}",
+                "name": "{{parameters.name}}",
+                "parent": "{{parameters.task}}",
+                "connect_to_app": false,
+                "resource_subtype": "external"
             },
-            "url": "https://app.asana.com/api/1.0/projects",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 100,
-                    "offset": "{{response.data.next_page.offset}}"
-                },
-                "type": "cursor",
-                "default": {
-                    "limit": 100,
-                    "offset": null
-                },
-                "condition": "{{response.data.next_page}} !== null"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "asana",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.create",
-                            "loadOptionsMethod": "getWorkspaces"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "gid"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the workspace in which you want to create the project.",
-                    "displayName": "Workspace Name",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a workspace"
-                },
-                "name": "workspace"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "description": "Only return projects whose `archived` field takes on the value of this parameter.",
-                    "displayName": "Archived",
-                    "displayType": "toggle"
-                },
-                "name": "archived"
-            }
-        ]
-    },
-    "update": {
-        "definition": {
-            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
-            "body": {
-                "data": {
-                    "name": "{{parameters.name}}",
-                    "team": "{{parameters.team}}",
-                    "color": "{{parameters.color}}",
-                    "notes": "{{parameters.notes}}",
-                    "workspace": "{{parameters.workspace}}"
-                }
-            },
-            "method": "put",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "asana",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.create",
-                            "loadOptionsMethod": "getWorkspaces"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "gid"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the workspace of the project to be updated.",
-                    "displayName": "Workspace Name",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a workspace"
-                },
-                "name": "workspace"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the team you want to associate with the project.",
-                    "displayName": "Team ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the team ID"
-                },
-                "name": "team"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the project you want to update.",
-                    "displayName": "Project ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the project ID"
-                },
-                "name": "project"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Enter the name of the project you want to update.",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the project"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "value": "none",
-                    "options": [
-                        {
-                            "label": "Dark Blue",
-                            "value": "dark-blue"
-                        },
-                        {
-                            "label": "Dark Brown",
-                            "value": "dark-brown"
-                        },
-                        {
-                            "label": "Dark Green",
-                            "value": "dark-green"
-                        },
-                        {
-                            "label": "Dark Orange",
-                            "value": "dark-orange"
-                        },
-                        {
-                            "label": "Dark Pink",
-                            "value": "dark-pink"
-                        },
-                        {
-                            "label": "Dark Purple",
-                            "value": "dark-purple"
-                        },
-                        {
-                            "label": "Dark Red",
-                            "value": "dark-red"
-                        },
-                        {
-                            "label": "Dark Teal",
-                            "value": "dark-teal"
-                        },
-                        {
-                            "label": "Dark Warm Gray",
-                            "value": "dark-warm-gray"
-                        },
-                        {
-                            "label": "Light Blue",
-                            "value": "light-blue"
-                        },
-                        {
-                            "label": "Light Green",
-                            "value": "light-green"
-                        },
-                        {
-                            "label": "Light Orange",
-                            "value": "light-orange"
-                        },
-                        {
-                            "label": "Light Pink",
-                            "value": "light-pink"
-                        },
-                        {
-                            "label": "Light Purple",
-                            "value": "light-purple"
-                        },
-                        {
-                            "label": "Light Red",
-                            "value": "light-red"
-                        },
-                        {
-                            "label": "Light Teal",
-                            "value": "light-teal"
-                        },
-                        {
-                            "label": "Light Warm Gray",
-                            "value": "light-warm-gray"
-                        },
-                        {
-                            "label": "Light Yellow",
-                            "value": "light-yellow"
-                        },
-                        {
-                            "label": "None",
-                            "value": "none"
-                        }
-                    ],
-                    "description": "Select the color for the project.",
-                    "displayName": "Color",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a color"
-                },
-                "name": "color"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Enter any notes you want to add to the project.",
-                    "displayName": "Notes",
-                    "displayType": "textarea",
-                    "placeholder": "Enter notes"
-                },
-                "name": "notes"
-            },
-            {
-                "meta": {
-                    "description": "Select the due date for the project.",
-                    "displayName": "Due Date",
-                    "displayType": "text",
-                    "placeholder": "Select a due date"
-                },
-                "name": "due_on"
-            }
-        ]
-    },
-    "create_section": {
-        "definition": {
-            "qs": {
-                "name": "{{parameters.section_name}}"
-            },
-            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}/sections",
+            "url": "https://app.asana.com/api/1.0/attachments",
             "method": "post",
             "headers": {
                 "Accept": "application/json",
@@ -927,8 +369,8 @@
                         "body": {
                             "name": "asana",
                             "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.create_section",
+                            "resource": "task",
+                            "operation": "task.attach_file",
                             "loadOptionsMethod": "getWorkspaces"
                         },
                         "method": "post",
@@ -940,7 +382,7 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the workspace of the project in which section is to be created.",
+                    "description": "Select the workspace of the task in which file needs to be attached",
                     "displayName": "Workspace Name",
                     "displayType": "autocomplete",
                     "placeholder": "Select a workspace"
@@ -954,8 +396,8 @@
                         "body": {
                             "name": "asana",
                             "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.create_section",
+                            "resource": "task",
+                            "operation": "task.attach_file",
                             "workspace": "{{parameters.workspace}}",
                             "loadOptionsMethod": "getProjects"
                         },
@@ -972,7 +414,7 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the project creating section.",
+                    "description": "Select the project of the task in which file needs to be attached.",
                     "displayName": "Project Name",
                     "displayType": "autocomplete",
                     "placeholder": "Select Projects",
@@ -989,28 +431,84 @@
             },
             {
                 "meta": {
-                    "readOnly": false,
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.attach_file",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getTasks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.project}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the task in which attachments needs to be uploaded.",
+                    "displayName": "Task Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "project",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task"
+            },
+            {
+                "meta": {
                     "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
-                        "max": 50,
-                        "min": 3,
                         "required": true
                     },
-                    "description": "Name of the section to be created",
-                    "displayName": "Section Name",
+                    "description": "Provide the file URL. Ensure that it's valid and publically accessible.",
+                    "displayName": "File",
                     "displayType": "text",
-                    "placeholder": "Enter section name"
+                    "placeholder": "File"
                 },
-                "name": "section_name"
+                "name": "files"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the name of the file which is to be attached to the task",
+                    "displayName": "File Name",
+                    "displayType": "text",
+                    "placeholder": "File Name"
+                },
+                "name": "name"
             }
         ]
     },
-    "find_user": {
+    "create_comment": {
         "definition": {
-            "url": "https://app.asana.com/api/1.0/users/",
-            "method": "get",
+            "qs": {
+                "text": "{{parameters.comment}}"
+            },
+            "url": "https://app.asana.com/api/1.0/tasks/{{parameters.task}}/stories",
+            "method": "post",
             "headers": {
                 "Accept": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -1021,32 +519,138 @@
                     "message": "{{response.data.errors[0].message}}"
                 },
                 "output": "{{response.data}}"
-            },
-            "transform": {
-                "url": "function transformURL() { const encodedURL = url + encodeURIComponent('{{parameters.email}}'); return encodedURL; } return transformURL();"
             }
         },
         "parameters": [
             {
                 "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_comment",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
                     "validation": {
                         "required": true
                     },
-                    "description": "Please enter Email or User ID",
-                    "displayName": "Email/User ID",
-                    "displayType": "text",
-                    "placeholder": "Enter Email/User ID"
+                    "description": "Select the workspace of the task which is to be commented.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
                 },
-                "name": "email"
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_comment",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project whose tasks is to be commented.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.create_comment",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getTasks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.project}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the task in which comment needs to be added.",
+                    "displayName": "Task Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "project",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide comment that is to added to a task",
+                    "displayName": "Comment",
+                    "displayType": "textarea",
+                    "placeholder": "Comment"
+                },
+                "name": "comment"
             }
         ]
     },
-    "custom_api": {
+    "find_task_by_id": {
         "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
+            "url": "https://app.asana.com/api/1.0/tasks/{{parameters.task}}",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -1063,140 +667,1299 @@
         "parameters": [
             {
                 "meta": {
-                    "value": "get",
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the task you want to search.",
+                    "displayName": "Task ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Task ID"
+                },
+                "name": "task"
+            }
+        ]
+    },
+    "create_task_from_template": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.task_name}}"
+            },
+            "url": "https://app.asana.com/api/1.0/task_templates/{{parameters.task_template}}/instantiateTask",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_task_from_template",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace of the task to be created",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_task_from_template",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project of the task to be created.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.create_task_from_template",
+                            "loadOptionsMethod": "getTaskTemplate"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.project}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the template using which task is to be created.",
+                    "displayName": "Task Template",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Task Template",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "project",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task_template"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide the name of the task which is to be created",
+                    "displayName": "Task Name",
+                    "displayType": "text",
+                    "placeholder": "Task Name"
+                },
+                "name": "task_name"
+            }
+        ]
+    },
+    "duplicate": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.name}}"
+            },
+            "url": "https://app.asana.com/api/1.0/tasks/{{parameters.task}}/duplicate",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.duplicate",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace of the task which is to be duplicated.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.duplicate",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project  of the task which is to be duplicated",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.duplicate",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getTasks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.project}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the task which is to be duplicated",
+                    "displayName": "Task Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "project",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the duplicated task",
+                    "displayName": "Duplicate Task Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the task name"
+                },
+                "name": "name"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/tasks",
+            "body": {
+                "data": {
+                    "name": "{{parameters.name}}",
+                    "tags": "{{parameters.tags}}",
+                    "liked": "{{parameters.liked}}",
+                    "notes": "{{parameters.notes}}",
+                    "due_at": "{{parameters.due_at}}",
+                    "due_on": "{{parameters.due_on}}",
+                    "parent": "{{parameters.parent}}",
+                    "assignee": "{{parameters.assignee}}",
+                    "external": {
+                        "gid": "{{parameters.gid}}",
+                        "data": "{{parameters.data}}"
+                    },
+                    "projects": "{{parameters.projects}}",
+                    "start_at": "{{parameters.start_at}}",
+                    "start_on": "{{parameters.start_on}}",
+                    "completed": "{{parameters.completed}}",
+                    "followers": "{{parameters.followers}}",
+                    "workspace": "{{parameters.workspace}}",
+                    "html_notes": "{{parameters.html_notes}}",
+                    "custom_fields": "{{parameters.custom_fields}}",
+                    "approval_status": "{{parameters.approval_status}}",
+                    "assignee_status": "{{parameters.assignee_status}}",
+                    "assignee_section": "{{parameters.assignee_section}}",
+                    "resource_subtype": "{{parameters.resource_subtype}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "accept": "application/json",
+                "content-type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors[0].code}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Name of the task",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the task name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
                     "options": [
                         {
-                            "label": "GET",
-                            "value": "get"
+                            "label": "Default Task",
+                            "value": "default_task"
                         },
                         {
-                            "label": "PUT",
-                            "value": "put"
+                            "label": "Milestone",
+                            "value": "milestone"
                         },
                         {
-                            "label": "POST",
-                            "value": "post"
+                            "label": "Section",
+                            "value": "section"
                         },
                         {
-                            "label": "PATCH",
-                            "value": "patch"
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete"
+                            "label": "Approval",
+                            "value": "approval"
                         }
                     ],
                     "validation": {
-                        "required": true
+                        "required": false
                     },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
+                    "description": "Resource subtype of the task",
+                    "displayName": "Resource Subtype",
                     "displayType": "select"
                 },
-                "name": "method"
+                "name": "resource_subtype"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Pending",
+                            "value": "pending"
+                        },
+                        {
+                            "label": "Approved",
+                            "value": "approved"
+                        },
+                        {
+                            "label": "Rejected",
+                            "value": "rejected"
+                        },
+                        {
+                            "label": "Changes Requested",
+                            "value": "changes_requested"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Approval status of the task",
+                    "displayName": "Approval Status",
+                    "displayType": "select",
+                    "placeholder": "Enter the approval status"
+                },
+                "name": "approval_status"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Today",
+                            "value": "today"
+                        },
+                        {
+                            "label": "Upcoming",
+                            "value": "upcoming"
+                        },
+                        {
+                            "label": "Later",
+                            "value": "later"
+                        },
+                        {
+                            "label": "New",
+                            "value": "new"
+                        },
+                        {
+                            "label": "Inbox",
+                            "value": "inbox"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Assignee status of the task",
+                    "displayName": "Assignee Status",
+                    "displayType": "select",
+                    "placeholder": "Select the assignee status"
+                },
+                "name": "assignee_status"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Completion status of the task",
+                    "displayName": "Completed",
+                    "displayType": "toggle"
+                },
+                "name": "completed"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Due date and time of the task",
+                    "displayName": "Due At",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the due date and time"
+                },
+                "name": "due_at"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Due date of the task",
+                    "displayName": "Due On",
+                    "displayType": "date",
+                    "placeholder": "Enter the due date"
+                },
+                "name": "due_on"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "GID of the external data",
+                    "displayName": "GID",
+                    "displayType": "text",
+                    "placeholder": "Enter the GID"
+                },
+                "name": "gid"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "External data blob",
+                    "displayName": "Data",
+                    "displayType": "text",
+                    "placeholder": "Enter the external data"
+                },
+                "name": "data"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "HTML notes for the task",
+                    "displayName": "HTML Notes",
+                    "displayType": "text",
+                    "placeholder": "Enter the HTML notes"
+                },
+                "name": "html_notes"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Whether the task is liked",
+                    "displayName": "Liked",
+                    "displayType": "toggle"
+                },
+                "name": "liked"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Notes for the task",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the notes"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Start date and time of the task",
+                    "displayName": "Start At",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the start date and time"
+                },
+                "name": "start_at"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Start date of the task",
+                    "displayName": "Start On",
+                    "displayType": "date",
+                    "placeholder": "Enter the start date"
+                },
+                "name": "start_on"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Assignee ID of the task",
+                    "displayName": "Assignee",
+                    "displayType": "text",
+                    "placeholder": "Enter the assignee ID"
+                },
+                "name": "assignee"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Assignee section ID of the task",
+                    "displayName": "Assignee Section",
+                    "displayType": "text",
+                    "placeholder": "Enter the assignee section ID"
+                },
+                "name": "assignee_section"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Custom fields for the task",
+                    "displayName": "Custom Fields",
+                    "displayType": "text",
+                    "placeholder": "Select custom fields"
+                },
+                "name": "custom_fields"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "IDs of the followers",
+                    "displayName": "Followers",
+                    "displayType": "multitext",
+                    "placeholder": "Enter follower IDs"
+                },
+                "name": "followers"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Parent task ID",
+                    "displayName": "Parent",
+                    "displayType": "text",
+                    "placeholder": "Enter the parent task ID"
+                },
+                "name": "parent"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
+                    "description": "IDs of the projects",
+                    "displayName": "Projects",
+                    "displayType": "multitext",
+                    "placeholder": "Enter Project IDs"
+                },
+                "name": "projects"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "IDs of the tags",
+                    "displayName": "Tags",
+                    "displayType": "multitext",
+                    "placeholder": "Enter tag IDs"
+                },
+                "name": "tags"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Workspace ID of the task",
+                    "displayName": "Workspace",
+                    "displayType": "select",
+                    "placeholder": "Enter the workspace ID"
+                },
+                "name": "workspace"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/tasks/{{parameters.task}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.delete",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace in which task needs to be deleted.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.delete",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project whose task needs to be deleted.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.delete",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getTasks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.project}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select task which is to be deleted.",
+                    "displayName": "Task Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Task"
+                },
+                "name": "task"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.name}}",
+                "liked": "{{parameters.liked}}",
+                "notes": "{{parameters.description}}",
+                "due_on": "{{parameters.due_on}}",
+                "completed": "{{parameters.completed}}",
+                "workspace": "{{parameters.workspace}}",
+                "resource_subtype": "default_task"
+            },
+            "url": "https://app.asana.com/api/1.0/tasks/{{parameters.task}}",
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.update",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace of the task which is to be updated.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.update",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project in which tasks needs to updated.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.update",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getTasks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.project}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the task which needs to updated.",
+                    "displayName": "Task Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "project",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide updated task's name",
+                    "displayName": "Task Name",
                     "displayType": "text",
-                    "placeholder": "Eg. https://app.asana.com/api/1.0/tasks"
+                    "placeholder": "Task Name"
                 },
-                "name": "base_url"
+                "name": "name"
             },
             {
                 "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Updated description of the task",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.update",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getUsers"
                         },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
                     },
-                    "description": "You don't have to add authorization headers, we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue"
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Assignee of the task.",
+                    "displayName": "Assignee",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Assignee"
                 },
-                "name": "headers"
+                "name": "assignee"
             },
             {
                 "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
+                    "value": "2024-02-14",
+                    "readOnly": false,
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Due-date of the task",
+                    "displayName": "Enter Due Date",
+                    "displayType": "date"
+                },
+                "name": "due_on"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "readOnly": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Toggle to enable or disable the feature.",
+                    "displayName": "Mark subask as completed?",
+                    "displayType": "toggle"
+                },
+                "name": "completed"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "readOnly": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Toggle to enable or disable the feature.",
+                    "displayName": "Mark subask as liked?",
+                    "displayType": "toggle"
+                },
+                "name": "liked"
+            }
+        ]
+    },
+    "create_subtask": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.name}}",
+                "liked": "{{parameters.liked}}",
+                "notes": "{{parameters.description}}",
+                "due_on": "{{parameters.due_on}}",
+                "completed": "{{parameters.completed}}",
+                "workspace": "{{parameters.workspace}}",
+                "resource_subtype": "default_task"
+            },
+            "url": "https://app.asana.com/api/1.0/tasks/{{parameters.task}}/subtasks?opt_fields=",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_subtask",
+                            "loadOptionsMethod": "getWorkspaces"
                         },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid"
                     },
-                    "displayName": "Query String",
-                    "displayType": "keyvalue"
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the workspace in which subtask is to be created.",
+                    "displayName": "Workspace Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a workspace"
                 },
-                "name": "query_params"
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_subtask",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project in which subtask is to be created.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Project",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "project": "{{parameters.project}}",
+                            "resource": "task",
+                            "operation": "task.create_subtask",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getTasks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.project}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the task in which subtask needs to be added.",
+                    "displayName": "Task Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Task",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "project",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "task"
             },
             {
                 "meta": {
                     "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
+                        "allowDynamic": true
                     },
-                    "description": "The Payload (Body) of the HTTP Request.",
-                    "displayName": "Body",
-                    "displayType": "code"
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Provide subtask's name",
+                    "displayName": "Subtask Name",
+                    "displayType": "text",
+                    "placeholder": "Subtask Name"
                 },
-                "name": "body"
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Description of the subtask to be added",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_subtask",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getUsers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Assignee of the subtask.",
+                    "displayName": "Assignee",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Assignee"
+                },
+                "name": "assignee"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Due-date of the subtask",
+                    "displayName": "Enter Due Date",
+                    "displayType": "date"
+                },
+                "name": "due_on"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "readOnly": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Toggle to enable or disable the feature.",
+                    "displayName": "Mark subtask as completed?",
+                    "displayType": "toggle"
+                },
+                "name": "completed"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "readOnly": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Toggle to enable or disable the feature.",
+                    "displayName": "Mark subtask as liked?",
+                    "displayType": "toggle"
+                },
+                "name": "liked"
             }
         ]
     }

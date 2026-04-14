@@ -117,442 +117,14 @@
             }
         }
     },
-    "custom_api": {
+    "createforumpost": {
         "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
-            "headers": "{{parameters.headers}}",
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "url": "function transformURL(){var u=(typeof parameters!=='undefined'&&parameters&&parameters.base_url!=null)?parameters.base_url:'{{parameters.base_url}}';u=String(u).trim().replace(/\\s+/g,'').replace(/^\\\"|\\\"$/g,'');if(!u)throw new Error('Invalid base_url');return u;}return transformURL();",
-                "headers": "function transformHeaders(){var h=(typeof parameters!=='undefined'&&parameters&&parameters.headers!=null)?parameters.headers:'{{parameters.headers}}';if(typeof h==='string'){try{h=JSON.parse(h);}catch(e){h={};}}if(!h||typeof h!=='object')h={};if(!h.Accept)h.Accept='application/json';if(!h['Content-Type'])h['Content-Type']='application/json';if(!h.Authorization)h.Authorization='Bearer {{secrets.access_token}}';return h;}return transformHeaders();"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "value": "get",
-                    "options": [
-                        {
-                            "label": "GET",
-                            "value": "get"
-                        },
-                        {
-                            "label": "PUT",
-                            "value": "put"
-                        },
-                        {
-                            "label": "POST",
-                            "value": "post"
-                        },
-                        {
-                            "label": "PATCH",
-                            "value": "patch"
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
-                    "displayType": "select",
-                    "placeholder": "Select HTTP method"
-                },
-                "name": "method"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
-                    "displayType": "text",
-                    "placeholder": "Eg. https://discord.com/api/v10/channels/112121343201340"
-                },
-                "name": "base_url"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "You don't have to add authorization headers, we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue",
-                    "placeholder": "Add header key–value pairs"
-                },
-                "name": "headers"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "Optional query string parameters to be sent with the request.",
-                    "displayName": "Query String",
-                    "displayType": "keyvalue",
-                    "placeholder": "Add query string key–value pairs"
-                },
-                "name": "query_params"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
-                    },
-                    "description": "The payload (body) of the HTTP request.",
-                    "displayName": "Body",
-                    "displayType": "code",
-                    "placeholder": "Enter JSON body (optional)"
-                },
-                "name": "body"
-            }
-        ]
-    },
-    "renamechannel": {
-        "definition": {
-            "url": "https://discord.com/api/v10/channels/{{parameters.channel_id}}",
-            "body": {
-                "name": "{{parameters.name}}"
-            },
-            "method": "patch",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bot {{secrets.bot_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "channel",
-                            "operation": "channel.renamechannel",
-                            "loadOptionsMethod": "getGuilds"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the server.",
-                    "displayName": "Server",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the server"
-                },
-                "name": "server_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "guild_id": "{{parameters.server_id}}",
-                            "resource": "channel",
-                            "operation": "channel.renamechannel",
-                            "loadOptionsMethod": "getChannels"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id",
-                        "condition": "{{parameters.server_id}}"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the channel to rename.",
-                    "displayName": "Channel",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the channel to rename",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "channel_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "max": 100,
-                        "min": 1,
-                        "required": true
-                    },
-                    "description": "Enter new channel name (1-100 characters).",
-                    "displayName": "New Channel Name",
-                    "displayType": "text",
-                    "placeholder": "e.g. announcements",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "channel_id",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "name"
-            }
-        ]
-    },
-    "deletechannel": {
-        "definition": {
-            "url": "https://discord.com/api/v10/channels/{{parameters.channel_id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bot {{secrets.bot_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "channel",
-                            "operation": "channel.renamechannel",
-                            "loadOptionsMethod": "getGuilds"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the server.",
-                    "displayName": "Server",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the server"
-                },
-                "name": "server_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "guild_id": "{{parameters.server_id}}",
-                            "resource": "channel",
-                            "operation": "channel.deletechannel",
-                            "loadOptionsMethod": "getChannels"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id",
-                        "condition": "{{parameters.server_id}}"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the channel to delete.",
-                    "displayName": "Channel",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the channel",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "channel_id"
-            }
-        ]
-    },
-    "createrole": {
-        "definition": {
-            "url": "https://discord.com/api/v10/guilds/{{parameters.server_id}}/roles",
-            "body": {
-                "name": "{{parameters.rolename}}"
-            },
+            "url": "https://discord.com/api/v10/channels/{{parameters.forum_id}}/threads",
+            "body": "{{transform.body}}",
             "method": "post",
             "headers": {
                 "Accept": "application/json",
-                "Authorization": "Bot {{secrets.bot_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "role",
-                            "operation": "role.addrole",
-                            "loadOptionsMethod": "getGuilds"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the server.",
-                    "displayName": "Server",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the server"
-                },
-                "name": "server_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "max": 100,
-                        "min": 1,
-                        "required": true
-                    },
-                    "description": "Enter role name, max 100 characters.",
-                    "displayName": "Role Name",
-                    "displayType": "text",
-                    "placeholder": "e.g. Moderator",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "rolename"
-            }
-        ]
-    },
-    "deleterole": {
-        "definition": {
-            "url": "https://discord.com/api/v10/guilds/{{parameters.server_id}}/roles/{{parameters.role_id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
+                "Content-Type": "application/json",
                 "Authorization": "Bot {{secrets.bot_token}}"
             },
             "response": {
@@ -563,7 +135,7 @@
                 "output": "{{response.data}}"
             },
             "transform": {
-                "output": "let data = output; data='Role has been removed successfully!'; return data"
+                "body": "const name = `{{parameters.name}}`; const content = `{{parameters.content}}`;  return { name, message: { content } };"
             }
         },
         "parameters": [
@@ -574,8 +146,8 @@
                         "body": {
                             "name": "discord",
                             "secret": "{{parameters.secret}}",
-                            "resource": "role",
-                            "operation": "role.addrole",
+                            "resource": "forum",
+                            "operation": "forum.createforumpost",
                             "loadOptionsMethod": "getGuilds"
                         },
                         "method": "post",
@@ -587,10 +159,10 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the server.",
+                    "description": "Select a server.",
                     "displayName": "Server",
                     "displayType": "autocomplete",
-                    "placeholder": "Select the server"
+                    "placeholder": "Select a server"
                 },
                 "name": "server_id"
             },
@@ -601,135 +173,15 @@
                         "body": {
                             "name": "discord",
                             "secret": "{{parameters.secret}}",
+                            "forum_id": "{{parameters.forum_id}}",
                             "guild_id": "{{parameters.server_id}}",
-                            "resource": "role",
-                            "operation": "role.addrole",
-                            "loadOptionsMethod": "getRoles"
+                            "resource": "forum",
+                            "operation": "forum.createforumpost",
+                            "loadOptionsMethod": "getForums"
                         },
                         "method": "post",
                         "urlType": "options",
                         "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select a role to delete.",
-                    "displayName": "Role",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a role",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "role_id"
-            }
-        ]
-    },
-    "removerole": {
-        "definition": {
-            "url": "https://discord.com/api/v10/guilds/{{parameters.server_id}}/members/{{parameters.user_id}}/roles/{{parameters.role_id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bot {{secrets.bot_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "output": "let data = output; data='Role has been removed from the user successfully!'; return data"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "role",
-                            "operation": "role.addrole",
-                            "loadOptionsMethod": "getGuilds"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the server.",
-                    "displayName": "Server",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the server"
-                },
-                "name": "server_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "guild_id": "{{parameters.server_id}}",
-                            "resource": "role",
-                            "operation": "role.addrole",
-                            "loadOptionsMethod": "getRoles"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select a role to remove.",
-                    "displayName": "Role",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a role",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "role_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "guild_id": "{{parameters.server_id}}",
-                            "resource": "message",
-                            "operation": "message.sendDirectMessage",
-                            "loadOptionsMethod": "getUsers"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "username",
                         "valueKey": "id",
                         "condition": "{{parameters.server_id}}"
                     },
@@ -737,99 +189,10 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select a user to message.",
-                    "displayName": "User",
+                    "description": "Select the forum channel to post in.",
+                    "displayName": "Forum Channel",
                     "displayType": "autocomplete",
-                    "placeholder": "Select a user",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "role_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "user_id"
-            }
-        ]
-    },
-    "addrole": {
-        "definition": {
-            "url": "https://discord.com/api/v10/guilds/{{parameters.server_id}}/members/{{parameters.user_id}}/roles/{{parameters.role_id}}",
-            "method": "put",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bot {{secrets.bot_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "output": "let data = output; data='Role has been added to the user successfully!'; return data"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "role",
-                            "operation": "role.addrole",
-                            "loadOptionsMethod": "getGuilds"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the server.",
-                    "displayName": "Server",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the server"
-                },
-                "name": "server_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "guild_id": "{{parameters.server_id}}",
-                            "resource": "role",
-                            "operation": "role.addrole",
-                            "loadOptionsMethod": "getRoles"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select a role to assign.",
-                    "displayName": "Role",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a role",
+                    "placeholder": "Select a forum channel",
                     "dependencies": {
                         "conditions": [
                             {
@@ -839,128 +202,48 @@
                         ]
                     }
                 },
-                "name": "role_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "guild_id": "{{parameters.server_id}}",
-                            "resource": "message",
-                            "operation": "message.sendDirectMessage",
-                            "loadOptionsMethod": "getUsers"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "username",
-                        "valueKey": "id",
-                        "condition": "{{parameters.role_id}}"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select a user to message.",
-                    "displayName": "User",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a user",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "role_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "user_id"
-            }
-        ]
-    },
-    "searchchannelbyname": {
-        "definition": {
-            "url": "https://discord.com/api/v10/guilds/{{parameters.server_id}}/channels",
-            "body": {
-                "value": "{{parameters.channelname}}"
-            },
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bot {{secrets.bot_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{ response.data }}"
-            },
-            "transform": {
-                "url": "function transformURL(){var sid=(typeof parameters!=='undefined'&&parameters&&parameters.server_id!=null)?parameters.server_id:'{{parameters.server_id}}';sid=String(sid).trim().replace(/\\s+/g,'').replace(/^\\\"|\\\"$/g,'');if(!sid)throw new Error('Invalid server_id');return 'https://discord.com/api/v10/guilds/'+encodeURIComponent(sid)+'/channels';}return transformURL();",
-                "output": "var q = String('{{parameters.channelname}}').toLowerCase(); var res = []; for (var i=0; i<(output||[]).length; i++){ var c = output[i]; var n = c && c.name ? String(c.name).toLowerCase() : ''; if (n.indexOf(q) !== -1) res.push(c); } return res;"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "channel",
-                            "operation": "channel.renamechannel",
-                            "loadOptionsMethod": "getGuilds"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the server.",
-                    "displayName": "Server",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the server"
-                },
-                "name": "server_id"
+                "name": "forum_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter channel name to search.",
-                    "displayName": "Channel Name",
+                    "description": "Title for the new forum post.",
+                    "displayName": "Post Title",
                     "displayType": "text",
-                    "placeholder": "e.g. announcements",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
+                    "placeholder": "Enter a post title"
                 },
-                "name": "channelname"
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "maxRows": 4,
+                        "minRows": 4
+                    },
+                    "validation": {
+                        "required": true,
+                        "maxLength": 2000,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Post Message is required."
+                        }
+                    },
+                    "description": "Content of the first message (1-2000 characters).",
+                    "displayName": "Post Message",
+                    "displayType": "textarea",
+                    "placeholder": "Write your message"
+                },
+                "name": "content"
             }
         ]
     },
-    "getchannelmessagebyid": {
+    "sendmessageinforumpost": {
         "definition": {
-            "url": "https://discord.com/api/v10/channels/{{parameters.channel_id}}/messages/{{parameters.message_id}}",
-            "method": "get",
+            "url": "https://discord.com/api/v10/channels/{{parameters.thread_id}}/messages",
+            "body": "{{transform.body}}",
+            "method": "post",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -974,7 +257,7 @@
                 "output": "{{response.data}}"
             },
             "transform": {
-                "url": "function transformURL(){var cid=(typeof parameters!=='undefined'&&parameters&&parameters.channel_id!=null)?parameters.channel_id:'{{parameters.channel_id}}';var mid=(typeof parameters!=='undefined'&&parameters&&parameters.message_id!=null)?parameters.message_id:'{{parameters.message_id}}';mid=String(mid).trim().replace(/\\s+/g,'').replace(/^\\\"|\\\"$/g,'');if(!cid)throw new Error('Invalid channel_id');if(!mid)throw new Error('Invalid message_id');return 'https://discord.com/api/v10/channels/'+encodeURIComponent(cid)+'/messages/'+encodeURIComponent(mid);}return transformURL();"
+                "body": "const content = `{{parameters.content}}`; const ttsRaw = `{{parameters.tts}}`; const pingRaw = `{{parameters.allowed_mentions}}`; const tts = (ttsRaw === 'true' || ttsRaw === '1' || ttsRaw === true); const ping = (pingRaw === 'true' || pingRaw === '1' || pingRaw === true); return { content, tts, allowed_mentions: ping ? { parse: ['users','roles','everyone'] } : { parse: [] } };"
             }
         },
         "parameters": [
@@ -985,8 +268,8 @@
                         "body": {
                             "name": "discord",
                             "secret": "{{parameters.secret}}",
-                            "resource": "message",
-                            "operation": "message.getchannelmessagebyid",
+                            "resource": "forum",
+                            "operation": "forum.sendmessageinforumpost",
                             "loadOptionsMethod": "getGuilds"
                         },
                         "method": "post",
@@ -998,10 +281,10 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the server.",
+                    "description": "Select a server.",
                     "displayName": "Server",
                     "displayType": "autocomplete",
-                    "placeholder": "Select the server"
+                    "placeholder": "Select a server"
                 },
                 "name": "server_id"
             },
@@ -1012,10 +295,11 @@
                         "body": {
                             "name": "discord",
                             "secret": "{{parameters.secret}}",
+                            "forum_id": "{{parameters.forum_id}}",
                             "guild_id": "{{parameters.server_id}}",
-                            "resource": "message",
-                            "operation": "message.getchannelmessagebyid",
-                            "loadOptionsMethod": "getChannels"
+                            "resource": "forum",
+                            "operation": "forum.sendmessageinforumpost",
+                            "loadOptionsMethod": "getForumThreads"
                         },
                         "method": "post",
                         "urlType": "options",
@@ -1027,10 +311,10 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the channel.",
-                    "displayName": "Channel",
+                    "description": "Select the forum post (thread) to reply to.",
+                    "displayName": "Forum Post",
                     "displayType": "autocomplete",
-                    "placeholder": "Select the channel",
+                    "placeholder": "Select a forum post",
                     "dependencies": {
                         "conditions": [
                             {
@@ -1040,127 +324,62 @@
                         ]
                     }
                 },
-                "name": "channel_id"
+                "name": "thread_id"
             },
             {
                 "meta": {
+                    "htmlProps": {
+                        "maxRows": 4,
+                        "minRows": 4
+                    },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "maxLength": 2000,
+                        "minLength": 1,
+                        "requiredDetail": {
+                            "errorMsg": "Message is required."
+                        }
                     },
-                    "description": "Enter the Message ID.",
-                    "displayName": "Message ID",
-                    "displayType": "text",
-                    "placeholder": "e.g. 1467639497096433736",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "channel_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
+                    "description": "Message content (1-2000 characters).",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Write your reply"
                 },
-                "name": "message_id"
-            }
-        ]
-    },
-    "getchannelmessages": {
-        "definition": {
-            "url": "https://discord.com/api/v10/channels/{{parameters.channel_id}}/messages",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bot {{secrets.bot_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "after": "{{response.data[response.data.length - 1].id}}",
-                    "limit": 100
-                },
-                "type": "cursor",
-                "default": {
-                    "after": null,
-                    "limit": 100
-                },
-                "condition": "{{response.data.length}} === 100"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "message",
-                            "operation": "message.getchannelmessages",
-                            "loadOptionsMethod": "getGuilds"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the server.",
-                    "displayName": "Server",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the server"
-                },
-                "name": "server_id"
+                "name": "content"
             },
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "discord",
-                            "secret": "{{parameters.secret}}",
-                            "guild_id": "{{parameters.server_id}}",
-                            "resource": "message",
-                            "operation": "message.getchannelmessages",
-                            "loadOptionsMethod": "getChannels"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id",
-                        "condition": "{{parameters.server_id}}"
+                    "value": false,
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
                     },
-                    "options": [],
                     "validation": {
-                        "required": true
+                        "disabled": false
                     },
-                    "description": "Select the channel.",
-                    "displayName": "Channel",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select the channel",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "server_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
+                    "description": "Send this message using text-to-speech.",
+                    "displayName": "Text-to-Speech (TTS)",
+                    "displayType": "toggle",
+                    "placeholder": "Enable text-to-speech"
                 },
-                "name": "channel_id"
+                "name": "tts"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Users, roles and everyone/here mentions will be pinged if you choose true. Enter the user ID to mention in the message content (format: <@1465925708093329503>).",
+                    "displayName": "Ping Username, Role and Everyone Mentions",
+                    "displayType": "toggle",
+                    "placeholder": "Allow mentions"
+                },
+                "name": "allowed_mentions"
             }
         ]
     }

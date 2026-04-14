@@ -571,15 +571,16 @@
         },
         "parameters": []
     },
-    "getallattendancerecords": {
+    "getallemployees": {
         "definition": {
             "qs": {
-                "to": "{{parameters.to}}",
-                "from": "{{parameters.from}}",
                 "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}"
+                "pageNumber": "{{parameters.pageNumber}}",
+                "inProbation": "{{parameters.inProbation}}",
+                "inNoticePeriod": "{{parameters.inNoticePeriod}}",
+                "employmentStatus": "{{parameters.employmentStatus}}"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/attendance",
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/employees",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -595,25 +596,52 @@
         "parameters": [
             {
                 "meta": {
+                    "options": [
+                        {
+                            "label": "Working",
+                            "value": "Working"
+                        },
+                        {
+                            "label": "Relieved",
+                            "value": "Relieved"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "If <b>To</b> and <b>From</b> date are not provided then it will give last 30 days record.",
-                    "displayName": "From date",
-                    "displayType": "date"
+                    "description": "Please select one or more employment status.",
+                    "displayName": "Employment Status",
+                    "displayType": "multiselect",
+                    "placeholder": "Select an employment status"
                 },
-                "name": "from"
+                "name": "employmentStatus"
             },
             {
                 "meta": {
+                    "value": false,
                     "validation": {
-                        "required": false
+                        "disabled": false
                     },
-                    "description": "If <b>To</b> and <b>From</b> date are not provided then it will give last 30 days record.",
-                    "displayName": "To date",
-                    "displayType": "date"
+                    "description": "Indicates whether the employee is in probation period.",
+                    "displayName": "Is in Probation Period?",
+                    "displayType": "toggle"
                 },
-                "name": "to"
+                "name": "inProbation"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Indicates whether the employee is in notice period.",
+                    "displayName": "Is in Notice Period?",
+                    "displayType": "toggle"
+                },
+                "name": "inNoticePeriod"
             },
             {
                 "meta": {
@@ -641,12 +669,18 @@
             }
         ]
     },
-    "getalldepartments": {
+    "getmultipleemployees": {
         "definition": {
             "qs": {
-                "departmentIds": "{{parameters.departmentIds}}"
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "employeeIds": "{{parameters.employeeIds}}",
+                "inProbation": "{{parameters.inProbation}}",
+                "inNoticePeriod": "{{parameters.inNoticePeriod}}",
+                "employeeNumbers": "{{parameters.employeeNumbers}}",
+                "employmentStatus": "{{parameters.employmentStatus}}"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/departments",
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/employees",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -656,108 +690,161 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.errors}}"
                 },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 20
-                },
-                "type": "url",
-                "default": {
-                    "limit": 20,
-                    "next_url": null
-                },
-                "next_url": "{{response.data.nextPage}}",
-                "condition": "{{response.data.nextPage}} !== null"
+                "output": "{{response.data}}"
             }
         },
         "parameters": [
             {
                 "meta": {
+                    "value": false,
                     "validation": {
                         "required": false
                     },
-                    "description": "Please provide a department id",
-                    "displayName": "Department ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a department id"
+                    "description": "Please provide an employee id(s) in comma separated format if multiple.",
+                    "displayName": "Employee ID(s)",
+                    "displayType": "multitext"
                 },
-                "name": "departmentIds"
+                "name": "employeeIds"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee Number is a required field"
+                        }
+                    },
+                    "description": "Please provide an employee number(s) in comma separated format if multiple.",
+                    "displayName": "Employee Number(s)",
+                    "displayType": "multitext"
+                },
+                "name": "employeeNumbers"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Working",
+                            "value": "Working"
+                        },
+                        {
+                            "label": "Relieved",
+                            "value": "Relieved"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please select one or more employment status.",
+                    "displayName": "Employment Status",
+                    "displayType": "multiselect",
+                    "placeholder": "Select an employment status"
+                },
+                "name": "employmentStatus"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Indicates whether the employee is in probation period.",
+                    "displayName": "Is in Probation Period?",
+                    "displayType": "toggle"
+                },
+                "name": "inProbation"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Indicates whether the employee is in notice period.",
+                    "displayName": "Is in Notice Period?",
+                    "displayType": "toggle"
+                },
+                "name": "inNoticePeriod"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
             }
         ]
     },
-    "getallcaptureschemes": {
+    "getallupdatefields": {
         "definition": {
-            "qs": {
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "captureschemeIds": "{{parameters.captureschemeIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/capturescheme",
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/employees/updatefields",
             "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "updateemployeejobdetails": {
+        "definition": {
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/employees/{{parameters.empId}}/jobdetails",
+            "body": {
+                "shift": "{{parameters.shift}}",
+                "payBand": "{{parameters.payBands}}",
+                "jobTitle": "{{parameters.jobTitle}}",
+                "location": "{{parameters.location}}",
+                "payGrade": "{{parameters.payGrades}}",
+                "timeType": "{{parameters.timeType}}",
+                "leavePlan": "{{parameters.leavePlans}}",
+                "reportsTo": "{{parameters.reportsTo}}",
+                "costCenter": "{{parameters.costCenter}}",
+                "department": "{{parameters.department}}",
+                "workerType": "{{parameters.workerType}}",
+                "businessUnit": "{{parameters.businessUnit}}",
+                "noticePeriod": "{{parameters.noticePeriods}}",
+                "expensePolicy": "{{parameters.expensePolicy}}",
+                "employeeNumber": "{{parameters.employeeNumber}}",
+                "holidayCalendar": "{{parameters.holidaysCalendar}}",
+                "weeklyOffPolicy": "{{parameters.weeklyOffPolices}}",
+                "attendanceNumber": "{{parameters.attendanceNumber}}",
+                "contingentTypeId": "{{parameters.contingentType}}",
+                "jobCustomDetails": "{{parameters.jobCustomDetails}}",
+                "dottedLineManager": "{{parameters.dottedLineManager}}",
+                "attendanceCaptureSchema": "{{parameters.attendanceCaptureScheme}}",
+                "attendancePenalisationPolicy": "{{parameters.attendancePenalisationPolicy}}"
+            },
+            "method": "put",
             "headers": {
                 "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Please provide a capture scheme id",
-                    "displayName": "Capture Scheme ID",
-                    "displayType": "text",
-                    "placeholder": "Enter capture scheme id"
-                },
-                "name": "captureschemeIds"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
-                },
-                "name": "pageNumber"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
-                },
-                "name": "pageSize"
-            }
-        ]
-    },
-    "getmultipleemployeeattendancerecords": {
-        "definition": {
-            "qs": {
-                "to": "{{parameters.to}}",
-                "from": "{{parameters.from}}",
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "employeeIds": "{{parameters.employeeIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/attendance",
-            "method": "get",
-            "headers": {
+                "Content-Type": "application/*+json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -774,383 +861,2018 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Employee ID(s) is a required field"
+                            "errorMsg": "Employee ID is a mandatory field"
                         }
                     },
-                    "description": "Please provide an employee id(s) in comma separated format in case of multiple",
-                    "displayName": "Employee ID(s)",
+                    "description": "Please provide an employee id",
+                    "displayName": "Employee ID",
                     "displayType": "text"
                 },
-                "name": "employeeIds"
+                "name": "empId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee Number is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an employee number",
+                    "displayName": "Employee Number",
+                    "displayType": "text"
+                },
+                "name": "employeeNumber"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllLocations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee location is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a location for an employee",
+                    "displayName": "Select a Location",
+                    "displayType": "select"
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllBusinessUnits"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee business unit is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a business unit for an employee",
+                    "displayName": "Select a Business Unit",
+                    "displayType": "select"
+                },
+                "name": "businessUnit"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllDepartments"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee department is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a department for an employee",
+                    "displayName": "Select a Department",
+                    "displayType": "select"
+                },
+                "name": "department"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllJobTitles"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Job title is a mandatory field"
+                        }
+                    },
+                    "description": "Enter the job title for the employee",
+                    "displayName": "Job Title",
+                    "displayType": "select"
+                },
+                "name": "jobTitle"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reports To is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an employee id of a reporting manager",
+                    "displayName": "Reports To",
+                    "displayType": "text"
+                },
+                "name": "reportsTo"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Dotted Line Manager is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an employee id of a dotted line manager",
+                    "displayName": "Dotted Line Manager",
+                    "displayType": "text"
+                },
+                "name": "dottedLineManager"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee Attendance Number is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an attendance number to an employee",
+                    "displayName": "Employee Attendance Number",
+                    "displayType": "text",
+                    "placeholder": "Enter an employee attendance number"
+                },
+                "name": "attendanceNumber"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Full Time",
+                            "value": 1
+                        },
+                        {
+                            "label": "Part Time",
+                            "value": 2
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee time type is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a time type of an employee",
+                    "displayName": "Time Type",
+                    "displayType": "select"
+                },
+                "name": "timeType"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllCaptureSchemes"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Attendance Capture Scheme is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a attendance capture scheme of an employee you want to update job details of.",
+                    "displayName": "Attendance Capture Scheme",
+                    "displayType": "select"
+                },
+                "name": "attendanceCaptureScheme"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllExpensePolicies"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Expense Policy is a mandatory field"
+                        }
+                    },
+                    "description": "Please select an expense policy of an employee you want to update job details of.",
+                    "displayName": "Expense Policy",
+                    "displayType": "select"
+                },
+                "name": "expensePolicy"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllNoticePeriods"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Notice Period is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a notice period of an employee you want to update job details of.",
+                    "displayName": "Notice Period",
+                    "displayType": "select"
+                },
+                "name": "noticePeriods"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllHolidaysCalendar"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Holidays Calendar is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a holiday calendar for an employee you want to update job details of.",
+                    "displayName": "Holidays Calendar",
+                    "displayType": "select"
+                },
+                "name": "holidaysCalendar"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllCostCenters"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Cost Center is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a cost center for an employee you want to update job details of.",
+                    "displayName": "Cost Center",
+                    "displayType": "select"
+                },
+                "name": "costCenter"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllLeavePlans"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Leave Plan is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a leave plan for an employee you want to update job details of.",
+                    "displayName": "Leave Plan",
+                    "displayType": "select"
+                },
+                "name": "leavePlans"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllPayBands"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Pay Band is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a pay band of an employee you want to update job details of.",
+                    "displayName": "Pay Band",
+                    "displayType": "select"
+                },
+                "name": "payBands"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllPayGrades"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Pay Grade is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a pay grade of an employee you want to update job details of.",
+                    "displayName": "Pay Grade",
+                    "displayType": "select"
+                },
+                "name": "payGrades"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllShifts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Shift is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a shift of an employee you want to update job details of.",
+                    "displayName": "Shift",
+                    "displayType": "select"
+                },
+                "name": "shift"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllWeeklyOffPolicies"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Weekly Off Policy is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a weekly off policy of an employee you want to update job details of.",
+                    "displayName": "Weekly Off Policy",
+                    "displayType": "select"
+                },
+                "name": "weeklyOffPolices"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllTrackingPolicies"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Attendance Penalisation Policy is a mandatory field"
+                        }
+                    },
+                    "description": "Please select an attendance penalisation policy of an employee you want to update job details of.",
+                    "displayName": "Attendance Penalisation Policy",
+                    "displayType": "select"
+                },
+                "name": "attendancePenalisationPolicy"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please provide employee job custom attributes",
+                    "displayName": "Job Custom Details",
+                    "displayType": "keyvalue"
+                },
+                "name": "jobCustomDetails"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Permanent",
+                            "value": 1
+                        },
+                        {
+                            "label": "Contingent",
+                            "value": 2
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Worker Type is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a worker type of an employee you want to update job details of.",
+                    "displayName": "Worker Type",
+                    "displayType": "select"
+                },
+                "name": "workerType"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.updateEmployeeJobDetails",
+                            "loadOptionsMethod": "getAllContingentTypes"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Contingent Type is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a contingent type of an employee you want to update job details of.",
+                    "displayName": "Contingent Type",
+                    "displayType": "select"
+                },
+                "name": "contingentType"
+            }
+        ]
+    },
+    "getemployeebyid": {
+        "definition": {
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/employees/{{parameters.id}}",
+            "method": "get",
+            "headers": {
+                "accept": "application/json",
+                "authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee ID is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an employee id",
+                    "displayName": "Employee ID",
+                    "displayType": "text"
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "createemployee": {
+        "definition": {
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/employees",
+            "body": {
+                "email": "{{parameters.email}}",
+                "gender": "{{parameters.gender}}",
+                "jobTitle": "{{parameters.jobTitle}}",
+                "lastName": "{{parameters.lastName}}",
+                "location": "{{parameters.location}}",
+                "firstName": "{{parameters.firstName}}",
+                "dateJoined": "{{parameters.dateJoined}}",
+                "department": "{{parameters.department}}",
+                "middleName": "{{parameters.middleName}}",
+                "dateOfBirth": "{{parameters.dateOfBirth}}",
+                "displayName": "{{parameters.displayName}}",
+                "legalEntity": "{{parameters.legalEntity}}",
+                "nationality": "{{parameters.nationality}}",
+                "businessUnit": "{{parameters.businessUnit}}",
+                "mobileNumber": "{{parameters.mobileNumber}}",
+                "employeeNumber": "{{parameters.employeeNumber}}",
+                "secondaryJobTitle": "{{parameters.secondaryJobTitle}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/*+json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee number is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a unique number to an employee",
+                    "displayName": "Employee Number",
+                    "displayType": "text",
+                    "placeholder": "Enter an employee number"
+                },
+                "name": "employeeNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee display name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a display name to an employee",
+                    "displayName": "Display Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a display name of an employee"
+                },
+                "name": "displayName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee first name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a first name of an employee",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a first name of an employee"
+                },
+                "name": "firstName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee middle name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a middle name of an employee",
+                    "displayName": "Middle Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a middle name of an employee"
+                },
+                "name": "middleName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee last name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a last name of an employee",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a last name of an employee"
+                },
+                "name": "lastName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 60,
+                        "required": true,
+                        "requiredDetail": {
+                            "pattern": "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$",
+                            "errorMsg": "Emploayee email is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an email of an employee",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter an email of an employee"
+                },
+                "name": "email"
             },
             {
                 "meta": {
                     "htmlProps": {
-                        "format": "YYYY-MM-DD HH:mm:ss.SSSZ",
+                        "max": 12,
+                        "min": 12,
                         "disabled": false,
-                        "readOnly": false,
-                        "timeSteps": {
-                            "hours": 1,
-                            "minutes": 5,
-                            "seconds": 5
+                        "readOnly": false
+                    },
+                    "validation": {
+                        "max": 12,
+                        "min": 12,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee mobile number is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a mobile number of an employee (e.g. 918090912345)",
+                    "displayName": "Mobile Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a mobile number of an employee"
+                },
+                "name": "mobileNumber"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Not Specified",
+                            "value": 0
                         },
+                        {
+                            "label": "Male",
+                            "value": 1
+                        },
+                        {
+                            "label": "Female",
+                            "value": 2
+                        },
+                        {
+                            "label": "Nonbinary",
+                            "value": 3
+                        },
+                        {
+                            "label": "Prefer Not To Respond",
+                            "value": 4
+                        }
+                    ],
+                    "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee gender is a mandatory field"
+                        }
                     },
-                    "description": "Please select the <b>from date</b>.",
-                    "displayName": "From date",
-                    "displayType": "datetime",
-                    "placeholder": "YYYY-MM-DD hh:mm:ss"
+                    "description": "Please select a gender of an employee",
+                    "displayName": "Gender",
+                    "displayType": "select",
+                    "placeholder": "Select gender of an employee"
                 },
-                "name": "from"
+                "name": "gender"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee DOB is a mandatory field"
+                        }
+                    },
+                    "description": "Please select date of birth of an employee",
+                    "displayName": "Date of Birth",
+                    "displayType": "date"
+                },
+                "name": "dateOfBirth"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee DOJ is a mandatory field"
+                        }
+                    },
+                    "description": "Please select date of joining of an employee",
+                    "displayName": "Date of Joining",
+                    "displayType": "date"
+                },
+                "name": "dateJoined"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.createEmployee",
+                            "loadOptionsMethod": "getAllDepartments"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee department is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a department for an employee",
+                    "displayName": "Select a Department",
+                    "displayType": "select"
+                },
+                "name": "department"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.createEmployee",
+                            "loadOptionsMethod": "getAllBusinessUnits"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee business unit is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a business unit for an employee",
+                    "displayName": "Select a Business Unit",
+                    "displayType": "select"
+                },
+                "name": "businessUnit"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.createEmployee",
+                            "loadOptionsMethod": "getAllJobTitles"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Job title is a mandatory field"
+                        }
+                    },
+                    "description": "Enter the job title for the employee",
+                    "displayName": "Job Title",
+                    "displayType": "select"
+                },
+                "name": "jobTitle"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter the secondary job title for the employee",
+                    "displayName": "Secondary Job Title",
+                    "displayType": "text"
+                },
+                "name": "secondaryJobTitle"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.createEmployee",
+                            "loadOptionsMethod": "getAllLocations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee location is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a location for an employee",
+                    "displayName": "Select a Location",
+                    "displayType": "select"
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "employees",
+                            "operation": "employees.createEmployee",
+                            "loadOptionsMethod": "getAllLegalEntities"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Legal entity is a mandatory field"
+                        }
+                    },
+                    "description": "Select a legal entity of an employee",
+                    "displayName": "Legal Entity",
+                    "displayType": "select"
+                },
+                "name": "legalEntity"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Indian",
+                            "value": "IN"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee nationality is a mandatory field"
+                        }
+                    },
+                    "description": "Enter a nationality of an employee",
+                    "displayName": "Nationality",
+                    "displayType": "select"
+                },
+                "name": "nationality"
+            }
+        ]
+    },
+    "updateemployeepersonaldetails": {
+        "definition": {
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/employees/{{parameters.empId}}/personaldetails",
+            "body": {
+                "skype": "{{parameters.skype}}",
+                "gender": "{{parameters.gender}}",
+                "lastName": "{{parameters.lastName}}",
+                "firstName": "{{parameters.firstName}}",
+                "homePhone": "{{parameters.homePhone}}",
+                "relations": "{{parameters.relations}}",
+                "workPhone": "{{parameters.workPhone}}",
+                "bloodGroup": "{{parameters.bloodGroup}}",
+                "middleName": "{{parameters.middleName}}",
+                "dateOfBirth": "{{parameters.dateOfBirth}}",
+                "displayName": "{{parameters.displayName}}",
+                "nationality": "{{parameters.nationality}}",
+                "marriageDate": "{{parameters.marriageDate}}",
+                "maritalStatus": "{{parameters.maritalStatus}}",
+                "personalEmail": "{{parameters.personalEmail}}",
+                "currentAddress": "{{parameters.currentAddress}}",
+                "permanentAddress": "{{parameters.permanentAddress}}",
+                "professionalSummary": "{{parameters.professionalSummary}}",
+                "personalCustomDetails": "{{parameters.personalCustomDetails}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/*+json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee ID is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an employee id",
+                    "displayName": "Employee ID",
+                    "displayType": "text",
+                    "placeholder": "Enter an employee id"
+                },
+                "name": "empId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee display name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a display name to an employee",
+                    "displayName": "Display Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a display name of an employee"
+                },
+                "name": "displayName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee first name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a first name of an employee",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a first name of an employee"
+                },
+                "name": "firstName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee middle name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a middle name of an employee",
+                    "displayName": "Middle Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a middle name of an employee"
+                },
+                "name": "middleName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee last name is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a last name of an employee",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter a last name of an employee"
+                },
+                "name": "lastName"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Not Specified",
+                            "value": 0
+                        },
+                        {
+                            "label": "Male",
+                            "value": 1
+                        },
+                        {
+                            "label": "Female",
+                            "value": 2
+                        },
+                        {
+                            "label": "Nonbinary",
+                            "value": 3
+                        },
+                        {
+                            "label": "Prefer Not To Respond",
+                            "value": 4
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee gender is a mandatory field"
+                        }
+                    },
+                    "description": "Please select a gender of an employee",
+                    "displayName": "Gender",
+                    "displayType": "select",
+                    "placeholder": "Select gender of an employee"
+                },
+                "name": "gender"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee date of birth is a mandatory field"
+                        }
+                    },
+                    "description": "Please select date of birth of an employee",
+                    "displayName": "Date of Birth",
+                    "displayType": "date"
+                },
+                "name": "dateOfBirth"
             },
             {
                 "meta": {
                     "htmlProps": {
-                        "format": "YYYY-MM-DD HH:mm:ss.SSSZ",
+                        "max": 12,
+                        "min": 12,
                         "disabled": false,
-                        "readOnly": false,
-                        "timeSteps": {
-                            "hours": 1,
-                            "minutes": 5,
-                            "seconds": 5
+                        "readOnly": false
+                    },
+                    "validation": {
+                        "max": 12,
+                        "min": 12,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee work phone is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a work phone number of an employee (e.g. 917760443399)",
+                    "displayName": "Work Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter a work phone number of an employee"
+                },
+                "name": "workPhone"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "max": 12,
+                        "min": 12,
+                        "disabled": false,
+                        "readOnly": false
+                    },
+                    "validation": {
+                        "max": 12,
+                        "min": 12,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee home phone is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a home phone number of an employee (e.g. 918099333381)",
+                    "displayName": "Home Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter a home phone number of an employee"
+                },
+                "name": "homePhone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 60,
+                        "required": false,
+                        "requiredDetail": {
+                            "requiredDetail": {
+                                "pattern": "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$",
+                                "errorMsg": "Employee personal email is a mandatory field"
+                            }
+                        }
+                    },
+                    "description": "Please provide personal email of an employee",
+                    "displayName": "Personal Email",
+                    "displayType": "text",
+                    "placeholder": "Enter a personal email of an employee"
+                },
+                "name": "personalEmail"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee skype is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide a skype id of an employee",
+                    "displayName": "Skype ID",
+                    "displayType": "text",
+                    "placeholder": "Enter a skype id of an employee"
+                },
+                "name": "skype"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "None",
+                            "value": 0
                         },
+                        {
+                            "label": "Single",
+                            "value": 1
+                        },
+                        {
+                            "label": "Married",
+                            "value": 2
+                        },
+                        {
+                            "label": "Widowed",
+                            "value": 3
+                        },
+                        {
+                            "label": "Separated",
+                            "value": 4
+                        }
+                    ],
+                    "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee marital status is a mandatory field"
+                        }
                     },
-                    "description": "Please select the <b>to date</b>.",
-                    "displayName": "To date",
-                    "displayType": "datetime",
-                    "placeholder": "YYYY-MM-DD hh:mm:ss"
+                    "description": "Please select a marital status of an employee",
+                    "displayName": "Marital Status",
+                    "displayType": "select"
                 },
-                "name": "to"
+                "name": "maritalStatus"
             },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
-                },
-                "name": "pageNumber"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
-                },
-                "name": "pageSize"
-            }
-        ]
-    },
-    "getallholidaycalendars": {
-        "definition": {
-            "qs": {
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "holidaysCalendarIds": "{{parameters.holidaysCalendarIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/holidayscalendar",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Please provide a holiday calendar id",
-                    "displayName": "Holiday Calendar ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a holiday calendar id"
+                    "description": "Please select date of marriage of an employee",
+                    "displayName": "Date of Marriage",
+                    "displayType": "date"
                 },
-                "name": "holidaysCalendarIds"
+                "name": "marriageDate"
             },
             {
                 "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Others",
+                                        "value": 0
+                                    },
+                                    {
+                                        "label": "Spouse",
+                                        "value": 1
+                                    },
+                                    {
+                                        "label": "Father",
+                                        "value": 2
+                                    },
+                                    {
+                                        "label": "Mother",
+                                        "value": 3
+                                    },
+                                    {
+                                        "label": "Child",
+                                        "value": 4
+                                    },
+                                    {
+                                        "label": "Self",
+                                        "value": 5
+                                    },
+                                    {
+                                        "label": "Sibling",
+                                        "value": 6
+                                    },
+                                    {
+                                        "label": "Partner",
+                                        "value": 7
+                                    },
+                                    {
+                                        "label": "FatherInLaw",
+                                        "value": 8
+                                    },
+                                    {
+                                        "label": "MotherInLaw",
+                                        "value": 9
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation type is a mandatory field"
+                                    }
+                                },
+                                "description": "Please select date of marriage of an employee",
+                                "displayName": "Relation Type",
+                                "displayType": "select"
+                            },
+                            "name": "relationType"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Not Specified",
+                                        "value": 0
+                                    },
+                                    {
+                                        "label": "Male",
+                                        "value": 1
+                                    },
+                                    {
+                                        "label": "Female",
+                                        "value": 2
+                                    },
+                                    {
+                                        "label": "Nonbinary",
+                                        "value": 3
+                                    },
+                                    {
+                                        "label": "Prefer Not To Respond",
+                                        "value": 4
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation's gender is a mandatory field"
+                                    }
+                                },
+                                "description": "Please select a gender of an employee",
+                                "displayName": "Gender",
+                                "displayType": "select",
+                                "placeholder": "Select gender of an employee"
+                            },
+                            "name": "gender"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation's first name is a mandatory field"
+                                    }
+                                },
+                                "description": "Please provide a first name of an employee",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter a first name of an employee"
+                            },
+                            "name": "firstName"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation's last name is a mandatory field"
+                                    }
+                                },
+                                "description": "Please provide a last name of an employee",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter a last name of an employee"
+                            },
+                            "name": "lastName"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation's display name is a mandatory field"
+                                    }
+                                },
+                                "description": "Please provide a display name to an employee",
+                                "displayName": "Display Name",
+                                "displayType": "text",
+                                "placeholder": "Enter a display name of an employee"
+                            },
+                            "name": "displayName"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 60,
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "pattern": "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$",
+                                        "errorMsg": "Employee relation's email is a mandatory field"
+                                    }
+                                },
+                                "description": "Please provide an email of an employee",
+                                "displayName": "Email",
+                                "displayType": "text",
+                                "placeholder": "Enter an email of an employee"
+                            },
+                            "name": "email"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation's date of birth is a mandatory field"
+                                    }
+                                },
+                                "description": "Please select date of birth of an employee",
+                                "displayName": "Date of Birth",
+                                "displayType": "date"
+                            },
+                            "name": "dateOfBirth"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation's profession is a mandatory field"
+                                    }
+                                },
+                                "description": "Please provide profession of employee relation",
+                                "displayName": "Profession",
+                                "displayType": "text"
+                            },
+                            "name": "profession"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee relation's mobile number is a mandatory field"
+                                    }
+                                },
+                                "description": "Please provide employee relative mobile number (e.g. 917959045523)",
+                                "displayName": "Mobile Number",
+                                "displayType": "text",
+                                "placeholder": "Enter a mobile number of an employee relative"
+                            },
+                            "name": "mobile"
+                        }
+                    ],
                     "validation": {
                         "required": true
                     },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
+                    "description": "Enter a relation(s) of an employee",
+                    "displayName": "Relations",
+                    "displayType": "array"
                 },
-                "name": "pageNumber"
+                "name": "relations"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
+                    "options": [
+                        {
+                            "label": "Not Available",
+                            "value": 0
+                        },
+                        {
+                            "label": "A Positive",
+                            "value": 1
+                        },
+                        {
+                            "label": "A Negative",
+                            "value": 2
+                        },
+                        {
+                            "label": "B Positive",
+                            "value": 3
+                        },
+                        {
+                            "label": "B Negative",
+                            "value": 4
+                        },
+                        {
+                            "label": "AB Positive",
+                            "value": 5
+                        },
+                        {
+                            "label": "AB Negative",
+                            "value": 6
+                        },
+                        {
+                            "label": "O Positive",
+                            "value": 7
+                        },
+                        {
+                            "label": "O Negative",
+                            "value": 8
+                        },
+                        {
+                            "label": "A2 Positive",
+                            "value": 9
+                        },
+                        {
+                            "label": "A1 Positive",
+                            "value": 10
+                        },
+                        {
+                            "label": "A1 Negative",
+                            "value": 11
+                        },
+                        {
+                            "label": "A1B Negative",
+                            "value": 12
+                        },
+                        {
+                            "label": "A1B Positive",
+                            "value": 13
+                        },
+                        {
+                            "label": "A2 Negative",
+                            "value": 14
+                        },
+                        {
+                            "label": "A2B Positive",
+                            "value": 15
+                        },
+                        {
+                            "label": "A2B Negative",
+                            "value": 16
+                        },
+                        {
+                            "label": "B1 Positive",
+                            "value": 17
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
                     },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee blood group is a mandatory field"
+                        }
+                    },
+                    "description": "Select employee's blood group",
+                    "displayName": "Blood Group",
+                    "displayType": "select"
                 },
-                "name": "pageSize"
-            }
-        ]
-    },
-    "getallshiftpolicies": {
-        "definition": {
-            "qs": {
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "shiftPolicyIds": "{{parameters.shiftPolicyIds}}"
+                "name": "bloodGroup"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/shiftpolicies",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee current address line 1 is a mandatory field"
+                                    }
+                                },
+                                "displayName": "Address Line 1",
+                                "displayType": "text"
+                            },
+                            "name": "addressLine1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "displayName": "Address Line 2",
+                                "displayType": "text"
+                            },
+                            "name": "addressLine2"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "max": 2,
+                                    "min": 2,
+                                    "disabled": false,
+                                    "readOnly": false
+                                },
+                                "validation": {
+                                    "max": 2,
+                                    "min": 2,
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee current address country code is a mandatory field"
+                                    }
+                                },
+                                "displayName": "Country Code",
+                                "displayType": "text"
+                            },
+                            "name": "countryCode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee current address city is a mandatory field"
+                                    }
+                                },
+                                "displayName": "City",
+                                "displayType": "text"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee current address state is a mandatory field"
+                                    }
+                                },
+                                "displayName": "State",
+                                "displayType": "text"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "max": 6,
+                                    "min": 6,
+                                    "disabled": false,
+                                    "readOnly": false
+                                },
+                                "validation": {
+                                    "max": 6,
+                                    "min": 6,
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee current address zip code is a mandatory field"
+                                    }
+                                },
+                                "displayName": "ZIP Code",
+                                "displayType": "text"
+                            },
+                            "name": "zip"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee current address is a mandatory field"
+                        }
+                    },
+                    "displayName": "Current Address",
+                    "displayType": "object"
+                },
+                "name": "currentAddress"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee permanent address line 1 is a mandatory field"
+                                    }
+                                },
+                                "displayName": "Address Line 1",
+                                "displayType": "text"
+                            },
+                            "name": "addressLine1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "displayName": "Address Line 2",
+                                "displayType": "text"
+                            },
+                            "name": "addressLine2"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "max": 2,
+                                    "min": 2,
+                                    "disabled": false,
+                                    "readOnly": false
+                                },
+                                "validation": {
+                                    "max": 2,
+                                    "min": 2,
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee permanent address country code is a mandatory field"
+                                    }
+                                },
+                                "displayName": "Country Code",
+                                "displayType": "text"
+                            },
+                            "name": "countryCode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee permanent address city is a mandatory field"
+                                    }
+                                },
+                                "displayName": "City",
+                                "displayType": "text"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee permanent address state is a mandatory field"
+                                    }
+                                },
+                                "displayName": "State",
+                                "displayType": "text"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "max": 6,
+                                    "min": 6,
+                                    "disabled": false,
+                                    "readOnly": false
+                                },
+                                "validation": {
+                                    "max": 6,
+                                    "min": 6,
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Employee permanent address zip code is a mandatory field"
+                                    }
+                                },
+                                "displayName": "ZIP Code",
+                                "displayType": "text"
+                            },
+                            "name": "zip"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee permanent address is a mandatory field"
+                        }
+                    },
+                    "displayName": "Permanent Address",
+                    "displayType": "object"
+                },
+                "name": "permanentAddress"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "disabled": false,
+                        "readOnly": false,
+                        "overrideDynamicSupport": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "maxLength": 500,
+                        "minLength": 10,
+                        "requiredDetail": {
+                            "errorMsg": "Employee professional summary is a mandatory field"
+                        }
+                    },
+                    "description": "Enter a professional summary of an employee",
+                    "displayName": "Professional Summary",
+                    "displayType": "textarea"
+                },
+                "name": "professionalSummary"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": false
+                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "Please provide a shift policy id",
-                    "displayName": "Shift Policy ID",
-                    "displayType": "text",
-                    "placeholder": "Enter shift policy id"
+                    "description": "Please provide employee personal custom attributes",
+                    "displayName": "Personal Custom Details",
+                    "displayType": "keyvalue"
                 },
-                "name": "shiftPolicyIds"
+                "name": "personalCustomDetails"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
+                    "options": [
+                        {
+                            "label": "Indian",
+                            "value": "IN"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
                     },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
-                },
-                "name": "pageNumber"
-            },
-            {
-                "meta": {
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee nationality is a mandatory field"
+                        }
                     },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
+                    "description": "Enter a nationality of an employee",
+                    "displayName": "Nationality",
+                    "displayType": "select"
                 },
-                "name": "pageSize"
+                "name": "nationality"
             }
         ]
-    },
-    "getallweeklyoffpolicies": {
-        "definition": {
-            "qs": {
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "weeklyoffPolicyIds": "{{parameters.weeklyoffPolicyIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/weeklyoffpolicies",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Please provide a weekly off policy id",
-                    "displayName": "Weekly Off Policy ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a weekly off policy id"
-                },
-                "name": "weeklyoffPolicyIds"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
-                },
-                "name": "pageNumber"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
-                },
-                "name": "pageSize"
-            }
-        ]
-    },
-    "getalltrackingpolicies": {
-        "definition": {
-            "qs": {
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "trackingPolicyIds": "{{parameters.trackingPolicyIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/penalisationpolicies",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Please provide a tracking policy id",
-                    "displayName": "Tracking Policy ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a tracking policy id"
-                },
-                "name": "trackingPolicyIds"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
-                },
-                "name": "pageNumber"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
-                },
-                "name": "pageSize"
-            }
-        ]
-    },
-    "getalllocations": {
-        "definition": {
-            "url": "https://{{secretscompany}}.{{secrets.environment}}.com/api/v1/hris/locations",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 20
-                },
-                "type": "url",
-                "default": {
-                    "limit": 20,
-                    "next_url": null
-                },
-                "next_url": "{{response.data.nextPage}}",
-                "condition": "{{response.data.nextPage}} !== null"
-            }
-        },
-        "parameters": []
-    },
-    "getalljobtitles": {
-        "definition": {
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/jobtitles",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 20
-                },
-                "type": "url",
-                "default": {
-                    "limit": 20,
-                    "next_url": null
-                },
-                "next_url": "{{response.data.nextPage}}",
-                "condition": "{{response.data.nextPage}} !== null"
-            }
-        },
-        "parameters": []
     }
 }

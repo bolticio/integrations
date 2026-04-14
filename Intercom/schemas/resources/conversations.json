@@ -51,7 +51,7 @@
     ],
     "retrieve": {
         "definition": {
-            "url": "https://api.intercom.io/contacts/{{parameters.id}}",
+            "url": "https://api.intercom.io/conversations/{{parameters.id}}?display_as=plaintext",
             "body": {
                 "id": "{{parameters.id}}"
             },
@@ -76,27 +76,126 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Contact ID is required"
+                            "errorMsg": "Conversation ID is required"
                         }
                     },
-                    "description": "Enter the Contact ID given by the Intercom you want to retrieve.",
-                    "displayName": "Contact ID",
+                    "description": "Enter the ID of the Conversation given by the Intercom you want to retrieve.",
+                    "displayName": "Conversation ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Contact ID"
+                    "placeholder": "Enter the Conversation ID"
                 },
                 "name": "id"
             }
         ]
     },
+    "list": {
+        "definition": {
+            "url": "https://api.intercom.io/conversations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "ContentType": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}",
+                "Intercom-Version": "2.14"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors[0].code}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.intercom.io/conversations/{{parameters.id}}?display_as=plaintext",
+            "body": {
+                "id": "{{parameters.id}}",
+                "read": "{{parameters.read}}",
+                "title": "{{parameters.title}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "ContentType": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors[0].code}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Conversation ID is required"
+                        }
+                    },
+                    "description": "Enter the ID of the Conversation given by the Intercom you want to update.",
+                    "displayName": "Conversation ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Conversation ID"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "True",
+                            "value": "true",
+                            "description": "true if yes"
+                        },
+                        {
+                            "label": "False",
+                            "value": "false",
+                            "description": "false if no"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Mark a conversation as read within Intercom.",
+                    "displayName": "Read",
+                    "displayType": "select",
+                    "placeholder": "Mark a conversation as read within Intercom."
+                },
+                "name": "read"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Enter the new title of the Conversation.",
+                    "displayName": "Update the Conversation Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the new title of the Conversation."
+                },
+                "name": "title"
+            }
+        ]
+    },
     "create": {
         "definition": {
-            "url": "https://api.intercom.io/companies",
+            "url": "https://api.intercom.io/conversations",
             "body": {
-                "name": "{{parameters.name}}",
-                "plan": "{{parameters.plan}}",
-                "size": "{{parameters.size}}",
-                "industry": "{{parameters.industry}}",
-                "company_id": "{{parameters.company_id}}"
+                "body": "{{parameters.body}}",
+                "from": {
+                    "id": "{{parameters.id}}",
+                    "type": "{{parameters.type}}"
+                }
             },
             "method": "post",
             "headers": {
@@ -116,77 +215,76 @@
         "parameters": [
             {
                 "meta": {
+                    "options": [
+                        {
+                            "label": "User",
+                            "value": "user",
+                            "description": "User associated to the Contact."
+                        },
+                        {
+                            "label": "Lead",
+                            "value": "lead",
+                            "description": "Lead associated to the Contact."
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Company Name is required"
+                            "errorMsg": "Role Type is required"
                         }
                     },
-                    "description": "Enter the name of the company you want to create.",
-                    "displayName": "Company Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the company"
+                    "description": "Enter the role for which you want your conversation.",
+                    "displayName": "Role Type",
+                    "displayType": "select",
+                    "placeholder": "Select the role type"
                 },
-                "name": "name"
+                "name": "type"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Company ID is required"
+                            "errorMsg": "Role ID is required"
                         }
                     },
-                    "description": "Enter the Company ID you want to create.",
-                    "displayName": "Company ID",
+                    "description": "Enter the Contact ID associated to the role. For example if you are the user then enter the contact id for the role user.",
+                    "displayName": "Role ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Company ID"
+                    "placeholder": "Enter the Role ID"
                 },
-                "name": "company_id"
+                "name": "id"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Body of Conversation is required"
+                        }
                     },
-                    "description": "Enter the name of the plan you have associated with the company.Example:'Enterprise'",
-                    "displayName": "Company Plan",
+                    "description": "Enter the Body of the Conversation",
+                    "displayName": "Body of Conversation",
                     "displayType": "text",
-                    "placeholder": "Enter the name of the plan"
+                    "placeholder": "Enter the Body of Conversation"
                 },
-                "name": "plan"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Enter the no. of employees in this company.Example:'100'",
-                    "displayName": "Company's Size",
-                    "displayType": "text",
-                    "placeholder": "Enter the no. of employees"
-                },
-                "name": "size"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Enter the industry that this company operates in.Example:'Manufacturing'",
-                    "displayName": "Industry Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the industry"
-                },
-                "name": "industry"
+                "name": "body"
             }
         ]
     },
-    "get": {
+    "delete": {
         "definition": {
-            "url": "https://api.intercom.io/companies",
-            "method": "GET",
+            "url": "https://api.intercom.io/conversations/{{parameters.id}}",
+            "body": {
+                "id": "{{parameters.id}}"
+            },
+            "method": "delete",
             "headers": {
+                "Accept": "application/json",
+                "ContentType": "application/json",
                 "Authorization": "Bearer {{secrets.api_key}}",
                 "Intercom-Version": "2.14"
             },
@@ -198,39 +296,19 @@
                 "output": "{{response.data}}"
             }
         },
-        "parameters": []
-    },
-    "delete": {
-        "definition": {
-            "url": "https://api.intercom.io/contacts/{{parameters.id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}",
-                "Intercom-Version": "2.14"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.errors[0].code}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.deleted}}"
-            }
-        },
         "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Contact ID is required"
+                            "errorMsg": "Conversation ID is required"
                         }
                     },
-                    "description": "Enter the Contact ID given by the Intercom you want to delete.",
-                    "displayName": "Contact ID ",
+                    "description": "Enter the ID of the conversation you want to delete.",
+                    "displayName": "Conversation ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Contact ID"
+                    "placeholder": "Enter the Conversation ID"
                 },
                 "name": "id"
             }

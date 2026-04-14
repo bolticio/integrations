@@ -46,8 +46,10 @@
     ],
     "getlist": {
         "definition": {
-            "qs": {},
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets",
+            "qs": {
+                "exclude_deleted": true
+            },
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/organizations",
             "method": "get",
             "headers": {
                 "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
@@ -57,7 +59,7 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.error}}"
                 },
-                "output": "{{response.data.tickets}}"
+                "output": "{{response.data.organizations}}"
             },
             "pagination": {
                 "qs": {
@@ -76,17 +78,14 @@
     },
     "update": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket_id}}",
+            "qs": {},
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/organizations/{{parameters.organization_id}}",
             "body": {
-                "ticket": {
+                "organization": {
+                    "name": "{{parameters.name}}",
                     "tags": "{{parameters.tags}}",
-                    "comment": {
-                        "body": "{{parameters.description}}"
-                    },
-                    "subject": "{{parameters.subject}}",
-                    "group_id": "{{parameters.group_id}}",
-                    "priority": "{{parameters.priority}}",
-                    "assignee_id": "{{parameters.assignee_id}}"
+                    "notes": "{{parameters.notes}}",
+                    "description": "{{parameters.description}}"
                 }
             },
             "method": "put",
@@ -116,117 +115,49 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the ID of the ticket you want to update",
-                    "displayName": "Ticket ID",
+                    "description": "Enter the ID of the organization",
+                    "displayName": "Organization ID",
                     "displayType": "text",
-                    "placeholder": "Enter the ticket ID"
+                    "placeholder": "Enter organization ID"
                 },
-                "name": "ticket_id"
+                "name": "organization_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the subject of the ticket you want to update.",
-                    "displayName": "Subject",
+                    "description": "Enter the name of the organization",
+                    "displayName": "Name",
                     "displayType": "text",
-                    "placeholder": "Enter new ticket subject"
+                    "placeholder": "Enter organization name"
                 },
-                "name": "subject"
+                "name": "name"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the description of the ticket you want to update.",
-                    "displayName": "First Comment / Description",
+                    "value": "",
+                    "description": "Enter the details about the organization.",
+                    "displayName": "Details",
                     "displayType": "textarea",
-                    "placeholder": "Enter new ticket description"
+                    "placeholder": "Enter organization details"
                 },
-                "name": "description"
+                "name": "details"
             },
             {
                 "meta": {
-                    "value": false,
-                    "options": [
-                        {
-                            "label": "Urgent",
-                            "value": "urgent"
-                        },
-                        {
-                            "label": "High",
-                            "value": "high"
-                        },
-                        {
-                            "label": "Normal",
-                            "value": "normal"
-                        },
-                        {
-                            "label": "Low",
-                            "value": "low"
-                        }
-                    ],
-                    "description": "Select the priority of the ticket.",
-                    "displayName": "Priority",
-                    "displayType": "select",
-                    "placeholder": "Select the priority for the ticket"
+                    "value": "",
+                    "description": "Enter the notes about the organization.",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter organization notes"
                 },
-                "name": "priority"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.update",
-                            "loadOptionsMethod": "getAssignees"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Note: the assignee must be in the default group (or specific group selected below) else an error will occur. Defaults to selected zendesk account",
-                    "displayName": "Assignee",
-                    "displayType": "select",
-                    "placeholder": "Select the assignee (agent)"
-                },
-                "name": "assignee_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.update",
-                            "loadOptionsMethod": "getGroups"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Select the group you want to assign the ticket to.",
-                    "displayName": "Group",
-                    "displayType": "select",
-                    "placeholder": "Select the group"
-                },
-                "name": "group_id"
+                "name": "notes"
             },
             {
                 "meta": {
                     "value": [],
-                    "description": "Enter the tags for the ticket.",
+                    "description": "Enter the tags for the organization.",
                     "displayName": "Tags",
                     "displayType": "multitext"
                 },
@@ -234,10 +165,11 @@
             }
         ]
     },
-    "get": {
+    "delete": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket}}",
-            "method": "get",
+            "qs": {},
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/organizations/{{parameters.organization_id}}",
+            "method": "delete",
             "headers": {
                 "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
             },
@@ -252,32 +184,26 @@
         "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the ticket you want to fetch.",
-                    "displayName": "Ticket ID",
+                    "value": "",
+                    "description": "Enter the ID of the organization you want to delete.",
+                    "displayName": "Organization ID",
                     "displayType": "text",
-                    "placeholder": "Enter the ticket ID"
+                    "placeholder": "Enter organization ID to be deleted"
                 },
-                "name": "ticket"
+                "name": "organization_id"
             }
         ]
     },
     "create": {
         "definition": {
             "qs": {},
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/organizations",
             "body": {
-                "ticket": {
+                "organization": {
+                    "name": "{{parameters.name}}",
                     "tags": "{{parameters.tags}}",
-                    "comment": {
-                        "body": "{{parameters.description}}"
-                    },
-                    "subject": "{{parameters.subject}}",
-                    "group_id": "{{parameters.group_id}}",
-                    "priority": "{{parameters.priority}}",
-                    "assignee_id": "{{parameters.assignee_id}}"
+                    "notes": "{{parameters.notes}}",
+                    "description": "{{parameters.description}}"
                 }
             },
             "method": "post",
@@ -307,102 +233,37 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the subject of the ticket you want to create.",
-                    "displayName": "Subject",
+                    "description": "Enter the name of the organization",
+                    "displayName": "Name",
                     "displayType": "text",
-                    "placeholder": "Enter the ticket subject"
+                    "placeholder": "Enter organization name"
                 },
-                "name": "subject"
+                "name": "name"
             },
             {
                 "meta": {
-                    "value": false,
-                    "options": [
-                        {
-                            "label": "Urgent",
-                            "value": "urgent"
-                        },
-                        {
-                            "label": "High",
-                            "value": "high"
-                        },
-                        {
-                            "label": "Normal",
-                            "value": "normal"
-                        },
-                        {
-                            "label": "Low",
-                            "value": "low"
-                        }
-                    ],
-                    "description": "Select the priority of the ticket.",
-                    "displayName": "Priority",
-                    "displayType": "select"
-                },
-                "name": "priority"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.create",
-                            "loadOptionsMethod": "getAssignees"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Note: the assignee must be in the default group (or specific group selected below) else an error will occur. Defaults to selected zendesk account",
-                    "displayName": "Assignee",
-                    "displayType": "select"
-                },
-                "name": "assignee_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.create",
-                            "loadOptionsMethod": "getGroups"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Select the group you want to assign the ticket to.",
-                    "displayName": "Group",
-                    "displayType": "select"
-                },
-                "name": "group_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the description of the ticket you want to create.",
-                    "displayName": "First Comment / Description",
+                    "value": "",
+                    "description": "Enter the details about the organization.",
+                    "displayName": "Details",
                     "displayType": "textarea",
-                    "placeholder": "Enter the ticket description"
+                    "placeholder": "Enter organization details"
                 },
-                "name": "description"
+                "name": "details"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Enter the notes about the organization.",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter organization notes"
+                },
+                "name": "notes"
             },
             {
                 "meta": {
                     "value": [],
-                    "description": "Enter the tags for the ticket.",
+                    "description": "Enter the tags for the organization.",
                     "displayName": "Tags",
                     "displayType": "multitext"
                 },
@@ -410,11 +271,12 @@
             }
         ]
     },
-    "delete": {
+    "get": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket}}",
-            "method": "delete",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/organizations/{{parameters.organization_id}}",
+            "method": "get",
             "headers": {
+                "Accept": "application/json",
                 "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
             },
             "response": {
@@ -428,15 +290,13 @@
         "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the ticket you want to delete.",
-                    "displayName": "Ticket ID",
+                    "value": "",
+                    "description": "Enter ID of the organization.",
+                    "displayName": "Organization ID",
                     "displayType": "text",
-                    "placeholder": "Enter the ticket ID"
+                    "placeholder": "Enter Organization ID"
                 },
-                "name": "ticket"
+                "name": "organization_id"
             }
         ]
     }

@@ -59,7 +59,7 @@
                 "To": "{{parameters.to}}",
                 "From": "{{parameters.from}}"
             },
-            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Calls.json",
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
             "method": "get",
             "headers": {
                 "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
@@ -71,7 +71,7 @@
                     "message": "{{response.data.message}}",
                     "more_info": "{{response.data.more_info}}"
                 },
-                "output": "{{response.data.calls}}"
+                "output": "{{response.data.messages}}"
             },
             "pagination": {
                 "qs": {
@@ -106,7 +106,7 @@
                             "errorMsg": "Recipient's phone number is required."
                         }
                     },
-                    "description": "Recipient's phone number for the Call.",
+                    "description": "Recipient's phone number for the SMS.",
                     "displayName": "To Number",
                     "displayType": "phone",
                     "placeholder": "Enter recipient's phone number e.g. 5552229999."
@@ -120,8 +120,8 @@
                         "body": {
                             "name": "twilio",
                             "secret": "{{parameters.secret}}",
-                            "resource": "call",
-                            "operation": "call.list",
+                            "resource": "message",
+                            "operation": "message.list",
                             "loadOptionsMethod": "getPhoneNumbers"
                         },
                         "method": "post",
@@ -139,7 +139,7 @@
                             "errorMsg": "Sender's phone number is required."
                         }
                     },
-                    "description": "Sender's phone number for the Call.",
+                    "description": "Sender's phone number for the SMS.",
                     "displayName": "From Number",
                     "displayType": "autocomplete",
                     "placeholder": "Select sender's Twilio phone number e.g. +15552229999.",
@@ -147,12 +147,12 @@
                         "conditions": [
                             {
                                 "field": "resource",
-                                "value": "call",
+                                "value": "message",
                                 "operator": "EQUALS"
                             },
                             {
                                 "field": "operation",
-                                "value": "call.list",
+                                "value": "message.list",
                                 "operator": "EQUALS"
                             }
                         ]
@@ -164,12 +164,11 @@
     },
     "create": {
         "definition": {
-            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Calls.json",
+            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
             "body": {
                 "To": "{{parameters.to}}",
-                "From": "{{parameters.from}}",
-                "Twiml": "<Response><Say voice='{{parameters.voice}}'>{{parameters.twiml}}</Say></Response>",
-                "MachineDetection": "true"
+                "Body": "{{parameters.body}}",
+                "From": "{{parameters.from}}"
             },
             "method": "post",
             "headers": {
@@ -180,7 +179,7 @@
                 "error": {
                     "code": "{{response.data.code}}",
                     "status": "{{response.data.status}}",
-                    "message": "{{response.data.message}}",
+                    "message": "{{response.data}}",
                     "more_info": "{{response.data.more_info}}"
                 },
                 "output": "{{response.data}}"
@@ -189,26 +188,15 @@
         "parameters": [
             {
                 "meta": {
-                    "htmlProps": {
-                        "continents": [
-                            "NA",
-                            "SA",
-                            "AS",
-                            "OC",
-                            "AF",
-                            "EU"
-                        ],
-                        "defaultCountry": "IN"
-                    },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
                             "errorMsg": "Recipient's phone number is required."
                         }
                     },
-                    "description": "Recipient's phone number for the call.",
+                    "description": "Recipient's phone number for the SMS.",
                     "displayName": "To Number",
-                    "displayType": "phone",
+                    "displayType": "text",
                     "placeholder": "Enter recipient's phone number e.g. 5552229999."
                 },
                 "name": "to"
@@ -220,8 +208,8 @@
                         "body": {
                             "name": "twilio",
                             "secret": "{{parameters.secret}}",
-                            "resource": "call",
-                            "operation": "call.create",
+                            "resource": "message",
+                            "operation": "message.create",
                             "loadOptionsMethod": "getPhoneNumbers"
                         },
                         "method": "post",
@@ -236,10 +224,10 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Sender's phone number is required"
+                            "errorMsg": "Sender's phone number is required."
                         }
                     },
-                    "description": "Sender's phone number for the call.",
+                    "description": "Sender's phone number for the SMS.",
                     "displayName": "From Number",
                     "displayType": "autocomplete",
                     "placeholder": "Select sender's Twilio phone number e.g. +15552229999.",
@@ -247,12 +235,12 @@
                         "conditions": [
                             {
                                 "field": "resource",
-                                "value": "call",
+                                "value": "message",
                                 "operator": "EQUALS"
                             },
                             {
                                 "field": "operation",
-                                "value": "call.create",
+                                "value": "message.create",
                                 "operator": "EQUALS"
                             }
                         ]
@@ -262,105 +250,30 @@
             },
             {
                 "meta": {
-                    "value": "woman",
-                    "options": [
-                        {
-                            "label": "Woman",
-                            "value": "woman"
-                        },
-                        {
-                            "label": "Man",
-                            "value": "man"
-                        }
-                    ],
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Call voice selection is required"
+                            "errorMsg": "Message is required."
                         }
                     },
-                    "description": "Send voice.",
-                    "displayName": "Voice",
-                    "displayType": "radio"
-                },
-                "name": "voice"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Call message is required"
-                        }
-                    },
-                    "description": "This message plays when call is received. Max 3955 characters.",
+                    "description": "Enter the content of the message",
                     "displayName": "Message",
                     "displayType": "textarea",
                     "placeholder": "Enter message..."
                 },
-                "name": "twiml"
-            }
-        ]
-    },
-    "send": {
-        "definition": {
-            "url": "https://api.twilio.com/2010-04-01/Accounts/{{secrets.AccountSID}}/Messages.json",
-            "body": {
-                "To": "whatsapp:{{parameters.to}}",
-                "Body": "{{parameters.body}}",
-                "From": "whatsapp:{{parameters.from}}"
-            },
-            "method": "post",
-            "headers": {
-                "content-type": "application/x-www-form-urlencoded",
-                "Authorization": "Basic convertBufferBase64String({{secrets.AccountSID}}:{{secrets.AuthToken}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.code}}",
-                    "status": "{{response.data.status}}",
-                    "message": "{{response.data.message}}",
-                    "more_info": "{{response.data.more_info}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Recipient's WhatsApp number.",
-                    "displayName": "To Number",
-                    "displayType": "text",
-                    "placeholder": "Enter recipient's WhatsApp number"
-                },
-                "name": "to"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Sender's phone number for the whatsapp.",
-                    "displayName": "From Number",
-                    "displayType": "text",
-                    "placeholder": "Select sender's Twilio phone number"
-                },
-                "name": "from"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The message content to send.",
-                    "displayName": "Message Body",
-                    "displayType": "text",
-                    "placeholder": "Enter the message body."
-                },
                 "name": "body"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The media size limit is 5 MB for supported file types (jpeg, jpg, png, gif). Must be a URL that Twilio can download (so private URLs or files may not work!).",
+                    "displayName": "Media Url",
+                    "displayType": "multitext",
+                    "placeholder": "Enter media url..."
+                },
+                "name": "mediaUrl"
             }
         ]
     }

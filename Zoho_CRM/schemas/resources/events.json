@@ -49,15 +49,78 @@
             "name": "operation"
         }
     ],
+    "delete": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Events/{{parameters.event_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[0-9]+$",
+                        "required": true
+                    },
+                    "description": "The ID of the event to delete.",
+                    "displayName": "Event ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the event ID"
+                },
+                "name": "event_id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Events/{{parameters.event_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[0-9]+$",
+                        "required": true
+                    },
+                    "description": "The ID of the event to retrieve.",
+                    "displayName": "Event ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the event ID"
+                },
+                "name": "event_id"
+            }
+        ]
+    },
     "create": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "url": "https://www.zohoapis.in/crm/v2/Events",
             "body": {
                 "data": [
                     {
-                        "Email": "{{parameters.email}}",
-                        "Last_Name": "{{parameters.last_name}}",
-                        "First_Name": "{{parameters.first_name}}"
+                        "Location": "{{parameters.location}}",
+                        "Event_Title": "{{parameters.subject}}",
+                        "End_DateTime": "{{parameters.end_datetime}}",
+                        "Start_DateTime": "{{parameters.start_datetime}}"
                     }
                 ]
             },
@@ -80,42 +143,71 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The first name of the contact.",
-                    "displayName": "First Name",
+                    "description": "The subject of the event.",
+                    "displayName": "Subject",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter the subject"
                 },
-                "name": "first_name"
+                "name": "subject"
             },
             {
                 "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
                     "validation": {
                         "required": true
                     },
-                    "description": "The last name of the contact.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the last name"
+                    "description": "Start date and time of the event in ISO format.",
+                    "displayName": "Start Date & Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DDTHH:MM:SS+05:30"
                 },
-                "name": "last_name"
+                "name": "start_datetime"
             },
             {
                 "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
                     "validation": {
                         "required": true
                     },
-                    "description": "The email address of the contact.",
-                    "displayName": "Email",
-                    "displayType": "email",
-                    "placeholder": "Enter the email address"
+                    "description": "End date and time of the event in ISO format.",
+                    "displayName": "End Date & Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DDTHH:MM:SS+05:30"
                 },
-                "name": "email"
+                "name": "end_datetime"
+            },
+            {
+                "meta": {
+                    "description": "Location of the event.",
+                    "displayName": "Location",
+                    "displayType": "text",
+                    "placeholder": "Enter location"
+                },
+                "name": "location"
             }
         ]
     },
     "get_list": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "url": "https://www.zohoapis.in/crm/v2/Events",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -142,13 +234,14 @@
     },
     "update": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "url": "https://www.zohoapis.in/crm/v2/Events/{{parameters.event_id}}",
             "body": {
                 "data": [
                     {
-                        "Email": "{{parameters.email}}",
-                        "Last_Name": "{{parameters.last_name}}",
-                        "First_Name": "{{parameters.first_name}}"
+                        "Subject": "{{parameters.subject}}",
+                        "Location": "{{parameters.location}}",
+                        "End_DateTime": "{{parameters.end_datetime}}",
+                        "Start_DateTime": "{{parameters.start_datetime}}"
                     }
                 ]
             },
@@ -172,110 +265,68 @@
                         "pattern": "^[0-9]+$",
                         "required": true
                     },
-                    "description": "The ID of the contact to update.",
-                    "displayName": "Contact ID",
+                    "description": "The ID of the event to update.",
+                    "displayName": "Event ID",
                     "displayType": "text",
-                    "placeholder": "Enter the contact ID"
+                    "placeholder": "Enter the event ID"
                 },
-                "name": "contact_id"
+                "name": "event_id"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The first name of the contact.",
-                    "displayName": "First Name",
+                    "description": "The subject of the event.",
+                    "displayName": "Subject",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter the subject"
                 },
-                "name": "first_name"
+                "name": "subject"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
                     },
-                    "description": "The last name of the contact.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the last name"
+                    "description": "Start date and time of the event in ISO format.",
+                    "displayName": "Start Date & Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DDTHH:MM:SS+05:30"
                 },
-                "name": "last_name"
+                "name": "start_datetime"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
                     },
-                    "description": "The email address of the contact.",
-                    "displayName": "Email",
-                    "displayType": "email",
-                    "placeholder": "Enter the email address"
+                    "description": "End date and time of the event in ISO format.",
+                    "displayName": "End Date & Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DDTHH:MM:SS+05:30"
                 },
-                "name": "email"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
+                "name": "end_datetime"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "pattern": "^[0-9]+$",
-                        "required": true
-                    },
-                    "description": "The ID of the contact to retrieve.",
-                    "displayName": "Contact ID",
+                    "description": "Location of the event.",
+                    "displayName": "Location",
                     "displayType": "text",
-                    "placeholder": "Enter the contact ID"
+                    "placeholder": "Enter location"
                 },
-                "name": "contact_id"
-            }
-        ]
-    },
-    "delete": {
-        "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
-            "method": "delete",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "pattern": "^[0-9]+$",
-                        "required": true
-                    },
-                    "description": "The ID of the contact to delete.",
-                    "displayName": "Contact ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the contact ID"
-                },
-                "name": "contact_id"
+                "name": "location"
             }
         ]
     }

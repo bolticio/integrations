@@ -42,52 +42,15 @@
             "name": "operation"
         }
     ],
-    "delete": {
-        "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badges/{{parameters.badge_id}}",
-            "body": {
-                "data": "{{secrets}}",
-                "badge": {
-                    "badge_id": "{{parameters.badge_id}}"
-                }
-            },
-            "method": "DELETE",
-            "headers": {
-                "Accept": "application/json",
-                "ContentType": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
-            },
-            "response": {
-                "error": {
-                    "status": "{{response.status}}",
-                    "details": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter The Badge ID You Want To Delete",
-                    "displayName": "Badge ID",
-                    "displayType": "text",
-                    "placeholder": "Enter The Badge ID"
-                },
-                "name": "badge_id"
-            }
-        ]
-    },
     "create": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_assignments",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_categories",
             "body": {
                 "data": "{{secrets}}",
-                "badge_assignment": {
-                    "user_id": "{{parameters.user_id}}",
-                    "badge_id": "{{parameters.badge_id}}"
+                "badge_category": {
+                    "name": "{{parameters.name}}",
+                    "slug": "{{parameters.slug}}",
+                    "brand_id": "{{parameters.brand_id}}"
                 }
             },
             "method": "POST",
@@ -110,33 +73,42 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter The Badge ID Of The Badge Assignment",
-                    "displayName": "Badge ID",
+                    "description": "Give a meaningful name that represents the purpose of this badge category",
+                    "displayName": "Name",
                     "displayType": "text",
-                    "placeholder": "Enter The Badge ID"
+                    "placeholder": "Enter the Name"
                 },
-                "name": "badge_id"
+                "name": "name"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter The User ID Of The Badge Assignment",
-                    "displayName": "User ID",
+                    "description": "A Unique (Within The Brand) Textual Code Of The Badge Category",
+                    "displayName": "Slug",
                     "displayType": "text",
-                    "placeholder": "Enter The User ID"
+                    "placeholder": "Enter the Slug"
                 },
-                "name": "user_id"
+                "name": "slug"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The Brand That The Badge Category Pertains To",
+                    "displayName": "Brand ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Brand ID"
+                },
+                "name": "brand_id"
             }
         ]
     },
     "list": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_assignments",
-            "body": {
-                "data": "{{secrets}}"
-            },
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_categories",
             "method": "GET",
             "headers": {
                 "Accept": "application/json",
@@ -151,7 +123,20 @@
                 "output": "{{response.data}}"
             }
         },
-        "parameters": []
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter The Brand Id For Category",
+                    "displayName": "Brand ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Brand ID"
+                },
+                "name": "brand_id"
+            }
+        ]
     },
     "get": {
         "definition": {
@@ -191,18 +176,16 @@
             }
         ]
     },
-    "update": {
+    "delete": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badges/{{parameters.badge_id}}",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/gather/badge_categories/{{parameters.badge_id}}",
             "body": {
                 "data": "{{secrets}}",
-                "badge": {
-                    "name": "{{parameters.name}}",
-                    "description": "{{parameters.description}}",
-                    "badge_category_id": "{{parameters.badge_category_id}}"
+                "badge_category": {
+                    "badge_id": "{{parameters.badge_id}}"
                 }
             },
-            "method": "PUT",
+            "method": "DELETE",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -222,36 +205,12 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter The Badge Category ID For Updating The Existing Badge",
+                    "description": "Enter The Badge Category Id For Category (If It's Not Attach To Any Badge)",
                     "displayName": "Badge Category ID",
                     "displayType": "text",
-                    "placeholder": "Enter Badge Category ID"
+                    "placeholder": "Enter the Badge Category ID"
                 },
-                "name": "badge_category_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter The Name For Updating The Existing Badge",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Enter The Badge Name"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter The Description For Updating The Existing Badge",
-                    "displayName": "Description",
-                    "displayType": "text",
-                    "placeholder": "Enter Description"
-                },
-                "name": "description"
+                "name": "badge_id"
             }
         ]
     }

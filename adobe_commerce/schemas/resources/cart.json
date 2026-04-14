@@ -69,11 +69,56 @@
             "name": "operation"
         }
     ],
-    "customerattributeget": {
+    "create": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/attribute/{{parameters.attributeCode}}",
-            "method": "get",
+            "url": "https://{{secrets.domain}}/rest/default/V1/carts",
+            "body": {
+                "currency": {
+                    "base_currency_code": "{{parameters.base_currency_code}}",
+                    "base_to_quote_rate": 1,
+                    "store_to_base_rate": 0,
+                    "base_to_global_rate": 1,
+                    "quote_currency_code": "{{parameters.quote_currency_code}}",
+                    "store_currency_code": "{{parameters.store_currency_code}}",
+                    "store_to_quote_rate": 0,
+                    "global_currency_code": "{{parameters.global_currency_code}}"
+                },
+                "customer": {
+                    "email": "{{parameters.customer_email}}",
+                    "lastname": "{{parameters.customer_lastname}}",
+                    "firstname": "{{parameters.customer_firstname}}"
+                },
+                "store_id": "{{parameters.store_id}}",
+                "is_active": "{{parameters.is_active}}",
+                "items_qty": "{{parameters.items_qty}}",
+                "is_virtual": "{{parameters.is_virtual}}",
+                "items_count": "{{parameters.items_count}}",
+                "orig_order_id": 0,
+                "billing_address": {
+                    "id": "{{parameters.billing_id}}",
+                    "city": "{{parameters.billing_city}}",
+                    "email": "{{parameters.billing_email}}",
+                    "region": "{{parameters.billing_region}}",
+                    "street": [
+                        "{{parameters.billing_street}}"
+                    ],
+                    "lastname": "{{parameters.billing_lastname}}",
+                    "postcode": "{{parameters.billing_postcode}}",
+                    "firstname": "{{parameters.billing_firstname}}",
+                    "region_id": "{{parameters.billing_region_id}}",
+                    "telephone": "{{parameters.billing_telephone}}",
+                    "country_id": "{{parameters.billing_country_id}}",
+                    "region_code": "{{parameters.billing_region_code}}",
+                    "same_as_billing": 0,
+                    "save_in_address_book": 0
+                },
+                "customer_is_guest": "{{parameters.customer_is_guest}}",
+                "customer_note_notify": "{{parameters.customer_note_notify}}",
+                "customer_tax_class_id": "{{parameters.customer_tax_class_id}}"
+            },
+            "method": "post",
             "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -90,19 +135,331 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "description": "Indicates whether the cart is active.",
+                    "displayName": "Is Active",
+                    "displayType": "toggle",
+                    "placeholder": "Select active status"
                 },
-                "name": "attributeCode"
+                "name": "is_active"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Indicates if the cart is for virtual products only.",
+                    "displayName": "Is Virtual",
+                    "displayType": "toggle",
+                    "placeholder": "Select if virtual"
+                },
+                "name": "is_virtual"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Number of distinct items in the cart.",
+                    "displayName": "Items Count",
+                    "displayType": "number",
+                    "placeholder": "Enter number of items"
+                },
+                "name": "items_count"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Total quantity of items in the cart.",
+                    "displayName": "Items Quantity",
+                    "displayType": "number",
+                    "placeholder": "Enter total quantity"
+                },
+                "name": "items_qty"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Email of the customer.",
+                    "displayName": "Customer Email",
+                    "displayType": "text",
+                    "placeholder": "Enter email address"
+                },
+                "name": "customer_email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "First name of the customer.",
+                    "displayName": "Customer First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "customer_firstname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Last name of the customer.",
+                    "displayName": "Customer Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "customer_lastname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "ID of the billing address.",
+                    "displayName": "Billing Address ID",
+                    "displayType": "number",
+                    "placeholder": "Enter address ID"
+                },
+                "name": "billing_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Region name of the billing address.",
+                    "displayName": "Billing Region",
+                    "displayType": "text",
+                    "placeholder": "Enter region"
+                },
+                "name": "billing_region"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Region ID of the billing address.",
+                    "displayName": "Billing Region ID",
+                    "displayType": "number",
+                    "placeholder": "Enter region ID"
+                },
+                "name": "billing_region_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Region code of the billing address.",
+                    "displayName": "Billing Region Code",
+                    "displayType": "text",
+                    "placeholder": "Enter region code"
+                },
+                "name": "billing_region_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Country code for the billing address.(e.g. SA, US)",
+                    "displayName": "Billing Country ID",
+                    "displayType": "text",
+                    "placeholder": "Enter country ID "
+                },
+                "name": "billing_country_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Street address for billing.",
+                    "displayName": "Billing Street",
+                    "displayType": "text",
+                    "placeholder": "Enter billing street address"
+                },
+                "name": "billing_street"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Phone number for billing.",
+                    "displayName": "Billing Phone Number",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "billing_telephone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Postcode for billing address.",
+                    "displayName": "Billing Postcode",
+                    "displayType": "text",
+                    "placeholder": "Enter postcode"
+                },
+                "name": "billing_postcode"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "City for billing address.",
+                    "displayName": "Billing City",
+                    "displayType": "text",
+                    "placeholder": "Enter city name"
+                },
+                "name": "billing_city"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "First name on billing address.",
+                    "displayName": "Billing First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "billing_firstname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Last name on billing address.",
+                    "displayName": "Billing Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "billing_lastname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Email associated with billing.",
+                    "displayName": "Billing Email",
+                    "displayType": "text",
+                    "placeholder": "Enter email address"
+                },
+                "name": "billing_email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Global currency code (e.g., SAR, USD).",
+                    "displayName": "Global Currency Code",
+                    "displayType": "text",
+                    "placeholder": "Enter global currency code "
+                },
+                "name": "global_currency_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Base currency code.",
+                    "displayName": "Base Currency Code",
+                    "displayType": "text",
+                    "placeholder": "Enter base currency code"
+                },
+                "name": "base_currency_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Store currency code.",
+                    "displayName": "Store Currency Code",
+                    "displayType": "text",
+                    "placeholder": "Enter store currency code"
+                },
+                "name": "store_currency_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Quote currency code.",
+                    "displayName": "Quote Currency Code",
+                    "displayType": "text",
+                    "placeholder": "Enter quote currency code"
+                },
+                "name": "quote_currency_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Whether the customer is a guest.",
+                    "displayName": "Is Guest Customer",
+                    "displayType": "toggle",
+                    "placeholder": "Select guest status"
+                },
+                "name": "customer_is_guest"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Notify customer about order note.",
+                    "displayName": "Customer Note Notify",
+                    "displayType": "toggle",
+                    "placeholder": "Select notify preference"
+                },
+                "name": "customer_note_notify"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Tax class ID for the customer.",
+                    "displayName": "Customer Tax Class ID",
+                    "displayType": "number",
+                    "placeholder": "Enter tax class ID"
+                },
+                "name": "customer_tax_class_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Store identifier where the cart is created.",
+                    "displayName": "Store ID",
+                    "displayType": "number",
+                    "placeholder": "Enter store ID"
+                },
+                "name": "store_id"
             }
         ]
     },
-    "customercustomlist": {
+    "createguestcart": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/custom",
-            "method": "get",
+            "url": "https://{{secrets.domain}}/rest/default/V1/guest-carts",
+            "method": "post",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
@@ -116,11 +473,19 @@
         },
         "parameters": []
     },
-    "customerformlist": {
+    "additem": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/form/{{parameters.attributeCode}}",
-            "method": "get",
+            "url": "https://{{secrets.domain}}/rest/default/V1/carts/{{parameters.cartId}}/items",
+            "body": {
+                "cartItem": {
+                    "qty": "{{parameters.qty}}",
+                    "sku": "{{parameters.sku}}",
+                    "quote_id": "{{parameters.cartId}}"
+                }
+            },
+            "method": "post",
             "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -137,54 +502,71 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
+                    "description": "The ID of the cart into which item to add.",
+                    "displayName": "Cart ID",
                     "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "placeholder": "Enter the guest cart ID"
                 },
-                "name": "attributeCode"
+                "name": "cartId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "SKU of the product to add.",
+                    "displayName": "Product SKU",
+                    "displayType": "text",
+                    "placeholder": "Enter the product SKU"
+                },
+                "name": "sku"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Quantity of the product.",
+                    "displayName": "Quantity",
+                    "displayType": "number",
+                    "placeholder": "Enter the quantity"
+                },
+                "name": "qty"
             }
         ]
     },
-    "customeraddresslist": {
+    "setshippinginformation": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
+            "url": "https://{{secrets.domain}}/rest/V1/carts/{{parameters.cartId}}/shipping-information",
+            "body": {
+                "addressInformation": {
+                    "billing_address": {
+                        "city": "{{parameters.billing.city}}",
+                        "region": "{{parameters.billing.region}}",
+                        "street": [
+                            "{{parameters.billing.street}}"
+                        ],
+                        "postcode": "{{parameters.billing.postcode}}",
+                        "telephone": "{{parameters.billing.telephone}}",
+                        "country_id": "{{parameters.billing.country_id}}"
+                    },
+                    "shipping_address": {
+                        "city": "{{parameters.shipping.city}}",
+                        "region": "{{parameters.shipping.region}}",
+                        "street": [
+                            "{{parameters.shipping.street}}"
+                        ],
+                        "postcode": "{{parameters.shipping.postcode}}",
+                        "telephone": "{{parameters.shipping.telephone}}",
+                        "country_id": "{{parameters.shipping.country_id}}"
+                    },
+                    "shipping_method_code": "{{parameters.shipping_method_code}}",
+                    "shipping_carrier_code": "{{parameters.shipping_carrier_code}}"
+                }
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "get": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer",
-            "method": "get",
+            "method": "post",
             "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "customeraddressattributeget": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/attribute/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -201,50 +583,215 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code for the customer address attribute.",
-                    "displayName": "Attribute Code",
+                    "description": "The unique identifier for the cart.",
+                    "displayName": "Cart ID",
                     "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "placeholder": "Enter the cart ID"
                 },
-                "name": "attributeCode"
-            }
-        ]
-    },
-    "customeraddressformlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/form/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
+                "name": "cartId"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The street address for shipping.",
+                                "displayName": "Street",
+                                "displayType": "text",
+                                "placeholder": "Enter the street address"
+                            },
+                            "name": "street"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The city for the shipping address.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter the city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The postcode for the shipping address.",
+                                "displayName": "Postcode",
+                                "displayType": "text",
+                                "placeholder": "Enter the postcode"
+                            },
+                            "name": "postcode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The region or state for the shipping address.Eg. NY",
+                                "displayName": "Region",
+                                "displayType": "text",
+                                "placeholder": "Enter the region or state"
+                            },
+                            "name": "region"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The country for the shipping address.Eg. US",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter the country"
+                            },
+                            "name": "country_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The phone number for the shipping address.",
+                                "displayName": "Phone Number",
+                                "displayType": "text",
+                                "placeholder": "Enter the phone number"
+                            },
+                            "name": "telephone"
+                        }
+                    ],
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "description": "Full shipping address object",
+                    "displayName": "Shipping Address",
+                    "displayType": "object"
                 },
-                "name": "attributeCode"
+                "name": "shipping"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The street address for billing.",
+                                "displayName": "Street",
+                                "displayType": "text",
+                                "placeholder": "Enter the street address"
+                            },
+                            "name": "street"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The city for the billing address.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter the city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The postcode for the billing address.",
+                                "displayName": "Postcode",
+                                "displayType": "text",
+                                "placeholder": "Enter the postcode"
+                            },
+                            "name": "postcode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The region or state for the billing address. Eg.NY",
+                                "displayName": "Region",
+                                "displayType": "text",
+                                "placeholder": "Enter the region or state"
+                            },
+                            "name": "region"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The country for the billing address. Eg. US",
+                                "displayName": "Country Code",
+                                "displayType": "text",
+                                "placeholder": "Enter the country"
+                            },
+                            "name": "country_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The phone number for the shipping address.",
+                                "displayName": "Phone Number",
+                                "displayType": "text",
+                                "placeholder": "Enter the phone number"
+                            },
+                            "name": "telephone"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Full billing address object",
+                    "displayName": "Billing Address",
+                    "displayType": "object"
+                },
+                "name": "billing"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Shipping method code. Eg.pickup",
+                    "displayName": "Shipping Method Code",
+                    "displayType": "text",
+                    "placeholder": "Enter the shipping method code"
+                },
+                "name": "shipping_method_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Shipping Carrier code. Eg.instore",
+                    "displayName": "Shipping Carrier Code",
+                    "displayType": "text",
+                    "placeholder": "Enter the shipping carrier code"
+                },
+                "name": "shipping_carrier_code"
             }
         ]
     },
-    "customeraddresscustomlist": {
+    "getlicense": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/custom",
+            "url": "https://{{secrets.domain}}/rest/default/V1/carts/licence",
             "method": "get",
             "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -257,14 +804,15 @@
         },
         "parameters": []
     },
-    "track": {
+    "listlicenses": {
         "definition": {
             "qs": {
                 "searchCriteria[pageSize]": "{{parameters.pageSize}}"
             },
-            "url": "https://{{secrets.domain}}/rest/default/V1/shipments",
+            "url": "https://{{secrets.domain}}/rest/default/V1/carts/licence/list",
             "method": "get",
             "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -283,23 +831,94 @@
                         "min": 1,
                         "required": true
                     },
-                    "description": "The number of records to retrieve per page.",
+                    "description": "The number of licenses to retrieve per page.",
                     "displayName": "Page Size",
                     "displayType": "number",
-                    "placeholder": "Enter the number of records per page"
+                    "placeholder": "Enter the number of licenses per page"
                 },
                 "name": "pageSize"
             }
         ]
     },
-    "sendemail": {
+    "searchcarts": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/shipment/{{parameters.id}}/emails",
-            "body": {
-                "email": "{{parameters.email}}"
+            "qs": {
+                "searchCriteria[pageSize]": "{{parameters.pageSize}}"
             },
-            "method": "post",
+            "url": "https://{{secrets.domain}}/rest/default/V1/carts/search",
+            "method": "get",
             "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": 1,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The number of products to retrieve per page.",
+                    "displayName": "Page Size",
+                    "displayType": "number",
+                    "placeholder": "Enter the number of products per page"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/default/V1/carts/{{parameters.quote_id}}",
+            "method": "get",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Cart ID is required"
+                        }
+                    },
+                    "description": "The cart ID of the cart.",
+                    "displayName": "Cart ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the cart ID"
+                },
+                "name": "quote_id"
+            }
+        ]
+    },
+    "placeorder": {
+        "definition": {
+            "url": "https://{{secrets.domain}}/rest/default/V1/carts/{{parameters.quoteId}}/order",
+            "body": {
+                "paymentMethod": {
+                    "method": "{{parameters.paymentMethod}}"
+                }
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -316,24 +935,24 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The ID of the shipment to send an email for.",
-                    "displayName": "Shipment ID",
+                    "description": "The internal cart/quote ID for which the order will be placed.",
+                    "displayName": "Cart ID",
                     "displayType": "text",
-                    "placeholder": "Enter the shipment ID"
+                    "placeholder": "Enter the Cart ID"
                 },
-                "name": "id"
+                "name": "quoteId"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The email address to send the shipment details to.",
-                    "displayName": "Email",
+                    "description": "Adobe Commerce payment method code like 'checkmo', 'banktransfer', etc.",
+                    "displayName": "Payment Method",
                     "displayType": "text",
-                    "placeholder": "Enter the email address"
+                    "placeholder": "Enter the payment method code."
                 },
-                "name": "email"
+                "name": "paymentMethod"
             }
         ]
     }

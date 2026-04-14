@@ -331,28 +331,27 @@
         },
         "parameters": []
     },
-    "addactivity": {
+    "adddeal": {
         "definition": {
-            "url": "https://api.pipedrive.com/api/v2/activities",
+            "url": "https://api.pipedrive.com/api/v2/deals",
             "body": {
-                "busy": "{{parameters.busy}}",
-                "done": "{{parameters.done}}",
-                "note": "{{parameters.note}}",
-                "type": "{{parameters.type}}",
+                "title": "{{parameters.title}}",
+                "value": "{{parameters.value}}",
                 "org_id": "{{parameters.org_id}}",
-                "deal_id": "{{parameters.deal_id}}",
-                "lead_id": "{{parameters.lead_id}}",
-                "subject": "{{parameters.subject}}",
-                "due_date": "{{parameters.due_date}}",
-                "due_time": "{{parameters.due_time}}",
-                "duration": "{{parameters.duration}}",
-                "location": "{{parameters.location}}",
+                "status": "{{parameters.status}}",
+                "currency": "{{parameters.currency}}",
                 "owner_id": "{{parameters.owner_id}}",
-                "priority": "{{parameters.priority}}",
-                "attendees": "{{parameters.attendees}}",
-                "project_id": "{{parameters.project_id}}",
-                "participants": "{{parameters.participants}}",
-                "public_description": "{{parameters.public_description}}"
+                "stage_id": "{{parameters.stage_id}}",
+                "won_time": "{{parameters.won_time}}",
+                "label_ids": "{{parameters.label_ids}}",
+                "lost_time": "{{parameters.lost_time}}",
+                "person_id": "{{parameters.person_id}}",
+                "visible_to": "{{parameters.visible_to}}",
+                "is_archived": "{{parameters.is_archived}}",
+                "lost_reason": "{{parameters.lost_reason}}",
+                "pipeline_id": "{{parameters.pipeline_id}}",
+                "probability": "{{parameters.probability}}",
+                "expected_close_date": "{{parameters.expected_close_date}}"
             },
             "method": "post",
             "headers": {
@@ -365,23 +364,35 @@
                     "message": "{{response.data.error}}"
                 },
                 "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "const b={...body};if(Array.isArray(b.participants)){b.participants=b.participants.filter(p=>p&&p.person_id!==''&&p.person_id!==undefined&&p.person_id!==null);if(b.participants.length===0)delete b.participants;}if(Array.isArray(b.attendees)){b.attendees=b.attendees.filter(a=>a&&a.person_id!==''&&a.person_id!==undefined&&a.person_id!==null);if(b.attendees.length===0)delete b.attendees;}return b;"
             }
         },
         "parameters": [
             {
                 "meta": {
                     "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Title is required field"
+                        }
+                    },
+                    "description": "Title or name of the deal",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter Deal title"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
                         "required": false
                     },
-                    "description": "The subject or title of the activity",
-                    "displayName": "Subject",
-                    "displayType": "text",
-                    "placeholder": "Subject"
+                    "description": "Monetary value of the deal",
+                    "displayName": "Value",
+                    "displayType": "number",
+                    "placeholder": "Enter Deal value (e.g., 5000)"
                 },
-                "name": "subject"
+                "name": "value"
             },
             {
                 "meta": {
@@ -391,14 +402,14 @@
                         "body": {
                             "name": "pipedrive",
                             "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.addactivity",
-                            "loadOptionsMethod": "getallactivitytypes"
+                            "resource": "deals",
+                            "operation": "deals.adddeal",
+                            "loadOptionsMethod": "getAllCurrencies"
                         },
                         "method": "post",
                         "urlType": "options",
                         "labelKey": "name",
-                        "valueKey": "key_string"
+                        "valueKey": "code"
                     },
                     "options": [],
                     "htmlProps": {
@@ -407,10 +418,10 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The type or category of the activity",
-                    "displayName": "Type",
+                    "description": "Currency code for the deal value",
+                    "displayName": "Currency",
                     "displayType": "select",
-                    "placeholder": "Type",
+                    "placeholder": "Select currency",
                     "dependencies": {
                         "conditions": [
                             {
@@ -419,28 +430,28 @@
                             },
                             {
                                 "field": "resource",
-                                "value": "activities",
+                                "value": "deals",
                                 "operator": "EQUALS"
                             },
                             {
                                 "field": "operation",
-                                "value": "activities.addactivity",
+                                "value": "deals.adddeal",
                                 "operator": "EQUALS"
                             }
                         ]
                     }
                 },
-                "name": "type"
+                "name": "currency"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the user who owns the activity",
+                    "description": "ID of the user who will own the deal",
                     "displayName": "Owner ID",
                     "displayType": "number",
-                    "placeholder": "Enter Owner ID"
+                    "placeholder": "Enter Owner user ID"
                 },
                 "name": "owner_id"
             },
@@ -449,31 +460,19 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the deal linked to the activity",
-                    "displayName": "Deal ID",
+                    "description": "ID of a linked person",
+                    "displayName": "Person ID",
                     "displayType": "number",
-                    "placeholder": "Enter Deal ID"
+                    "placeholder": "Enter Person ID"
                 },
-                "name": "deal_id"
+                "name": "person_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the lead linked to the activity",
-                    "displayName": "Lead ID",
-                    "displayType": "text",
-                    "placeholder": "Lead ID"
-                },
-                "name": "lead_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the organization linked to the activity",
+                    "description": "ID of a linked organization",
                     "displayName": "Organization ID",
                     "displayType": "number",
                     "placeholder": "Enter Organization ID"
@@ -485,12 +484,61 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the project linked to the activity",
-                    "displayName": "Project ID",
+                    "description": "ID of the pipeline where the deal will be created",
+                    "displayName": "Pipeline ID",
                     "displayType": "number",
-                    "placeholder": "Enter Project ID"
+                    "placeholder": "Enter Pipeline ID"
                 },
-                "name": "project_id"
+                "name": "pipeline_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "pipedrive",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deals",
+                            "operation": "deals.adddeal",
+                            "loadOptionsMethod": "getAllStages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Pipeline stage where the deal starts",
+                    "displayName": "Stage",
+                    "displayType": "select",
+                    "placeholder": "Select stage",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.adddeal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "stage_id"
             },
             {
                 "meta": {
@@ -506,343 +554,58 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The Due Date for the activity (YYYY-MM-DD)",
-                    "displayName": "Due Date",
+                    "description": "Expected close date of the deal",
+                    "displayName": "Expected Close Date",
                     "displayType": "date",
-                    "placeholder": "Select Due Date"
+                    "placeholder": "YYYY-MM-DD"
                 },
-                "name": "due_date"
+                "name": "expected_close_date"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "The due time for the activity (HH:MM)",
-                    "displayName": "Due Time",
-                    "displayType": "text",
-                    "placeholder": "HH:MM"
+                    "description": "Success probability as percent (no min/max enforced)",
+                    "displayName": "Probability (%)",
+                    "displayType": "number",
+                    "placeholder": "Enter 0-100"
                 },
-                "name": "due_time"
+                "name": "probability"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Duration in minutes or HH:MM",
-                    "displayName": "Duration",
-                    "displayType": "text",
-                    "placeholder": "e.g. 01:30"
-                },
-                "name": "duration"
-            },
-            {
-                "meta": {
-                    "value": false,
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Owner only",
+                            "value": 1
+                        },
+                        {
+                            "label": "Owner's visibility group",
+                            "value": 3
+                        },
+                        {
+                            "label": "Owner's visibility group and sub-groups",
+                            "value": 5
+                        },
+                        {
+                            "label": "Entire company",
+                            "value": 7
+                        }
+                    ],
                     "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
                         "required": false
                     },
-                    "description": "Whether the activity marks the assignee as busy in their calendar",
-                    "displayName": "Busy Flag",
-                    "displayType": "toggle",
-                    "placeholder": "Busy Flag"
+                    "description": "Deal visibility group",
+                    "displayName": "Visible To",
+                    "displayType": "select",
+                    "placeholder": "Visibility"
                 },
-                "name": "busy"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Whether the activity is marked as done",
-                    "displayName": "Done Status",
-                    "displayType": "toggle",
-                    "placeholder": "Done Status"
-                },
-                "name": "done"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "description": "The complete address string.",
-                                "displayName": "Full Address",
-                                "displayType": "text",
-                                "placeholder": "Full Address"
-                            },
-                            "name": "value",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Country name of the address.",
-                                "displayName": "Country",
-                                "displayType": "text",
-                                "placeholder": "Country"
-                            },
-                            "name": "country",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "State, province, or region of the address.",
-                                "displayName": "Admin Area Level 1",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 1"
-                            },
-                            "name": "admin_area_level_1",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "County, district, or municipality of the address.",
-                                "displayName": "Admin Area Level 2",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 2"
-                            },
-                            "name": "admin_area_level_2",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "City or locality name.",
-                                "displayName": "Locality",
-                                "displayType": "text",
-                                "placeholder": "Locality"
-                            },
-                            "name": "locality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Subdivision, neighborhood, or area name.",
-                                "displayName": "Sublocality",
-                                "displayType": "text",
-                                "placeholder": "Sublocality"
-                            },
-                            "name": "sublocality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or road name.",
-                                "displayName": "Route",
-                                "displayType": "text",
-                                "placeholder": "Route"
-                            },
-                            "name": "route",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or building number.",
-                                "displayName": "Street Number",
-                                "displayType": "text",
-                                "placeholder": "Street Number"
-                            },
-                            "name": "street_number",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "ZIP or postal code.",
-                                "displayName": "Postal Code",
-                                "displayType": "text",
-                                "placeholder": "Postal Code"
-                            },
-                            "name": "postal_code",
-                            "validation": {
-                                "required": false
-                            }
-                        }
-                    ],
-                    "readOnly": false,
-                    "description": "Object containing address details including country, administrative levels, and postal code.",
-                    "displayName": "Location",
-                    "displayType": "object"
-                },
-                "name": "location"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "The ID of the person who is a participant",
-                                "displayName": "Participant Person ID",
-                                "displayType": "number",
-                                "placeholder": "Enter Participant Person ID"
-                            },
-                            "name": "person_id"
-                        },
-                        {
-                            "meta": {
-                                "value": false,
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Mark as the primary participant",
-                                "displayName": "Is Primary Participant?",
-                                "displayType": "toggle"
-                            },
-                            "name": "primary"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "List of participants linked to the activity or deal",
-                    "displayName": "Participants",
-                    "displayType": "array"
-                },
-                "name": "participants"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Email address of the attendee",
-                                "displayName": "Attendee Email",
-                                "displayType": "text",
-                                "placeholder": "Attendee Email"
-                            },
-                            "name": "email"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Name of the attendee",
-                                "displayName": "Attendee Name",
-                                "displayType": "text",
-                                "placeholder": "Attendee Name"
-                            },
-                            "name": "name"
-                        },
-                        {
-                            "meta": {
-                                "value": "",
-                                "options": [
-                                    {
-                                        "label": "Accepted",
-                                        "value": "accepted"
-                                    },
-                                    {
-                                        "label": "Declined",
-                                        "value": "declined"
-                                    },
-                                    {
-                                        "label": "Tentative",
-                                        "value": "tentative"
-                                    },
-                                    {
-                                        "label": "Needs Action",
-                                        "value": "needsAction"
-                                    }
-                                ],
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Invitation response status",
-                                "displayName": "Status",
-                                "displayType": "select",
-                                "placeholder": "Status"
-                            },
-                            "name": "status"
-                        },
-                        {
-                            "meta": {
-                                "value": false,
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Mark if this attendee is the event organizer",
-                                "displayName": "Is Organizer?",
-                                "displayType": "toggle"
-                            },
-                            "name": "is_organizer"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "The user ID of the attendee (if linked to a Pipedrive user)",
-                                "displayName": "Attendee User ID",
-                                "displayType": "number",
-                                "placeholder": "Enter Attendee User ID"
-                            },
-                            "name": "user_id"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "List of attendees with their details and invitation status. This feature is only available for paid plans.",
-                    "displayName": "Attendees",
-                    "displayType": "array"
-                },
-                "name": "attendees"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The public description of the activity",
-                    "displayName": "Public Description",
-                    "displayType": "textarea",
-                    "placeholder": "Public Description"
-                },
-                "name": "public_description"
+                "name": "visible_to"
             },
             {
                 "meta": {
@@ -852,9 +615,9 @@
                         "body": {
                             "name": "pipedrive",
                             "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.addactivity",
-                            "loadOptionsMethod": "getpriorityoptions"
+                            "resource": "deals",
+                            "operation": "deals.adddeal",
+                            "loadOptionsMethod": "getDealLabels"
                         },
                         "method": "post",
                         "urlType": "options",
@@ -868,44 +631,155 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The priority of the activity. Mappable to a specific string using activityFields API.",
-                    "displayName": "Priority",
-                    "displayType": "select",
-                    "placeholder": "Priority"
+                    "description": "Assign labels to the deal",
+                    "displayName": "Labels",
+                    "displayType": "multiselect",
+                    "placeholder": "Select labels",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.adddeal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "priority"
+                "name": "label_ids"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "pipedrive",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deals",
+                            "operation": "deals.adddeal",
+                            "loadOptionsMethod": "getAllStatuses"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "label",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Initial status of the deal",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select status",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.adddeal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "status"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Additional notes or details",
-                    "displayName": "Note",
-                    "displayType": "textarea",
-                    "placeholder": "Note"
+                    "description": "Provide a reason if status is lost",
+                    "displayName": "Lost Reason",
+                    "displayType": "text",
+                    "placeholder": "Enter Reason deal was lost"
                 },
-                "name": "note"
+                "name": "lost_reason"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Time the deal was marked won (UTC)",
+                    "displayName": "Won Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DD HH:mm:ss"
+                },
+                "name": "won_time"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Time the deal was marked lost (UTC)",
+                    "displayName": "Lost Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DD HH:mm:ss"
+                },
+                "name": "lost_time"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Mark the deal as archived (admin use)",
+                    "displayName": "Is Archived",
+                    "displayType": "toggle",
+                    "placeholder": "Is Archived"
+                },
+                "name": "is_archived"
             }
         ]
     },
-    "getallactivities": {
+    "getallarchiveddeals": {
         "definition": {
-            "qs": {
-                "ids": "{{parameters.ids}}",
-                "done": "{{parameters.done}}",
-                "org_id": "{{parameters.org_id}}",
-                "deal_id": "{{parameters.deal_id}}",
-                "lead_id": "{{parameters.lead_id}}",
-                "sort_by": "{{parameters.sort_by}}",
-                "owner_id": "{{parameters.owner_id}}",
-                "person_id": "{{parameters.person_id}}",
-                "updated_since": "{{parameters.updated_since}}",
-                "updated_until": "{{parameters.updated_until}}",
-                "include_fields": "{{parameters.include_fields}}",
-                "sort_direction": "{{parameters.sort_direction}}"
-            },
-            "url": "https://api.pipedrive.com/api/v2/activities",
+            "url": "https://api.pipedrive.com/api/v2/deals/archived",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -931,209 +805,45 @@
                 "condition": "{{response.data.additional_data.next_cursor}} !== null"
             }
         },
+        "parameters": []
+    },
+    "deletedeal": {
+        "definition": {
+            "url": "https://api.pipedrive.com/v1/deals/{{parameters.id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
         "parameters": [
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deal ID is required field"
+                        }
                     },
-                    "description": "Optional comma separated string array of up to 100 entity ids to fetch",
-                    "displayName": "Activity IDs",
-                    "displayType": "text",
-                    "placeholder": "Activity IDs"
-                },
-                "name": "ids"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities owned by the specified user are returned",
-                    "displayName": "Owner ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Owner ID"
-                },
-                "name": "owner_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities linked to the specified deal are returned",
+                    "description": "The unique identifier of the specific deal you want to delete",
                     "displayName": "Deal ID",
                     "displayType": "number",
                     "placeholder": "Enter Deal ID"
                 },
-                "name": "deal_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities linked to the specified lead are returned",
-                    "displayName": "Lead ID",
-                    "displayType": "text",
-                    "placeholder": "Lead ID"
-                },
-                "name": "lead_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities whose primary participant is the given person are returned",
-                    "displayName": "Person ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Person ID"
-                },
-                "name": "person_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities linked to the specified organization are returned",
-                    "displayName": "Organization ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Organization ID"
-                },
-                "name": "org_id"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If supplied, only activities with specified 'done' flag value are returned",
-                    "displayName": "Done Status",
-                    "displayType": "toggle",
-                    "placeholder": "Done Status"
-                },
-                "name": "done"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Only items with update_time ≥ this (RFC3339)",
-                    "displayName": "Updated Since",
-                    "displayType": "text",
-                    "placeholder": "YYYY-MM-DDTHH:mm:ssZ"
-                },
-                "name": "updated_since"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Only items with update_time < this (RFC3339)",
-                    "displayName": "Updated Until",
-                    "displayType": "text",
-                    "placeholder": "YYYY-MM-DDTHH:mm:ssZ"
-                },
-                "name": "updated_until"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "ID",
-                            "value": "id"
-                        },
-                        {
-                            "label": "Update Time",
-                            "value": "update_time"
-                        },
-                        {
-                            "label": "Add Time",
-                            "value": "add_time"
-                        },
-                        {
-                            "label": "Due Date",
-                            "value": "due_date"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The field to sort the results by",
-                    "displayName": "Sort By",
-                    "displayType": "select",
-                    "placeholder": "Sort By"
-                },
-                "name": "sort_by"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "Ascending",
-                            "value": "asc"
-                        },
-                        {
-                            "label": "Descending",
-                            "value": "desc"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The direction to sort the results",
-                    "displayName": "Sort Direction",
-                    "displayType": "select",
-                    "placeholder": "Sort Direction"
-                },
-                "name": "sort_direction"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "Attendees",
-                            "value": "attendees"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Optional comma separated string array of additional fields to include",
-                    "displayName": "Include Fields",
-                    "displayType": "select",
-                    "placeholder": "Include Fields"
-                },
-                "name": "include_fields"
+                "name": "id"
             }
         ]
     },
-    "getactivitydetails": {
+    "getdeal": {
         "definition": {
-            "qs": {
-                "include_fields": "{{parameters.include_fields}}"
-            },
-            "url": "https://api.pipedrive.com/api/v2/activities/{{parameters.id}}",
+            "url": "https://api.pipedrive.com/v1/deals/{{parameters.id}}",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -1153,64 +863,31 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Activity ID is required field"
+                            "errorMsg": "Deal ID is required field"
                         }
                     },
-                    "description": "The unique identifier of the activity",
-                    "displayName": "Activity ID",
+                    "description": "The unique identifier of the specific deal you want to retrieve",
+                    "displayName": "Deal ID",
                     "displayType": "number",
-                    "placeholder": "Enter Activity ID"
+                    "placeholder": "Enter Deal ID"
                 },
                 "name": "id"
-            },
-            {
-                "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "Attendees",
-                            "value": "attendees"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Optional comma separated string array of additional fields to include",
-                    "displayName": "Include Fields",
-                    "displayType": "select",
-                    "placeholder": "Include Fields"
-                },
-                "name": "include_fields"
             }
         ]
     },
-    "updateactivity": {
+    "searchdeals": {
         "definition": {
-            "url": "https://api.pipedrive.com/api/v2/activities/{{parameters.id}}",
-            "body": {
-                "busy": "{{parameters.busy}}",
-                "done": "{{parameters.done}}",
-                "note": "{{parameters.note}}",
-                "type": "{{parameters.type}}",
-                "org_id": "{{parameters.org_id}}",
-                "deal_id": "{{parameters.deal_id}}",
-                "lead_id": "{{parameters.lead_id}}",
-                "subject": "{{parameters.subject}}",
-                "due_date": "{{parameters.due_date}}",
-                "due_time": "{{parameters.due_time}}",
-                "duration": "{{parameters.duration}}",
-                "location": "{{parameters.location}}",
-                "owner_id": "{{parameters.owner_id}}",
-                "priority": "{{parameters.priority}}",
-                "attendees": "{{parameters.attendees}}",
-                "project_id": "{{parameters.project_id}}",
-                "participants": "{{parameters.participants}}",
-                "public_description": "{{parameters.public_description}}"
+            "qs": {
+                "term": "{{parameters.term}}",
+                "fields": "{{parameters.fields}}",
+                "status": "{{parameters.status}}",
+                "person_id": "{{parameters.person_id}}",
+                "exact_match": "{{parameters.exact_match}}",
+                "include_fields": "{{parameters.include_fields}}",
+                "organization_id": "{{parameters.organization_id}}"
             },
-            "method": "patch",
+            "url": "https://api.pipedrive.com/api/v2/deals/search",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
                 "x-api-token": "{{secrets.api_key}}"
@@ -1220,10 +897,19 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.error}}"
                 },
-                "output": "{{response.data}}"
+                "output": "{{response.data.data.items}}"
             },
-            "transform": {
-                "body": "const b={...body};if(Array.isArray(b.participants)){b.participants=b.participants.filter(p=>p&&p.person_id!==''&&p.person_id!==undefined&&p.person_id!==null);if(b.participants.length===0)delete b.participants;}if(Array.isArray(b.attendees)){b.attendees=b.attendees.filter(a=>a&&a.person_id!==''&&a.person_id!==undefined&&a.person_id!==null);if(b.attendees.length===0)delete b.attendees;}return b;"
+            "pagination": {
+                "qs": {
+                    "limit": 20,
+                    "cursor": "{{response.data.additional_data.next_cursor}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "limit": 20,
+                    "cursor": null
+                },
+                "condition": "{{response.data.additional_data.next_cursor}} !== null"
             }
         },
         "parameters": [
@@ -1232,488 +918,84 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Activity ID is required field"
+                            "errorMsg": "Search Term is required field"
                         }
                     },
-                    "description": "The unique identifier of the activity",
-                    "displayName": "Activity ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Activity ID"
-                },
-                "name": "id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The subject or title of the activity",
-                    "displayName": "Subject",
+                    "description": "Term to search deals by title, notes or custom fields",
+                    "displayName": "Search Term",
                     "displayType": "text",
-                    "placeholder": "Subject"
+                    "placeholder": "Enter Search Term"
                 },
-                "name": "subject"
+                "name": "term"
             },
             {
                 "meta": {
-                    "value": "",
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "pipedrive",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.updateactivity",
-                            "loadOptionsMethod": "getallactivitytypes"
+                    "options": [
+                        {
+                            "label": "Custom Fields",
+                            "value": "custom_fields"
                         },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "key_string"
-                    },
-                    "options": [],
+                        {
+                            "label": "Notes",
+                            "value": "notes"
+                        },
+                        {
+                            "label": "Title",
+                            "value": "title"
+                        }
+                    ],
                     "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
                         "required": false
                     },
-                    "description": "The type or category of the activity",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Type",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "secret",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "resource",
-                                "value": "activities",
-                                "operator": "EQUALS"
-                            },
-                            {
-                                "field": "operation",
-                                "value": "activities.updateactivity",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
+                    "description": "Comma-separated list of fields to perform the search from (defaults to all).",
+                    "displayName": "Fields",
+                    "displayType": "multiselect",
+                    "placeholder": "Fields"
                 },
-                "name": "type"
+                "name": "fields"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "When enabled, only full exact matches against the given term are returned",
+                    "displayName": "Exact Match",
+                    "displayType": "toggle",
+                    "placeholder": "Exact Match"
+                },
+                "name": "exact_match"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the user who owns the activity",
-                    "displayName": "Owner ID",
+                    "description": "Filter deals by the provided person ID",
+                    "displayName": "Person ID",
                     "displayType": "number",
-                    "placeholder": "Enter Owner ID"
+                    "placeholder": "Enter Person ID"
                 },
-                "name": "owner_id"
+                "name": "person_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "The ID of the deal linked to the activity",
-                    "displayName": "Deal ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Deal ID"
-                },
-                "name": "deal_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the lead linked to the activity",
-                    "displayName": "Lead ID",
-                    "displayType": "text",
-                    "placeholder": "Lead ID"
-                },
-                "name": "lead_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the organization linked to the activity",
+                    "description": "Filter deals by the provided organization ID",
                     "displayName": "Organization ID",
                     "displayType": "number",
                     "placeholder": "Enter Organization ID"
                 },
-                "name": "org_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The ID of the project linked to the activity",
-                    "displayName": "Project ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Project ID"
-                },
-                "name": "project_id"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "views": [
-                            "year",
-                            "month",
-                            "day"
-                        ],
-                        "format": "YYYY-MM-DD",
-                        "disabled": false
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The Due Date for the activity (YYYY-MM-DD)",
-                    "displayName": "Due Date",
-                    "displayType": "date",
-                    "placeholder": "Select Due Date"
-                },
-                "name": "due_date"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The due time for the activity (HH:MM)",
-                    "displayName": "Due Time",
-                    "displayType": "text",
-                    "placeholder": "HH:MM"
-                },
-                "name": "due_time"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Duration in minutes or HH:MM",
-                    "displayName": "Duration",
-                    "displayType": "text",
-                    "placeholder": "e.g. 01:30"
-                },
-                "name": "duration"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Whether the activity marks the assignee as busy in their calendar",
-                    "displayName": "Busy Flag",
-                    "displayType": "toggle",
-                    "placeholder": "Busy Flag"
-                },
-                "name": "busy"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Whether the activity is marked as done",
-                    "displayName": "Done Status",
-                    "displayType": "toggle",
-                    "placeholder": "Done Status"
-                },
-                "name": "done"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "description": "The complete address string.",
-                                "displayName": "Full Address",
-                                "displayType": "text",
-                                "placeholder": "Full Address"
-                            },
-                            "name": "value",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Country name of the address.",
-                                "displayName": "Country",
-                                "displayType": "text",
-                                "placeholder": "Country"
-                            },
-                            "name": "country",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "State, province, or region of the address.",
-                                "displayName": "Admin Area Level 1",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 1"
-                            },
-                            "name": "admin_area_level_1",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "County, district, or municipality of the address.",
-                                "displayName": "Admin Area Level 2",
-                                "displayType": "text",
-                                "placeholder": "Admin Area Level 2"
-                            },
-                            "name": "admin_area_level_2",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "City or locality name.",
-                                "displayName": "Locality",
-                                "displayType": "text",
-                                "placeholder": "Locality"
-                            },
-                            "name": "locality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Subdivision, neighborhood, or area name.",
-                                "displayName": "Sublocality",
-                                "displayType": "text",
-                                "placeholder": "Sublocality"
-                            },
-                            "name": "sublocality",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or road name.",
-                                "displayName": "Route",
-                                "displayType": "text",
-                                "placeholder": "Route"
-                            },
-                            "name": "route",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "Street or building number.",
-                                "displayName": "Street Number",
-                                "displayType": "text",
-                                "placeholder": "Street Number"
-                            },
-                            "name": "street_number",
-                            "validation": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "meta": {
-                                "description": "ZIP or postal code.",
-                                "displayName": "Postal Code",
-                                "displayType": "text",
-                                "placeholder": "Postal Code"
-                            },
-                            "name": "postal_code",
-                            "validation": {
-                                "required": false
-                            }
-                        }
-                    ],
-                    "readOnly": false,
-                    "description": "Object containing address details including country, administrative levels, and postal code.",
-                    "displayName": "Location",
-                    "displayType": "object"
-                },
-                "name": "location"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "The ID of the person who is a participant",
-                                "displayName": "Participant Person ID",
-                                "displayType": "number",
-                                "placeholder": "Participant Person ID"
-                            },
-                            "name": "person_id"
-                        },
-                        {
-                            "meta": {
-                                "value": false,
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Mark as the primary participant",
-                                "displayName": "Is Primary Participant?",
-                                "displayType": "toggle"
-                            },
-                            "name": "primary"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "List of participants linked to the activity or deal",
-                    "displayName": "Participants",
-                    "displayType": "array"
-                },
-                "name": "participants"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Email address of the attendee",
-                                "displayName": "Attendee Email",
-                                "displayType": "text",
-                                "placeholder": "Attendee Email"
-                            },
-                            "name": "email"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Name of the attendee",
-                                "displayName": "Attendee Name",
-                                "displayType": "text",
-                                "placeholder": "Attendee Name"
-                            },
-                            "name": "name"
-                        },
-                        {
-                            "meta": {
-                                "value": "",
-                                "options": [
-                                    {
-                                        "label": "Accepted",
-                                        "value": "accepted"
-                                    },
-                                    {
-                                        "label": "Declined",
-                                        "value": "declined"
-                                    },
-                                    {
-                                        "label": "Tentative",
-                                        "value": "tentative"
-                                    },
-                                    {
-                                        "label": "Needs Action",
-                                        "value": "needsAction"
-                                    }
-                                ],
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Invitation response status",
-                                "displayName": "Status",
-                                "displayType": "select",
-                                "placeholder": "Status"
-                            },
-                            "name": "status"
-                        },
-                        {
-                            "meta": {
-                                "value": false,
-                                "htmlProps": {
-                                    "allowDynamic": true
-                                },
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "Mark if this attendee is the event organizer",
-                                "displayName": "Is Organizer?",
-                                "displayType": "toggle"
-                            },
-                            "name": "is_organizer"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": false
-                                },
-                                "description": "The user ID of the attendee (if linked to a Pipedrive user)",
-                                "displayName": "Attendee User ID",
-                                "displayType": "number",
-                                "placeholder": "EnterAttendee User ID"
-                            },
-                            "name": "user_id"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "List of attendees with their details and invitation status. This feature is only available for paid plans.",
-                    "displayName": "Attendees",
-                    "displayType": "array"
-                },
-                "name": "attendees"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The public description of the activity",
-                    "displayName": "Public Description",
-                    "displayType": "textarea",
-                    "placeholder": "Public Description"
-                },
-                "name": "public_description"
+                "name": "organization_id"
             },
             {
                 "meta": {
@@ -1723,9 +1005,9 @@
                         "body": {
                             "name": "pipedrive",
                             "secret": "{{parameters.secret}}",
-                            "resource": "activities",
-                            "operation": "activities.updateactivity",
-                            "loadOptionsMethod": "getpriorityoptions"
+                            "resource": "deals",
+                            "operation": "deals.searchdeals",
+                            "loadOptionsMethod": "getAllStatuses"
                         },
                         "method": "post",
                         "urlType": "options",
@@ -1739,157 +1021,76 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The priority of the activity. Mappable to a specific string using activityFields API.",
-                    "displayName": "Priority",
+                    "description": "Initial status of the deal",
+                    "displayName": "Status",
                     "displayType": "select",
-                    "placeholder": "Priority"
+                    "placeholder": "Status",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.searchdeals",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
                 },
-                "name": "priority"
+                "name": "status"
             },
             {
                 "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Deal CC Email",
+                            "value": "deal.cc_email"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "Additional notes or details",
-                    "displayName": "Note",
-                    "displayType": "textarea",
-                    "placeholder": "Note"
+                    "description": "Optional additional fields to include in the response",
+                    "displayName": "Include Fields",
+                    "displayType": "multiselect",
+                    "placeholder": "Include Fields"
                 },
-                "name": "note"
+                "name": "include_fields"
             }
         ]
     },
-    "getallactivityfields": {
+    "updatedeal": {
         "definition": {
-            "url": "https://api.pipedrive.com/v1/activityFields",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "deleteactivitytype": {
-        "definition": {
-            "url": "https://api.pipedrive.com/v1/activityTypes/{{parameters.id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Activity Type ID is required field"
-                        }
-                    },
-                    "description": "The unique identifier of the activity type",
-                    "displayName": "Activity Type ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Activity Type ID"
-                },
-                "name": "id"
-            }
-        ]
-    },
-    "deleteactivity": {
-        "definition": {
-            "url": "https://api.pipedrive.com/api/v2/activities/{{parameters.id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Activity ID is required field"
-                        }
-                    },
-                    "description": "The unique identifier of the activity",
-                    "displayName": "Activity ID",
-                    "displayType": "number",
-                    "placeholder": "Enter Activity ID"
-                },
-                "name": "id"
-            }
-        ]
-    },
-    "deletemultipleactivitytypes": {
-        "definition": {
-            "qs": {
-                "ids": "{{parameters.ids}}"
-            },
-            "url": "https://api.pipedrive.com/v1/activityTypes",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "x-api-token": "{{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Activity Type IDs is required field"
-                        }
-                    },
-                    "description": "The comma-separated activity type IDs",
-                    "displayName": "Activity Type IDs",
-                    "displayType": "text",
-                    "placeholder": "Activity Type IDs"
-                },
-                "name": "ids"
-            }
-        ]
-    },
-    "updateactivitytype": {
-        "definition": {
-            "url": "https://api.pipedrive.com/v1/activityTypes/{{parameters.id}}",
+            "url": "https://api.pipedrive.com/v1/deals/{{parameters.id}}",
             "body": {
-                "name": "{{parameters.name}}",
-                "color": "{{parameters.color}}",
-                "icon_key": "{{parameters.icon_key}}"
+                "title": "{{parameters.title}}",
+                "value": "{{parameters.value}}",
+                "org_id": "{{parameters.org_id}}",
+                "status": "{{parameters.status}}",
+                "currency": "{{parameters.currency}}",
+                "owner_id": "{{parameters.owner_id}}",
+                "stage_id": "{{parameters.stage_id}}",
+                "won_time": "{{parameters.won_time}}",
+                "label_ids": "{{parameters.label_ids}}",
+                "lost_time": "{{parameters.lost_time}}",
+                "person_id": "{{parameters.person_id}}",
+                "visible_to": "{{parameters.visible_to}}",
+                "is_archived": "{{parameters.is_archived}}",
+                "lost_reason": "{{parameters.lost_reason}}",
+                "pipeline_id": "{{parameters.pipeline_id}}",
+                "probability": "{{parameters.probability}}",
+                "expected_close_date": "{{parameters.expected_close_date}}"
             },
             "method": "put",
             "headers": {
@@ -1910,13 +1111,13 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Activity Type ID is required field"
+                            "errorMsg": "Deal ID is required field"
                         }
                     },
-                    "description": "The unique identifier of the activity type",
-                    "displayName": "Activity Type ID",
+                    "description": "The unique identifier of the specific deal you want to update",
+                    "displayName": "Deal ID",
                     "displayType": "number",
-                    "placeholder": "Enter Activity Type ID"
+                    "placeholder": "Enter Deal ID"
                 },
                 "name": "id"
             },
@@ -1925,60 +1126,223 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "The name of the activity type",
-                    "displayName": "Name",
+                    "description": "Title or name of the deal",
+                    "displayName": "Title",
                     "displayType": "text",
-                    "placeholder": "Name"
+                    "placeholder": "Enter Title"
                 },
-                "name": "name"
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Monetary value of the deal",
+                    "displayName": "Value",
+                    "displayType": "number",
+                    "placeholder": "Enter Deal value (e.g., 5000)"
+                },
+                "name": "value"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "pipedrive",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deals",
+                            "operation": "deals.updatedeal",
+                            "loadOptionsMethod": "getAllCurrencies"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "code"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Currency code for the deal value",
+                    "displayName": "Currency",
+                    "displayType": "select",
+                    "placeholder": "Currency",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.updatedeal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "currency"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "ID of the user who will own the deal",
+                    "displayName": "Owner ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Owner ID"
+                },
+                "name": "owner_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "ID of a linked person",
+                    "displayName": "Person ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Person ID"
+                },
+                "name": "person_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "ID of a linked organization",
+                    "displayName": "Organization ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "org_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "ID of the pipeline where the deal will be created",
+                    "displayName": "Pipeline ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Pipeline ID"
+                },
+                "name": "pipeline_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "pipedrive",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deals",
+                            "operation": "deals.updatedeal",
+                            "loadOptionsMethod": "getAllStages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Pipeline stage where the deal starts",
+                    "displayName": "Stage",
+                    "displayType": "select",
+                    "placeholder": "Stage",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.updatedeal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "stage_id"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Expected close date of the deal",
+                    "displayName": "Expected Close Date",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "expected_close_date"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Success probability as percent (no min/max enforced)",
+                    "displayName": "Probability (%)",
+                    "displayType": "number",
+                    "placeholder": "Enter 0-100"
+                },
+                "name": "probability"
             },
             {
                 "meta": {
                     "value": "",
                     "options": [
                         {
-                            "label": "Task",
-                            "value": "task"
+                            "label": "Owner only",
+                            "value": 1
                         },
                         {
-                            "label": "Email",
-                            "value": "email"
+                            "label": "Owner's visibility group",
+                            "value": 3
                         },
                         {
-                            "label": "Meeting",
-                            "value": "meeting"
+                            "label": "Owner's visibility group and sub-groups",
+                            "value": 5
                         },
                         {
-                            "label": "Deadline",
-                            "value": "deadline"
-                        },
-                        {
-                            "label": "Call",
-                            "value": "call"
-                        },
-                        {
-                            "label": "Lunch",
-                            "value": "lunch"
-                        },
-                        {
-                            "label": "Calendar",
-                            "value": "calendar"
-                        },
-                        {
-                            "label": "Document",
-                            "value": "document"
-                        },
-                        {
-                            "label": "Smartphone",
-                            "value": "smartphone"
-                        },
-                        {
-                            "label": "Camera",
-                            "value": "camera"
-                        },
-                        {
-                            "label": "Presentation",
-                            "value": "presentation"
+                            "label": "Entire company",
+                            "value": 7
                         }
                     ],
                     "htmlProps": {
@@ -1987,36 +1351,377 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Icon graphic to use for representing this activity type",
-                    "displayName": "Icon Key",
+                    "description": "Deal visibility group",
+                    "displayName": "Visible To",
                     "displayType": "select",
-                    "placeholder": "Icon Key"
+                    "placeholder": "Visible To"
                 },
-                "name": "icon_key"
+                "name": "visible_to"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "pipedrive",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deals",
+                            "operation": "deals.updatedeal",
+                            "loadOptionsMethod": "getDealLabels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "label",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Assign labels to the deal",
+                    "displayName": "Labels",
+                    "displayType": "multiselect",
+                    "placeholder": "Labels",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.updatedeal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "label_ids"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "pipedrive",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deals",
+                            "operation": "deals.updatedeal",
+                            "loadOptionsMethod": "getAllStatuses"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "label",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Initial status of the deal",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Status",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "deals",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "deals.updatedeal",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "status"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "6-character HEX color (e.g. FFFFFF)",
-                    "displayName": "Color",
+                    "description": "Provide a reason if status is lost",
+                    "displayName": "Lost Reason",
                     "displayType": "text",
-                    "placeholder": "FFFFFF"
+                    "placeholder": "Enter Lost Reason"
                 },
-                "name": "color"
+                "name": "lost_reason"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Time the deal was marked won (UTC)",
+                    "displayName": "Won Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DD HH:mm:ss"
+                },
+                "name": "won_time"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Time the deal was marked lost (UTC)",
+                    "displayName": "Lost Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DD HH:mm:ss"
+                },
+                "name": "lost_time"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Mark the deal as archived (admin use)",
+                    "displayName": "Is Archived",
+                    "displayType": "toggle",
+                    "placeholder": "Is Archived"
+                },
+                "name": "is_archived"
             }
         ]
     },
-    "addnewactivitytype": {
+    "getdealssummary": {
         "definition": {
-            "url": "https://api.pipedrive.com/v1/activityTypes",
-            "body": {
-                "name": "{{parameters.name}}",
-                "color": "{{parameters.color}}",
-                "icon_key": "{{parameters.icon_key}}"
+            "url": "https://api.pipedrive.com/v1/deals/summary",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-token": "{{secrets.api_key}}"
             },
-            "method": "post",
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "getdealstimeline": {
+        "definition": {
+            "qs": {
+                "amount": "{{parameters.amount}}",
+                "user_id": "{{parameters.user_id}}",
+                "interval": "{{parameters.interval}}",
+                "field_key": "{{parameters.field_key}}",
+                "start_date": "{{parameters.start_date}}",
+                "pipeline_id": "{{parameters.pipeline_id}}",
+                "exclude_deals": "{{parameters.exclude_deals}}",
+                "totals_convert_currency": "{{parameters.totals_convert_currency}}"
+            },
+            "url": "https://api.pipedrive.com/v1/deals/timeline",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-token": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Start Date is required field"
+                        }
+                    },
+                    "description": "Date where the first interval starts.",
+                    "displayName": "Start Date",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "start_date"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Day",
+                            "value": "day"
+                        },
+                        {
+                            "label": "Week",
+                            "value": "week"
+                        },
+                        {
+                            "label": "Month",
+                            "value": "month"
+                        },
+                        {
+                            "label": "Quarter",
+                            "value": "quarter"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Interval is required field"
+                        }
+                    },
+                    "description": "Type of interval: day, week, month or quarter.",
+                    "displayName": "Interval",
+                    "displayType": "select",
+                    "placeholder": "Interval"
+                },
+                "name": "interval"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Amount is required field"
+                        }
+                    },
+                    "description": "Number of specified intervals, starting from start_date.",
+                    "displayName": "Amount",
+                    "displayType": "number",
+                    "placeholder": "Enter E.g. 3 (months)"
+                },
+                "name": "amount"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Field Key is required field"
+                        }
+                    },
+                    "description": "The field_key specifies which deal date field (e.g., add_time, update_time, won_time) the timeline should be grouped or calculated by.",
+                    "displayName": "Field Key",
+                    "displayType": "text",
+                    "placeholder": "Enter Field Key"
+                },
+                "name": "field_key"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Will filter deals to only those matching this user.",
+                    "displayName": "User ID",
+                    "displayType": "number",
+                    "placeholder": "Enter User ID "
+                },
+                "name": "user_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Will filter deals to only those in the specified pipeline.",
+                    "displayName": "Pipeline ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Pipeline ID"
+                },
+                "name": "pipeline_id"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Whether to exclude the list of deals (1) or not (0).",
+                    "displayName": "Exclude Deals?",
+                    "displayType": "toggle",
+                    "placeholder": "Exclude Deals?"
+                },
+                "name": "exclude_deals"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "If supplied, totals_converted is returned per interval in the given currency.",
+                    "displayName": "Totals Convert Currency",
+                    "displayType": "text",
+                    "placeholder": "Enter 3-letter currency code or 'default_currency'"
+                },
+                "name": "totals_convert_currency"
+            }
+        ]
+    },
+    "listdealpermittedusers": {
+        "definition": {
+            "url": "https://api.pipedrive.com/v1/deals/{{parameters.id}}/permittedUsers",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
                 "x-api-token": "{{secrets.api_key}}"
@@ -2035,92 +1740,49 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Name is required field"
+                            "errorMsg": "Deal ID is required field"
                         }
                     },
-                    "description": "The name of the activity type",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Name"
+                    "description": "The unique identifier of the specific deal you want to retrieve",
+                    "displayName": "Deal ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Deal ID"
                 },
-                "name": "name"
+                "name": "id"
+            }
+        ]
+    },
+    "listdealactivities": {
+        "definition": {
+            "url": "https://api.pipedrive.com/v1/deals/{{parameters.id}}/activities",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-token": "{{secrets.api_key}}"
             },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
-                    "value": "",
-                    "options": [
-                        {
-                            "label": "Task",
-                            "value": "task"
-                        },
-                        {
-                            "label": "Email",
-                            "value": "email"
-                        },
-                        {
-                            "label": "Meeting",
-                            "value": "meeting"
-                        },
-                        {
-                            "label": "Deadline",
-                            "value": "deadline"
-                        },
-                        {
-                            "label": "Call",
-                            "value": "call"
-                        },
-                        {
-                            "label": "Lunch",
-                            "value": "lunch"
-                        },
-                        {
-                            "label": "Calendar",
-                            "value": "calendar"
-                        },
-                        {
-                            "label": "Document",
-                            "value": "document"
-                        },
-                        {
-                            "label": "Smartphone",
-                            "value": "smartphone"
-                        },
-                        {
-                            "label": "Camera",
-                            "value": "camera"
-                        },
-                        {
-                            "label": "Presentation",
-                            "value": "presentation"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Icon Key is required field"
+                            "errorMsg": "Deal ID is required field"
                         }
                     },
-                    "description": "Icon graphic to use for representing this activity type",
-                    "displayName": "Icon Key",
-                    "displayType": "select",
-                    "placeholder": "Icon Key"
+                    "description": "The unique identifier of the specific deal you want to retrieve",
+                    "displayName": "Deal ID",
+                    "displayType": "number",
+                    "placeholder": "Enter Deal ID"
                 },
-                "name": "icon_key"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "6-character HEX color (e.g. FFFFFF)",
-                    "displayName": "Color",
-                    "displayType": "text",
-                    "placeholder": "FFFFFF"
-                },
-                "name": "color"
+                "name": "id"
             }
         ]
     }

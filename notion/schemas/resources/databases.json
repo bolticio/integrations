@@ -97,21 +97,30 @@
         },
         "parameters": []
     },
-    "perform": {
+    "update": {
         "definition": {
-            "url": "https://api.notion.com/v1/search",
+            "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}",
             "body": {
-                "sort": {
-                    "direction": "{{parameters.sort}}",
-                    "timestamp": "last_edited_time"
+                "icon": {
+                    "type": "emoji",
+                    "emoji": "{{parameters.icon}}"
                 },
-                "query": "{{parameters.query}}",
-                "filter": {
-                    "value": "{{parameters.filter}}",
-                    "property": "object"
-                }
+                "cover": {
+                    "type": "external",
+                    "external": {
+                        "url": "{{parameters.cover}}"
+                    }
+                },
+                "title": [
+                    {
+                        "text": {
+                            "content": "{{parameters.title}}"
+                        }
+                    }
+                ],
+                "properties": "{{parameters.properties}}"
             },
-            "method": "post",
+            "method": "patch",
             "headers": {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}",
@@ -120,164 +129,92 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
+                    "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const updatedBody = { ...body }; updatedBody.properties = updatedBody.properties.reduce((acc, property) => { acc[property.propertyName] = { [property.propertyValue]: {} }; return acc; }, {}); if (updatedBody.propertyTitle) { updatedBody.properties[updatedBody.propertyTitle] = { title: {} }; } if (!updatedBody.icon || !updatedBody.icon.emoji || Object.keys(updatedBody.icon).length === 0) { delete updatedBody.icon; } if (!updatedBody.cover || !updatedBody.cover.external || !updatedBody.cover.external.url || Object.keys(updatedBody.cover).length === 0) { delete updatedBody.cover; } if (!updatedBody.title || !Array.isArray(updatedBody.title) || updatedBody.title.length === 0 || !updatedBody.title[0]?.text?.content) { delete updatedBody.title; } delete updatedBody.propertyTitle; return updatedBody;"
             }
         },
         "parameters": [
             {
                 "meta": {
-                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "databases",
+                            "operation": "databases.update",
+                            "loadOptionsMethod": "getDatabases"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Database ID is required to update the database."
+                        }
+                    },
+                    "description": "Select the Notion database to update.",
+                    "displayName": "Database",
+                    "displayType": "select",
+                    "placeholder": "Select a database"
+                },
+                "name": "database_id"
+            },
+            {
+                "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Search text in page or database titles (e.g., 'Marketing Strategy'). If empty, returns all shared pages and databases or those with titles matching the text.",
-                    "displayName": "Search Query",
+                    "description": "The title of the Notion database to be updated.",
+                    "displayName": "Database Title",
                     "displayType": "text",
-                    "placeholder": "Enter the search query",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "operation",
-                                "value": "search.perform",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
+                    "placeholder": "Enter the title of the database"
                 },
-                "name": "query"
+                "name": "title"
             },
             {
                 "meta": {
-                    "value": "ascending",
-                    "options": [
-                        {
-                            "label": "Ascending",
-                            "value": "ascending"
-                        },
-                        {
-                            "label": "Descending",
-                            "value": "descending"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Sort the search results in ascending or descending order based on the last edited time.",
-                    "displayName": "Sort Direction",
-                    "displayType": "select",
-                    "placeholder": "Select sort direction",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "operation",
-                                "value": "search.perform",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "sort"
-            },
-            {
-                "meta": {
-                    "value": "page",
-                    "options": [
-                        {
-                            "label": "Page",
-                            "value": "page"
-                        },
-                        {
-                            "label": "Database",
-                            "value": "database"
-                        }
-                    ],
                     "validation": {
                         "required": false
                     },
-                    "description": "Filter the search results to include only pages or databases.",
-                    "displayName": "Object Type Filter",
-                    "displayType": "select",
-                    "placeholder": "Filter by object type",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "operation",
-                                "value": "search.perform",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "filter"
-            }
-        ]
-    },
-    "custom_api": {
-        "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Token token={{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "value": "get",
-                    "options": [
-                        {
-                            "label": "GET",
-                            "value": "get"
-                        },
-                        {
-                            "label": "PUT",
-                            "value": "put"
-                        },
-                        {
-                            "label": "POST",
-                            "value": "post"
-                        },
-                        {
-                            "label": "PATCH",
-                            "value": "patch"
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
-                    "displayType": "select"
-                },
-                "name": "method"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
+                    "description": "An emoji to represent the database.",
+                    "displayName": "Database icon",
                     "displayType": "text",
-                    "placeholder": "Eg. https://www.example.com"
+                    "placeholder": "Enter an emoji"
                 },
-                "name": "base_url"
+                "name": "icon"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "A header or banner image URL for the database.",
+                    "displayName": "Database Cover",
+                    "displayType": "text",
+                    "placeholder": "Enter the database cover URL"
+                },
+                "name": "cover"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The title of the Notion database row to be created.",
+                    "displayName": "Property Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the title of the database coloumns"
+                },
+                "name": "propertyTitle"
             },
             {
                 "meta": {
@@ -285,90 +222,89 @@
                         {
                             "meta": {
                                 "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
+                                    "required": true
                                 },
-                                "displayName": "key",
-                                "displayType": "text"
+                                "displayName": "Property Name",
+                                "displayType": "text",
+                                "placeholder": "Enter the name for the properites"
                             },
-                            "name": "key"
+                            "name": "propertyName"
                         },
                         {
                             "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
+                                "options": [
+                                    {
+                                        "label": "Title",
+                                        "value": "title"
+                                    },
+                                    {
+                                        "label": "URL",
+                                        "value": "url"
+                                    },
+                                    {
+                                        "label": "Email",
+                                        "value": "email"
+                                    },
+                                    {
+                                        "label": "Files",
+                                        "value": "file"
+                                    },
+                                    {
+                                        "label": "Checkbox",
+                                        "value": "checkbox"
+                                    },
+                                    {
+                                        "label": "Created By",
+                                        "value": "created_by"
+                                    },
+                                    {
+                                        "label": "Created Time",
+                                        "value": "created_time"
+                                    },
+                                    {
+                                        "label": "Date",
+                                        "value": "date"
+                                    },
+                                    {
+                                        "label": "Last Edited By",
+                                        "value": "last_edited_by"
+                                    },
+                                    {
+                                        "label": "Last Edited Time",
+                                        "value": "last_edited_time"
+                                    },
+                                    {
+                                        "label": "People",
+                                        "value": "people"
+                                    },
+                                    {
+                                        "label": "Phone Number",
+                                        "value": "phone_number"
+                                    },
+                                    {
+                                        "label": "Rich Text",
+                                        "value": "rich_text"
                                     }
+                                ],
+                                "validation": {
+                                    "required": true
                                 },
-                                "displayName": "value",
-                                "displayType": "text"
+                                "description": "Choose the type of authentication you want to use.",
+                                "displayName": "Property Value",
+                                "displayType": "select",
+                                "placeholder": "Select an property type"
                             },
-                            "name": "value"
+                            "name": "propertyValue"
                         }
                     ],
-                    "htmlProps": {
-                        "allowAdd": true
+                    "validation": {
+                        "required": true
                     },
-                    "description": "You don't have to add authorization headers, we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue"
+                    "description": "An array of properites . Each object should have a label and value.",
+                    "displayName": "Properties",
+                    "displayType": "array"
                 },
-                "name": "headers"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "displayName": "Query String",
-                    "displayType": "keyvalue"
-                },
-                "name": "query_params"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
-                    },
-                    "description": "The Payload (Body) of the HTTP Request.",
-                    "displayName": "Body",
-                    "displayType": "code"
-                },
-                "name": "body"
+                "name": "properties"
             }
         ]
     },
@@ -591,7 +527,7 @@
     },
     "retrieve": {
         "definition": {
-            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}",
+            "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}",
@@ -608,106 +544,33 @@
         "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Block ID is required to retrieve block children."
-                        }
-                    },
-                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
-                    "displayName": "Block/Page ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the Block ID or page ID."
-                },
-                "name": "block_id"
-            }
-        ]
-    },
-    "delete": {
-        "definition": {
-            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}",
-            "method": "delete",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}",
-                "Notion-Version": "2022-06-28"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Block ID is required to delete a block."
-                        }
-                    },
-                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
-                    "displayName": "Block/Page ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the Block ID or page ID."
-                },
-                "name": "block_id"
-            }
-        ]
-    },
-    "retrieve_children": {
-        "definition": {
-            "qs": {
-                "page_size": "{{parameters.page_size}}"
-            },
-            "url": "https://api.notion.com/v1/blocks/{{parameters.block_id}}/children",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}",
-                "Notion-Version": "2022-06-28"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Block ID is required to retrieve block children."
-                        }
-                    },
-                    "description": "The unique identifier for a block in Notion (e.g., paragraph, heading). To get it, right-click a block in the Notion UI, select 'Copy link,' and use the part after the last hyphen in the URL. Refer to the <a href='https://developers.notion.com/reference/block' target='_blank'>Notion API Documentation</a>.",
-                    "displayName": "Block/Page ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the Block ID or page ID."
-                },
-                "name": "block_id"
-            },
-            {
-                "meta": {
-                    "value": 100,
-                    "validation": {
-                        "range": {
-                            "max": 100,
-                            "min": 1
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "notion",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "databases",
+                            "operation": "databases.retrieve",
+                            "loadOptionsMethod": "getDatabases"
                         },
-                        "required": false
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
                     },
-                    "description": "The maximum number of children to retrieve. Defaults to 100 if not provided.",
-                    "displayName": "Page Size",
-                    "displayType": "number",
-                    "placeholder": "Enter the number of children to retrieve"
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "You must select a database to retrieve"
+                        }
+                    },
+                    "description": "Notion database to retrieve.",
+                    "displayName": "Database",
+                    "displayType": "select",
+                    "placeholder": "Select a database"
                 },
-                "name": "page_size"
+                "name": "database_id"
             }
         ]
     },
@@ -758,217 +621,6 @@
                     "placeholder": "Select a database"
                 },
                 "name": "database_id"
-            }
-        ]
-    },
-    "update": {
-        "definition": {
-            "url": "https://api.notion.com/v1/databases/{{parameters.database_id}}",
-            "body": {
-                "icon": {
-                    "type": "emoji",
-                    "emoji": "{{parameters.icon}}"
-                },
-                "cover": {
-                    "type": "external",
-                    "external": {
-                        "url": "{{parameters.cover}}"
-                    }
-                },
-                "title": [
-                    {
-                        "text": {
-                            "content": "{{parameters.title}}"
-                        }
-                    }
-                ],
-                "properties": "{{parameters.properties}}"
-            },
-            "method": "patch",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}",
-                "Notion-Version": "2022-06-28"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "body": "const updatedBody = { ...body }; updatedBody.properties = updatedBody.properties.reduce((acc, property) => { acc[property.propertyName] = { [property.propertyValue]: {} }; return acc; }, {}); if (updatedBody.propertyTitle) { updatedBody.properties[updatedBody.propertyTitle] = { title: {} }; } if (!updatedBody.icon || !updatedBody.icon.emoji || Object.keys(updatedBody.icon).length === 0) { delete updatedBody.icon; } if (!updatedBody.cover || !updatedBody.cover.external || !updatedBody.cover.external.url || Object.keys(updatedBody.cover).length === 0) { delete updatedBody.cover; } if (!updatedBody.title || !Array.isArray(updatedBody.title) || updatedBody.title.length === 0 || !updatedBody.title[0]?.text?.content) { delete updatedBody.title; } delete updatedBody.propertyTitle; return updatedBody;"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "notion",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "databases",
-                            "operation": "databases.update",
-                            "loadOptionsMethod": "getDatabases"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Database ID is required to update the database."
-                        }
-                    },
-                    "description": "Select the Notion database to update.",
-                    "displayName": "Database",
-                    "displayType": "select",
-                    "placeholder": "Select a database"
-                },
-                "name": "database_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The title of the Notion database to be updated.",
-                    "displayName": "Database Title",
-                    "displayType": "text",
-                    "placeholder": "Enter the title of the database"
-                },
-                "name": "title"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "An emoji to represent the database.",
-                    "displayName": "Database icon",
-                    "displayType": "text",
-                    "placeholder": "Enter an emoji"
-                },
-                "name": "icon"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "A header or banner image URL for the database.",
-                    "displayName": "Database Cover",
-                    "displayType": "text",
-                    "placeholder": "Enter the database cover URL"
-                },
-                "name": "cover"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The title of the Notion database row to be created.",
-                    "displayName": "Property Title",
-                    "displayType": "text",
-                    "placeholder": "Enter the title of the database coloumns"
-                },
-                "name": "propertyTitle"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true
-                                },
-                                "displayName": "Property Name",
-                                "displayType": "text",
-                                "placeholder": "Enter the name for the properites"
-                            },
-                            "name": "propertyName"
-                        },
-                        {
-                            "meta": {
-                                "options": [
-                                    {
-                                        "label": "Title",
-                                        "value": "title"
-                                    },
-                                    {
-                                        "label": "URL",
-                                        "value": "url"
-                                    },
-                                    {
-                                        "label": "Email",
-                                        "value": "email"
-                                    },
-                                    {
-                                        "label": "Files",
-                                        "value": "file"
-                                    },
-                                    {
-                                        "label": "Checkbox",
-                                        "value": "checkbox"
-                                    },
-                                    {
-                                        "label": "Created By",
-                                        "value": "created_by"
-                                    },
-                                    {
-                                        "label": "Created Time",
-                                        "value": "created_time"
-                                    },
-                                    {
-                                        "label": "Date",
-                                        "value": "date"
-                                    },
-                                    {
-                                        "label": "Last Edited By",
-                                        "value": "last_edited_by"
-                                    },
-                                    {
-                                        "label": "Last Edited Time",
-                                        "value": "last_edited_time"
-                                    },
-                                    {
-                                        "label": "People",
-                                        "value": "people"
-                                    },
-                                    {
-                                        "label": "Phone Number",
-                                        "value": "phone_number"
-                                    },
-                                    {
-                                        "label": "Rich Text",
-                                        "value": "rich_text"
-                                    }
-                                ],
-                                "validation": {
-                                    "required": true
-                                },
-                                "description": "Choose the type of authentication you want to use.",
-                                "displayName": "Property Value",
-                                "displayType": "select",
-                                "placeholder": "Select an property type"
-                            },
-                            "name": "propertyValue"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "An array of properites . Each object should have a label and value.",
-                    "displayName": "Properties",
-                    "displayType": "array"
-                },
-                "name": "properties"
             }
         ]
     }

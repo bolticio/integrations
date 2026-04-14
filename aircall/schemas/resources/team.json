@@ -48,160 +48,12 @@
             "name": "operation"
         }
     ],
-    "list": {
-        "definition": {
-            "url": "https://api.aircall.io/v1/numbers",
-            "method": "get",
-            "headers": {
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data.numbers}}"
-            },
-            "pagination": {
-                "qs": {
-                    "page": "{{response.data.meta.current_page}} + 1",
-                    "per_page": "20"
-                },
-                "type": "page",
-                "default": {
-                    "page": 1,
-                    "per_page": 20
-                },
-                "condition": "{{response.data.meta.total}} < {{response.data.meta.current_page}} * {{response.data.meta.per_page}}"
-            }
-        },
-        "parameters": []
-    },
-    "get": {
-        "definition": {
-            "url": "https://api.aircall.io/v1/numbers/{{parameters.number_id}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique ID for the number.",
-                    "displayName": "Number ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the Number ID"
-                },
-                "name": "number_id"
-            }
-        ]
-    },
-    "delete": {
-        "definition": {
-            "url": "https://api.aircall.io/v1/users/{{parameters.user_id}}",
-            "method": "delete",
-            "headers": {
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique ID for the user.",
-                    "displayName": "User ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the User ID"
-                },
-                "name": "user_id"
-            }
-        ]
-    },
-    "update": {
-        "definition": {
-            "url": "https://api.aircall.io/v1/users/{{parameters.user_id}}",
-            "body": {
-                "last_name": "{{parameters.last_name}}",
-                "first_name": "{{parameters.first_name}}"
-            },
-            "method": "put",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "details": "{{response.data.errors}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique ID for the user.",
-                    "displayName": "User ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the User ID"
-                },
-                "name": "user_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The new first name of the user.",
-                    "displayName": "First Name",
-                    "displayType": "text",
-                    "placeholder": "Enter new first name"
-                },
-                "name": "first_name"
-            },
-            {
-                "meta": {
-                    "description": "The new last name of the user.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter new last name"
-                },
-                "name": "last_name"
-            }
-        ]
-    },
     "create": {
         "definition": {
-            "url": "https://api.aircall.io/v1/users",
+            "url": "https://api.aircall.io/v1/teams",
             "body": {
-                "role": "{{parameters.role}}",
-                "email": "{{parameters.email}}",
-                "last_name": "{{parameters.last_name}}",
-                "first_name": "{{parameters.first_name}}"
+                "name": "{{parameters.name}}",
+                "description": "{{parameters.description}}"
             },
             "method": "post",
             "headers": {
@@ -222,176 +74,195 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The email address of the user.",
-                    "displayName": "Email",
+                    "description": "The name of the team.",
+                    "displayName": "Name",
                     "displayType": "text",
-                    "placeholder": "Enter user email"
+                    "placeholder": "Enter team name"
                 },
-                "name": "email"
+                "name": "name"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The first name of the user.",
-                    "displayName": "First Name",
+                    "description": "A brief description of the team.",
+                    "displayName": "Description",
                     "displayType": "text",
-                    "placeholder": "Enter first name"
+                    "placeholder": "Enter team description"
                 },
-                "name": "first_name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The last name of the user.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter last name"
-                },
-                "name": "last_name"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Admin",
-                            "value": "admin"
-                        },
-                        {
-                            "label": "Agent",
-                            "value": "agent"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Role of the user.",
-                    "displayName": "Role",
-                    "displayType": "select",
-                    "placeholder": "Select role"
-                },
-                "name": "role"
+                "name": "description"
             }
         ]
     },
-    "search": {
+    "list": {
         "definition": {
-            "qs": {
-                "to": "{{parameters.to}}",
-                "from": "{{parameters.from}}",
-                "user_id": "{{parameters.user_id}}",
-                "phone_number": "{{parameters.phone_number}}",
-                "fetch_contact": "{{parameters.fetch_contact}}"
-            },
-            "url": "https://api.aircall.io/v1/calls/search",
+            "url": "https://api.aircall.io/v1/teams",
             "method": "get",
             "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
             },
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
+                    "message": "{{response.data}}"
                 },
-                "output": "{{response.data.calls}}"
+                "output": "{{response.data.teams}}"
+            },
+            "pagination": {
+                "qs": {
+                    "page": "{{response.data.meta.current_page}} + 1",
+                    "per_page": "20"
+                },
+                "type": "page",
+                "default": {
+                    "page": 1,
+                    "per_page": 20
+                },
+                "condition": "{{response.data.meta.total}} < {{response.data.meta.current_page}} * {{response.data.meta.per_page}}"
+            }
+        },
+        "parameters": []
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/teams/{{parameters.team_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
             }
         },
         "parameters": [
             {
                 "meta": {
-                    "htmlProps": {
-                        "format": "YYYY-MM-DD HH:mm:ss",
-                        "disabled": false,
-                        "readOnly": false,
-                        "timeSteps": {
-                            "hours": 1,
-                            "minutes": 5,
-                            "seconds": 5
-                        }
-                    },
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "Set a minimal creation date for calls.",
-                    "displayName": "From (Timestamp)",
-                    "displayType": "datetime",
-                    "placeholder": "Enter the minimal creation date (UNIX timestamp)"
+                    "description": "The unique ID for the team.",
+                    "displayName": "Team ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Team ID"
                 },
-                "name": "from"
+                "name": "team_id"
+            }
+        ]
+    },
+    "removeuser": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/teams/{{parameters.team_id}}/users/{{parameters.user_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
             },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "format": "YYYY-MM-DD HH:mm:ss",
-                        "disabled": false,
-                        "readOnly": false,
-                        "timeSteps": {
-                            "hours": 1,
-                            "minutes": 5,
-                            "seconds": 5
-                        }
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Set a maximal creation date for calls.",
-                    "displayName": "To (Timestamp)",
-                    "displayType": "datetime",
-                    "placeholder": "Enter the maximal creation date (UNIX timestamp)"
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
                 },
-                "name": "to"
-            },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "Unique ID of the user who made or received calls.",
+                    "description": "The unique ID for the team.",
+                    "displayName": "Team ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Team ID"
+                },
+                "name": "team_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique ID for the user.",
                     "displayName": "User ID",
-                    "displayType": "number",
+                    "displayType": "text",
                     "placeholder": "Enter the User ID"
                 },
                 "name": "user_id"
+            }
+        ]
+    },
+    "adduser": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/teams/{{parameters.team_id}}/users/{{parameters.user_id}}",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique ID for the team.",
+                    "displayName": "Team ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Team ID"
+                },
+                "name": "team_id"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "When set to true, adds contact details in the response.",
-                    "displayName": "Fetch Contact",
-                    "displayType": "boolean"
+                    "description": "The unique ID for the user.",
+                    "displayName": "User ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the User ID"
                 },
-                "name": "fetch_contact"
+                "name": "user_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.aircall.io/v1/teams/{{parameters.team_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.api_id}}:{{secrets.api_token}})"
             },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
-                    "value": "+91",
-                    "htmlProps": {
-                        "disabled": false,
-                        "readOnly": false,
-                        "onlyCountries": [
-                            "IN"
-                        ],
-                        "defaultCountry": "IN",
-                        "preferredCountries": [
-                            "IN"
-                        ]
-                    },
                     "validation": {
-                        "required": true,
-                        "matchIsValidTel": true
+                        "required": true
                     },
-                    "description": "The calling or receiving phone number of the calls.",
-                    "displayName": "Phone Number",
-                    "displayType": "phone",
-                    "placeholder": "Enter the phone number"
+                    "description": "The unique ID for the team.",
+                    "displayName": "Team ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the Team ID"
                 },
-                "name": "phone_number"
+                "name": "team_id"
             }
         ]
     }

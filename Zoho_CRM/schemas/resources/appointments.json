@@ -51,13 +51,24 @@
     ],
     "create": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "url": "https://www.zohoapis.in/crm/v8/Appointments__s",
             "body": {
                 "data": [
                     {
-                        "Email": "{{parameters.email}}",
-                        "Last_Name": "{{parameters.last_name}}",
-                        "First_Name": "{{parameters.first_name}}"
+                        "Owner": {
+                            "id": "{{parameters.owner_id}}"
+                        },
+                        "Status": "{{parameters.status}}",
+                        "Address": "{{parameters.address}}",
+                        "Location": "{{parameters.location}}",
+                        "Service_Name": "{{parameters.service_name}}",
+                        "Appointment_For": {
+                            "id": "{{parameters.appointment_for_id}}",
+                            "module": "{{parameters.appointment_for_module}}"
+                        },
+                        "Appointment_Name": "{{parameters.appointment_name}}",
+                        "Additional_Information": "{{parameters.additional_information}}",
+                        "Appointment_Start_Time": "{{parameters.appointment_start_time}}"
                     }
                 ]
             },
@@ -80,42 +91,184 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The first name of the contact.",
-                    "displayName": "First Name",
+                    "description": "The name of the appointment.",
+                    "displayName": "Appointment Name",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter appointment name"
                 },
-                "name": "first_name"
+                "name": "appointment_name"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The last name of the contact.",
-                    "displayName": "Last Name",
+                    "description": "The name of the service for the appointment.",
+                    "displayName": "Service Name",
                     "displayType": "text",
-                    "placeholder": "Enter the last name"
+                    "placeholder": "Enter service name"
                 },
-                "name": "last_name"
+                "name": "service_name"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The email address of the contact.",
-                    "displayName": "Email",
-                    "displayType": "email",
-                    "placeholder": "Enter the email address"
+                    "description": "The ID of the customer for whom the appointment is scheduled.",
+                    "displayName": "Appointment For ID",
+                    "displayType": "text",
+                    "placeholder": "Enter customer record ID"
                 },
-                "name": "email"
+                "name": "appointment_for_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The API name of the module (e.g., Contacts, Leads) the customer belongs to.",
+                    "displayName": "Appointment For Module",
+                    "displayType": "text",
+                    "placeholder": "Enter module API name"
+                },
+                "name": "appointment_for_module"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the service member who will provide the service.",
+                    "displayName": "Owner ID",
+                    "displayType": "text",
+                    "placeholder": "Enter owner ID"
+                },
+                "name": "owner_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Start date and time of the appointment in ISO 8601 format.",
+                    "displayName": "Appointment Start Time",
+                    "displayType": "datetime",
+                    "placeholder": "Select start date & time"
+                },
+                "name": "appointment_start_time"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Client Address",
+                            "value": "Client Address"
+                        },
+                        {
+                            "label": "Business Address",
+                            "value": "Business Address"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Location where the service is offered.",
+                    "displayName": "Location",
+                    "displayType": "select",
+                    "placeholder": "Select location"
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Address of the customer, required if location is Client Address.",
+                    "displayName": "Address",
+                    "displayType": "text",
+                    "placeholder": "Enter address"
+                },
+                "name": "address"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Any additional information about the appointment.",
+                    "displayName": "Additional Information",
+                    "displayType": "text",
+                    "placeholder": "Enter additional information"
+                },
+                "name": "additional_information"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Scheduled",
+                            "value": "Scheduled"
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "Completed"
+                        },
+                        {
+                            "label": "Cancelled",
+                            "value": "Cancelled"
+                        },
+                        {
+                            "label": "Overdue",
+                            "value": "Overdue"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Status of the appointment.",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select status"
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v8/Appointments__s/{{parameters.appointment_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the appointment to retrieve.",
+                    "displayName": "Appointment ID",
+                    "displayType": "text",
+                    "placeholder": "Enter appointment ID"
+                },
+                "name": "appointment_id"
             }
         ]
     },
     "get_list": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "url": "https://www.zohoapis.in/crm/v8/Appointments__s",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -142,13 +295,13 @@
     },
     "update": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "url": "https://www.zohoapis.in/crm/v8/Appointments__s/{{parameters.appointment_id}}",
             "body": {
                 "data": [
                     {
-                        "Email": "{{parameters.email}}",
-                        "Last_Name": "{{parameters.last_name}}",
-                        "First_Name": "{{parameters.first_name}}"
+                        "Status": "{{parameters.status}}",
+                        "Appointment_Name": "{{parameters.appointment_name}}",
+                        "Appointment_Start_Time": "{{parameters.appointment_start_time}}"
                     }
                 ]
             },
@@ -169,88 +322,74 @@
             {
                 "meta": {
                     "validation": {
-                        "pattern": "^[0-9]+$",
                         "required": true
                     },
-                    "description": "The ID of the contact to update.",
-                    "displayName": "Contact ID",
+                    "description": "The ID of the appointment to update.",
+                    "displayName": "Appointment ID",
                     "displayType": "text",
-                    "placeholder": "Enter the contact ID"
+                    "placeholder": "Enter appointment ID"
                 },
-                "name": "contact_id"
+                "name": "appointment_id"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true
+                        "required": false
                     },
-                    "description": "The first name of the contact.",
-                    "displayName": "First Name",
+                    "description": "The name of the appointment.",
+                    "displayName": "Appointment Name",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter appointment name"
                 },
-                "name": "first_name"
+                "name": "appointment_name"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true
+                        "required": false
                     },
-                    "description": "The last name of the contact.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the last name"
+                    "description": "Start date and time of the appointment in ISO 8601 format.",
+                    "displayName": "Appointment Start Time",
+                    "displayType": "datetime",
+                    "placeholder": "Select start date & time"
                 },
-                "name": "last_name"
+                "name": "appointment_start_time"
             },
             {
                 "meta": {
+                    "options": [
+                        {
+                            "label": "Scheduled",
+                            "value": "Scheduled"
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "Completed"
+                        },
+                        {
+                            "label": "Cancelled",
+                            "value": "Cancelled"
+                        },
+                        {
+                            "label": "Overdue",
+                            "value": "Overdue"
+                        }
+                    ],
                     "validation": {
-                        "required": true
+                        "required": false
                     },
-                    "description": "The email address of the contact.",
-                    "displayName": "Email",
-                    "displayType": "email",
-                    "placeholder": "Enter the email address"
+                    "description": "Status of the appointment.",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select status"
                 },
-                "name": "email"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "pattern": "^[0-9]+$",
-                        "required": true
-                    },
-                    "description": "The ID of the contact to retrieve.",
-                    "displayName": "Contact ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the contact ID"
-                },
-                "name": "contact_id"
+                "name": "status"
             }
         ]
     },
     "delete": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "url": "https://www.zohoapis.in/crm/v8/Appointments__s/{{parameters.appointment_id}}",
             "method": "delete",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -267,15 +406,14 @@
             {
                 "meta": {
                     "validation": {
-                        "pattern": "^[0-9]+$",
                         "required": true
                     },
-                    "description": "The ID of the contact to delete.",
-                    "displayName": "Contact ID",
+                    "description": "The ID of the appointment to delete.",
+                    "displayName": "Appointment ID",
                     "displayType": "text",
-                    "placeholder": "Enter the contact ID"
+                    "placeholder": "Enter appointment ID"
                 },
-                "name": "contact_id"
+                "name": "appointment_id"
             }
         ]
     }

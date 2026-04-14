@@ -254,27 +254,33 @@
         ]
     },
     "update": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.freshchat.com/v2/users/{{parameters.user_id}}",
+        "config": {
+            "url": "integrations/parameters",
             "body": {
-                "email": "{{parameters.email}}",
-                "phone": "{{parameters.phone}}",
-                "avatar": {
-                    "url": "{{parameters.url}}"
-                },
-                "last_name": "{{parameters.last_name}}",
-                "first_name": "{{parameters.first_name}}",
-                "properties": [
-                    {
-                        "name": "{{properties.name}}",
-                        "value": "{{properties.value}}"
-                    }
-                ],
-                "login_status": "{{parameters.login_status}}",
-                "reference_id": "{{parameters.reference_id}}",
-                "org_contact_id": "{{parameters.org_contact_id}}"
+                "name": "freshchat",
+                "secret": "{{parameters.secret}}",
+                "resource": "conversation",
+                "loadParametersMethod": "getMoreParameters"
             },
-            "method": "put",
+            "method": "post",
+            "urlType": "parameters"
+        },
+        "definition": {
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/conversations/{{parameters.conversation_id}}",
+            "body": {
+                "status": "{{parameters.status}}",
+                "channel_id": "{{parameters.channel_id}}",
+                "properties": {
+                    "cf_type": "{{parameters.cf_type}}",
+                    "priority": "{{parameters.priority}}",
+                    "cf_rating": "{{parameters.cf_rating}}",
+                    "cf_supported_products": "{{parameters.cf_supported_products}}"
+                },
+                "assigned_agent_id": "{{parameters.assigned_agent_id}}",
+                "assigned_group_id": "{{parameters.assigned_group_id}}",
+                "assigned_org_agent_id": "{{parameters.assigned_org_agent_id}}"
+            },
+            "method": "post",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -294,143 +300,104 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "ID of the user to retrieve",
-                    "displayName": "User ID",
+                    "description": "ID of the conversation to update.",
+                    "displayName": "Conversation ID",
                     "displayType": "number",
-                    "placeholder": "Enter the User ID"
+                    "placeholder": "Enter the Conversation ID"
                 },
-                "name": "user_id"
+                "name": "conversation_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "New",
+                            "value": "new"
+                        },
+                        {
+                            "label": "Assigned",
+                            "value": "assigned"
+                        },
+                        {
+                            "label": "Resolved",
+                            "value": "resolved"
+                        },
+                        {
+                            "label": "Reopened",
+                            "value": "reopened"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Status of the conversation.",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select the status"
+                },
+                "name": "status"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "freshchat",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "conversation",
+                            "operation": "conversation.create",
+                            "loadOptionsMethod": "getChannels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the channel.",
+                    "displayName": "Channel ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the channel ID"
+                },
+                "name": "channel_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Link from which the image is fetched.",
-                    "displayName": "URL",
+                    "description": "ID of the assigned organization agent.",
+                    "displayName": "Assigned Org Agent ID",
                     "displayType": "text",
-                    "placeholder": "Enter the image URL"
+                    "placeholder": "Enter the assigned organization agent ID"
                 },
-                "name": "url"
+                "name": "assigned_org_agent_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Email address of the user.",
-                    "displayName": "Email",
+                    "description": "ID of the assigned agent.",
+                    "displayName": "Assigned Agent ID",
                     "displayType": "text",
-                    "placeholder": "Enter the email"
+                    "placeholder": "Enter the assigned agent ID"
                 },
-                "name": "email"
+                "name": "assigned_agent_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "First name of the user.",
-                    "displayName": "First Name",
+                    "description": "ID of the assigned group.",
+                    "displayName": "Assigned Group ID",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter the assigned group ID"
                 },
-                "name": "first_name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Last name of the user.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the last name"
-                },
-                "name": "last_name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Login Status of the user.",
-                    "displayName": "Login Status",
-                    "displayType": "toggle",
-                    "placeholder": "Enter the Login Status"
-                },
-                "name": "login_status"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Org Contact ID of the user.",
-                    "displayName": "Org Contact ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the Org Contact ID"
-                },
-                "name": "org_contact_id"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "disabled": false,
-                        "readOnly": false,
-                        "continents": [
-                            "NA",
-                            "SA",
-                            "AS",
-                            "OC",
-                            "AF",
-                            "EU"
-                        ],
-                        "defaultCountry": "IN"
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Phone number of the user.",
-                    "displayName": "Phone",
-                    "displayType": "phone",
-                    "placeholder": "Enter the phone number"
-                },
-                "name": "phone"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Name of the custom property.",
-                    "displayName": "Name",
-                    "displayType": "text"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Value of the custom property.",
-                    "displayName": "Value",
-                    "displayType": "text"
-                },
-                "name": "value"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "User identifier the system sets for a user when Freshchat is integrated with our Customer Experience suite of products.",
-                    "displayName": "Reference ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the reference ID"
-                },
-                "name": "reference_id"
+                "name": "assigned_group_id"
             }
         ]
     },
@@ -467,25 +434,44 @@
         ]
     },
     "create": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.freshchat.com/v2/users",
+        "config": {
+            "url": "integrations/parameters",
             "body": {
-                "email": "{{parameters.email}}",
-                "phone": "{{parameters.phone}}",
-                "avatar": {
-                    "url": "{{parameters.url}}"
-                },
-                "last_name": "{{parameters.last_name}}",
-                "first_name": "{{parameters.first_name}}",
-                "properties": [
+                "name": "freshchat",
+                "secret": "{{parameters.secret}}",
+                "resource": "conversation",
+                "loadParametersMethod": "getMoreParameters"
+            },
+            "method": "post",
+            "urlType": "parameters"
+        },
+        "definition": {
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/conversations",
+            "body": {
+                "users": [
                     {
-                        "name": "{{properties.name}}",
-                        "value": "{{properties.value}}"
+                        "id": "{{parameters.user_id}}"
                     }
                 ],
-                "login_status": "{{parameters.login_status}}",
-                "reference_id": "{{parameters.reference_id}}",
-                "org_contact_id": "{{parameters.org_contact_id}}"
+                "status": "{{parameters.status}}",
+                "messages": [
+                    {
+                        "actor_id": "{{parameters.actor_id}}",
+                        "actor_type": "{{parameters.actor_type}}",
+                        "message_type": "{{parameters.message_type}}",
+                        "message_parts": [
+                            {
+                                "text": {
+                                    "content": "{{parameters.content}}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "channel_id": "{{parameters.channel_id}}",
+                "assigned_agent_id": "{{parameters.assigned_agent_id}}",
+                "assigned_group_id": "{{parameters.assigned_group_id}}",
+                "assigned_org_agent_id": "{{parameters.assigned_org_agent_id}}"
             },
             "method": "post",
             "headers": {
@@ -504,141 +490,194 @@
         "parameters": [
             {
                 "meta": {
+                    "options": [
+                        {
+                            "label": "New",
+                            "value": "new"
+                        },
+                        {
+                            "label": "Assigned",
+                            "value": "assigned"
+                        },
+                        {
+                            "label": "Resolved",
+                            "value": "resolved"
+                        },
+                        {
+                            "label": "Reopened",
+                            "value": "reopened"
+                        }
+                    ],
                     "validation": {
                         "required": false
                     },
-                    "description": "Link from which the image is fetched.",
-                    "displayName": "URL",
+                    "description": "Status of the conversation.",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select the status"
+                },
+                "name": "status"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Content of the message.",
+                    "displayName": "Message Content",
                     "displayType": "text",
-                    "placeholder": "Enter the image URL"
+                    "placeholder": "Enter the message content"
                 },
-                "name": "url"
+                "name": "content"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "normal",
+                            "value": "normal"
+                        },
+                        {
+                            "label": "private",
+                            "value": "private"
+                        },
+                        {
+                            "label": "system",
+                            "value": "system"
+                        }
+                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Type of message sent to the conversation.",
+                    "displayName": "Message Type",
+                    "displayType": "select",
+                    "placeholder": "Enter the Message Type"
+                },
+                "name": "message_type"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "user",
+                            "value": "user"
+                        },
+                        {
+                            "label": "agent",
+                            "value": "agent"
+                        },
+                        {
+                            "label": "bot",
+                            "value": "bot"
+                        },
+                        {
+                            "label": "system",
+                            "value": "system"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of the entity who sent the message to the conversation.",
+                    "displayName": "Actor Type",
+                    "displayType": "select",
+                    "placeholder": "Enter the Actor Type"
+                },
+                "name": "actor_type"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "freshchat",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "conversation",
+                            "operation": "conversation.create",
+                            "loadOptionsMethod": "getChannels"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "ID of the channel.",
+                    "displayName": "Channel ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the channel ID"
+                },
+                "name": "channel_id"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "Email address of the user.",
-                    "displayName": "Email",
+                    "description": "ID of the actor.",
+                    "displayName": "Actor ID",
                     "displayType": "text",
-                    "placeholder": "Enter the email"
+                    "placeholder": "Enter the actor ID"
                 },
-                "name": "email"
+                "name": "actor_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "First name of the user.",
-                    "displayName": "First Name",
+                    "description": "ID of the assigned organization agent.",
+                    "displayName": "Assigned Org Agent ID",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter the assigned organization agent ID"
                 },
-                "name": "first_name"
+                "name": "assigned_org_agent_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Last name of the user.",
-                    "displayName": "Last Name",
+                    "description": "ID of the assigned agent.",
+                    "displayName": "Assigned Agent ID",
                     "displayType": "text",
-                    "placeholder": "Enter the last name"
+                    "placeholder": "Enter the assigned agent ID"
                 },
-                "name": "last_name"
+                "name": "assigned_agent_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Login Status of the user.",
-                    "displayName": "Login Status",
-                    "displayType": "toggle",
-                    "placeholder": "Enter the Login Status"
-                },
-                "name": "login_status"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Org Contact ID of the user.",
-                    "displayName": "Org Contact ID",
+                    "description": "ID of the assigned group.",
+                    "displayName": "Assigned Group ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Org Contact ID"
+                    "placeholder": "Enter the assigned group ID"
                 },
-                "name": "org_contact_id"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "disabled": false,
-                        "readOnly": false,
-                        "continents": [
-                            "NA",
-                            "SA",
-                            "AS",
-                            "OC",
-                            "AF",
-                            "EU"
-                        ],
-                        "defaultCountry": "IN"
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Phone number of the user.",
-                    "displayName": "Phone",
-                    "displayType": "phone",
-                    "placeholder": "Enter the phone number"
-                },
-                "name": "phone"
+                "name": "assigned_group_id"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "Name of the custom property.",
-                    "displayName": "Name",
-                    "displayType": "text"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Value of the custom property.",
-                    "displayName": "Value",
-                    "displayType": "text"
-                },
-                "name": "value"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "User identifier the system sets for a user when Freshchat is integrated with our Customer Experience suite of products.",
-                    "displayName": "Reference ID",
+                    "description": "ID of the user.",
+                    "displayName": "User ID",
                     "displayType": "text",
-                    "placeholder": "Enter the reference ID"
+                    "placeholder": "Enter the user ID"
                 },
-                "name": "reference_id"
+                "name": "user_id"
             }
         ]
     },
     "get": {
         "definition": {
             "qs": {},
-            "url": "https://{{secrets.domain}}.freshchat.com/v2/users/{{parameters.user_id}}",
+            "url": "https://{{secrets.domain}}.freshchat.com/v2/conversations/{{parameters.conversation_id}}",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -658,171 +697,12 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "ID of the user to retrieve",
-                    "displayName": "User ID",
+                    "description": "ID of the conversation to retrieve",
+                    "displayName": "Conversation ID",
                     "displayType": "number",
-                    "placeholder": "Enter the User ID"
+                    "placeholder": "Enter the Conversation ID"
                 },
-                "name": "user_id"
-            }
-        ]
-    },
-    "custom_api": {
-        "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "value": "get",
-                    "options": [
-                        {
-                            "label": "GET",
-                            "value": "get"
-                        },
-                        {
-                            "label": "PUT",
-                            "value": "put"
-                        },
-                        {
-                            "label": "POST",
-                            "value": "post"
-                        },
-                        {
-                            "label": "PATCH",
-                            "value": "patch"
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
-                    "displayType": "select"
-                },
-                "name": "method"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
-                    "displayType": "text",
-                    "placeholder": "Eg. https://www.example.com"
-                },
-                "name": "base_url"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "You don't have to add authorization headers; we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue"
-                },
-                "name": "headers"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "displayName": "Query String",
-                    "displayType": "keyvalue"
-                },
-                "name": "query_params"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
-                    },
-                    "description": "The Payload (Body) of the HTTP Request.",
-                    "displayName": "Body",
-                    "displayType": "code"
-                },
-                "name": "body"
+                "name": "conversation_id"
             }
         ]
     }

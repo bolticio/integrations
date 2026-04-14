@@ -69,6 +69,42 @@
         },
         "parameters": []
     },
+    "delete": {
+        "definition": {
+            "url": "https://api.intercom.io/contacts/{{parameters.id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}",
+                "Intercom-Version": "2.14"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors[0].code}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.deleted}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Contact ID is required"
+                        }
+                    },
+                    "description": "Enter the Contact ID given by the Intercom you want to delete.",
+                    "displayName": "Contact ID ",
+                    "displayType": "text",
+                    "placeholder": "Enter the Contact ID"
+                },
+                "name": "id"
+            }
+        ]
+    },
     "retrieve": {
         "definition": {
             "url": "https://api.intercom.io/contacts/{{parameters.id}}",
@@ -110,13 +146,115 @@
     },
     "create": {
         "definition": {
-            "url": "https://api.intercom.io/companies",
+            "url": "https://api.intercom.io/contacts",
             "body": {
                 "name": "{{parameters.name}}",
-                "plan": "{{parameters.plan}}",
-                "size": "{{parameters.size}}",
-                "industry": "{{parameters.industry}}",
-                "company_id": "{{parameters.company_id}}"
+                "role": "{{parameters.role}}",
+                "email": "{{parameters.email}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}",
+                "Intercom-Version": "2.14"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors[0].code}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "User",
+                            "value": "user",
+                            "description": "Assign role as a user."
+                        },
+                        {
+                            "label": "Lead",
+                            "value": "lead",
+                            "description": "Assign role as a lead."
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Role is required"
+                        }
+                    },
+                    "description": "Enter the role of the  you want to create.",
+                    "displayName": "Role",
+                    "displayType": "select",
+                    "placeholder": "Enter role of the contact you want to create"
+                },
+                "name": "role"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Contact Name is required"
+                        }
+                    },
+                    "description": "Enter the name of the contact you want to create.",
+                    "displayName": "Contact Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the name of the contact"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Email is required"
+                        }
+                    },
+                    "description": "Enter the email of the contact you want to create.",
+                    "displayName": "Email ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the email of the contact"
+                },
+                "name": "email"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.intercom.io/contacts",
+            "method": "GET",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}",
+                "Intercom-Version": "2.14"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors[0].code}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "assign_company": {
+        "definition": {
+            "url": "https://api.intercom.io/contacts/{{parameters.id}}/companies",
+            "body": {
+                "id": "{{parameters.companyId}}"
             },
             "method": "post",
             "headers": {
@@ -137,122 +275,44 @@
             {
                 "meta": {
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Company Name is required"
-                        }
+                        "required": true
                     },
-                    "description": "Enter the name of the company you want to create.",
-                    "displayName": "Company Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the company"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Company ID is required"
-                        }
-                    },
-                    "description": "Enter the Company ID you want to create.",
-                    "displayName": "Company ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the Company ID"
-                },
-                "name": "company_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Enter the name of the plan you have associated with the company.Example:'Enterprise'",
-                    "displayName": "Company Plan",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the plan"
-                },
-                "name": "plan"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Enter the no. of employees in this company.Example:'100'",
-                    "displayName": "Company's Size",
-                    "displayType": "text",
-                    "placeholder": "Enter the no. of employees"
-                },
-                "name": "size"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Enter the industry that this company operates in.Example:'Manufacturing'",
-                    "displayName": "Industry Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the industry"
-                },
-                "name": "industry"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://api.intercom.io/companies",
-            "method": "GET",
-            "headers": {
-                "Authorization": "Bearer {{secrets.api_key}}",
-                "Intercom-Version": "2.14"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.errors[0].code}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "delete": {
-        "definition": {
-            "url": "https://api.intercom.io/contacts/{{parameters.id}}",
-            "method": "delete",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}",
-                "Intercom-Version": "2.14"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.errors[0].code}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.deleted}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Contact ID is required"
-                        }
-                    },
-                    "description": "Enter the Contact ID given by the Intercom you want to delete.",
-                    "displayName": "Contact ID ",
+                    "description": "The Intercom ID of the contact to assign a company to.",
+                    "displayName": "Contact ID",
                     "displayType": "text",
                     "placeholder": "Enter the Contact ID"
                 },
                 "name": "id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "contacts",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contacts",
+                            "operation": "contacts.assign_company",
+                            "loadOptionsMethod": "getCompanies"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a Company which you want to assign to the user/lead.",
+                    "displayName": "Company List",
+                    "displayType": "select",
+                    "placeholder": "Select a Company"
+                },
+                "name": "companyId"
             }
         ]
     }

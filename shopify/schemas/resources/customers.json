@@ -102,26 +102,17 @@
             }
         }
     },
-    "create_entry": {
+    "get": {
         "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/blogs/{{parameters.blog_id}}/articles.json",
-            "body": {
-                "article": {
-                    "title": "{{parameters.title}}",
-                    "author": "{{parameters.author}}",
-                    "body_html": "{{parameters.body_html}}",
-                    "published": "{{parameters.published}}"
-                }
-            },
-            "method": "post",
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/{{parameters.customer_id}}.json",
+            "method": "get",
             "headers": {
-                "Content-Type": "application/json",
                 "X-Shopify-Access-Token": "{{secrets.access_token}}"
             },
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
+                    "message": "{{response.data}}"
                 },
                 "output": "{{response.data}}"
             }
@@ -129,30 +120,18 @@
         "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the blog where the entry will be created.",
-                    "displayName": "Blog ID",
-                    "displayType": "text",
-                    "placeholder": "Enter blog ID"
-                },
-                "name": "blog_id"
-            },
-            {
-                "meta": {
                     "config": {
                         "url": "integrations/options",
                         "body": {
                             "name": "shopify",
                             "secret": "{{parameters.secret}}",
-                            "resource": "blog",
-                            "operation": "blog.create_entry",
-                            "loadOptionsMethod": "get_list"
+                            "resource": "customers",
+                            "operation": "customers.get",
+                            "loadOptionsMethod": "getCustomers"
                         },
                         "method": "post",
                         "urlType": "options",
-                        "labelKey": "title",
+                        "labelKey": "first_name",
                         "valueKey": "id"
                     },
                     "options": [],
@@ -162,115 +141,18 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The ID of the blog where the entry will be created.",
-                    "displayName": "Blog ID",
+                    "description": "The ID of the customer to update.",
+                    "displayName": "Customer ID",
                     "displayType": "select",
-                    "placeholder": "Enter blog ID"
+                    "placeholder": "Enter the customer ID"
                 },
-                "name": "blog_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The title of the new blog entry.",
-                    "displayName": "Title",
-                    "displayType": "text",
-                    "placeholder": "Enter article title"
-                },
-                "name": "title"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTML content of the blog entry.",
-                    "displayName": "Content",
-                    "displayType": "textarea",
-                    "placeholder": "Enter article content"
-                },
-                "name": "body_html"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The author of the blog entry.",
-                    "displayName": "Author",
-                    "displayType": "text",
-                    "placeholder": "Enter author name"
-                },
-                "name": "author"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Yes",
-                            "value": true
-                        },
-                        {
-                            "label": "No",
-                            "value": false
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Set to true to publish the article immediately.",
-                    "displayName": "Published",
-                    "displayType": "select",
-                    "placeholder": "Select publish status"
-                },
-                "name": "published"
+                "name": "customer_id"
             }
         ]
     },
-    "get_list": {
+    "send_invite": {
         "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections.json?ids={{parameters.ids}}",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The IDs of the custom collections to retrieve.",
-                    "displayName": "Collection IDs",
-                    "displayType": "text",
-                    "placeholder": "Enter comma-separated collection IDs"
-                },
-                "name": "ids"
-            }
-        ]
-    },
-    "create": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections.json",
-            "body": {
-                "custom_collection": {
-                    "title": "{{parameters.title}}",
-                    "body_html": "{{parameters.body_html}}"
-                }
-            },
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/{{parameters.customer_id}}/send_invite.json",
             "method": "post",
             "headers": {
                 "Content-Type": "application/json",
@@ -279,7 +161,7 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
+                    "message": "{{response.data}}"
                 },
                 "output": "{{response.data}}"
             }
@@ -287,42 +169,43 @@
         "parameters": [
             {
                 "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customers",
+                            "operation": "customers.send_invite",
+                            "loadOptionsMethod": "getCustomers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "first_name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": true
                     },
-                    "description": "The title of the custom collection.",
-                    "displayName": "Title",
-                    "displayType": "text",
-                    "placeholder": "Enter the title of the custom collection"
+                    "description": "The ID of the customer to update.",
+                    "displayName": "Customer ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the customer ID"
                 },
-                "name": "title"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "height": "200px",
-                        "language": "html",
-                        "fullscreen": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The description of the custom collection.",
-                    "displayName": "Description",
-                    "displayType": "code",
-                    "placeholder": "Enter a description for the custom collection"
-                },
-                "name": "body_html"
+                "name": "customer_id"
             }
         ]
     },
-    "update": {
+    "remove_tag": {
         "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections/{{parameters.custom_collection_id}}.json",
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/{{parameters.customer_id}}.json",
             "body": {
-                "custom_collection": {
-                    "title": "{{parameters.title}}",
-                    "body_html": "{{parameters.body_html}}"
+                "customer": {
+                    "id": "{{parameters.customer_id}}",
+                    "tags": ""
                 }
             },
             "method": "put",
@@ -333,156 +216,7 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the custom collection to update.",
-                    "displayName": "Custom Collection ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the custom collection ID"
-                },
-                "name": "custom_collection_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The new title of the custom collection.",
-                    "displayName": "Title",
-                    "displayType": "text",
-                    "placeholder": "Enter the new title of the custom collection"
-                },
-                "name": "title"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "height": "200px",
-                        "language": "html",
-                        "fullscreen": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The new description of the custom collection.",
-                    "displayName": "Description",
-                    "displayType": "code",
-                    "placeholder": "Enter a new description for the custom collection"
-                },
-                "name": "body_html"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/collections/{{parameters.collection_id}}.json",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the collection to retrieve.",
-                    "displayName": "Collection ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the collection ID"
-                },
-                "name": "collection_id"
-            }
-        ]
-    },
-    "get_products": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/collections/{{parameters.collection_id}}/products.json",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the collection to retrieve products for.",
-                    "displayName": "Collection ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the collection ID"
-                },
-                "name": "collection_id"
-            }
-        ]
-    },
-    "delete": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections/{{parameters.custom_collection_id}}.json",
-            "method": "delete",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the custom collection to delete.",
-                    "displayName": "Custom Collection ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the custom collection ID"
-                },
-                "name": "custom_collection_id"
-            }
-        ]
-    },
-    "find": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}/transactions.json",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
+                    "message": "{{response.data}}"
                 },
                 "output": "{{response.data}}"
             }
@@ -495,13 +229,13 @@
                         "body": {
                             "name": "shopify",
                             "secret": "{{parameters.secret}}",
-                            "resource": "transaction",
-                            "operation": "transaction.find",
-                            "loadOptionsMethod": "getOrders"
+                            "resource": "customers",
+                            "operation": "customers.remove_tag",
+                            "loadOptionsMethod": "getCustomers"
                         },
                         "method": "post",
                         "urlType": "options",
-                        "labelKey": "name",
+                        "labelKey": "first_name",
                         "valueKey": "id"
                     },
                     "options": [],
@@ -511,12 +245,264 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The ID of the order to be updated.",
-                    "displayName": "Order ID",
+                    "description": "The ID of the customer to update.",
+                    "displayName": "Customer ID",
                     "displayType": "select",
-                    "placeholder": "Select an order"
+                    "placeholder": "Enter the customer ID"
                 },
-                "name": "order_id"
+                "name": "customer_id"
+            }
+        ]
+    },
+    "count": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/count.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "get_orders": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/{{parameters.customer_id}}/orders.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customers",
+                            "operation": "customers.get_orders",
+                            "loadOptionsMethod": "getCustomers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "first_name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the customer to update.",
+                    "displayName": "Customer ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the customer ID"
+                },
+                "name": "customer_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/{{parameters.customer_id}}.json",
+            "method": "delete",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customers",
+                            "operation": "customers.delete",
+                            "loadOptionsMethod": "getCustomers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "first_name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the customer to update.",
+                    "displayName": "Customer ID",
+                    "displayType": "select",
+                    "placeholder": "Enter the customer ID"
+                },
+                "name": "customer_id"
+            }
+        ]
+    },
+    "find_by_name": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/search.json?query=first_name%3A{{parameters.first_name}}",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Find customer by first name.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the first name"
+                },
+                "name": "first_name"
+            }
+        ]
+    },
+    "get_list": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers.json",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": []
+    },
+    "find_by_email": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers/search.json?query=email%3A{{parameters.email}}",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Find customer by email address.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the customer email"
+                },
+                "name": "email"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/customers.json",
+            "body": {
+                "customer": {
+                    "email": "{{parameters.email}}",
+                    "last_name": "{{parameters.last_name}}",
+                    "first_name": "{{parameters.first_name}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The first name of the customer.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The last name of the customer.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the last name"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The email address of the customer.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the email address"
+                },
+                "name": "email"
             }
         ]
     }

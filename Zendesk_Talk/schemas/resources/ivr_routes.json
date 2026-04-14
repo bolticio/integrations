@@ -47,12 +47,12 @@
             "name": "operation"
         }
     ],
-    "get": {
+    "list": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses/{{parameters.address_id}}",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/ivr/{{parameters.ivr_id}}/menus/{{parameters.menu_id}}/routes",
             "body": {
-                "data": "{{secrets}}",
-                "address_id": "{{parameters.address_id}}"
+                "ivr_id": "{{parameters.ivr_id}}",
+                "menu_id": "{{parameters.menu_id}}"
             },
             "method": "get",
             "headers": {
@@ -74,33 +74,110 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the ID given by the Zendesk.",
-                    "displayName": "Address ID",
+                    "description": "Enter the ID given by Zendesk of the IVR you want to get details of.",
+                    "displayName": "IVR ID",
                     "displayType": "text",
-                    "placeholder": "Enter Address ID"
+                    "placeholder": "Enter IVR ID"
                 },
-                "name": "address_id"
+                "name": "ivr_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by Zendesk of the Menu you want to get details of.",
+                    "displayName": "Menu ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Menu ID"
+                },
+                "name": "menu_id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/ivr/{{parameters.ivr_id}}/menus/{{parameters.menu_id}}/routes/{{parameters.route_id}}",
+            "body": {
+                "data": "{{secrets}}",
+                "ivr_id": "{{parameters.ivr_id}}",
+                "menu_id": "{{parameters.menu_id}}",
+                "route_id": "{{parameters.route_id}}"
+            },
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.description}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by Zendesk of the Route you want to get details of.",
+                    "displayName": "Route ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Route ID"
+                },
+                "name": "route_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by Zendesk of the IVR you want to get details of.",
+                    "displayName": "IVR ID",
+                    "displayType": "text",
+                    "placeholder": "Enter IVR ID"
+                },
+                "name": "ivr_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by Zendesk of the Menu you want to get details of.",
+                    "displayName": "Menu ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Menu ID"
+                },
+                "name": "menu_id"
             }
         ]
     },
     "create": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/ivr/{{parameters.ivr_id}}/menus/{{parameters.menu_id}}/routes",
             "body": {
                 "data": "{{secrets}}",
-                "address": {
-                    "zip": "{{parameters.zip}}",
-                    "city": "{{parameters.city}}",
-                    "name": "{{parameters.name}}",
-                    "state": "{{parameters.state}}",
-                    "street": "{{parameters.street}}",
-                    "province": "{{parameters.province}}",
-                    "country_code": "{{parameters.country_code}}"
+                "ivr_id": "{{parameters.ivr_id}}",
+                "menu_id": "{{parameters.menu_id}}",
+                "ivr_route": {
+                    "action": "{{parameters.action}}",
+                    "options": {
+                        "group_ids": [
+                            "{{parameters.group_ids}}"
+                        ]
+                    },
+                    "keypress": "{{parameters.keypress}}"
                 }
             },
             "method": "post",
             "headers": {
                 "Accept": "application/json",
+                "Content-Type": "application/json",
                 "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
             },
             "response": {
@@ -117,115 +194,77 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the Name of the address.",
-                    "displayName": "Name",
+                    "description": "Enter the IVR ID which you want to assign to the IVR Route.",
+                    "displayName": "IVR ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Name"
+                    "placeholder": "Enter the IVR ID"
                 },
-                "name": "name"
+                "name": "ivr_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the Street Address of the address.",
-                    "displayName": "Street Address",
+                    "description": "Enter the Menu ID which you want to assign to the IVR Route.",
+                    "displayName": "Menu ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Street Address"
+                    "placeholder": "Enter the Menu ID"
                 },
-                "name": "street"
+                "name": "menu_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Voicemail",
+                            "value": "voicemail"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the Action of the IVR Route.",
+                    "displayName": "Action",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select the Action"
+                },
+                "name": "action"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the Zip Code of the address.",
-                    "displayName": "Zip Code",
+                    "description": "Enter the Keypress of the IVR Route. Allowed values are \"0\", \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"*\", \"#\", or \"default\".",
+                    "displayName": "Keypress",
                     "displayType": "text",
-                    "placeholder": "Enter the Zip Code"
+                    "placeholder": "Enter the Keypress"
                 },
-                "name": "zip"
+                "name": "keypress"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the Province of the address.",
-                    "displayName": "Province",
+                    "description": "Enter the Group ID which given by Zendesk on the Website.",
+                    "displayName": "Group ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Province"
+                    "placeholder": "Enter the Group ID"
                 },
-                "name": "province"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the Country Code of the address.",
-                    "displayName": "Country Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the Country Code"
-                },
-                "name": "country_code"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the City of the address.",
-                    "displayName": "City",
-                    "displayType": "text",
-                    "placeholder": "Enter the City"
-                },
-                "name": "city"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the State of the address.",
-                    "displayName": "State",
-                    "displayType": "text",
-                    "placeholder": "Enter the State"
-                },
-                "name": "state"
+                "name": "group_ids"
             }
         ]
     },
-    "list": {
-        "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses",
-            "body": {
-                "data": "{{secrets}}"
-            },
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}/token:{{secrets.api_token}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.description}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
     "delete": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses/{{parameters.address_id}}",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/ivr/{{parameters.ivr_id}}/menus/{{parameters.menu_id}}/routes/{{parameters.route_id}}",
             "body": {
                 "data": "{{secrets}}",
-                "address_id": "{{parameters.address_id}}"
+                "ivr_id": "{{parameters.ivr_id}}",
+                "menu_id": "{{parameters.menu_id}}",
+                "route_id": "{{parameters.route_id}}"
             },
             "method": "delete",
             "headers": {
@@ -247,30 +286,56 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the ID given by the Zendesk.",
-                    "displayName": "Address ID",
+                    "description": "Enter the ID given by Zendesk of the Route you want to delete.",
+                    "displayName": "Route ID",
                     "displayType": "text",
-                    "placeholder": "Enter Address ID"
+                    "placeholder": "Enter Route ID"
                 },
-                "name": "address_id"
+                "name": "route_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by Zendesk of the IVR you want to delete.",
+                    "displayName": "IVR ID",
+                    "displayType": "text",
+                    "placeholder": "Enter IVR ID"
+                },
+                "name": "ivr_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID given by Zendesk of the Menu you want to delete.",
+                    "displayName": "Menu ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Menu ID"
+                },
+                "name": "menu_id"
             }
         ]
     },
     "update": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/addresses/{{parameters.address_id}}",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/channels/voice/ivr/{{parameters.ivr_id}}/menus/{{parameters.menu_id}}/routes/{{parameters.route_id}}",
             "body": {
                 "data": "{{secrets}}",
-                "address": {
-                    "zip": "{{parameters.zip}}",
-                    "city": "{{parameters.city}}",
-                    "name": "{{parameters.name}}",
-                    "state": "{{parameters.state}}",
-                    "street": "{{parameters.street}}",
-                    "province": "{{parameters.province}}",
-                    "country_code": "{{parameters.country_code}}"
-                },
-                "address_id": "{{parameters.address_id}}"
+                "ivr_id": "{{parameters.ivr_id}}",
+                "menu_id": "{{parameters.menu_id}}",
+                "route_id": "{{parameters.route_id}}",
+                "ivr_route": {
+                    "action": "{{parameters.action}}",
+                    "options": {
+                        "group_ids": [
+                            "{{parameters.group_ids}}"
+                        ]
+                    },
+                    "keypress": "{{parameters.keypress}}"
+                }
             },
             "method": "put",
             "headers": {
@@ -292,96 +357,81 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the ID given by the Zendesk.",
-                    "displayName": "Address ID",
+                    "description": "Enter the ID given by Zendesk of the Route you want to update the details of.",
+                    "displayName": "Route ID",
                     "displayType": "text",
-                    "placeholder": "Enter Address ID"
+                    "placeholder": "Enter Route ID"
                 },
-                "name": "address_id"
+                "name": "route_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the updated Name of the address.",
-                    "displayName": "Name",
+                    "description": "Enter the Menu ID which you want to assign to the IVR Menu.",
+                    "displayName": "Menu ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Name"
+                    "placeholder": "Enter Menu ID"
                 },
-                "name": "name"
+                "name": "menu_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the Street Address of the address.",
-                    "displayName": "Street Address",
+                    "description": "Enter the ID given by Zendesk of the IVR you want to update the details of.",
+                    "displayName": "IVR ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Street Address"
+                    "placeholder": "Enter IVR ID"
                 },
-                "name": "street"
+                "name": "ivr_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Voicemail",
+                            "value": "voicemail"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the Action of the IVR Route.",
+                    "displayName": "Action",
+                    "displayType": "select",
+                    "placeholder": "Select the Action"
+                },
+                "name": "action"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the Zip Code of the address.",
-                    "displayName": "Zip Code",
+                    "description": "Enter the Keypress of the IVR Route.It should be a single character.",
+                    "displayName": "Keypress",
                     "displayType": "text",
-                    "placeholder": "Enter the Zip Code"
+                    "placeholder": "Enter the Keypress"
                 },
-                "name": "zip"
+                "name": "keypress"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the Province of the address.",
-                    "displayName": "Province",
+                    "description": "Enter the Group ID which given by Zendesk on the Website.",
+                    "displayName": "Group ID",
                     "displayType": "text",
-                    "placeholder": "Enter the Province"
+                    "placeholder": "Enter the Group ID"
                 },
-                "name": "province"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the Country Code of the address.",
-                    "displayName": "Country Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the Country Code"
-                },
-                "name": "country_code"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the City of the address.",
-                    "displayName": "City",
-                    "displayType": "text",
-                    "placeholder": "Enter the City"
-                },
-                "name": "city"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the State of the address.",
-                    "displayName": "State",
-                    "displayType": "text",
-                    "placeholder": "Enter the State"
-                },
-                "name": "state"
+                "name": "group_ids"
             }
         ]
     }

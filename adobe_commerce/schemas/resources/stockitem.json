@@ -39,9 +39,9 @@
             "name": "operation"
         }
     ],
-    "customerattributeget": {
+    "getbysku": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/attribute/{{parameters.attributeCode}}",
+            "url": "https://{{secrets.domain}}/rest/default/V1/stockItems/{{parameters.productSku}}",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -60,179 +60,22 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
+                    "description": "The SKU of the product to retrieve stock information for.",
+                    "displayName": "Product SKU",
                     "displayType": "text",
-                    "placeholder": "Enter the attribute code"
+                    "placeholder": "Enter the product SKU"
                 },
-                "name": "attributeCode"
+                "name": "productSku"
             }
         ]
     },
-    "customercustomlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/custom",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "customerformlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer/form/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the attribute code"
-                },
-                "name": "attributeCode"
-            }
-        ]
-    },
-    "customeraddresslist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "get": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customer",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "customeraddressattributeget": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/attribute/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The attribute code for the customer address attribute.",
-                    "displayName": "Attribute Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the attribute code"
-                },
-                "name": "attributeCode"
-            }
-        ]
-    },
-    "customeraddressformlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/form/{{parameters.attributeCode}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The attribute code to retrieve.",
-                    "displayName": "Attribute Code",
-                    "displayType": "text",
-                    "placeholder": "Enter the attribute code"
-                },
-                "name": "attributeCode"
-            }
-        ]
-    },
-    "customeraddresscustomlist": {
-        "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/attributeMetadata/customerAddress/custom",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": []
-    },
-    "track": {
+    "lowstock": {
         "definition": {
             "qs": {
-                "searchCriteria[pageSize]": "{{parameters.pageSize}}"
+                "qty": "{{parameters.qty}}",
+                "scopeId": "{{parameters.scopeId}}"
             },
-            "url": "https://{{secrets.domain}}/rest/default/V1/shipments",
+            "url": "https://{{secrets.domain}}/rest/default/V1/stockItems/lowStock",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -248,27 +91,34 @@
         "parameters": [
             {
                 "meta": {
-                    "value": 1,
                     "validation": {
-                        "min": 1,
                         "required": true
                     },
-                    "description": "The number of records to retrieve per page.",
-                    "displayName": "Page Size",
+                    "description": "The quantity of the product to retrieve stock information for.",
+                    "displayName": "Product Quantity",
                     "displayType": "number",
-                    "placeholder": "Enter the number of records per page"
+                    "placeholder": "Enter the product quantity"
                 },
-                "name": "pageSize"
+                "name": "qty"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The Scope ID of the product to retrieve stock information for.",
+                    "displayName": "Scope ID",
+                    "displayType": "number",
+                    "placeholder": "Enter the Scope ID "
+                },
+                "name": "scopeId"
             }
         ]
     },
-    "sendemail": {
+    "getstockstatusbysku": {
         "definition": {
-            "url": "https://{{secrets.domain}}/rest/default/V1/shipment/{{parameters.id}}/emails",
-            "body": {
-                "email": "{{parameters.email}}"
-            },
-            "method": "post",
+            "url": "https://{{secrets.domain}}/rest/default/V1/stockStatuses/{{parameters.productSku}}",
+            "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
@@ -286,24 +136,12 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The ID of the shipment to send an email for.",
-                    "displayName": "Shipment ID",
+                    "description": "The SKU of the product to retrieve stock status information for.",
+                    "displayName": "Product SKU",
                     "displayType": "text",
-                    "placeholder": "Enter the shipment ID"
+                    "placeholder": "Enter the product SKU"
                 },
-                "name": "id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The email address to send the shipment details to.",
-                    "displayName": "Email",
-                    "displayType": "text",
-                    "placeholder": "Enter the email address"
-                },
-                "name": "email"
+                "name": "productSku"
             }
         ]
     }

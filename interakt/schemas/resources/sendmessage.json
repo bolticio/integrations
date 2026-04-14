@@ -110,260 +110,25 @@
             }
         ]
     },
-    "custom_api": {
+    "sendbuttonmessage": {
         "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.api_key}}:X)"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "value": "get",
-                    "options": [
-                        {
-                            "label": "GET",
-                            "value": "get"
-                        },
-                        {
-                            "label": "PUT",
-                            "value": "put"
-                        },
-                        {
-                            "label": "POST",
-                            "value": "post"
-                        },
-                        {
-                            "label": "PATCH",
-                            "value": "patch"
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
-                    "displayType": "select",
-                    "placeholder": "Select the HTTP method"
-                },
-                "name": "method"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
-                    "displayType": "text",
-                    "placeholder": "Eg. https://www.example.com"
-                },
-                "name": "base_url"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "You don't have to add authorization headers; we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue",
-                    "placeholder": "Add header key/value pairs"
-                },
-                "name": "headers"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "Query string parameters appended to the base URL.",
-                    "displayName": "Query String",
-                    "displayType": "keyvalue",
-                    "placeholder": "Add query parameter key/value pairs"
-                },
-                "name": "query_params"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
-                    },
-                    "description": "The Payload (Body) of the HTTP Request.",
-                    "displayName": "Body",
-                    "displayType": "code",
-                    "placeholder": "Enter JSON payload"
-                },
-                "name": "body"
-            }
-        ]
-    },
-    "createcampaign": {
-        "definition": {
-            "url": "https://api.interakt.ai/v1/public/create-campaign/",
+            "url": "https://api.interakt.ai/v1/public/message/",
             "body": {
-                "campaign_name": "{{parameters.campaignName}}",
-                "campaign_type": "PublicAPI",
-                "language_code": "en",
-                "template_name": "{{parameters.listApprovedTemplates}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic {{secrets.api_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Campaign name is a required field."
-                        }
-                    },
-                    "description": "Please provide a campaign name.",
-                    "displayName": "Campaign Name",
-                    "displayType": "text",
-                    "placeholder": "Enter a campaign name"
-                },
-                "name": "campaignName"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
+                "data": {
+                    "message": {
                         "body": {
-                            "name": "interakt",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "campaign",
-                            "operation": "campaign.createCampaign",
-                            "loadOptionsMethod": "getTemplates"
+                            "text": "{{parameters.message}}"
                         },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "name"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Template is a required field."
+                        "type": "button",
+                        "action": {
+                            "buttons": "{{parameters.buttons}}"
                         }
-                    },
-                    "description": "Select a template from a list of approved templates.",
-                    "displayName": "Template",
-                    "displayType": "select",
-                    "placeholder": "Select a template"
-                },
-                "name": "listApprovedTemplates"
-            }
-        ]
-    },
-    "getusers": {
-        "definition": {
-            "qs": {
-                "limit": 100,
-                "offset": 0
-            },
-            "url": "https://api.interakt.ai/v1/public/apis/users/",
-            "body": {
-                "filters": [
-                    {
-                        "op": "{{parameters.filter[0].comparisonOperator}}",
-                        "val": "{{parameters.filter[0].createdDateUtc}}",
-                        "trait": "created_at_utc"
-                    },
-                    {
-                        "op": "{{parameters.filter[1].comparisonOperator}}",
-                        "val": "{{parameters.filter[1].createdDateUtc}}",
-                        "trait": "created_at_utc",
-                        "supr_op": "and"
                     }
-                ]
+                },
+                "type": "InteractiveButton",
+                "countryCode": "{{parameters.countryCode}}",
+                "phoneNumber": "{{parameters.phoneNumber}}",
+                "callbackData": "{{parameters.phoneNumber}}"
             },
             "method": "post",
             "headers": {
@@ -376,83 +141,113 @@
                     "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const updatedButtons = body.data.message.action.buttons.map((button) => ({ type: 'reply', reply: { id: button.replyId, title: button.replyTitle }})); body.data.message.action.buttons = updatedButtons; return body;"
             }
         },
         "parameters": [
             {
                 "meta": {
+                    "validation": {
+                        "max": 2,
+                        "min": 2,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Country code is a required field"
+                        }
+                    },
+                    "description": "Please provide country code of a customer's phone number (e.g. 91).",
+                    "displayName": "Country code",
+                    "displayType": "text",
+                    "placeholder": "Enter a country code"
+                },
+                "name": "countryCode"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Phone number is a required field"
+                        }
+                    },
+                    "description": "Please provide phone number of a customer (e.g. 9998884441)).",
+                    "displayName": "Phone Number",
+                    "displayType": "phone",
+                    "placeholder": "Enter a phone number"
+                },
+                "name": "phoneNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Message field is a required field"
+                        }
+                    },
+                    "description": "Please provide textual message to be sent to a customer.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a message for the customer"
+                },
+                "name": "message"
+            },
+            {
+                "meta": {
                     "children": [
                         {
                             "meta": {
-                                "options": [
-                                    {
-                                        "label": ">",
-                                        "value": "gt"
-                                    },
-                                    {
-                                        "label": "<",
-                                        "value": "lt"
-                                    },
-                                    {
-                                        "label": ">=",
-                                        "value": "gte"
-                                    },
-                                    {
-                                        "label": "<=",
-                                        "value": "lte"
-                                    }
-                                ],
                                 "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Comparison operator is a required field"
-                                    }
+                                    "required": true
                                 },
-                                "description": "Select an operator from the dropdown",
-                                "displayName": "Select operator",
-                                "displayType": "select"
+                                "displayName": "Reply ID",
+                                "displayType": "text",
+                                "placeholder": "Enter an arbitrary number (e.g. 1, 2, etc)"
                             },
-                            "name": "comparisonOperator"
+                            "name": "replyId"
                         },
                         {
                             "meta": {
+                                "htmlProps": {
+                                    "disabled": false,
+                                    "readOnly": false
+                                },
                                 "validation": {
                                     "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Created date is a required field"
-                                    }
+                                    "errorMessage": "Reply title is a required field"
                                 },
-                                "description": "Provide the created date of an user in UTC in following format (e.g. YYYY-MM-DD).",
-                                "displayName": "Created date",
-                                "displayType": "date",
-                                "placeholder": "Enter the created date of a user"
+                                "displayName": "Reply title",
+                                "displayType": "text",
+                                "placeholder": "Enter a reply title (e.g. Bad, Good, Excellent, etc)"
                             },
-                            "name": "createdDateUtc"
+                            "name": "replyTitle"
                         }
                     ],
                     "validation": {
                         "required": true
                     },
-                    "description": "An array of filters with comparison operators. Each filter must have a operator and date in utc. <b>Please provide exactly 2 filters.</b>",
-                    "displayName": "Apply Filter(s)",
+                    "description": "A list of reply objects. Each object should have a reply id and reply title. Please provide atleast 1 reply button or atmost 3 reply buttons.",
+                    "displayName": "Reply Option",
                     "displayType": "array"
                 },
-                "name": "filter"
+                "name": "buttons"
             }
         ]
     },
-    "trackevents": {
+    "sendimagemessage": {
         "definition": {
-            "url": "https://api.interakt.ai/v1/public/track/events/",
+            "url": "https://api.interakt.ai/v1/public/message/",
             "body": {
-                "event": "{{parameters.event}}",
-                "traits": {
-                    "price": "{{parameters.price}}",
-                    "currency": "{{parameters.currency}}",
-                    "quantity": "{{parameters.quantity}}",
-                    "productName": "{{parameters.productName}}"
+                "data": {
+                    "message": "{{parameters.message}}",
+                    "mediaUrl": "{{parameters.mediaUrl}}"
                 },
-                "fullPhoneNumber": "{{parameters.phoneNumber}}"
+                "type": "Image",
+                "countryCode": "{{parameters.countryCode}}",
+                "phoneNumber": "{{parameters.phoneNumber}}",
+                "callbackData": "{{parameters.phoneNumber}}"
             },
             "method": "post",
             "headers": {
@@ -471,98 +266,80 @@
             {
                 "meta": {
                     "validation": {
-                        "required": true
+                        "max": 2,
+                        "min": 2,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Country code is a required field"
+                        }
                     },
-                    "description": "Please provide user's phone number, including country code (e.g., 917767899538)",
-                    "displayName": "Phone Number",
+                    "description": "Please provide country code of a customer's phone number (e.g. 91).",
+                    "displayName": "Country code",
                     "displayType": "text",
-                    "placeholder": "Enter the phone number"
+                    "placeholder": "Enter a country code"
+                },
+                "name": "countryCode"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Phone number is a required field"
+                        }
+                    },
+                    "description": "Please provide phone number of a customer (e.g. 9998884441)).",
+                    "displayName": "Phone Number",
+                    "displayType": "phone",
+                    "placeholder": "Enter a phone number of a customer"
                 },
                 "name": "phoneNumber"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true
-                    },
-                    "description": "Event name representing the action the user performed (e.g., Product Added to Cart, User Signed Up, etc)",
-                    "displayName": "Event Name",
-                    "displayType": "text",
-                    "placeholder": "Enter an event name"
-                },
-                "name": "event"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Name of the product or item related to an event.",
-                    "displayName": "Product Name",
-                    "displayType": "text",
-                    "placeholder": "Enter product name"
-                },
-                "name": "productName"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Quantity of the product or item involved in the event.",
-                    "displayName": "Quantity",
-                    "displayType": "number",
-                    "placeholder": "Enter the quantity"
-                },
-                "name": "quantity"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Price of the product or item.",
-                    "displayName": "Price",
-                    "displayType": "number",
-                    "placeholder": "Enter price"
-                },
-                "name": "price"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "INR",
-                            "value": "INR"
-                        },
-                        {
-                            "label": "USD",
-                            "value": "USD"
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Message field is a required field"
                         }
-                    ],
-                    "validation": {
-                        "required": true
                     },
-                    "description": "Currency used for the product price (e.g. INR, USD, etc)",
-                    "displayName": "Currency",
-                    "displayType": "select",
-                    "placeholder": "Enter the currency code"
+                    "description": "Please provide textual message to be sent to a customer.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a message to be sent to the customer"
                 },
-                "name": "currency"
+                "name": "message"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Image url is a required field"
+                        }
+                    },
+                    "description": "Please provide public image url to be shared with the customer.",
+                    "displayName": "Image Url",
+                    "displayType": "text",
+                    "placeholder": "Enter an image url to be shared"
+                },
+                "name": "mediaUrl"
             }
         ]
     },
-    "trackuser": {
+    "sendvideomessage": {
         "definition": {
-            "url": "https://api.interakt.ai/v1/public/track/users/",
+            "url": "https://api.interakt.ai/v1/public/message/",
             "body": {
-                "tags": "{{parameters.tags}}",
-                "traits": {
-                    "name": "{{parameters.username}}",
-                    "email": "{{parameters.email}}",
-                    "whatsapp_opted_in": "{{parameters.whatsappOptedIn}}"
+                "data": {
+                    "message": "{{parameters.message}}",
+                    "fileName": "Test Video",
+                    "mediaUrl": "{{parameters.videoUrl}}"
                 },
-                "fullPhoneNumber": "{{parameters.phoneNumber}}"
+                "type": "Video",
+                "countryCode": "{{parameters.countryCode}}",
+                "phoneNumber": "{{parameters.phoneNumber}}",
+                "callbackData": "{{parameters.phoneNumber}}"
             },
             "method": "post",
             "headers": {
@@ -572,7 +349,7 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data}}"
+                    "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
             }
@@ -581,87 +358,75 @@
             {
                 "meta": {
                     "validation": {
+                        "max": 2,
+                        "min": 2,
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Phone Number is a required field"
+                            "errorMsg": "Country code is a required field"
                         }
                     },
-                    "description": "Please provide user's phone number, including country code (e.g., 917767899538)",
-                    "displayName": "Phone Number",
+                    "description": "Please provide country code of a customer's phone number (e.g. 91).",
+                    "displayName": "Country code",
                     "displayType": "text",
-                    "placeholder": "Enter the phone number"
+                    "placeholder": "Enter a country code"
+                },
+                "name": "countryCode"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Phone number is a required field"
+                        }
+                    },
+                    "description": "Please provide phone number of a customer (e.g. 9998884441)).",
+                    "displayName": "Phone Number",
+                    "displayType": "phone",
+                    "placeholder": "Enter a phone number"
                 },
                 "name": "phoneNumber"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Message field is a required field"
+                        }
                     },
-                    "description": "Please provide user's name.",
-                    "displayName": "Name",
+                    "description": "Please provide textual message to be sent to a customer.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a message for the customer"
+                },
+                "name": "message"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Video url is a required field"
+                        }
+                    },
+                    "description": "Please provide public video url to be shared with the customer.",
+                    "displayName": "Video URL",
                     "displayType": "text",
-                    "placeholder": "Enter user's name"
+                    "placeholder": "Enter a video url to be shared"
                 },
-                "name": "username"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Email is a required field"
-                        }
-                    },
-                    "description": "Please provide email of a user you want to create.",
-                    "displayName": "Email",
-                    "displayType": "email",
-                    "placeholder": "Enter an email of a user"
-                },
-                "name": "email"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "validation": {
-                        "disabled": false
-                    },
-                    "description": "Indicates whether the user has opted in for WhatsApp messages.",
-                    "displayName": "Whatsapp Opted?",
-                    "displayType": "toggle",
-                    "placeholder": "Enter user's preference of whatsapp"
-                },
-                "name": "whatsappOptedIn"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Tags is a required field"
-                        }
-                    },
-                    "description": "Tags associated with the user (e.g. admin, user, etc).",
-                    "displayName": "Tags",
-                    "displayType": "multitext",
-                    "placeholder": "Enter tags"
-                },
-                "name": "tags"
+                "name": "videoUrl"
             }
         ]
     },
-    "sendtemplatedocumentheader": {
+    "sendtextmessage": {
         "definition": {
             "url": "https://api.interakt.ai/v1/public/message/",
             "body": {
-                "type": "Template",
-                "template": {
-                    "name": "{{parameters.listApprovedTemplates}}",
-                    "fileName": "{{parameters.fileName}}",
-                    "bodyValues": "{{parameters.bodyValues}}",
-                    "headerValues": "{{parameters.headerValues}}",
-                    "languageCode": "en"
+                "data": {
+                    "message": "{{parameters.message}}"
                 },
+                "type": "Text",
                 "callbackData": "{{parameters.phoneNumber}}",
                 "fullPhoneNumber": "{{parameters.phoneNumber}}"
             },
@@ -679,155 +444,6 @@
             }
         },
         "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "interakt",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "sendTemplate",
-                            "operation": "sendTemplate.sendTemplateMessageNoHeader",
-                            "loadOptionsMethod": "getTemplates"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "display_name",
-                        "valueKey": "name"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Template is a required field."
-                        }
-                    },
-                    "description": "Select a template which you want to send as a message.",
-                    "displayName": "Template",
-                    "displayType": "select",
-                    "placeholder": "Select a template"
-                },
-                "name": "listApprovedTemplates"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Phone number field is a required field"
-                        }
-                    },
-                    "description": "Please provide phone number of a customer (e.g. 919998884441)).",
-                    "displayName": "Phone Number",
-                    "displayType": "text",
-                    "placeholder": "Enter the phone number"
-                },
-                "name": "phoneNumber"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Document Url(s) is a required field"
-                        }
-                    },
-                    "description": "Please provide a list of publically available document(s) url.",
-                    "displayName": "Document Url(s)",
-                    "displayType": "multitext",
-                    "placeholder": "Enter a list of publically available document(s) url."
-                },
-                "name": "headerValues"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "File name is a required field"
-                        }
-                    },
-                    "description": "Please provide a file name for your document.",
-                    "displayName": "File Name",
-                    "displayType": "text",
-                    "placeholder": "Enter a file name"
-                },
-                "name": "fileName"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Template body variables is a required field"
-                        }
-                    },
-                    "description": "Please provide a list of body variables corresponding to selected template.",
-                    "displayName": "Template Body Variable(s)",
-                    "displayType": "multitext",
-                    "placeholder": "Enter a list of body variables."
-                },
-                "name": "bodyValues"
-            }
-        ]
-    },
-    "sendtemplatemessagenoheader": {
-        "definition": {
-            "url": "https://api.interakt.ai/v1/public/message/",
-            "body": {
-                "type": "Template",
-                "template": {
-                    "name": "{{parameters.listApprovedTemplates}}",
-                    "bodyValues": "{{parameters.bodyValues}}",
-                    "languageCode": "en"
-                },
-                "callbackData": "{{parameters.phoneNumber}}",
-                "fullPhoneNumber": "{{parameters.phoneNumber}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Basic {{secrets.api_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "interakt",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "sendTemplate",
-                            "operation": "sendTemplate.sendTemplateMessageNoHeader",
-                            "loadOptionsMethod": "getTemplates"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "display_name",
-                        "valueKey": "name"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Template is a required field."
-                        }
-                    },
-                    "description": "Select a template which you want to send as a message.",
-                    "displayName": "Template",
-                    "displayType": "select",
-                    "placeholder": "Select a template"
-                },
-                "name": "listApprovedTemplates"
-            },
             {
                 "meta": {
                     "validation": {
@@ -838,7 +454,7 @@
                     },
                     "description": "Please provide phone number of a customer (e.g. 919998884441)).",
                     "displayName": "Phone Number",
-                    "displayType": "text",
+                    "displayType": "phone",
                     "placeholder": "Enter the phone number"
                 },
                 "name": "phoneNumber"
@@ -848,31 +464,30 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Template body variables is a required field"
+                            "errorMsg": "Message field is a required field"
                         }
                     },
-                    "description": "Please provide a list of body variables corresponding to selected template.",
-                    "displayName": "Variable",
-                    "displayType": "multitext",
-                    "placeholder": "Enter the body variables"
+                    "description": "Please provide textual message to be sent to a customer.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a message to be sent to the customer"
                 },
-                "name": "bodyValues"
+                "name": "message"
             }
         ]
     },
-    "sendtemplatetextheaderwithvariable": {
+    "senddocumentmessage": {
         "definition": {
             "url": "https://api.interakt.ai/v1/public/message/",
             "body": {
-                "type": "Template",
-                "template": {
-                    "name": "{{parameters.listApprovedTemplates}}",
-                    "bodyValues": "{{parameters.bodyValues}}",
-                    "headerValues": "{{parameters.headerValues}}",
-                    "languageCode": "en"
+                "data": {
+                    "message": "{{parameters.message}}",
+                    "mediaUrl": "{{parameters.documentUrl}}"
                 },
-                "callbackData": "{{parameters.phoneNumber}}",
-                "fullPhoneNumber": "{{parameters.phoneNumber}}"
+                "type": "Document",
+                "countryCode": "{{parameters.countryCode}}",
+                "phoneNumber": "{{parameters.phoneNumber}}",
+                "callbackData": "{{parameters.phoneNumber}}"
             },
             "method": "post",
             "headers": {
@@ -890,46 +505,33 @@
         "parameters": [
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "interakt",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "sendTemplate",
-                            "operation": "sendTemplate.sendTemplateMessageNoHeader",
-                            "loadOptionsMethod": "getTemplates"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "display_name",
-                        "valueKey": "name"
-                    },
-                    "options": [],
                     "validation": {
+                        "max": 2,
+                        "min": 2,
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Template is a required field."
+                            "errorMsg": "Country code is a required field"
                         }
                     },
-                    "description": "Select a template which you want to send as a message.",
-                    "displayName": "Template",
-                    "displayType": "select",
-                    "placeholder": "Select a template"
+                    "description": "Please provide country code of a customer's phone number (e.g. 91).",
+                    "displayName": "Country code",
+                    "displayType": "text",
+                    "placeholder": "Enter a country code"
                 },
-                "name": "listApprovedTemplates"
+                "name": "countryCode"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Phone number field is a required field"
+                            "errorMsg": "Phone number is a required field"
                         }
                     },
-                    "description": "Please provide phone number of a customer (e.g. 919998884441)).",
+                    "description": "Please provide phone number of a customer (e.g. 9998884441)).",
                     "displayName": "Phone Number",
-                    "displayType": "text",
-                    "placeholder": "Enter the phone number"
+                    "displayType": "phone",
+                    "placeholder": "Enter a phone number"
                 },
                 "name": "phoneNumber"
             },
@@ -938,66 +540,53 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Template header variables is a required field"
+                            "errorMsg": "Message field is a required field"
                         }
                     },
-                    "description": "Please provide a list of header variables.",
-                    "displayName": "Template Header Variable(s)",
-                    "displayType": "multitext",
-                    "placeholder": "Enter a list of header variables."
+                    "description": "Please provide textual message to be sent to a customer.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a message for the customer"
                 },
-                "name": "headerValues"
+                "name": "message"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Template body variables is a required field"
+                            "errorMsg": "Document url is a required field"
                         }
                     },
-                    "description": "Please provide a list of body variables corresponding to selected template.",
-                    "displayName": "Template Body Variable(s)",
-                    "displayType": "multitext",
-                    "placeholder": "Enter a list of body variables."
+                    "description": "Please provide public document url to be shared with the customer.",
+                    "displayName": "Document URL",
+                    "displayType": "text",
+                    "placeholder": "Enter a document url to be shared"
                 },
-                "name": "bodyValues"
+                "name": "documentUrl"
             }
         ]
     },
-    "getalltemplates": {
-        "definition": {
-            "qs": {
-                "approval_status": "APPROVED"
-            },
-            "url": "https://api.interakt.ai/v1/public/track/organization/templates",
-            "method": "get",
-            "headers": {
-                "Authorization": "Basic {{secrets.api_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data.results.templates}}"
-            }
-        },
-        "parameters": []
-    },
-    "sendtemplateimageheader": {
+    "sendlistmessage": {
         "definition": {
             "url": "https://api.interakt.ai/v1/public/message/",
             "body": {
-                "type": "Template",
-                "template": {
-                    "name": "{{parameters.listApprovedTemplates}}",
-                    "bodyValues": "{{parameters.bodyValues}}",
-                    "headerValues": "{{parameters.headerValues}}",
-                    "languageCode": "en"
+                "data": {
+                    "message": {
+                        "body": {
+                            "text": "{{parameters.message}}"
+                        },
+                        "type": "list",
+                        "action": {
+                            "button": "{{parameters.button}}",
+                            "sections": "{{parameters.sections}}"
+                        }
+                    }
                 },
-                "callbackData": "{{parameters.phoneNumber}}",
-                "fullPhoneNumber": "{{parameters.phoneNumber}}"
+                "type": "InteractiveList",
+                "countryCode": "{{parameters.countryCode}}",
+                "phoneNumber": "{{parameters.phoneNumber}}",
+                "callbackData": "{{parameters.phoneNumber}}"
             },
             "method": "post",
             "headers": {
@@ -1015,46 +604,33 @@
         "parameters": [
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "interakt",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "sendTemplate",
-                            "operation": "sendTemplate.sendTemplateMessageNoHeader",
-                            "loadOptionsMethod": "getTemplates"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "display_name",
-                        "valueKey": "name"
-                    },
-                    "options": [],
                     "validation": {
+                        "max": 2,
+                        "min": 2,
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Template is a required field."
+                            "errorMsg": "Country code is a required field"
                         }
                     },
-                    "description": "Select a template which you want to send as a message.",
-                    "displayName": "Template",
-                    "displayType": "select",
-                    "placeholder": "Select a template"
+                    "description": "Please provide country code of a customer's phone number (e.g. 91).",
+                    "displayName": "Country Code",
+                    "displayType": "text",
+                    "placeholder": "Enter a country code"
                 },
-                "name": "listApprovedTemplates"
+                "name": "countryCode"
             },
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Phone number field is a required field"
+                            "errorMsg": "Phone number is a required field"
                         }
                     },
-                    "description": "Please provide phone number of a customer (e.g. 919998884441)).",
+                    "description": "Please provide phone number of a customer (e.g. 9998884441)).",
                     "displayName": "Phone Number",
-                    "displayType": "text",
-                    "placeholder": "Enter the phone number"
+                    "displayType": "phone",
+                    "placeholder": "Enter a phone number"
                 },
                 "name": "phoneNumber"
             },
@@ -1063,30 +639,105 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Image Url(s) is a required field"
+                            "errorMsg": "Message body is a required field"
                         }
                     },
-                    "description": "Please provide a list of publically available image urls.",
-                    "displayName": "Image Url(s)",
-                    "displayType": "multitext",
-                    "placeholder": "Enter a list of publically available image urls."
+                    "description": "Please provide textual message to be sent to a customer.",
+                    "displayName": "Message Body",
+                    "displayType": "textarea",
+                    "placeholder": "Enter the message body"
                 },
-                "name": "headerValues"
+                "name": "message"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Template body variables is a required field"
-                        }
+                        "required": true
                     },
-                    "description": "Please provide a list of body variables corresponding to selected template.",
-                    "displayName": "Template Body Variable(s)",
-                    "displayType": "multitext",
-                    "placeholder": "Enter a list of body variables."
+                    "description": "The text that appears on the main action button.",
+                    "displayName": "Button Text",
+                    "displayType": "text",
+                    "placeholder": "Enter the button text"
                 },
-                "name": "bodyValues"
+                "name": "button"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Title is a required field."
+                                    }
+                                },
+                                "description": "Title of the section.",
+                                "displayName": "Section Title",
+                                "displayType": "text",
+                                "placeholder": "Enter the section title"
+                            },
+                            "name": "title"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true
+                                            },
+                                            "displayName": "Row ID",
+                                            "displayType": "text",
+                                            "placeholder": "Enter a unique ID for the row"
+                                        },
+                                        "name": "id"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Title is a required field."
+                                                }
+                                            },
+                                            "displayName": "Row Title",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the title of the row"
+                                        },
+                                        "name": "title"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "errorMsg": "Row description is a required field",
+                                                "required": true
+                                            },
+                                            "displayName": "Row Description",
+                                            "displayType": "text",
+                                            "placeholder": "Enter the description of the row"
+                                        },
+                                        "name": "description"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "An array of rows within the section.",
+                                "displayName": "Rows",
+                                "displayType": "array"
+                            },
+                            "name": "rows"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "An array of sections with rows. Each section can have a title and multiple rows.",
+                    "displayName": "Section List",
+                    "displayType": "array"
+                },
+                "name": "sections"
             }
         ]
     }

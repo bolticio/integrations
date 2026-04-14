@@ -81,13 +81,239 @@
             }
         }
     },
-    "send": {
+    "update": {
         "definition": {
             "qs": {
                 "consumer_key": "{{secrets.consumer_key}}",
                 "consumer_secret": "{{secrets.consumer_secret}}"
             },
-            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/actions/send_order_details",
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}",
+            "body": {
+                "status": "{{parameters.status}}"
+            },
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.update",
+                            "loadOptionsMethod": "list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to update.",
+                    "displayName": "Order ID",
+                    "displayType": "select"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Pending",
+                            "value": "pending",
+                            "description": "Order is pending."
+                        },
+                        {
+                            "label": "Processing",
+                            "value": "processing",
+                            "description": "Order is being processed."
+                        },
+                        {
+                            "label": "On-hold",
+                            "value": "on-hold",
+                            "description": "Order is on hold."
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "completed",
+                            "description": "Order is completed."
+                        },
+                        {
+                            "label": "cancelled",
+                            "value": "cancelled",
+                            "description": "Order is cancelled."
+                        },
+                        {
+                            "label": "Delete an Order",
+                            "value": "orders.delete",
+                            "description": "Delete an order."
+                        },
+                        {
+                            "label": "Refunded",
+                            "value": "refunded",
+                            "description": "Order is refunded."
+                        },
+                        {
+                            "label": "Failed",
+                            "value": "failed",
+                            "description": "Order is failed."
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The new status of the order.",
+                    "displayName": "Status of the Order",
+                    "displayType": "select"
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "retrieve": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.retrieve",
+                            "loadOptionsMethod": "list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to retrieve.",
+                    "displayName": "Order ID",
+                    "displayType": "select"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}?force=true",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "WooCommerce",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.delete",
+                            "loadOptionsMethod": "list"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "id",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to delete.",
+                    "displayName": "Order ID",
+                    "displayType": "select"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "qs": {
+                "consumer_key": "{{secrets.consumer_key}}",
+                "consumer_secret": "{{secrets.consumer_secret}}"
+            },
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders",
+            "body": {
+                "billing": {
+                    "city": "{{parameters.billing.city}}",
+                    "email": "{{parameters.billing.email}}",
+                    "state": "{{parameters.billing.state}}",
+                    "country": "{{parameters.billing.country}}",
+                    "postcode": "{{parameters.billing.postcode}}",
+                    "address_1": "{{parameters.billing.address_1}}",
+                    "last_name": "{{parameters.billing.last_name}}",
+                    "first_name": "{{parameters.billing.first_name}}"
+                },
+                "set_paid": "{{parameters.set_paid}}",
+                "shipping": {
+                    "city": "{{parameters.shipping.city}}",
+                    "state": "{{parameters.shipping.state}}",
+                    "country": "{{parameters.shipping.country}}",
+                    "postcode": "{{parameters.shipping.postcode}}",
+                    "address_1": "{{parameters.shipping.address_1}}",
+                    "last_name": "{{parameters.shipping.last_name}}",
+                    "first_name": "{{parameters.shipping.first_name}}"
+                },
+                "line_items": "{{parameters.line_items}}",
+                "payment_method": "{{parameters.payment_method}}",
+                "payment_method_title": "{{parameters.payment_method_title}}"
+            },
             "method": "post",
             "headers": {
                 "Content-Type": "application/json"
@@ -108,9 +334,9 @@
                         "body": {
                             "name": "WooCommerce",
                             "secret": "{{parameters.secret}}",
-                            "resource": "orderAction",
-                            "operation": "orderAction.send",
-                            "loadOptionsMethod": "getOrder"
+                            "resource": "orders",
+                            "operation": "orders.create",
+                            "loadOptionsMethod": "getPayments"
                         },
                         "method": "post",
                         "urlType": "options",
@@ -121,90 +347,305 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The unique identifier of the order.",
-                    "displayName": "Order ID",
+                    "description": "Payment method for the order.",
+                    "displayName": "Payment Method",
                     "displayType": "select",
-                    "placeholder": "Enter Order ID"
+                    "placeholder": "Enter payment method"
                 },
-                "name": "order_id"
-            }
-        ]
-    },
-    "delete": {
-        "definition": {
-            "qs": {
-                "consumer_key": "{{secrets.consumer_key}}",
-                "consumer_secret": "{{secrets.consumer_secret}}"
-            },
-            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes/{{parameters.note_id}}?force=true",
-            "method": "delete",
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.data}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "WooCommerce",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "orderNote",
-                            "operation": "orderNote.delete",
-                            "loadOptionsMethod": "getOrder"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "id",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique identifier of the order.",
-                    "displayName": "Order ID",
-                    "displayType": "select",
-                    "placeholder": "Enter Order ID"
-                },
-                "name": "order_id"
+                "name": "payment_method"
             },
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "WooCommerce",
-                            "secret": "{{parameters.secret}}",
-                            "order_id": "{{parameters.order_id}}",
-                            "resource": "orderNote",
-                            "operation": "orderNote.delete",
-                            "loadOptionsMethod": "list"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "id",
-                        "valueKey": "id",
-                        "condition": "{{parameters.order_id}}"
-                    },
-                    "options": [],
                     "validation": {
                         "required": true
                     },
-                    "description": "The unique identifier of the note.",
-                    "displayName": "Note ID",
-                    "displayType": "select",
-                    "placeholder": "Enter Note ID"
+                    "description": "Title of the payment method.",
+                    "displayName": "Payment Method Title",
+                    "displayType": "text",
+                    "placeholder": "Enter payment method title"
                 },
-                "name": "note_id"
+                "name": "payment_method_title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Whether the order is paid or not.",
+                    "displayName": "Set Paid",
+                    "displayType": "toggle"
+                },
+                "name": "set_paid"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "First name of the billing customer.",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter first name"
+                            },
+                            "name": "first_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Last name of the billing customer.",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter last name"
+                            },
+                            "name": "last_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Email must be a valid email address."
+                                    }
+                                },
+                                "description": "Email address of the billing customer.",
+                                "displayName": "Email",
+                                "displayType": "email",
+                                "placeholder": "Enter email"
+                            },
+                            "name": "email"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Billing street address.",
+                                "displayName": "Address 1",
+                                "displayType": "textarea",
+                                "placeholder": "Enter address line 1"
+                            },
+                            "name": "address_1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Billing city.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Billing state.",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[0-9]{6}(?:-[0-9]{4})?$",
+                                    "required": false,
+                                    "patternDetail": {
+                                        "errorMsg": "Postcode must be a valid postal code."
+                                    }
+                                },
+                                "description": "Postcode for shipping address.",
+                                "displayName": "Postcode",
+                                "displayType": "text",
+                                "placeholder": "Enter postcode"
+                            },
+                            "name": "postcode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Billing country.",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Billing address for the order.",
+                    "displayName": "Billing Address",
+                    "displayType": "object"
+                },
+                "name": "billing"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "First name of the shipping customer.",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter first name"
+                            },
+                            "name": "first_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Last name of the shipping customer.",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter last name"
+                            },
+                            "name": "last_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Shipping street address.",
+                                "displayName": "Address 1",
+                                "displayType": "textarea",
+                                "placeholder": "Enter address line 1"
+                            },
+                            "name": "address_1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Shipping city.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Shipping state.",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[0-9]{6}(?:-[0-9]{4})?$",
+                                    "required": false,
+                                    "patternDetail": {
+                                        "errorMsg": "Postcode must be a valid postal code."
+                                    }
+                                },
+                                "description": "Postcode for shipping address.",
+                                "displayName": "Postcode",
+                                "displayType": "text",
+                                "placeholder": "Enter postcode"
+                            },
+                            "name": "postcode"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Shipping country.",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Shipping address for the order.",
+                    "displayName": "Shipping Address",
+                    "displayType": "object"
+                },
+                "name": "shipping"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "WooCommerce",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "orders",
+                                        "operation": "orders.create",
+                                        "loadOptionsMethod": "getProducts"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "name",
+                                    "valueKey": "id"
+                                },
+                                "options": [],
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The name of the product to add into Order.",
+                                "displayName": "Product Name",
+                                "displayType": "select",
+                                "placeholder": "Enter the product name"
+                            },
+                            "name": "product_id"
+                        },
+                        {
+                            "meta": {
+                                "pattern": "^\\d+$",
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Number of units being ordered.",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter quantity"
+                            },
+                            "name": "quantity"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List of products in the order.",
+                    "displayName": "Line Items",
+                    "displayType": "array"
+                },
+                "name": "line_items"
             }
         ]
     },
@@ -214,10 +655,10 @@
                 "consumer_key": "{{secrets.consumer_key}}",
                 "consumer_secret": "{{secrets.consumer_secret}}"
             },
-            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes",
+            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders",
             "method": "get",
             "headers": {
-                "Content-Type": "application/json"
+                "Accept": "application/json"
             },
             "response": {
                 "error": {
@@ -235,258 +676,6 @@
                 "condition": "{{response.headers.link}} !== null"
             }
         },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "WooCommerce",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "orderNote",
-                            "operation": "orderNote.list",
-                            "loadOptionsMethod": "getOrder"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "id",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique identifier of the order.",
-                    "displayName": "Order ID",
-                    "displayType": "select",
-                    "placeholder": "Enter Order ID"
-                },
-                "name": "order_id"
-            }
-        ]
-    },
-    "create": {
-        "definition": {
-            "qs": {
-                "consumer_key": "{{secrets.consumer_key}}",
-                "consumer_secret": "{{secrets.consumer_secret}}"
-            },
-            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes",
-            "body": {
-                "note": "{{parameters.note}}"
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.data}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "WooCommerce",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "orderNote",
-                            "operation": "orderNote.create",
-                            "loadOptionsMethod": "getOrder"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "id",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique identifier of the order.",
-                    "displayName": "Order ID",
-                    "displayType": "select",
-                    "placeholder": "Enter Order ID"
-                },
-                "name": "order_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The content of the order note.",
-                    "displayName": "Note",
-                    "displayType": "textarea",
-                    "placeholder": "Enter order note"
-                },
-                "name": "note"
-            }
-        ]
-    },
-    "update": {
-        "definition": {
-            "qs": {
-                "consumer_key": "{{secrets.consumer_key}}",
-                "consumer_secret": "{{secrets.consumer_secret}}"
-            },
-            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/products/attributes/{{parameters.attribute_id}}",
-            "body": {
-                "order_by": "{{parameters.order_by}}"
-            },
-            "method": "put",
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "WooCommerce",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "productAttributes",
-                            "operation": "productAttributes.update",
-                            "loadOptionsMethod": "list"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Name of the product attribute to update.",
-                    "displayName": "Attribute Name",
-                    "displayType": "select",
-                    "placeholder": "Select attribute Name"
-                },
-                "name": "attribute_id"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Menu Order",
-                            "value": "menu_order"
-                        },
-                        {
-                            "label": "Name",
-                            "value": "name"
-                        },
-                        {
-                            "label": "ID",
-                            "value": "id"
-                        },
-                        {
-                            "label": "None",
-                            "value": ""
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Updated sorting order for the attribute.",
-                    "displayName": "Order By",
-                    "displayType": "select",
-                    "placeholder": "Select order by"
-                },
-                "name": "order_by"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "qs": {
-                "consumer_key": "{{secrets.consumer_key}}",
-                "consumer_secret": "{{secrets.consumer_secret}}"
-            },
-            "url": "https://{{secrets.store_domain}}/wp-json/wc/v3/orders/{{parameters.order_id}}/notes/{{parameters.note_id}}",
-            "method": "get",
-            "headers": {
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.data}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "WooCommerce",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "orderNote",
-                            "operation": "orderNote.get",
-                            "loadOptionsMethod": "getOrder"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "id",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique identifier of the order.",
-                    "displayName": "Order ID",
-                    "displayType": "select",
-                    "placeholder": "Enter Order ID"
-                },
-                "name": "order_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "WooCommerce",
-                            "secret": "{{parameters.secret}}",
-                            "order_id": "{{parameters.order_id}}",
-                            "resource": "orderNote",
-                            "operation": "orderNote.get",
-                            "loadOptionsMethod": "list"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "id",
-                        "valueKey": "id",
-                        "condition": "{{parameters.order_id}}"
-                    },
-                    "options": [],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The unique identifier of the note.",
-                    "displayName": "Note ID",
-                    "displayType": "select",
-                    "placeholder": "Enter Note ID"
-                },
-                "name": "note_id"
-            }
-        ]
+        "parameters": []
     }
 }

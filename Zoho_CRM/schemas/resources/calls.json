@@ -51,13 +51,15 @@
     ],
     "create": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "url": "https://www.zohoapis.in/crm/v2/Calls",
             "body": {
                 "data": [
                     {
-                        "Email": "{{parameters.email}}",
-                        "Last_Name": "{{parameters.last_name}}",
-                        "First_Name": "{{parameters.first_name}}"
+                        "Subject": "{{parameters.subject}}",
+                        "Call_Type": "{{parameters.call_type}}",
+                        "Call_Purpose": "{{parameters.call_purpose}}",
+                        "Call_Duration": "{{parameters.call_duration}}",
+                        "Call_Start_Time": "{{parameters.call_start_time}}"
                     }
                 ]
             },
@@ -80,42 +82,114 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The first name of the contact.",
-                    "displayName": "First Name",
+                    "description": "The subject of the call.",
+                    "displayName": "Subject",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter the subject"
                 },
-                "name": "first_name"
+                "name": "subject"
             },
             {
                 "meta": {
+                    "options": [
+                        {
+                            "label": "Inbound",
+                            "value": "Inbound"
+                        },
+                        {
+                            "label": "Outbound",
+                            "value": "Outbound"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": true
                     },
-                    "description": "The last name of the contact.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the last name"
+                    "description": "The type of the call.",
+                    "displayName": "Call Type",
+                    "displayType": "select",
+                    "placeholder": "Select call type"
                 },
-                "name": "last_name"
+                "name": "call_type"
             },
             {
                 "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
                     "validation": {
                         "required": true
                     },
-                    "description": "The email address of the contact.",
-                    "displayName": "Email",
-                    "displayType": "email",
-                    "placeholder": "Enter the email address"
+                    "description": "The start time of the call.",
+                    "displayName": "Start Date & Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DDTHH:mm:ssZ"
                 },
-                "name": "email"
+                "name": "call_start_time"
+            },
+            {
+                "meta": {
+                    "description": "Duration of the call in minutes.",
+                    "displayName": "Duration (minutes)",
+                    "displayType": "text",
+                    "placeholder": "Enter duration in minutes"
+                },
+                "name": "call_duration"
+            },
+            {
+                "meta": {
+                    "description": "Purpose of the call.",
+                    "displayName": "Purpose",
+                    "displayType": "text",
+                    "placeholder": "Enter the purpose"
+                },
+                "name": "call_purpose"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.zohoapis.in/crm/v2/Calls/{{parameters.call_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[0-9]+$",
+                        "required": true
+                    },
+                    "description": "The ID of the call to retrieve.",
+                    "displayName": "Call ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the call ID"
+                },
+                "name": "call_id"
             }
         ]
     },
     "get_list": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts",
+            "url": "https://www.zohoapis.in/crm/v2/Calls",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -142,13 +216,15 @@
     },
     "update": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "url": "https://www.zohoapis.in/crm/v2/Calls/{{parameters.call_id}}",
             "body": {
                 "data": [
                     {
-                        "Email": "{{parameters.email}}",
-                        "Last_Name": "{{parameters.last_name}}",
-                        "First_Name": "{{parameters.first_name}}"
+                        "Subject": "{{parameters.subject}}",
+                        "Call_Type": "{{parameters.call_type}}",
+                        "Call_Purpose": "{{parameters.call_purpose}}",
+                        "Call_Duration": "{{parameters.call_duration}}",
+                        "Call_Start_Time": "{{parameters.call_start_time}}"
                     }
                 ]
             },
@@ -172,85 +248,89 @@
                         "pattern": "^[0-9]+$",
                         "required": true
                     },
-                    "description": "The ID of the contact to update.",
-                    "displayName": "Contact ID",
+                    "description": "The ID of the call to update.",
+                    "displayName": "Call ID",
                     "displayType": "text",
-                    "placeholder": "Enter the contact ID"
+                    "placeholder": "Enter the call ID"
                 },
-                "name": "contact_id"
+                "name": "call_id"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The first name of the contact.",
-                    "displayName": "First Name",
+                    "description": "Updated subject of the call.",
+                    "displayName": "Subject",
                     "displayType": "text",
-                    "placeholder": "Enter the first name"
+                    "placeholder": "Enter the subject"
                 },
-                "name": "first_name"
+                "name": "subject"
             },
             {
                 "meta": {
-                    "validation": {
-                        "required": true
+                    "options": [
+                        {
+                            "label": "Inbound",
+                            "value": "Inbound"
+                        },
+                        {
+                            "label": "Outbound",
+                            "value": "Outbound"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
                     },
-                    "description": "The last name of the contact.",
-                    "displayName": "Last Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the last name"
+                    "description": "Updated type of the call.",
+                    "displayName": "Call Type",
+                    "displayType": "select",
+                    "placeholder": "Select call type"
                 },
-                "name": "last_name"
+                "name": "call_type"
             },
             {
                 "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
                     "validation": {
                         "required": true
                     },
-                    "description": "The email address of the contact.",
-                    "displayName": "Email",
-                    "displayType": "email",
-                    "placeholder": "Enter the email address"
+                    "description": "The start time of the call.",
+                    "displayName": "Start Date & Time",
+                    "displayType": "datetime",
+                    "placeholder": "YYYY-MM-DDTHH:mm:ssZ"
                 },
-                "name": "email"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
+                "name": "call_start_time"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "pattern": "^[0-9]+$",
-                        "required": true
-                    },
-                    "description": "The ID of the contact to retrieve.",
-                    "displayName": "Contact ID",
+                    "description": "Updated duration of the call in minutes.",
+                    "displayName": "Duration (minutes)",
                     "displayType": "text",
-                    "placeholder": "Enter the contact ID"
+                    "placeholder": "Enter duration in minutes"
                 },
-                "name": "contact_id"
+                "name": "call_duration"
+            },
+            {
+                "meta": {
+                    "description": "Updated purpose of the call.",
+                    "displayName": "Purpose",
+                    "displayType": "text",
+                    "placeholder": "Enter the purpose"
+                },
+                "name": "call_purpose"
             }
         ]
     },
     "delete": {
         "definition": {
-            "url": "https://www.zohoapis.in/crm/v2/Contacts/{{parameters.contact_id}}",
+            "url": "https://www.zohoapis.in/crm/v2/Calls/{{parameters.call_id}}",
             "method": "delete",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -270,12 +350,12 @@
                         "pattern": "^[0-9]+$",
                         "required": true
                     },
-                    "description": "The ID of the contact to delete.",
-                    "displayName": "Contact ID",
+                    "description": "The ID of the call to delete.",
+                    "displayName": "Call ID",
                     "displayType": "text",
-                    "placeholder": "Enter the contact ID"
+                    "placeholder": "Enter the call ID"
                 },
-                "name": "contact_id"
+                "name": "call_id"
             }
         ]
     }

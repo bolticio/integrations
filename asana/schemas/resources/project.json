@@ -108,6 +108,38 @@
             }
         }
     },
+    "delete": {
+        "definition": {
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the project you want to delete.",
+                    "displayName": "Project ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the project ID"
+                },
+                "name": "project"
+            }
+        ]
+    },
     "create": {
         "definition": {
             "url": "https://app.asana.com/api/1.0/projects",
@@ -277,38 +309,6 @@
                     "placeholder": "Enter notes"
                 },
                 "name": "notes"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the project.",
-                    "displayName": "Project ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the project ID"
-                },
-                "name": "project"
             }
         ]
     },
@@ -529,13 +529,47 @@
             }
         ]
     },
-    "delete": {
+    "get": {
         "definition": {
             "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}",
-            "method": "delete",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the ID of the project.",
+                    "displayName": "Project ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the project ID"
+                },
+                "name": "project"
+            }
+        ]
+    },
+    "create_section": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.section_name}}"
+            },
+            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}/sections",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -549,60 +583,13 @@
         "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the project you want to delete.",
-                    "displayName": "Project ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the project ID"
-                },
-                "name": "project"
-            }
-        ]
-    },
-    "list": {
-        "definition": {
-            "qs": {
-                "archived": "{{parameters.archived}}",
-                "workspace": "{{parameters.workspace}}"
-            },
-            "url": "https://app.asana.com/api/1.0/projects",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 100,
-                    "offset": "{{response.data.next_page.offset}}"
-                },
-                "type": "cursor",
-                "default": {
-                    "limit": 100,
-                    "offset": null
-                },
-                "condition": "{{response.data.next_page}} !== null"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
                     "config": {
                         "url": "integrations/options",
                         "body": {
                             "name": "asana",
                             "secret": "{{parameters.secret}}",
                             "resource": "project",
-                            "operation": "project.create",
+                            "operation": "project.create_section",
                             "loadOptionsMethod": "getWorkspaces"
                         },
                         "method": "post",
@@ -614,7 +601,7 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the workspace in which you want to create the project.",
+                    "description": "Select the workspace of the project in which section is to be created.",
                     "displayName": "Workspace Name",
                     "displayType": "autocomplete",
                     "placeholder": "Select a workspace"
@@ -623,12 +610,61 @@
             },
             {
                 "meta": {
-                    "value": false,
-                    "description": "Only return projects whose `archived` field takes on the value of this parameter.",
-                    "displayName": "Archived",
-                    "displayType": "toggle"
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "asana",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "project",
+                            "operation": "project.create_section",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "gid",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the project creating section.",
+                    "displayName": "Project Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select Projects",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "workspace",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
                 },
-                "name": "archived"
+                "name": "project"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 50,
+                        "min": 3,
+                        "required": true
+                    },
+                    "description": "Name of the section to be created",
+                    "displayName": "Section Name",
+                    "displayType": "text",
+                    "placeholder": "Enter section name"
+                },
+                "name": "section_name"
             }
         ]
     },
@@ -833,13 +869,14 @@
             }
         ]
     },
-    "create_section": {
+    "list": {
         "definition": {
             "qs": {
-                "name": "{{parameters.section_name}}"
+                "archived": "{{parameters.archived}}",
+                "workspace": "{{parameters.workspace}}"
             },
-            "url": "https://app.asana.com/api/1.0/projects/{{parameters.project}}/sections",
-            "method": "post",
+            "url": "https://app.asana.com/api/1.0/projects",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -849,7 +886,19 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.errors[0].message}}"
                 },
-                "output": "{{response.data}}"
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.next_page.offset}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "limit": 100,
+                    "offset": null
+                },
+                "condition": "{{response.data.next_page}} !== null"
             }
         },
         "parameters": [
@@ -861,7 +910,7 @@
                             "name": "asana",
                             "secret": "{{parameters.secret}}",
                             "resource": "project",
-                            "operation": "project.create_section",
+                            "operation": "project.create",
                             "loadOptionsMethod": "getWorkspaces"
                         },
                         "method": "post",
@@ -873,7 +922,7 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Select the workspace of the project in which section is to be created.",
+                    "description": "Select the workspace in which you want to create the project.",
                     "displayName": "Workspace Name",
                     "displayType": "autocomplete",
                     "placeholder": "Select a workspace"
@@ -882,254 +931,12 @@
             },
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "asana",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "project",
-                            "operation": "project.create_section",
-                            "workspace": "{{parameters.workspace}}",
-                            "loadOptionsMethod": "getProjects"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "gid",
-                        "condition": "{{parameters.workspace}}"
-                    },
-                    "options": [],
-                    "htmlProps": {
-                        "allowDynamic": false
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Select the project creating section.",
-                    "displayName": "Project Name",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select Projects",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "workspace",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
+                    "value": false,
+                    "description": "Only return projects whose `archived` field takes on the value of this parameter.",
+                    "displayName": "Archived",
+                    "displayType": "toggle"
                 },
-                "name": "project"
-            },
-            {
-                "meta": {
-                    "readOnly": false,
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "max": 50,
-                        "min": 3,
-                        "required": true
-                    },
-                    "description": "Name of the section to be created",
-                    "displayName": "Section Name",
-                    "displayType": "text",
-                    "placeholder": "Enter section name"
-                },
-                "name": "section_name"
-            }
-        ]
-    },
-    "find_user": {
-        "definition": {
-            "url": "https://app.asana.com/api/1.0/users/",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "url": "function transformURL() { const encodedURL = url + encodeURIComponent('{{parameters.email}}'); return encodedURL; } return transformURL();"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please enter Email or User ID",
-                    "displayName": "Email/User ID",
-                    "displayType": "text",
-                    "placeholder": "Enter Email/User ID"
-                },
-                "name": "email"
-            }
-        ]
-    },
-    "custom_api": {
-        "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors[0].message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "value": "get",
-                    "options": [
-                        {
-                            "label": "GET",
-                            "value": "get"
-                        },
-                        {
-                            "label": "PUT",
-                            "value": "put"
-                        },
-                        {
-                            "label": "POST",
-                            "value": "post"
-                        },
-                        {
-                            "label": "PATCH",
-                            "value": "patch"
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete"
-                        }
-                    ],
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
-                    "displayType": "select"
-                },
-                "name": "method"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
-                    "displayType": "text",
-                    "placeholder": "Eg. https://app.asana.com/api/1.0/tasks"
-                },
-                "name": "base_url"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "You don't have to add authorization headers, we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue"
-                },
-                "name": "headers"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "displayName": "Query String",
-                    "displayType": "keyvalue"
-                },
-                "name": "query_params"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
-                    },
-                    "description": "The Payload (Body) of the HTTP Request.",
-                    "displayName": "Body",
-                    "displayType": "code"
-                },
-                "name": "body"
+                "name": "archived"
             }
         ]
     }

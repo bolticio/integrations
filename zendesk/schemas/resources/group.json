@@ -44,10 +44,41 @@
             "name": "operation"
         }
     ],
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups/{{parameters.group_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Enter ID of the group.",
+                    "displayName": "Group ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Group ID"
+                },
+                "name": "group_id"
+            }
+        ]
+    },
     "getlist": {
         "definition": {
-            "qs": {},
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets",
+            "qs": {
+                "exclude_deleted": true
+            },
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups",
             "method": "get",
             "headers": {
                 "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
@@ -57,7 +88,7 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.error}}"
                 },
-                "output": "{{response.data.tickets}}"
+                "output": "{{response.data.groups}}"
             },
             "pagination": {
                 "qs": {
@@ -74,210 +105,16 @@
         },
         "parameters": []
     },
-    "update": {
-        "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket_id}}",
-            "body": {
-                "ticket": {
-                    "tags": "{{parameters.tags}}",
-                    "comment": {
-                        "body": "{{parameters.description}}"
-                    },
-                    "subject": "{{parameters.subject}}",
-                    "group_id": "{{parameters.group_id}}",
-                    "priority": "{{parameters.priority}}",
-                    "assignee_id": "{{parameters.assignee_id}}"
-                }
-            },
-            "method": "put",
-            "filters": {
-                "body": {
-                    "allowEmptyArray": false,
-                    "allowEmptyValue": false,
-                    "allowEmptyObject": false
-                }
-            },
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the ticket you want to update",
-                    "displayName": "Ticket ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the ticket ID"
-                },
-                "name": "ticket_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the subject of the ticket you want to update.",
-                    "displayName": "Subject",
-                    "displayType": "text",
-                    "placeholder": "Enter new ticket subject"
-                },
-                "name": "subject"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the description of the ticket you want to update.",
-                    "displayName": "First Comment / Description",
-                    "displayType": "textarea",
-                    "placeholder": "Enter new ticket description"
-                },
-                "name": "description"
-            },
-            {
-                "meta": {
-                    "value": false,
-                    "options": [
-                        {
-                            "label": "Urgent",
-                            "value": "urgent"
-                        },
-                        {
-                            "label": "High",
-                            "value": "high"
-                        },
-                        {
-                            "label": "Normal",
-                            "value": "normal"
-                        },
-                        {
-                            "label": "Low",
-                            "value": "low"
-                        }
-                    ],
-                    "description": "Select the priority of the ticket.",
-                    "displayName": "Priority",
-                    "displayType": "select",
-                    "placeholder": "Select the priority for the ticket"
-                },
-                "name": "priority"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.update",
-                            "loadOptionsMethod": "getAssignees"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Note: the assignee must be in the default group (or specific group selected below) else an error will occur. Defaults to selected zendesk account",
-                    "displayName": "Assignee",
-                    "displayType": "select",
-                    "placeholder": "Select the assignee (agent)"
-                },
-                "name": "assignee_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.update",
-                            "loadOptionsMethod": "getGroups"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Select the group you want to assign the ticket to.",
-                    "displayName": "Group",
-                    "displayType": "select",
-                    "placeholder": "Select the group"
-                },
-                "name": "group_id"
-            },
-            {
-                "meta": {
-                    "value": [],
-                    "description": "Enter the tags for the ticket.",
-                    "displayName": "Tags",
-                    "displayType": "multitext"
-                },
-                "name": "tags"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket}}",
-            "method": "get",
-            "headers": {
-                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the ID of the ticket you want to fetch.",
-                    "displayName": "Ticket ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the ticket ID"
-                },
-                "name": "ticket"
-            }
-        ]
-    },
     "create": {
         "definition": {
             "qs": {},
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets",
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups",
             "body": {
-                "ticket": {
-                    "tags": "{{parameters.tags}}",
-                    "comment": {
-                        "body": "{{parameters.description}}"
-                    },
-                    "subject": "{{parameters.subject}}",
-                    "group_id": "{{parameters.group_id}}",
-                    "priority": "{{parameters.priority}}",
-                    "assignee_id": "{{parameters.assignee_id}}"
+                "group": {
+                    "name": "{{parameters.name}}",
+                    "default": "{{parameters.default}}",
+                    "is_public": "{{parameters.is_public}}",
+                    "description": "{{parameters.description}}"
                 }
             },
             "method": "post",
@@ -307,114 +144,66 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the subject of the ticket you want to create.",
-                    "displayName": "Subject",
+                    "description": "Enter the name of the group",
+                    "displayName": "Name",
                     "displayType": "text",
-                    "placeholder": "Enter the ticket subject"
+                    "placeholder": "Enter group name"
                 },
-                "name": "subject"
+                "name": "name"
             },
             {
                 "meta": {
-                    "value": false,
-                    "options": [
-                        {
-                            "label": "Urgent",
-                            "value": "urgent"
-                        },
-                        {
-                            "label": "High",
-                            "value": "high"
-                        },
-                        {
-                            "label": "Normal",
-                            "value": "normal"
-                        },
-                        {
-                            "label": "Low",
-                            "value": "low"
-                        }
-                    ],
-                    "description": "Select the priority of the ticket.",
-                    "displayName": "Priority",
-                    "displayType": "select"
-                },
-                "name": "priority"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.create",
-                            "loadOptionsMethod": "getAssignees"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Note: the assignee must be in the default group (or specific group selected below) else an error will occur. Defaults to selected zendesk account",
-                    "displayName": "Assignee",
-                    "displayType": "select"
-                },
-                "name": "assignee_id"
-            },
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "zendesk",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "ticket",
-                            "operation": "ticket.create",
-                            "loadOptionsMethod": "getGroups"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "name",
-                        "valueKey": "id"
-                    },
-                    "options": [],
-                    "description": "Select the group you want to assign the ticket to.",
-                    "displayName": "Group",
-                    "displayType": "select"
-                },
-                "name": "group_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the description of the ticket you want to create.",
-                    "displayName": "First Comment / Description",
+                    "value": "",
+                    "description": "Enter the details about the group.",
+                    "displayName": "Details",
                     "displayType": "textarea",
-                    "placeholder": "Enter the ticket description"
+                    "placeholder": "Enter group details"
                 },
                 "name": "description"
             },
             {
                 "meta": {
-                    "value": [],
-                    "description": "Enter the tags for the ticket.",
-                    "displayName": "Tags",
-                    "displayType": "multitext"
+                    "value": true,
+                    "description": "Toggle to make the group public/private. To make a group private, you must select the 'Make it private' setting in your Group settings (Only available in Enterprise Account). To learn more about Private Groups, see the <a href='https://support.zendesk.com/hc/en-us/articles/4767122732058-About-private-ticket-groups' target='_blank'>Private Groups documentation.</a>",
+                    "displayName": "Public",
+                    "displayType": "toggle"
                 },
-                "name": "tags"
+                "name": "is_public"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Toggle to make this group as default for the account.",
+                    "displayName": "Default Group",
+                    "displayType": "toggle"
+                },
+                "name": "default"
             }
         ]
     },
-    "delete": {
+    "update": {
         "definition": {
-            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/tickets/{{parameters.ticket}}",
-            "method": "delete",
+            "qs": {},
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups/{{parameters.group_id}}",
+            "body": {
+                "group": {
+                    "name": "{{parameters.name}}",
+                    "default": "{{parameters.default}}",
+                    "is_public": "{{parameters.is_public}}",
+                    "description": "{{parameters.description}}"
+                }
+            },
+            "method": "put",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
             "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
                 "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
             },
             "response": {
@@ -431,12 +220,83 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "Enter the ID of the ticket you want to delete.",
-                    "displayName": "Ticket ID",
+                    "description": "Enter the ID of the group to be updated",
+                    "displayName": "Group ID",
                     "displayType": "text",
-                    "placeholder": "Enter the ticket ID"
+                    "placeholder": "Enter group ID"
                 },
-                "name": "ticket"
+                "name": "group_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the name of the group",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter group name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the details about the group.",
+                    "displayName": "Details",
+                    "displayType": "textarea",
+                    "placeholder": "Enter group details"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Toggle to make the group public/private. To make a group private, you must select the 'Make it private' setting in your Group settings (Only available in Enterprise Account). To learn more about Private Groups, see the <a href='https://support.zendesk.com/hc/en-us/articles/4767122732058-About-private-ticket-groups' target='_blank'>Private Groups documentation.</a>",
+                    "displayName": "Public",
+                    "displayType": "toggle"
+                },
+                "name": "is_public"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Toggle to make this group as default for the account.",
+                    "displayName": "Default Group",
+                    "displayType": "toggle"
+                },
+                "name": "default"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "qs": {},
+            "url": "https://{{secrets.subdomain}}.zendesk.com/api/v2/groups/{{parameters.group_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Basic convertBufferBase64String({{secrets.email}}:{{secrets.password}})"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Enter the ID of the group you want to delete. Group will only be soft deleted",
+                    "displayName": "Group ID",
+                    "displayType": "text",
+                    "placeholder": "Enter group ID to be deleted"
+                },
+                "name": "group_id"
             }
         ]
     }

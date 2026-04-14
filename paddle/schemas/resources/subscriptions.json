@@ -74,31 +74,11 @@
             "name": "operation"
         }
     ],
-    "create": {
+    "cancel": {
         "definition": {
-            "url": "https://{{secrets.environment_url}}/prices",
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}/cancel",
             "body": {
-                "name": "{{parameters.name}}",
-                "type": "{{parameters.type}}",
-                "quantity": {
-                    "maximum": "{{parameters.quantity_maximum}}",
-                    "minimum": "{{parameters.quantity_minimum}}"
-                },
-                "tax_mode": "{{parameters.tax_mode}}",
-                "product_id": "{{parameters.product_id}}",
-                "unit_price": {
-                    "amount": "{{parameters.unit_price_amount}}",
-                    "currency_code": "{{parameters.unit_price_currency_code}}"
-                },
-                "description": "{{parameters.description}}",
-                "trial_period": {
-                    "interval": "{{parameters.trial_period_interval}}",
-                    "frequency": "{{parameters.trial_period_frequency}}"
-                },
-                "billing_cycle": {
-                    "interval": "{{parameters.billing_cycle_interval}}",
-                    "frequency": "{{parameters.billing_cycle_frequency}}"
-                }
+                "effective_from": "{{parameters.effective_from}}"
             },
             "method": "post",
             "headers": {
@@ -120,60 +100,812 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Name of the price is required."
+                            "errorMsg": "Subscription ID is required."
                         }
                     },
-                    "description": "Name of this price, shown to customers at checkout and on invoices.",
-                    "displayName": "Name",
+                    "description": "Paddle ID of the subscription to cancel.",
+                    "displayName": "Subscription ID",
                     "displayType": "text",
-                    "placeholder": "Enter the name of the price"
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "name"
+                "name": "subscription_id"
             },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Immediately",
+                            "value": "immediately"
+                        },
+                        {
+                            "label": "Next Billing Period",
+                            "value": "next_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "When the cancellation should take effect (defaults to next billing period for active subscriptions).",
+                    "displayName": "Effective From",
+                    "displayType": "select",
+                    "placeholder": "Select timing"
+                },
+                "name": "effective_from"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "qs": {
+                "include": "{{parameters.include}}"
+            },
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Description is required."
+                            "errorMsg": "Subscription ID is required."
                         }
                     },
-                    "description": "Internal description for this price, not shown to customers.",
-                    "displayName": "Description",
+                    "description": "Paddle ID of the subscription entity to work with.",
+                    "displayName": "Subscription ID",
                     "displayType": "text",
-                    "placeholder": "Enter the description of the price"
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "description"
+                "name": "subscription_id"
             },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Next Transaction",
+                            "value": "next_transaction"
+                        },
+                        {
+                            "label": "Recurring transaction Details",
+                            "value": "recurring_transaction_details"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Include related entities in the response.",
+                    "displayName": "Include",
+                    "displayType": "multiselect",
+                    "placeholder": "Select entities to include"
+                },
+                "name": "include"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "id": "{{parameters.id}}",
+                "status": "{{parameters.status}}",
+                "order_by": "{{parameters.order_by}}",
+                "price_id": "{{parameters.price_id}}",
+                "address_id": "{{parameters.address_id}}",
+                "customer_id": "{{parameters.customer_id}}",
+                "collection_mode": "{{parameters.collection_mode}}",
+                "scheduled_change_action": "{{parameters.scheduled_change_action}}"
+            },
+            "url": "https://{{secrets.environment_url}}/subscriptions",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "per_page": 200
+                },
+                "type": "url",
+                "default": {
+                    "next_url": null,
+                    "per_page": 200
+                },
+                "next_url": "{{response.data.meta.pagination.next}}",
+                "condition": "{{response.data.meta.pagination.has_more}} !== false"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities related to the specified address IDs (comma-separated).",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "add_01gm302t81w94gyjpjpqypkzkf,add_01hv8gq3318ktkfengj2r75gfx"
+                },
+                "name": "address_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Automatic",
+                            "value": "automatic"
+                        },
+                        {
+                            "label": "Manual",
+                            "value": "manual"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter by collection mode.",
+                    "displayName": "Collection Mode",
+                    "displayType": "select",
+                    "placeholder": "Select collection mode"
+                },
+                "name": "collection_mode"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities related to the specified customer IDs (comma-separated).",
+                    "displayName": "Customer ID",
+                    "displayType": "text",
+                    "placeholder": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4,ctm_01hv8gq3318ktkfengj2r75gfx"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return only the specified subscription IDs (comma-separated).",
+                    "displayName": "Subscription ID",
+                    "displayType": "text",
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4,sub_01hv8gq3318ktkfengj2r75gfx"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "ID (ascending)",
+                            "value": "id[ASC]"
+                        },
+                        {
+                            "label": "ID (descending)",
+                            "value": "id[DESC]"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Order returned entities.",
+                    "displayName": "Order By",
+                    "displayType": "select",
+                    "placeholder": "Select ordering"
+                },
+                "name": "order_by"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities related to the specified price IDs (comma-separated).",
+                    "displayName": "Price ID",
+                    "displayType": "text",
+                    "placeholder": "pri_01gsz8x8sawmvhz1pv30nge1ke,pri_01gsz98e27ak2tyhexptwc58yk"
+                },
+                "name": "price_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Pause",
+                            "value": "pause"
+                        },
+                        {
+                            "label": "Cancel",
+                            "value": "cancel"
+                        },
+                        {
+                            "label": "Resume",
+                            "value": "resume"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter subscriptions that have a scheduled change action.",
+                    "displayName": "Scheduled Change Action",
+                    "displayType": "multiselect",
+                    "placeholder": "Select action(s)"
+                },
+                "name": "scheduled_change_action"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Active",
+                            "value": "active"
+                        },
+                        {
+                            "label": "Trialing",
+                            "value": "trialing"
+                        },
+                        {
+                            "label": "Past Due",
+                            "value": "past_due"
+                        },
+                        {
+                            "label": "Paused",
+                            "value": "paused"
+                        },
+                        {
+                            "label": "Canceled",
+                            "value": "canceled"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Filter by subscription status.",
+                    "displayName": "Status",
+                    "displayType": "multiselect",
+                    "placeholder": "Select status(es)"
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "resume": {
+        "definition": {
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}/resume",
+            "body": {
+                "on_resume": "{{parameters.on_resume}}",
+                "effective_from": "{{parameters.effective_from}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Product ID is required."
+                            "errorMsg": "Subscription ID is required."
                         }
                     },
-                    "description": "Paddle ID for the product that this price is for, prefixed with pro_.",
-                    "displayName": "Product ID",
+                    "description": "Paddle ID of the subscription to resume.",
+                    "displayName": "Subscription ID",
                     "displayType": "text",
-                    "placeholder": "Enter the product ID"
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "product_id"
+                "name": "subscription_id"
             },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "When the subscription should resume — use the RFC 3339 datetime or the word “immediately”.",
+                    "displayName": "Effective From",
+                    "displayType": "text",
+                    "placeholder": "immediately or 2025-09-01T00:00:00Z"
+                },
+                "name": "effective_from"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Start New Billing Period",
+                            "value": "start_new_billing_period"
+                        },
+                        {
+                            "label": "Continue Existing Billing Period",
+                            "value": "continue_existing_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "How Paddle should bill when the subscription resumes.",
+                    "displayName": "On Resume",
+                    "displayType": "select",
+                    "placeholder": "Select option"
+                },
+                "name": "on_resume"
+            }
+        ]
+    },
+    "pause": {
+        "definition": {
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}/pause",
+            "body": {
+                "on_resume": "{{parameters.on_resume}}",
+                "resume_at": "{{parameters.resume_at}}",
+                "effective_from": "{{parameters.effective_from}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Amount is required."
+                            "errorMsg": "Subscription ID is required."
                         }
                     },
-                    "description": "Amount in the lowest denomination for the currency, e.g. 10 USD = 1000 (cents).",
-                    "displayName": "Amount",
-                    "displayType": "number",
-                    "placeholder": "Enter the amount"
+                    "description": "Paddle ID of the subscription to pause.",
+                    "displayName": "Subscription ID",
+                    "displayType": "text",
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "unit_price_amount"
+                "name": "subscription_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Immediately",
+                            "value": "immediately"
+                        },
+                        {
+                            "label": "Next billing period",
+                            "value": "next_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "When the subscription should be paused. Defaults to next_billing_period.",
+                    "displayName": "Effective From",
+                    "displayType": "select",
+                    "placeholder": "Select when to pause"
+                },
+                "name": "effective_from"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 15,
+                            "seconds": 60
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "When the paused subscription should resume. Use RFC 3339 datetime format (e.g., 2025-09-01T00:00:00Z).",
+                    "displayName": "Resume At",
+                    "displayType": "datetime",
+                    "placeholder": "2025-09-01T00:00:00Z"
+                },
+                "name": "resume_at"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Start New Billing Period",
+                            "value": "start_new_billing_period"
+                        },
+                        {
+                            "label": "Continue Existing Billing Period",
+                            "value": "continue_existing_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "How Paddle should bill when the subscription resumes. Defaults to start_new_billing_period.",
+                    "displayName": "On Resume",
+                    "displayType": "select",
+                    "placeholder": "Select billing behavior"
+                },
+                "name": "on_resume"
+            }
+        ]
+    },
+    "one_time_charge": {
+        "definition": {
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}/charge",
+            "body": {
+                "items": "{{parameters.items}}",
+                "effective_from": "{{parameters.effective_from}}",
+                "on_payment_failure": "{{parameters.on_payment_failure}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Subscription ID is required."
+                        }
+                    },
+                    "description": "Paddle ID of the subscription entity to work with.",
+                    "displayName": "Subscription ID",
+                    "displayType": "text",
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
+                },
+                "name": "subscription_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Immediately",
+                            "value": "immediately"
+                        },
+                        {
+                            "label": "Next Billing Period",
+                            "value": "next_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "When one-time charges should be billed.",
+                    "displayName": "Effective From",
+                    "displayType": "select",
+                    "placeholder": "Select when to bill charges"
+                },
+                "name": "effective_from"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Paddle ID of an existing catalog price to bill for.",
+                                "displayName": "Price ID",
+                                "displayType": "text",
+                                "placeholder": "pri_01gsz98e27ak2tyhexptwc58yk"
+                            },
+                            "name": "price_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "min": 1,
+                                    "required": true
+                                },
+                                "description": "Quantity to bill for.",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "1"
+                            },
+                            "name": "quantity"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "max": 5
+                    },
+                    "description": "List of one-time charges to bill for. Only prices where the billing_cycle is null may be added. You can charge for items that you've added to your catalog by passing the Paddle ID of an existing price entity, or you can charge for non-catalog items by passing a price object.",
+                    "displayName": "Items",
+                    "displayType": "array"
+                },
+                "name": "items"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Prevent Change",
+                            "value": "prevent_change"
+                        },
+                        {
+                            "label": "Apply Change",
+                            "value": "apply_change"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "How Paddle should handle changes if the payment fails during the one-time charge.",
+                    "displayName": "On Payment Failure",
+                    "displayType": "select",
+                    "placeholder": "Select behavior"
+                },
+                "name": "on_payment_failure"
+            }
+        ]
+    },
+    "preview": {
+        "definition": {
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}/preview",
+            "body": {
+                "items": "{{parameters.items}}",
+                "discount": "{{parameters.discount}}",
+                "address_id": "{{parameters.address_id}}",
+                "attributes": "{{parameters.attributes}}",
+                "business_id": "{{parameters.business_id}}",
+                "customer_id": "{{parameters.customer_id}}",
+                "currency_code": "{{parameters.currency_code}}",
+                "next_billed_at": "{{parameters.next_billed_at}}",
+                "collection_mode": "{{parameters.collection_mode}}",
+                "scheduled_change": "{{parameters.scheduled_change}}",
+                "on_payment_failure": "{{parameters.on_payment_failure}}",
+                "proration_billing_mode": "{{parameters.proration_billing_mode}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Subscription ID is required."
+                        }
+                    },
+                    "description": "Paddle ID of the subscription entity to work with.",
+                    "displayName": "Subscription ID",
+                    "displayType": "text",
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
+                },
+                "name": "subscription_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Paddle ID for the price to add to this subscription, prefixed with pri_.",
+                                "displayName": "Price ID",
+                                "displayType": "text",
+                                "placeholder": "pri_01gsz8x8sawmvhz1pv30nge1ke"
+                            },
+                            "name": "price_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Quantity of this item to add to the subscription. If updating an existing item and not changing the quantity, you may omit quantity.",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "1"
+                            },
+                            "name": "quantity"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List of items on this subscription. Only recurring items may be added. Send the complete list of items that should be on this subscription, including existing items to retain.",
+                    "displayName": "Items",
+                    "displayType": "array"
+                },
+                "name": "items"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Prorated – bill now",
+                            "value": "prorated_immediately"
+                        },
+                        {
+                            "label": "Prorated – next bill",
+                            "value": "prorated_next_billing_period"
+                        },
+                        {
+                            "label": "Full – bill now",
+                            "value": "full_immediately"
+                        },
+                        {
+                            "label": "Full – next bill",
+                            "value": "full_next_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "How Paddle should handle proration for changes.",
+                    "displayName": "Proration Billing Mode",
+                    "displayType": "select",
+                    "placeholder": "Select proration mode"
+                },
+                "name": "proration_billing_mode"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Prevent Change",
+                            "value": "prevent_change"
+                        },
+                        {
+                            "label": "Allow & Bill",
+                            "value": "allow_change_and_bill"
+                        },
+                        {
+                            "label": "Allow – No Bill",
+                            "value": "allow_change_without_billing"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Behavior if payment fails when applying changes.",
+                    "displayName": "On Payment Failure",
+                    "displayType": "select",
+                    "placeholder": "Select behavior"
+                },
+                "name": "on_payment_failure"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Paddle ID of the customer that this subscription is for, prefixed with ctm_. Include to change the customer for a subscription.",
+                    "displayName": "Customer ID",
+                    "displayType": "text",
+                    "placeholder": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Paddle ID of the address that this subscription is for, prefixed with add_. Include to change the address for a subscription.",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "add_01gm302t81w94gyjpjpqypkzkf"
+                },
+                "name": "address_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Paddle ID of the business that this subscription is for, prefixed with biz_. Include to change the business for a subscription.",
+                    "displayName": "Business ID",
+                    "displayType": "text",
+                    "placeholder": "biz_01h84t5atqy345evgj07qyx4ag"
+                },
+                "name": "business_id"
             },
             {
                 "meta": {
@@ -303,36 +1035,42 @@
                         "allowDynamic": true
                     },
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Currency code is required."
-                        }
+                        "required": false
                     },
-                    "description": "Select a supported three-letter ISO 4217 currency code.",
+                    "description": "Supported three-letter ISO 4217 currency code. Include to change the currency that a subscription bills in. When changing collection_mode to manual, you may need to change currency code to USD, EUR, or GBP.",
                     "displayName": "Currency Code",
                     "displayType": "select",
-                    "placeholder": "Select a currency code"
+                    "placeholder": "Select currency"
                 },
-                "name": "unit_price_currency_code"
+                "name": "currency_code"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "RFC 3339 datetime string of when this subscription is next scheduled to be billed. Include to change the next billing date.",
+                    "displayName": "Next Billed At",
+                    "displayType": "datetime",
+                    "placeholder": "2024-10-12T07:20:50.52Z"
+                },
+                "name": "next_billed_at"
             },
             {
                 "meta": {
                     "options": [
                         {
-                            "label": "Day",
-                            "value": "day"
-                        },
-                        {
-                            "label": "Week",
-                            "value": "week"
-                        },
-                        {
-                            "label": "Month",
-                            "value": "month"
-                        },
-                        {
-                            "label": "Year",
-                            "value": "year"
+                            "label": "Automatic",
+                            "value": "automatic"
                         }
                     ],
                     "htmlProps": {
@@ -341,56 +1079,52 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "How often this price should be charged. Empty if price is non-recurring (one-time).",
-                    "displayName": "Billing cycle interval",
+                    "description": "How payment is collected for transactions created for this subscription. automatic for checkout.",
+                    "displayName": "Collection Mode",
                     "displayType": "select",
-                    "placeholder": "Select an interval"
+                    "placeholder": "Select collection mode"
                 },
-                "name": "billing_cycle_interval"
+                "name": "collection_mode"
             },
             {
                 "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Billing cycle frequency is required if interval is given"
-                        }
-                    },
-                    "description": "How often this price should be charged. Empty if price is non-recurring (one-time).",
-                    "displayName": "Billing cycle frequency",
-                    "displayType": "number",
-                    "placeholder": "Enter the frequency",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "billing_cycle_interval",
-                                "value": 1,
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "billing_cycle_frequency"
-            },
-            {
-                "meta": {
-                    "options": [
+                    "children": [
                         {
-                            "label": "Day",
-                            "value": "day"
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Unique Paddle ID for this discount, prefixed with dsc_.",
+                                "displayName": "Discount ID",
+                                "displayType": "text",
+                                "placeholder": "dsc_01gt218xfk7yztpvgmcazkes7x"
+                            },
+                            "name": "id"
                         },
                         {
-                            "label": "Week",
-                            "value": "week"
-                        },
-                        {
-                            "label": "Month",
-                            "value": "month"
-                        },
-                        {
-                            "label": "Year",
-                            "value": "year"
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Next Billing Period",
+                                        "value": "next_billing_period"
+                                    },
+                                    {
+                                        "label": "Immediately",
+                                        "value": "immediately"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "When this discount should take effect from.",
+                                "displayName": "Effective From",
+                                "displayType": "select",
+                                "placeholder": "Select when discount takes effect"
+                            },
+                            "name": "effective_from"
                         }
                     ],
                     "htmlProps": {
@@ -399,135 +1133,75 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Trial period for the product related to this price. The billing cycle begins once the trial period is over. Empty for no trial period. Requires billing cycle.",
-                    "displayName": "Trial period interval",
-                    "displayType": "select",
-                    "placeholder": "Select an interval"
+                    "description": "Details of the discount applied to this subscription. Include to add a discount to a subscription. null to remove a discount.",
+                    "displayName": "Discount",
+                    "displayType": "object"
                 },
-                "name": "trial_period_interval"
+                "name": "discount"
             },
             {
                 "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Trial period frequency is required if interval is given"
-                        }
-                    },
-                    "description": "Trial period for the product related to this price. The billing cycle begins once the trial period is over. Empty for no trial period. Requires billing cycle.",
-                    "displayName": "Trial period frequency",
-                    "displayType": "number",
-                    "placeholder": "Enter the frequency",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "trial_period_interval",
-                                "value": 1,
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "trial_period_frequency"
-            },
-            {
-                "meta": {
-                    "options": [
+                    "children": [
                         {
-                            "label": "Standard",
-                            "value": "standard"
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
                         },
                         {
-                            "label": "Custom",
-                            "value": "custom"
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
                         }
                     ],
                     "htmlProps": {
+                        "allowAdd": true,
                         "allowDynamic": true
                     },
                     "validation": {
-                        "required": false
+                        "max": 5
                     },
-                    "description": "Type of item. Standard items are considered part of your catalog and are shown on the Paddle web app. Custom or non-catalog items are typically created for a specific transaction or subscription and not returned when listing or shown in the Paddle web app.",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Select a type"
+                    "description": "Custom attributes for this subscription. Maximum 5 key-value pairs allowed.",
+                    "displayName": "Attributes",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add custom attributes"
                 },
-                "name": "type"
+                "name": "attributes"
             },
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "Account setting",
-                            "value": "account_setting"
-                        },
-                        {
-                            "label": "External",
-                            "value": "external"
-                        },
-                        {
-                            "label": "Internal",
-                            "value": "internal"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
+                    "value": "null",
+                    "readOnly": true,
                     "validation": {
                         "required": false
                     },
-                    "description": "How tax is calculated for this price.",
-                    "displayName": "Tax mode",
-                    "displayType": "select",
-                    "placeholder": "Select a tax mode"
+                    "description": "Change that's scheduled to be applied to a subscription. When updating, you may only set to null to remove a scheduled change. Use the pause subscription, cancel subscription, and resume subscription operations to create scheduled changes.",
+                    "displayName": "Scheduled Change",
+                    "displayType": "text",
+                    "placeholder": "null (to remove scheduled changes)"
                 },
-                "name": "tax_mode"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": false
-                    },
-                    "description": "Minimum quantity of the product related to this price that can be bought. Required if maximum set.",
-                    "displayName": "Minimum Quantity",
-                    "displayType": "number",
-                    "placeholder": "Enter minimum quantity"
-                },
-                "name": "quantity_minimum"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Maximum quantity is required if minimum is given."
-                        }
-                    },
-                    "description": "Maximum quantity of the product related to this price that can be bought. Required if minimum set.",
-                    "displayName": "Maximum Quantity",
-                    "displayType": "number",
-                    "placeholder": "Enter maximum quantity",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "quantity_minimum",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "quantity_maximum"
+                "name": "scheduled_change"
             }
         ]
     },
-    "get": {
+    "preview_charge": {
         "definition": {
-            "url": "https://{{secrets.environment_url}}/prices/{{parameters.price_id}}",
-            "method": "get",
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}/charge/preview",
+            "body": {
+                "items": "{{parameters.items}}",
+                "effective_from": "{{parameters.effective_from}}",
+                "on_payment_failure": "{{parameters.on_payment_failure}}"
+            },
+            "method": "post",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -547,28 +1221,127 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Price ID is required"
+                            "errorMsg": "Subscription ID is required."
                         }
                     },
-                    "description": "Paddle ID of the price entity to work with.",
-                    "displayName": "Price ID",
+                    "description": "Paddle ID of the subscription entity to work with.",
+                    "displayName": "Subscription ID",
                     "displayType": "text",
-                    "placeholder": "Enter the price ID"
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "price_id"
+                "name": "subscription_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Immediately",
+                            "value": "immediately"
+                        },
+                        {
+                            "label": "Next Billing Period",
+                            "value": "next_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "When one-time charges should be billed.",
+                    "displayName": "Effective From",
+                    "displayType": "select",
+                    "placeholder": "Select when to bill charges"
+                },
+                "name": "effective_from"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Paddle ID of an existing catalog price to bill for.",
+                                "displayName": "Price ID",
+                                "displayType": "text",
+                                "placeholder": "pri_01gsz98e27ak2tyhexptwc58yk"
+                            },
+                            "name": "price_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "min": 1,
+                                    "required": true
+                                },
+                                "description": "Quantity to bill for.",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "1"
+                            },
+                            "name": "quantity"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List of one-time charges to bill for. Only prices where the billing_cycle is null may be added. You can charge for items that you've added to your catalog by passing the Paddle ID of an existing price entity, or you can charge for non-catalog items by passing a price object.",
+                    "displayName": "Items",
+                    "displayType": "array"
+                },
+                "name": "items"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Prevent Change",
+                            "value": "prevent_change"
+                        },
+                        {
+                            "label": "Apply Change",
+                            "value": "apply_change"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "How Paddle should handle changes if the payment fails during the one-time charge preview. If omitted, defaults to prevent_change.",
+                    "displayName": "On Payment Failure",
+                    "displayType": "select",
+                    "placeholder": "Select behavior"
+                },
+                "name": "on_payment_failure"
             }
         ]
     },
     "update": {
         "definition": {
-            "url": "https://{{secrets.environment_url}}/products/{{parameters.product_id}}",
+            "qs": {
+                "include": "{{parameters.include}}"
+            },
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}",
             "body": {
-                "name": "{{parameters.name}}",
-                "type": "{{parameters.type}}",
-                "status": "{{parameters.status}}",
-                "image_url": "{{parameters.image_url}}",
-                "description": "{{parameters.description}}",
-                "tax_category": "{{parameters.tax_category}}"
+                "items": "{{parameters.items}}",
+                "discount": "{{parameters.discount}}",
+                "address_id": "{{parameters.address_id}}",
+                "business_id": "{{parameters.business_id}}",
+                "customer_id": "{{parameters.customer_id}}",
+                "currency_code": "{{parameters.currency_code}}",
+                "next_billed_at": "{{parameters.next_billed_at}}",
+                "collection_mode": "{{parameters.collection_mode}}",
+                "scheduled_change": "{{parameters.scheduled_change}}",
+                "on_payment_failure": "{{parameters.on_payment_failure}}",
+                "proration_billing_mode": "{{parameters.proration_billing_mode}}"
             },
             "method": "patch",
             "headers": {
@@ -579,9 +1352,9 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
+                    "message": "{{response.data}}"
                 },
-                "output": "{{response.data}}"
+                "output": "{{response.data.data}}"
             }
         },
         "parameters": [
@@ -590,50 +1363,103 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Product ID is required."
+                            "errorMsg": "Subscription ID is required."
                         }
                     },
-                    "description": "Paddle ID of the product entity to work with.",
-                    "displayName": "Product ID",
+                    "description": "Paddle ID of the subscription entity to work with.",
+                    "displayName": "Subscription ID",
                     "displayType": "text",
-                    "placeholder": "Enter the product ID"
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "product_id"
+                "name": "subscription_id"
             },
             {
                 "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Paddle ID for the price to add to this subscription, prefixed with pri_.",
+                                "displayName": "Price ID",
+                                "displayType": "text",
+                                "placeholder": "pri_01gsz8x8sawmvhz1pv30nge1ke"
+                            },
+                            "name": "price_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Quantity of this item to add to the subscription. If updating an existing item and not changing the quantity, you may omit quantity.",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "1"
+                            },
+                            "name": "quantity"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "Name of your paddle product.",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the product"
+                    "description": "List of items on this subscription. Only recurring items may be added. Send the complete list of items that should be on this subscription, including existing items to retain.",
+                    "displayName": "Items",
+                    "displayType": "array"
                 },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Short description for this product.",
-                    "displayName": "Description",
-                    "displayType": "text",
-                    "placeholder": "Enter the description of the product"
-                },
-                "name": "description"
+                "name": "items"
             },
             {
                 "meta": {
                     "options": [
                         {
-                            "label": "Custom",
-                            "value": "custom"
+                            "label": "Prorated – bill now",
+                            "value": "prorated_immediately"
                         },
                         {
-                            "label": "Standard",
-                            "value": "standard"
+                            "label": "Prorated – next bill",
+                            "value": "prorated_next_billing_period"
+                        },
+                        {
+                            "label": "Full – bill now",
+                            "value": "full_immediately"
+                        },
+                        {
+                            "label": "Full – next bill",
+                            "value": "full_next_billing_period"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "How Paddle should handle proration calculation for changes made to a subscription or its items. Required when making changes that impact billing. For automatically-collected subscriptions, responses may take longer than usual if a proration billing mode that collects for payment immediately is used.",
+                    "displayName": "Proration Billing Mode",
+                    "displayType": "select",
+                    "placeholder": "Select proration mode"
+                },
+                "name": "proration_billing_mode"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Prevent Change",
+                            "value": "prevent_change"
+                        },
+                        {
+                            "label": "Allow & Bill",
+                            "value": "allow_change_and_bill"
+                        },
+                        {
+                            "label": "Allow – No Bill",
+                            "value": "allow_change_without_billing"
                         }
                     ],
                     "htmlProps": {
@@ -642,88 +1468,171 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Type of item. Standard items are considered part of your catalog and are shown on the Paddle web app. Custom or Non-catalog item and not returned when listing or shown in the Paddle web app.",
-                    "displayName": "Type",
+                    "description": "Behavior if payment fails when applying changes.",
+                    "displayName": "On Payment Failure",
                     "displayType": "select",
-                    "placeholder": "Select a type"
+                    "placeholder": "Select behavior"
                 },
-                "name": "type"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Digital Goods",
-                            "value": "digital-goods"
-                        },
-                        {
-                            "label": "eBooks",
-                            "value": "ebooks"
-                        },
-                        {
-                            "label": "Implementation Services",
-                            "value": "implementation-services"
-                        },
-                        {
-                            "label": "Professional Services",
-                            "value": "professional-services"
-                        },
-                        {
-                            "label": "SAAS",
-                            "value": "saas"
-                        },
-                        {
-                            "label": "Software Programming Services",
-                            "value": "software-programming-services"
-                        },
-                        {
-                            "label": "Standard",
-                            "value": "standard"
-                        },
-                        {
-                            "label": "Training Services",
-                            "value": "training-services"
-                        },
-                        {
-                            "label": "Website Hosting",
-                            "value": "website-hosting"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Tax category for this product. Used for charging the correct rate of tax. Selected tax category must be enabled on your Paddle account.",
-                    "displayName": "Tax category",
-                    "displayType": "select",
-                    "placeholder": "Select a tax category"
-                },
-                "name": "tax_category"
+                "name": "on_payment_failure"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Image for this product. Included in the checkout and on some customer documents.",
-                    "displayName": "Image URL",
+                    "description": "Paddle ID of the customer that this subscription is for, prefixed with ctm_. Include to change the customer for a subscription.",
+                    "displayName": "Customer ID",
                     "displayType": "text",
-                    "placeholder": "Enter image URL"
+                    "placeholder": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "image_url"
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Paddle ID of the address that this subscription is for, prefixed with add_. Include to change the address for a subscription.",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "add_01gm302t81w94gyjpjpqypkzkf"
+                },
+                "name": "address_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Paddle ID of the business that this subscription is for, prefixed with biz_. Include to change the business for a subscription.",
+                    "displayName": "Business ID",
+                    "displayType": "text",
+                    "placeholder": "biz_01h84t5atqy345evgj07qyx4ag"
+                },
+                "name": "business_id"
             },
             {
                 "meta": {
                     "options": [
                         {
-                            "label": "Active",
-                            "value": "active"
+                            "label": "United States Dollar",
+                            "value": "USD"
                         },
                         {
-                            "label": "Archived",
-                            "value": "archived"
+                            "label": "Euro",
+                            "value": "EUR"
+                        },
+                        {
+                            "label": "Pound Sterling",
+                            "value": "GBP"
+                        },
+                        {
+                            "label": "Japanese Yen",
+                            "value": "JPY"
+                        },
+                        {
+                            "label": "Australian Dollar",
+                            "value": "AUD"
+                        },
+                        {
+                            "label": "Canadian Dollar",
+                            "value": "CAD"
+                        },
+                        {
+                            "label": "Swiss Franc",
+                            "value": "CHF"
+                        },
+                        {
+                            "label": "Hong Kong Dollar",
+                            "value": "HKD"
+                        },
+                        {
+                            "label": "Singapore Dollar",
+                            "value": "SGD"
+                        },
+                        {
+                            "label": "Swedish Krona",
+                            "value": "SEK"
+                        },
+                        {
+                            "label": "Argentine Peso",
+                            "value": "ARS"
+                        },
+                        {
+                            "label": "Brazilian Real",
+                            "value": "BRL"
+                        },
+                        {
+                            "label": "Chinese Yuan",
+                            "value": "CNY"
+                        },
+                        {
+                            "label": "Colombian Peso",
+                            "value": "COP"
+                        },
+                        {
+                            "label": "Czech Koruna",
+                            "value": "CZK"
+                        },
+                        {
+                            "label": "Danish Krone",
+                            "value": "DKK"
+                        },
+                        {
+                            "label": "Hungarian Forint",
+                            "value": "HUF"
+                        },
+                        {
+                            "label": "Israeli Shekel",
+                            "value": "ILS"
+                        },
+                        {
+                            "label": "Indian Rupee",
+                            "value": "INR"
+                        },
+                        {
+                            "label": "South Korean Won",
+                            "value": "KRW"
+                        },
+                        {
+                            "label": "Mexican Peso",
+                            "value": "MXN"
+                        },
+                        {
+                            "label": "Norwegian Krone",
+                            "value": "NOK"
+                        },
+                        {
+                            "label": "New Zealand Dollar",
+                            "value": "NZD"
+                        },
+                        {
+                            "label": "Polish Zloty",
+                            "value": "PLN"
+                        },
+                        {
+                            "label": "Russian Ruble",
+                            "value": "RUB"
+                        },
+                        {
+                            "label": "Thai Baht",
+                            "value": "THB"
+                        },
+                        {
+                            "label": "Turkish Lira",
+                            "value": "TRY"
+                        },
+                        {
+                            "label": "New Taiwan Dollar",
+                            "value": "TWD"
+                        },
+                        {
+                            "label": "Ukrainian Hryvnia",
+                            "value": "UAH"
+                        },
+                        {
+                            "label": "South African Rand",
+                            "value": "ZAR"
                         }
                     ],
                     "htmlProps": {
@@ -732,148 +1641,181 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Whether this entity can be used in Paddle.",
-                    "displayName": "Status",
+                    "description": "Supported three-letter ISO 4217 currency code. Include to change the currency that a subscription bills in. When changing collection_mode to manual, you may need to change currency code to USD, EUR, or GBP.",
+                    "displayName": "Currency Code",
                     "displayType": "select",
-                    "placeholder": "Select the status"
+                    "placeholder": "Select currency"
                 },
-                "name": "status"
+                "name": "currency_code"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ssZ",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "RFC 3339 datetime string of when this subscription is next scheduled to be billed. Include to change the next billing date.",
+                    "displayName": "Next Billed At",
+                    "displayType": "datetime",
+                    "placeholder": "2024-10-12T07:20:50.52Z"
+                },
+                "name": "next_billed_at"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Automatic",
+                            "value": "automatic"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "How payment is collected for transactions created for this subscription. automatic for checkout, manual for invoices.",
+                    "displayName": "Collection Mode",
+                    "displayType": "select",
+                    "placeholder": "Select collection mode"
+                },
+                "name": "collection_mode"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Unique Paddle ID for this discount, prefixed with dsc_.",
+                                "displayName": "Discount ID",
+                                "displayType": "text",
+                                "placeholder": "dsc_01gt218xfk7yztpvgmcazkes7x"
+                            },
+                            "name": "id"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Next Billing Period",
+                                        "value": "next_billing_period"
+                                    },
+                                    {
+                                        "label": "Immediately",
+                                        "value": "immediately"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "When this discount should take effect from.",
+                                "displayName": "Effective From",
+                                "displayType": "select",
+                                "placeholder": "Select when discount takes effect"
+                            },
+                            "name": "effective_from"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Details of the discount applied to this subscription. Include to add a discount to a subscription. null to remove a discount.",
+                    "displayName": "Discount",
+                    "displayType": "object"
+                },
+                "name": "discount"
+            },
+            {
+                "meta": {
+                    "value": "null",
+                    "readOnly": true,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Change that's scheduled to be applied to a subscription. When updating, you may only set to null to remove a scheduled change. Use the pause subscription, cancel subscription, and resume subscription operations to create scheduled changes.",
+                    "displayName": "Scheduled Change",
+                    "displayType": "text",
+                    "placeholder": "null (to remove scheduled changes)"
+                },
+                "name": "scheduled_change"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Next Transaction",
+                            "value": "next_transaction"
+                        },
+                        {
+                            "label": "Recurring Transaction Details",
+                            "value": "recurring_transaction_details"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Include related entities in the response.",
+                    "displayName": "Include",
+                    "displayType": "multiselect",
+                    "placeholder": "Select entities to include"
+                },
+                "name": "include"
             }
         ]
     },
-    "list": {
+    "activate_trial": {
         "definition": {
-            "qs": {
-                "id": "{{parameters.id}}",
-                "order_by": "{{parameters.order_by}}"
-            },
-            "url": "https://{{secrets.environment_url}}/products",
-            "method": "get",
+            "url": "https://{{secrets.environment_url}}/subscriptions/{{parameters.subscription_id}}/activate",
+            "method": "post",
             "headers": {
                 "Accept": "application/json",
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.api_key}}"
             },
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
+                    "message": "{{response.data}}"
                 },
                 "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "per_page": 200
-                },
-                "type": "url",
-                "default": {
-                    "next_url": null,
-                    "per_page": 200
-                },
-                "next_url": "{{response.data.meta.pagination.next}}",
-                "condition": "{{response.data.meta.pagination.has_more}} !== false"
             }
         },
         "parameters": [
             {
                 "meta": {
                     "validation": {
-                        "required": false
-                    },
-                    "description": "Return only the IDs specified. Use a comma-separated list to get multiple entities.",
-                    "displayName": "ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the product ID or comma-separated list."
-                },
-                "name": "id"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Created at (ascending)",
-                            "value": "created_at[ASC]"
-                        },
-                        {
-                            "label": "Created at (descending)",
-                            "value": "created_at[DESC]"
-                        },
-                        {
-                            "label": "Custom data (ascending)",
-                            "value": "custom_data[ASC]"
-                        },
-                        {
-                            "label": "Custom data (descending)",
-                            "value": "custom_data[DESC]"
-                        },
-                        {
-                            "label": "Description (ascending)",
-                            "value": "description[ASC]"
-                        },
-                        {
-                            "label": "Description (descending)",
-                            "value": "description[DESC]"
-                        },
-                        {
-                            "label": "ID (ascending)",
-                            "value": "id[ASC]"
-                        },
-                        {
-                            "label": "ID (descending)",
-                            "value": "id[DESC]"
-                        },
-                        {
-                            "label": "Image URL (ascending)",
-                            "value": "image_url[ASC]"
-                        },
-                        {
-                            "label": "Image URL (descending)",
-                            "value": "image_url[DESC]"
-                        },
-                        {
-                            "label": "Name (ascending)",
-                            "value": "name[ASC]"
-                        },
-                        {
-                            "label": "Name (descending)",
-                            "value": "name[DESC]"
-                        },
-                        {
-                            "label": "Status (ascending)",
-                            "value": "status[ASC]"
-                        },
-                        {
-                            "label": "Status (descending)",
-                            "value": "status[DESC]"
-                        },
-                        {
-                            "label": "Tax category (ascending)",
-                            "value": "tax_category[ASC]"
-                        },
-                        {
-                            "label": "Tax category (descending)",
-                            "value": "tax_category[DESC]"
-                        },
-                        {
-                            "label": "Updated at (ascending)",
-                            "value": "updated_at[ASC]"
-                        },
-                        {
-                            "label": "Updated at (descending)",
-                            "value": "updated_at[DESC]"
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Subscription ID is required."
                         }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
                     },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Order returned entities by the specified field and direction ([ASC] or [DESC]). For example, ?order_by=id[ASC].",
-                    "displayName": "Order By",
-                    "displayType": "select",
-                    "placeholder": "Select a response entity"
+                    "description": "Paddle ID of the trialing subscription to activate.",
+                    "displayName": "Subscription ID",
+                    "displayType": "text",
+                    "placeholder": "sub_01hv6y1jedq4p1n0yqn5ba3ky4"
                 },
-                "name": "order_by"
+                "name": "subscription_id"
             }
         ]
     }

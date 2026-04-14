@@ -34,9 +34,62 @@
             "name": "operation"
         }
     ],
-    "pdf_to_csv": {
+    "pdf_split_by_text": {
         "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/csv",
+            "url": "https://api.pdf.co/v1/pdf/split2",
+            "body": {
+                "url": "{{parameters.url}}",
+                "searchString": "{{parameters.searchString}}"
+            },
+            "method": "post",
+            "headers": {
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "PDF URL is required"
+                        }
+                    },
+                    "description": "Split a PDF into multiple PDF files using page indexes or page ranges.",
+                    "displayName": "PDF URL",
+                    "displayType": "url",
+                    "placeholder": "Enter the URL of the PDF file. If you want to split multiple files, you can add multiple URLs using comma separated."
+                },
+                "name": "url"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Text must be a string and is required."
+                        }
+                    },
+                    "description": "Enter the Text to search for on pages. Must be a string.",
+                    "displayName": "Text Search",
+                    "displayType": "text",
+                    "placeholder": "Enter the Text to search for on pages. Must be a string."
+                },
+                "name": "searchString"
+            }
+        ]
+    },
+    "pdf_split_by_pages": {
+        "definition": {
+            "url": "https://api.pdf.co/v1/pdf/split",
             "body": {
                 "url": "{{parameters.url}}"
             },
@@ -62,343 +115,10 @@
                             "errorMsg": "PDF URL is required"
                         }
                     },
-                    "description": "Enter the URL of the PDF file you want to convert.",
+                    "description": "Enter the URL of the PDF file you want to split.",
                     "displayName": "PDF URL",
                     "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_json": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/json2",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_excel": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/xls",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_html": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/html",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.errorCode}}",
-                    "message": "Invalid PDF URL.Please provide the correct PDF URL."
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_text": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/text",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_webp": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/webp",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_xml": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/xml",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_jpg": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/jpg",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_png": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/png",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
-                },
-                "name": "url"
-            }
-        ]
-    },
-    "pdf_to_tiff": {
-        "definition": {
-            "url": "https://api.pdf.co/v1/pdf/convert/to/tiff",
-            "body": {
-                "url": "{{parameters.url}}"
-            },
-            "method": "post",
-            "headers": {
-                "x-api-key": "{{secrets.api_key}}",
-                "Content-Type": "application/json"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.data.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "PDF URL is required"
-                        }
-                    },
-                    "description": "Enter the URL of the PDF file you want to convert.",
-                    "displayName": "PDF URL",
-                    "displayType": "url",
-                    "placeholder": "Enter the URL of the PDF file"
+                    "placeholder": "Enter the URL of the PDF file you want to split."
                 },
                 "name": "url"
             }

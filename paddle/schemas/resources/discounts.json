@@ -46,29 +46,22 @@
     ],
     "create": {
         "definition": {
-            "url": "https://{{secrets.environment_url}}/prices",
+            "url": "https://{{secrets.environment_url}}/discounts",
             "body": {
-                "name": "{{parameters.name}}",
+                "code": "{{parameters.code}}",
+                "mode": "{{parameters.mode}}",
                 "type": "{{parameters.type}}",
-                "quantity": {
-                    "maximum": "{{parameters.quantity_maximum}}",
-                    "minimum": "{{parameters.quantity_minimum}}"
-                },
-                "tax_mode": "{{parameters.tax_mode}}",
-                "product_id": "{{parameters.product_id}}",
-                "unit_price": {
-                    "amount": "{{parameters.unit_price_amount}}",
-                    "currency_code": "{{parameters.unit_price_currency_code}}"
-                },
+                "recur": "{{parameters.recur}}",
+                "amount": "{{parameters.amount}}",
+                "expires_at": "{{parameters.expires_at}}",
+                "custom_data": "{{parameters.custom_data}}",
                 "description": "{{parameters.description}}",
-                "trial_period": {
-                    "interval": "{{parameters.trial_period_interval}}",
-                    "frequency": "{{parameters.trial_period_frequency}}"
-                },
-                "billing_cycle": {
-                    "interval": "{{parameters.billing_cycle_interval}}",
-                    "frequency": "{{parameters.billing_cycle_frequency}}"
-                }
+                "restrict_to": "{{parameters.restrict_to}}",
+                "usage_limit": "{{parameters.usage_limit}}",
+                "currency_code": "{{parameters.currency_code}}",
+                "discount_group_id": "{{parameters.discount_group_id}}",
+                "enabled_for_checkout": "{{parameters.enabled_for_checkout}}",
+                "maximum_recurring_intervals": "{{parameters.maximum_recurring_intervals}}"
             },
             "method": "post",
             "headers": {
@@ -90,15 +83,15 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Name of the price is required."
+                            "errorMsg": "Discount amount is required."
                         }
                     },
-                    "description": "Name of this price, shown to customers at checkout and on invoices.",
-                    "displayName": "Name",
+                    "description": "Amount to discount by. For percentage discounts, must be an amount between 0.01 and 100. For flat and flat_per_seat discounts, amount in the lowest denomination for a currency.",
+                    "displayName": "Amount",
                     "displayType": "text",
-                    "placeholder": "Enter the name of the price"
+                    "placeholder": "10"
                 },
-                "name": "name"
+                "name": "amount"
             },
             {
                 "meta": {
@@ -108,42 +101,96 @@
                             "errorMsg": "Description is required."
                         }
                     },
-                    "description": "Internal description for this price, not shown to customers.",
+                    "description": "Short description for this discount for your reference. Not shown to customers.",
                     "displayName": "Description",
                     "displayType": "text",
-                    "placeholder": "Enter the description of the price"
+                    "placeholder": "Enter discount description"
                 },
                 "name": "description"
             },
             {
                 "meta": {
+                    "options": [
+                        {
+                            "label": "Flat",
+                            "value": "flat"
+                        },
+                        {
+                            "label": "Flat per seat",
+                            "value": "flat_per_seat"
+                        },
+                        {
+                            "label": "Percentage",
+                            "value": "percentage"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Product ID is required."
+                            "errorMsg": "Discount type is required."
                         }
                     },
-                    "description": "Paddle ID for the product that this price is for, prefixed with pro_.",
-                    "displayName": "Product ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the product ID"
+                    "description": "Type of discount. Determines how this discount impacts the checkout or transaction total.",
+                    "displayName": "Type",
+                    "displayType": "select",
+                    "placeholder": "Select discount type"
                 },
-                "name": "product_id"
+                "name": "type"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Whether this discount can be redeemed by customers at checkout (true) or not (false).",
+                    "displayName": "Enabled for Checkout",
+                    "displayType": "toggle",
+                    "placeholder": "true"
+                },
+                "name": "enabled_for_checkout"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Amount is required."
-                        }
+                        "required": false
                     },
-                    "description": "Amount in the lowest denomination for the currency, e.g. 10 USD = 1000 (cents).",
-                    "displayName": "Amount",
-                    "displayType": "number",
-                    "placeholder": "Enter the amount"
+                    "description": "Unique code that customers can use to redeem this discount at checkout. Use letters and numbers only, up to 32 characters. Not case-sensitive. If omitted and enabled_for_checkout is true, Paddle generates a random 10-character code.",
+                    "displayName": "Code",
+                    "displayType": "text",
+                    "placeholder": "BF10OFF"
                 },
-                "name": "unit_price_amount"
+                "name": "code"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Standard",
+                            "value": "standard"
+                        },
+                        {
+                            "label": "Custom",
+                            "value": "custom"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Discount mode. Standard discounts are considered part of your catalog and are shown in the Paddle dashboard. If omitted, defaults to standard.",
+                    "displayName": "Mode",
+                    "displayType": "select",
+                    "placeholder": "standard"
+                },
+                "name": "mode"
             },
             {
                 "meta": {
@@ -273,231 +320,177 @@
                         "allowDynamic": true
                     },
                     "validation": {
-                        "required": true,
+                        "required": false,
                         "requiredDetail": {
-                            "errorMsg": "Currency code is required."
+                            "errorMsg": "Currency code is required for flat and flat_per_seat discount types."
                         }
                     },
-                    "description": "Select a supported three-letter ISO 4217 currency code.",
+                    "description": "Supported three-letter ISO 4217 currency code. Required where discount type is flat or flat_per_seat.",
                     "displayName": "Currency Code",
-                    "displayType": "select",
-                    "placeholder": "Select a currency code"
+                    "displayType": "autocomplete",
+                    "placeholder": "Select currency"
                 },
-                "name": "unit_price_currency_code"
+                "name": "currency_code"
             },
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "Day",
-                            "value": "day"
-                        },
-                        {
-                            "label": "Week",
-                            "value": "week"
-                        },
-                        {
-                            "label": "Month",
-                            "value": "month"
-                        },
-                        {
-                            "label": "Year",
-                            "value": "year"
-                        }
-                    ],
                     "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
                         "required": false
                     },
-                    "description": "How often this price should be charged. Empty if price is non-recurring (one-time).",
-                    "displayName": "Billing cycle interval",
-                    "displayType": "select",
-                    "placeholder": "Select an interval"
+                    "description": "Whether this discount applies for multiple subscription billing periods (true) or not (false). If omitted, defaults to false.",
+                    "displayName": "Recur",
+                    "displayType": "toggle",
+                    "placeholder": "false"
                 },
-                "name": "billing_cycle_interval"
+                "name": "recur"
             },
             {
                 "meta": {
                     "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Billing cycle frequency is required if interval is given"
-                        }
+                        "required": false
                     },
-                    "description": "How often this price should be charged. Empty if price is non-recurring (one-time).",
-                    "displayName": "Billing cycle frequency",
+                    "description": "Number of subscription billing periods that this discount recurs for. Requires recur. null if this discount recurs forever.",
+                    "displayName": "Maximum Recurring Intervals",
                     "displayType": "number",
-                    "placeholder": "Enter the frequency",
+                    "placeholder": "Enter number of periods (leave empty for forever)",
                     "dependencies": {
                         "conditions": [
                             {
-                                "field": "billing_cycle_interval",
-                                "value": 1,
-                                "operator": "NOT_EMPTY"
+                                "field": "recur",
+                                "value": true,
+                                "operator": "EQUALS"
                             }
                         ]
                     }
                 },
-                "name": "billing_cycle_frequency"
+                "name": "maximum_recurring_intervals"
             },
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "Day",
-                            "value": "day"
-                        },
-                        {
-                            "label": "Week",
-                            "value": "week"
-                        },
-                        {
-                            "label": "Month",
-                            "value": "month"
-                        },
-                        {
-                            "label": "Year",
-                            "value": "year"
-                        }
-                    ],
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Maximum number of times this discount can be redeemed. This is an overall limit for this discount, rather than a per-customer limit. null if this discount can be redeemed an unlimited amount of times.",
+                    "displayName": "Usage Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter usage limit (leave empty for unlimited)"
+                },
+                "name": "usage_limit"
+            },
+            {
+                "meta": {
                     "htmlProps": {
                         "allowDynamic": true
                     },
                     "validation": {
                         "required": false
                     },
-                    "description": "Trial period for the product related to this price. The billing cycle begins once the trial period is over. Empty for no trial period. Requires billing cycle.",
-                    "displayName": "Trial period interval",
-                    "displayType": "select",
-                    "placeholder": "Select an interval"
+                    "description": "Product or price IDs that this discount is for. When including a product ID, all prices for that product can be discounted. null if this discount applies to all products and prices.",
+                    "displayName": "Restrict To",
+                    "displayType": "multitext",
+                    "placeholder": "Enter product or price IDs"
                 },
-                "name": "trial_period_interval"
+                "name": "restrict_to"
             },
             {
                 "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Trial period frequency is required if interval is given"
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ss[Z]",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
                         }
                     },
-                    "description": "Trial period for the product related to this price. The billing cycle begins once the trial period is over. Empty for no trial period. Requires billing cycle.",
-                    "displayName": "Trial period frequency",
-                    "displayType": "number",
-                    "placeholder": "Enter the frequency",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "trial_period_interval",
-                                "value": 1,
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "RFC 3339 datetime string of when this discount expires. Discount can no longer be redeemed after this date has elapsed. null if this discount can be redeemed forever.",
+                    "displayName": "Expires At",
+                    "displayType": "datetime",
+                    "placeholder": "2024-12-03T00:00:00Z"
                 },
-                "name": "trial_period_frequency"
+                "name": "expires_at"
             },
             {
                 "meta": {
-                    "options": [
+                    "children": [
                         {
-                            "label": "Standard",
-                            "value": "standard"
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
                         },
                         {
-                            "label": "Custom",
-                            "value": "custom"
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
                         }
                     ],
+                    "readOnly": false,
                     "htmlProps": {
+                        "allowAdd": true,
                         "allowDynamic": true
                     },
                     "validation": {
                         "required": false
                     },
-                    "description": "Type of item. Standard items are considered part of your catalog and are shown on the Paddle web app. Custom or non-catalog items are typically created for a specific transaction or subscription and not returned when listing or shown in the Paddle web app.",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Select a type"
+                    "description": "Your own structured key-value data.",
+                    "displayName": "Custom Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter custom data"
                 },
-                "name": "type"
+                "name": "custom_data"
             },
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "Account setting",
-                            "value": "account_setting"
-                        },
-                        {
-                            "label": "External",
-                            "value": "external"
-                        },
-                        {
-                            "label": "Internal",
-                            "value": "internal"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "How tax is calculated for this price.",
-                    "displayName": "Tax mode",
-                    "displayType": "select",
-                    "placeholder": "Select a tax mode"
+                    "description": "Paddle ID for the discount group related to this discount, prefixed with dsg_. null if not in a discount group.",
+                    "displayName": "Discount Group ID",
+                    "displayType": "text",
+                    "placeholder": "dsg_01js2gqehzccfkywgx1jk2mtsp"
                 },
-                "name": "tax_mode"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": false
-                    },
-                    "description": "Minimum quantity of the product related to this price that can be bought. Required if maximum set.",
-                    "displayName": "Minimum Quantity",
-                    "displayType": "number",
-                    "placeholder": "Enter minimum quantity"
-                },
-                "name": "quantity_minimum"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Maximum quantity is required if minimum is given."
-                        }
-                    },
-                    "description": "Maximum quantity of the product related to this price that can be bought. Required if minimum set.",
-                    "displayName": "Maximum Quantity",
-                    "displayType": "number",
-                    "placeholder": "Enter maximum quantity",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "quantity_minimum",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "quantity_maximum"
+                "name": "discount_group_id"
             }
         ]
     },
-    "get": {
+    "update": {
         "definition": {
-            "url": "https://{{secrets.environment_url}}/prices/{{parameters.price_id}}",
-            "method": "get",
+            "url": "https://{{secrets.environment_url}}/discounts/{{parameters.discount_id}}",
+            "body": {
+                "code": "{{parameters.code}}",
+                "mode": "{{parameters.mode}}",
+                "type": "{{parameters.type}}",
+                "recur": "{{parameters.recur}}",
+                "amount": "{{parameters.amount}}",
+                "status": "{{parameters.status}}",
+                "expires_at": "{{parameters.expires_at}}",
+                "custom_data": "{{parameters.custom_data}}",
+                "description": "{{parameters.description}}",
+                "restrict_to": "{{parameters.restrict_to}}",
+                "usage_limit": "{{parameters.usage_limit}}",
+                "currency_code": "{{parameters.currency_code}}",
+                "discount_group_id": "{{parameters.discount_group_id}}",
+                "enabled_for_checkout": "{{parameters.enabled_for_checkout}}",
+                "maximum_recurring_intervals": "{{parameters.maximum_recurring_intervals}}"
+            },
+            "method": "patch",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -517,172 +510,15 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Price ID is required"
+                            "errorMsg": "Discount ID is required"
                         }
                     },
-                    "description": "Paddle ID of the price entity to work with.",
-                    "displayName": "Price ID",
+                    "description": "Paddle ID of the discount entity to work with.",
+                    "displayName": "Discount ID",
                     "displayType": "text",
-                    "placeholder": "Enter the price ID"
+                    "placeholder": "Enter the discount ID"
                 },
-                "name": "price_id"
-            }
-        ]
-    },
-    "update": {
-        "definition": {
-            "url": "https://{{secrets.environment_url}}/products/{{parameters.product_id}}",
-            "body": {
-                "name": "{{parameters.name}}",
-                "type": "{{parameters.type}}",
-                "status": "{{parameters.status}}",
-                "image_url": "{{parameters.image_url}}",
-                "description": "{{parameters.description}}",
-                "tax_category": "{{parameters.tax_category}}"
-            },
-            "method": "patch",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Product ID is required."
-                        }
-                    },
-                    "description": "Paddle ID of the product entity to work with.",
-                    "displayName": "Product ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the product ID"
-                },
-                "name": "product_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Name of your paddle product.",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the product"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Short description for this product.",
-                    "displayName": "Description",
-                    "displayType": "text",
-                    "placeholder": "Enter the description of the product"
-                },
-                "name": "description"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Custom",
-                            "value": "custom"
-                        },
-                        {
-                            "label": "Standard",
-                            "value": "standard"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Type of item. Standard items are considered part of your catalog and are shown on the Paddle web app. Custom or Non-catalog item and not returned when listing or shown in the Paddle web app.",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Select a type"
-                },
-                "name": "type"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Digital Goods",
-                            "value": "digital-goods"
-                        },
-                        {
-                            "label": "eBooks",
-                            "value": "ebooks"
-                        },
-                        {
-                            "label": "Implementation Services",
-                            "value": "implementation-services"
-                        },
-                        {
-                            "label": "Professional Services",
-                            "value": "professional-services"
-                        },
-                        {
-                            "label": "SAAS",
-                            "value": "saas"
-                        },
-                        {
-                            "label": "Software Programming Services",
-                            "value": "software-programming-services"
-                        },
-                        {
-                            "label": "Standard",
-                            "value": "standard"
-                        },
-                        {
-                            "label": "Training Services",
-                            "value": "training-services"
-                        },
-                        {
-                            "label": "Website Hosting",
-                            "value": "website-hosting"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Tax category for this product. Used for charging the correct rate of tax. Selected tax category must be enabled on your Paddle account.",
-                    "displayName": "Tax category",
-                    "displayType": "select",
-                    "placeholder": "Select a tax category"
-                },
-                "name": "tax_category"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Image for this product. Included in the checkout and on some customer documents.",
-                    "displayName": "Image URL",
-                    "displayType": "text",
-                    "placeholder": "Enter image URL"
-                },
-                "name": "image_url"
+                "name": "discount_id"
             },
             {
                 "meta": {
@@ -705,9 +541,435 @@
                     "description": "Whether this entity can be used in Paddle.",
                     "displayName": "Status",
                     "displayType": "select",
-                    "placeholder": "Select the status"
+                    "placeholder": "Select a status"
                 },
                 "name": "status"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Short description for this discount for your reference. Not shown to customers.",
+                    "displayName": "Description",
+                    "displayType": "text",
+                    "placeholder": "Enter a discount description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Whether this discount can be redeemed by customers at checkout.",
+                    "displayName": "Enabled for Checkout",
+                    "displayType": "toggle",
+                    "placeholder": "Select if enabled for checkout"
+                },
+                "name": "enabled_for_checkout"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Unique code that customers can use to redeem this discount at checkout. Not case-sensitive.",
+                    "displayName": "Code",
+                    "displayType": "text",
+                    "placeholder": "Enter a discount code"
+                },
+                "name": "code"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Percentage",
+                            "value": "percentage"
+                        },
+                        {
+                            "label": "Flat",
+                            "value": "flat"
+                        },
+                        {
+                            "label": "Flat per seat",
+                            "value": "flat_per_seat"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Type of discount. Determines how this discount impacts the checkout or transaction total.",
+                    "displayName": "Type",
+                    "displayType": "select",
+                    "placeholder": "Select a discount type"
+                },
+                "name": "type"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Standard",
+                            "value": "standard"
+                        },
+                        {
+                            "label": "Promo",
+                            "value": "promo"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Discount mode. Standard discounts are considered part of your catalog and are shown in the Paddle dashboard.",
+                    "displayName": "Mode",
+                    "displayType": "select",
+                    "placeholder": "Select a mode"
+                },
+                "name": "mode"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Amount to discount by. For percentage discounts, must be an amount between 0.01 and 100. For flat and flat_per_seat discounts, amount in the lowest denomination for a currency.",
+                    "displayName": "Amount",
+                    "displayType": "text",
+                    "placeholder": "Enter amount"
+                },
+                "name": "amount"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "US Dollar (USD)",
+                            "value": "USD"
+                        },
+                        {
+                            "label": "British Pound (GBP)",
+                            "value": "GBP"
+                        },
+                        {
+                            "label": "Euro (EUR)",
+                            "value": "EUR"
+                        },
+                        {
+                            "label": "Australian Dollar (AUD)",
+                            "value": "AUD"
+                        },
+                        {
+                            "label": "Canadian Dollar (CAD)",
+                            "value": "CAD"
+                        },
+                        {
+                            "label": "Japanese Yen (JPY)",
+                            "value": "JPY"
+                        },
+                        {
+                            "label": "Swiss Franc (CHF)",
+                            "value": "CHF"
+                        },
+                        {
+                            "label": "Hong Kong Dollar (HKD)",
+                            "value": "HKD"
+                        },
+                        {
+                            "label": "Singapore Dollar (SGD)",
+                            "value": "SGD"
+                        },
+                        {
+                            "label": "Swedish Krona (SEK)",
+                            "value": "SEK"
+                        },
+                        {
+                            "label": "Norwegian Krone (NOK)",
+                            "value": "NOK"
+                        },
+                        {
+                            "label": "New Zealand Dollar (NZD)",
+                            "value": "NZD"
+                        },
+                        {
+                            "label": "Mexican Peso (MXN)",
+                            "value": "MXN"
+                        },
+                        {
+                            "label": "Polish Zloty (PLN)",
+                            "value": "PLN"
+                        },
+                        {
+                            "label": "Danish Krone (DKK)",
+                            "value": "DKK"
+                        },
+                        {
+                            "label": "Czech Koruna (CZK)",
+                            "value": "CZK"
+                        },
+                        {
+                            "label": "South African Rand (ZAR)",
+                            "value": "ZAR"
+                        },
+                        {
+                            "label": "Chinese Yuan (CNY)",
+                            "value": "CNY"
+                        },
+                        {
+                            "label": "Brazilian Real (BRL)",
+                            "value": "BRL"
+                        },
+                        {
+                            "label": "South Korean Won (KRW)",
+                            "value": "KRW"
+                        },
+                        {
+                            "label": "Indian Rupee (INR)",
+                            "value": "INR"
+                        },
+                        {
+                            "label": "Argentine Peso (ARS)",
+                            "value": "ARS"
+                        },
+                        {
+                            "label": "Egyptian Pound (EGP)",
+                            "value": "EGP"
+                        },
+                        {
+                            "label": "Israeli New Shekel (ILS)",
+                            "value": "ILS"
+                        },
+                        {
+                            "label": "Turkish Lira (TRY)",
+                            "value": "TRY"
+                        },
+                        {
+                            "label": "United Arab Emirates Dirham (AED)",
+                            "value": "AED"
+                        },
+                        {
+                            "label": "Hungarian Forint (HUF)",
+                            "value": "HUF"
+                        },
+                        {
+                            "label": "Taiwan Dollar (TWD)",
+                            "value": "TWD"
+                        },
+                        {
+                            "label": "Ukrainian Hryvnia (UAH)",
+                            "value": "UAH"
+                        },
+                        {
+                            "label": "Malaysian Ringgit (MYR)",
+                            "value": "MYR"
+                        },
+                        {
+                            "label": "Thai Baht (THB)",
+                            "value": "THB"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Supported three-letter ISO 4217 currency code. Required where discount type is flat or flat_per_seat.",
+                    "displayName": "Currency Code",
+                    "displayType": "select",
+                    "placeholder": "Select currency"
+                },
+                "name": "currency_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Whether this discount applies for multiple subscription billing periods.",
+                    "displayName": "Recurring",
+                    "displayType": "toggle",
+                    "placeholder": "Select if recurring"
+                },
+                "name": "recur"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "min": 1,
+                        "required": false
+                    },
+                    "description": "Number of subscription billing periods that this discount recurs for. Requires recur. null if this discount recurs forever.",
+                    "displayName": "Maximum Recurring Intervals",
+                    "displayType": "number",
+                    "placeholder": "Enter number of intervals"
+                },
+                "name": "maximum_recurring_intervals"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "min": 1,
+                        "required": false
+                    },
+                    "description": "Maximum number of times this discount can be redeemed. This is an overall limit for this discount, rather than a per-customer limit. null if this discount can be redeemed an unlimited amount of times.",
+                    "displayName": "Usage Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter usage limit"
+                },
+                "name": "usage_limit"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false,
+                        "requiredDetail": {
+                            "errorMsg": "Product or Price ID is required"
+                        }
+                    },
+                    "description": "Product or price IDs that this discount is for. When including a product ID, all prices for that product can be discounted. null if this discount applies to all products and prices.",
+                    "displayName": "Restrict To",
+                    "displayType": "multitext",
+                    "placeholder": "Enter product or price IDs"
+                },
+                "name": "restrict_to"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DDTHH:mm:ss[Z]",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "RFC 3339 datetime string of when this discount expires. Discount can no longer be redeemed after this date has elapsed. null if this discount can be redeemed forever.",
+                    "displayName": "Expires At",
+                    "displayType": "datetime",
+                    "placeholder": "2024-12-03T00:00:00Z"
+                },
+                "name": "expires_at"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Your own structured key-value data.",
+                    "displayName": "Custom Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter custom data"
+                },
+                "name": "custom_data"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Paddle ID for the discount group related to this discount, prefixed with dsg_.",
+                    "displayName": "Discount Group ID",
+                    "displayType": "text",
+                    "placeholder": "Enter discount group ID (e.g., dsg_01gv5kpg05xp104ek2fmgjwttf)"
+                },
+                "name": "discount_group_id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "qs": {
+                "include": "{{parameters.include}}"
+            },
+            "url": "https://{{secrets.environment_url}}/discounts/{{parameters.discount_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Discount ID is required"
+                        }
+                    },
+                    "description": "Paddle ID of the discount entity to work with.",
+                    "displayName": "Discount ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the discount ID"
+                },
+                "name": "discount_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Include related entities in the response. Use a comma-separated list to specify multiple entities.",
+                    "displayName": "Include",
+                    "displayType": "text",
+                    "placeholder": "Enter comma-separated entities to include"
+                },
+                "name": "include"
             }
         ]
     },
@@ -715,9 +977,14 @@
         "definition": {
             "qs": {
                 "id": "{{parameters.id}}",
-                "order_by": "{{parameters.order_by}}"
+                "code": "{{parameters.code}}",
+                "mode": "{{parameters.mode}}",
+                "status": "{{parameters.status}}",
+                "include": "{{parameters.include}}",
+                "order_by": "{{parameters.order_by}}",
+                "discount_group_id": "{{parameters.discount_group_id}}"
             },
-            "url": "https://{{secrets.environment_url}}/products",
+            "url": "https://{{secrets.environment_url}}/discounts",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -726,18 +993,18 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
+                    "message": "{{response.data}}"
                 },
                 "output": "{{response.data.data}}"
             },
             "pagination": {
                 "qs": {
-                    "per_page": 200
+                    "per_page": 50
                 },
                 "type": "url",
                 "default": {
                     "next_url": null,
-                    "per_page": 200
+                    "per_page": 50
                 },
                 "next_url": "{{response.data.meta.pagination.next}}",
                 "condition": "{{response.data.meta.pagination.has_more}} !== false"
@@ -749,40 +1016,28 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "Return only the IDs specified. Use a comma-separated list to get multiple entities.",
-                    "displayName": "ID",
+                    "description": "Return entities that match the discount code. Use a comma-separated list to specify multiple discount codes.",
+                    "displayName": "Discount Code",
                     "displayType": "text",
-                    "placeholder": "Enter the product ID or comma-separated list."
+                    "placeholder": "Enter the discount code or comma-separated list."
+                },
+                "name": "code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return only the IDs specified. Use a comma-separated list to get multiple entities.",
+                    "displayName": "Discount ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the discount ID or comma-separated list."
                 },
                 "name": "id"
             },
             {
                 "meta": {
                     "options": [
-                        {
-                            "label": "Created at (ascending)",
-                            "value": "created_at[ASC]"
-                        },
-                        {
-                            "label": "Created at (descending)",
-                            "value": "created_at[DESC]"
-                        },
-                        {
-                            "label": "Custom data (ascending)",
-                            "value": "custom_data[ASC]"
-                        },
-                        {
-                            "label": "Custom data (descending)",
-                            "value": "custom_data[DESC]"
-                        },
-                        {
-                            "label": "Description (ascending)",
-                            "value": "description[ASC]"
-                        },
-                        {
-                            "label": "Description (descending)",
-                            "value": "description[DESC]"
-                        },
                         {
                             "label": "ID (ascending)",
                             "value": "id[ASC]"
@@ -792,44 +1047,12 @@
                             "value": "id[DESC]"
                         },
                         {
-                            "label": "Image URL (ascending)",
-                            "value": "image_url[ASC]"
+                            "label": "Created At (ascending)",
+                            "value": "created_at[ASC]"
                         },
                         {
-                            "label": "Image URL (descending)",
-                            "value": "image_url[DESC]"
-                        },
-                        {
-                            "label": "Name (ascending)",
-                            "value": "name[ASC]"
-                        },
-                        {
-                            "label": "Name (descending)",
-                            "value": "name[DESC]"
-                        },
-                        {
-                            "label": "Status (ascending)",
-                            "value": "status[ASC]"
-                        },
-                        {
-                            "label": "Status (descending)",
-                            "value": "status[DESC]"
-                        },
-                        {
-                            "label": "Tax category (ascending)",
-                            "value": "tax_category[ASC]"
-                        },
-                        {
-                            "label": "Tax category (descending)",
-                            "value": "tax_category[DESC]"
-                        },
-                        {
-                            "label": "Updated at (ascending)",
-                            "value": "updated_at[ASC]"
-                        },
-                        {
-                            "label": "Updated at (descending)",
-                            "value": "updated_at[DESC]"
+                            "label": "Created At (descending)",
+                            "value": "created_at[DESC]"
                         }
                     ],
                     "htmlProps": {
@@ -844,6 +1067,93 @@
                     "placeholder": "Select a response entity"
                 },
                 "name": "order_by"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Active",
+                            "value": "active"
+                        },
+                        {
+                            "label": "Archived",
+                            "value": "archived"
+                        },
+                        {
+                            "label": "Expired",
+                            "value": "expired"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities that match the specified status. Use a comma-separated list to specify multiple status values.",
+                    "displayName": "Status",
+                    "displayType": "multiselect",
+                    "placeholder": "Select status"
+                },
+                "name": "status"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Standard",
+                            "value": "standard"
+                        },
+                        {
+                            "label": "Custom",
+                            "value": "custom"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities that match the specified mode.",
+                    "displayName": "Mode",
+                    "displayType": "select",
+                    "placeholder": "Select mode"
+                },
+                "name": "mode"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities related to the specified discount group. Use a comma-separated list to specify multiple discount group IDs.",
+                    "displayName": "Discount Group ID",
+                    "displayType": "text",
+                    "placeholder": "dsg_01gsz8z1q1n00f12qt82y31smh,dsg_01gsz8z1q1n00f12qt82y31abc"
+                },
+                "name": "discount_group_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Discount Group",
+                            "value": "discount_group"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Include related entities in the response. Use a comma-separated list to specify multiple entities.",
+                    "displayName": "Include",
+                    "displayType": "multiselect",
+                    "placeholder": "Select entities to include"
+                },
+                "name": "include"
             }
         ]
     }

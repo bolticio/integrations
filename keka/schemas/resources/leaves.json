@@ -72,15 +72,14 @@
         },
         "parameters": []
     },
-    "getallattendancerecords": {
+    "getallleavetypes": {
         "definition": {
             "qs": {
-                "to": "{{parameters.to}}",
-                "from": "{{parameters.from}}",
                 "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}"
+                "pageNumber": "{{parameters.pageNumber}}",
+                "leaveTypeIds": "{{parameters.leaveTypeIds}}"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/attendance",
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leavetypes",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -99,22 +98,11 @@
                     "validation": {
                         "required": false
                     },
-                    "description": "If <b>To</b> and <b>From</b> date are not provided then it will give last 30 days record.",
-                    "displayName": "From date",
-                    "displayType": "date"
+                    "description": "Please provide leave type id(s) in comma separated format if multiple",
+                    "displayName": "Leave Type Id(s)",
+                    "displayType": "multitext"
                 },
-                "name": "from"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "If <b>To</b> and <b>From</b> date are not provided then it will give last 30 days record.",
-                    "displayName": "To date",
-                    "displayType": "date"
-                },
-                "name": "to"
+                "name": "leaveTypeIds"
             },
             {
                 "meta": {
@@ -142,59 +130,13 @@
             }
         ]
     },
-    "getalldepartments": {
-        "definition": {
-            "qs": {
-                "departmentIds": "{{parameters.departmentIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/departments",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 20
-                },
-                "type": "url",
-                "default": {
-                    "limit": 20,
-                    "next_url": null
-                },
-                "next_url": "{{response.data.nextPage}}",
-                "condition": "{{response.data.nextPage}} !== null"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Please provide a department id",
-                    "displayName": "Department ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a department id"
-                },
-                "name": "departmentIds"
-            }
-        ]
-    },
-    "getallcaptureschemes": {
+    "geteveryemployeeleavebalances": {
         "definition": {
             "qs": {
                 "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "captureschemeIds": "{{parameters.captureschemeIds}}"
+                "pageNumber": "{{parameters.pageNumber}}"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/capturescheme",
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leavebalance",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -212,14 +154,60 @@
             {
                 "meta": {
                     "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page number to perform pagination",
+                    "displayName": "Page Number",
+                    "displayType": "text",
+                    "placeholder": "Enter a page number"
+                },
+                "name": "pageNumber"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please provide a page size to perform pagination",
+                    "displayName": "Page Size",
+                    "displayType": "text",
+                    "placeholder": "Enter a page size"
+                },
+                "name": "pageSize"
+            }
+        ]
+    },
+    "getallleaveplans": {
+        "definition": {
+            "qs": {
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "leavePlanIds": "{{parameters.leavePlanIds}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leaveplans",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
                         "required": false
                     },
-                    "description": "Please provide a capture scheme id",
-                    "displayName": "Capture Scheme ID",
-                    "displayType": "text",
-                    "placeholder": "Enter capture scheme id"
+                    "description": "Please provide leave plan id(s) in comma separated format if multiple.",
+                    "displayName": "Leave Plan Id(s)",
+                    "displayType": "multitext"
                 },
-                "name": "captureschemeIds"
+                "name": "leavePlanIds"
             },
             {
                 "meta": {
@@ -247,17 +235,21 @@
             }
         ]
     },
-    "getmultipleemployeeattendancerecords": {
+    "createleaverequest": {
         "definition": {
-            "qs": {
-                "to": "{{parameters.to}}",
-                "from": "{{parameters.from}}",
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "employeeIds": "{{parameters.employeeIds}}"
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leaverequests",
+            "body": {
+                "note": "{{parameters.note}}",
+                "reason": "{{parameters.reason}}",
+                "toDate": "{{parameters.toDate}}",
+                "fromDate": "{{parameters.fromDate}}",
+                "toSession": "{{parameters.toSession}}",
+                "employeeId": "{{parameters.employeeId}}",
+                "fromSession": "{{parameters.fromSession}}",
+                "leaveTypeId": "{{parameters.leaveTypeId}}",
+                "requestedBy": "{{parameters.requestedBy}}"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/attendance",
-            "method": "get",
+            "method": "post",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
@@ -275,14 +267,208 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Employee ID(s) is a required field"
+                            "errorMsg": "Employee ID is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide an employee id",
+                    "displayName": "Employee ID",
+                    "displayType": "text"
+                },
+                "name": "employeeId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please provide an id of a requesting employee"
+                        }
+                    },
+                    "description": "Please provide id of an employee who is requesting for leave",
+                    "displayName": "Requested By",
+                    "displayType": "text"
+                },
+                "name": "requestedBy"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "From date is a mandatory field"
+                        }
+                    },
+                    "description": "Please select the date from when you want to take a leave.",
+                    "displayName": "From date",
+                    "displayType": "date"
+                },
+                "name": "fromDate"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "To date is a mandatory field"
+                        }
+                    },
+                    "description": "Please select the date till when you want to take a leave.",
+                    "displayName": "To date",
+                    "displayType": "date"
+                },
+                "name": "toDate"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "First Half",
+                            "value": 0
+                        },
+                        {
+                            "label": "Second Half",
+                            "value": 1
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please select the session from when you want to take a leave.",
+                    "displayName": "From session",
+                    "displayType": "select"
+                },
+                "name": "fromSession"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "First Half",
+                            "value": 0
+                        },
+                        {
+                            "label": "Second Half",
+                            "value": 1
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Please select the session till when you want to take a leave.",
+                    "displayName": "To session",
+                    "displayType": "select"
+                },
+                "name": "toSession"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "leaves",
+                            "operation": "leaves.createLeaveRequest",
+                            "loadOptionsMethod": "getEveryLeaveTypes"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "identifier"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Leave type is a mandatory field"
+                        }
+                    },
+                    "description": "Please select the leave type.",
+                    "displayName": "Leave Types",
+                    "displayType": "select"
+                },
+                "name": "leaveTypeId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Reason for leave is a mandatory field"
+                        }
+                    },
+                    "description": "Please provide the reason for taking leave.",
+                    "displayName": "Reason for Leave",
+                    "displayType": "text",
+                    "placeholder": "Enter reason for leave"
+                },
+                "name": "reason"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Note is a required field"
+                        }
+                    },
+                    "description": "Please provide the note for taking leave.",
+                    "displayName": "Note for Leave",
+                    "displayType": "text",
+                    "placeholder": "Enter note for leave"
+                },
+                "name": "note"
+            }
+        ]
+    },
+    "getmultipleemployeeleaverequests": {
+        "definition": {
+            "qs": {
+                "to": "{{parameters.to}}",
+                "from": "{{parameters.from}}",
+                "pageSize": "{{parameters.pageSize}}",
+                "pageNumber": "{{parameters.pageNumber}}",
+                "employeeIds": "{{parameters.employeeId}}"
+            },
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leaverequests",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee ID is a required field"
                         }
                     },
                     "description": "Please provide an employee id(s) in comma separated format in case of multiple",
-                    "displayName": "Employee ID(s)",
-                    "displayType": "text"
+                    "displayName": "Employee ID",
+                    "displayType": "multitext"
                 },
-                "name": "employeeIds"
+                "name": "employeeId"
             },
             {
                 "meta": {
@@ -298,11 +484,11 @@
                         "allowDynamic": true
                     },
                     "validation": {
-                        "required": true
+                        "required": false
                     },
                     "description": "Please select the <b>from date</b>.",
                     "displayName": "From date",
-                    "displayType": "datetime",
+                    "displayType": "date",
                     "placeholder": "YYYY-MM-DD hh:mm:ss"
                 },
                 "name": "from"
@@ -321,11 +507,11 @@
                         "allowDynamic": true
                     },
                     "validation": {
-                        "required": true
+                        "required": false
                     },
                     "description": "Please select the <b>to date</b>.",
                     "displayName": "To date",
-                    "displayType": "datetime",
+                    "displayType": "date",
                     "placeholder": "YYYY-MM-DD hh:mm:ss"
                 },
                 "name": "to"
@@ -356,17 +542,15 @@
             }
         ]
     },
-    "getallholidaycalendars": {
+    "geteveryemployeeleaverequests": {
         "definition": {
             "qs": {
                 "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "holidaysCalendarIds": "{{parameters.holidaysCalendarIds}}"
+                "pageNumber": "{{parameters.pageNumber}}"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/holidayscalendar",
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leaverequests",
             "method": "get",
             "headers": {
-                "Accept": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -378,18 +562,6 @@
             }
         },
         "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Please provide a holiday calendar id",
-                    "displayName": "Holiday Calendar ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a holiday calendar id"
-                },
-                "name": "holidaysCalendarIds"
-            },
             {
                 "meta": {
                     "validation": {
@@ -416,14 +588,15 @@
             }
         ]
     },
-    "getallshiftpolicies": {
+    "getemployeeleavebalances": {
         "definition": {
             "qs": {
                 "pageSize": "{{parameters.pageSize}}",
                 "pageNumber": "{{parameters.pageNumber}}",
-                "shiftPolicyIds": "{{parameters.shiftPolicyIds}}"
+                "employeeIds": "{{parameters.employeeId}}",
+                "leaveTypeIds": "{{parameters.leaveTypeId}}"
             },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/shiftpolicies",
+            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/leavebalance",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -441,14 +614,45 @@
             {
                 "meta": {
                     "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Employee ID is a required field"
+                        }
+                    },
+                    "description": "Please provide an employee id",
+                    "displayName": "Employee ID",
+                    "displayType": "text"
+                },
+                "name": "employeeId"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "keka",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "leaves",
+                            "operation": "leaves.getAllLeaveBalances",
+                            "loadOptionsMethod": "getEveryLeaveTypes"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "identifier"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
                         "required": false
                     },
-                    "description": "Please provide a shift policy id",
-                    "displayName": "Shift Policy ID",
-                    "displayType": "text",
-                    "placeholder": "Enter shift policy id"
+                    "description": "Please select the leave type.",
+                    "displayName": "Leave Types",
+                    "displayType": "select"
                 },
-                "name": "shiftPolicyIds"
+                "name": "leaveTypeId"
             },
             {
                 "meta": {
@@ -475,183 +679,5 @@
                 "name": "pageSize"
             }
         ]
-    },
-    "getallweeklyoffpolicies": {
-        "definition": {
-            "qs": {
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "weeklyoffPolicyIds": "{{parameters.weeklyoffPolicyIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/weeklyoffpolicies",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Please provide a weekly off policy id",
-                    "displayName": "Weekly Off Policy ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a weekly off policy id"
-                },
-                "name": "weeklyoffPolicyIds"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
-                },
-                "name": "pageNumber"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
-                },
-                "name": "pageSize"
-            }
-        ]
-    },
-    "getalltrackingpolicies": {
-        "definition": {
-            "qs": {
-                "pageSize": "{{parameters.pageSize}}",
-                "pageNumber": "{{parameters.pageNumber}}",
-                "trackingPolicyIds": "{{parameters.trackingPolicyIds}}"
-            },
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/time/penalisationpolicies",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Please provide a tracking policy id",
-                    "displayName": "Tracking Policy ID",
-                    "displayType": "text",
-                    "placeholder": "Enter a tracking policy id"
-                },
-                "name": "trackingPolicyIds"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page number to perform pagination",
-                    "displayName": "Page Number",
-                    "displayType": "text",
-                    "placeholder": "Enter a page number"
-                },
-                "name": "pageNumber"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please provide a page size to perform pagination",
-                    "displayName": "Page Size",
-                    "displayType": "text",
-                    "placeholder": "Enter a page size"
-                },
-                "name": "pageSize"
-            }
-        ]
-    },
-    "getalllocations": {
-        "definition": {
-            "url": "https://{{secretscompany}}.{{secrets.environment}}.com/api/v1/hris/locations",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 20
-                },
-                "type": "url",
-                "default": {
-                    "limit": 20,
-                    "next_url": null
-                },
-                "next_url": "{{response.data.nextPage}}",
-                "condition": "{{response.data.nextPage}} !== null"
-            }
-        },
-        "parameters": []
-    },
-    "getalljobtitles": {
-        "definition": {
-            "url": "https://{{secrets.company}}.{{secrets.environment}}.com/api/v1/hris/jobtitles",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors}}"
-                },
-                "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "limit": 20
-                },
-                "type": "url",
-                "default": {
-                    "limit": 20,
-                    "next_url": null
-                },
-                "next_url": "{{response.data.nextPage}}",
-                "condition": "{{response.data.nextPage}} !== null"
-            }
-        },
-        "parameters": []
     }
 }

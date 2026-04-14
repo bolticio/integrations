@@ -162,18 +162,517 @@
             }
         }
     },
-    "create_entry": {
+    "find": {
         "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/blogs/{{parameters.blog_id}}/articles.json",
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders.json?name=%23{{parameters.order_id}}",
+            "method": "get",
+            "headers": {
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.find",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Select an order"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "createdraft": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/draft_orders.json",
             "body": {
-                "article": {
-                    "title": "{{parameters.title}}",
-                    "author": "{{parameters.author}}",
-                    "body_html": "{{parameters.body_html}}",
-                    "published": "{{parameters.published}}"
+                "draft_order": {
+                    "customer": {
+                        "email": "{{parameters.customer_email}}"
+                    },
+                    "line_items": [
+                        {
+                            "price": "{{parameters.price}}",
+                            "title": "{{parameters.title}}",
+                            "quantity": "{{parameters.quantity}}"
+                        }
+                    ]
                 }
             },
             "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data.draft_order}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The title of the product.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter product title"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Price of the product.",
+                    "displayName": "Price",
+                    "displayType": "number",
+                    "placeholder": "Enter price"
+                },
+                "name": "price"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Quantity of the product.",
+                    "displayName": "Quantity",
+                    "displayType": "number",
+                    "placeholder": "Enter quantity"
+                },
+                "name": "quantity"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Email of the customer.",
+                    "displayName": "Customer Email",
+                    "displayType": "text",
+                    "placeholder": "Enter customer email"
+                },
+                "name": "customer_email"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders.json",
+            "body": {
+                "order": {
+                    "customer": {
+                        "id": "{{parameters.customer.id}}",
+                        "email": "{{parameters.customer.email}}"
+                    },
+                    "line_items": [
+                        {
+                            "price": "{{parameters.line_items.price}}",
+                            "title": "{{parameters.line_items.title}}",
+                            "quantity": "{{parameters.line_items.quantity}}",
+                            "product_id": "{{parameters.line_items.product_id}}",
+                            "variant_id": "{{parameters.line_items.variant_id}}"
+                        }
+                    ],
+                    "billing_address": {
+                        "zip": "{{parameters.billing_address.zip}}",
+                        "city": "{{parameters.billing_address.city}}",
+                        "country": "{{parameters.billing_address.country}}",
+                        "address1": "{{parameters.billing_address.address1}}",
+                        "last_name": "{{parameters.billing_address.last_name}}",
+                        "first_name": "{{parameters.billing_address.first_name}}"
+                    },
+                    "shipping_address": {
+                        "zip": "{{parameters.shipping_address.zip}}",
+                        "city": "{{parameters.shipping_address.city}}",
+                        "country": "{{parameters.shipping_address.country}}",
+                        "address1": "{{parameters.shipping_address.address1}}",
+                        "last_name": "{{parameters.shipping_address.last_name}}",
+                        "first_name": "{{parameters.shipping_address.first_name}}"
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-shopify-access-token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "shopify",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "orders",
+                                        "operation": "orders.create",
+                                        "loadOptionsMethod": "getProducts"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "title",
+                                    "valueKey": "id"
+                                },
+                                "options": [],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The ID of the product to update.",
+                                "displayName": "Product ID",
+                                "displayType": "select",
+                                "placeholder": "Enter the product ID"
+                            },
+                            "name": "product_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Variant ID of product",
+                                "displayName": "Variant ID",
+                                "displayType": "text",
+                                "placeholder": "Enter variant ID"
+                            },
+                            "name": "variant_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The title of the product.",
+                                "displayName": "Title",
+                                "displayType": "text",
+                                "placeholder": "Enter title"
+                            },
+                            "name": "title"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[1-9][0-9]*$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Quantity must be a positive integer."
+                                    }
+                                },
+                                "description": "The quantity of the line item.",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter quantity"
+                            },
+                            "name": "quantity"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[0-9]+(\\.[0-9]{1,2})?$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Price must be a valid number with up to two decimal places."
+                                    }
+                                },
+                                "description": "Price of the product.",
+                                "displayName": "Price",
+                                "displayType": "number",
+                                "placeholder": "Enter placeholder"
+                            },
+                            "name": "price"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The list of line items for the order.",
+                    "displayName": "Basic Line Items",
+                    "displayType": "object"
+                },
+                "name": "line_items"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "The ID of the customer.",
+                                "displayName": "Customer ID",
+                                "displayType": "text",
+                                "placeholder": "Enter customer ID"
+                            },
+                            "name": "id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "Email must be a valid email address."
+                                    }
+                                },
+                                "description": "The email of the customer.",
+                                "displayName": "Email",
+                                "displayType": "email",
+                                "placeholder": "Enter customer email"
+                            },
+                            "name": "email"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The customer details for the order.",
+                    "displayName": "Customer",
+                    "displayType": "object"
+                },
+                "name": "customer"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The first name of the billing address.",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter first name"
+                            },
+                            "name": "first_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The last name of the billing address.",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter last name"
+                            },
+                            "name": "last_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The first line of the billing address.",
+                                "displayName": "Address 1",
+                                "displayType": "text",
+                                "placeholder": "Enter address line 1"
+                            },
+                            "name": "address1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The city of the billing address.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[0-9]{6}(?:-[0-9]{4})?$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "ZIP code must be a valid postal code."
+                                    }
+                                },
+                                "description": "The ZIP code of the billing address.",
+                                "displayName": "ZIP",
+                                "displayType": "text",
+                                "placeholder": "Enter ZIP code"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The country of the billing address.",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The billing address of the order.",
+                    "displayName": "Billing Address",
+                    "displayType": "object"
+                },
+                "name": "billing_address"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The first name of the shipping address.",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter first name"
+                            },
+                            "name": "first_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The last name of the shipping address.",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter last name"
+                            },
+                            "name": "last_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The first line of the shipping address.",
+                                "displayName": "Address 1",
+                                "displayType": "text",
+                                "placeholder": "Enter address line 1"
+                            },
+                            "name": "address1"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The city of the shipping address.",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[0-9]{6}(?:-[0-9]{4})?$",
+                                    "required": true,
+                                    "patternDetail": {
+                                        "errorMsg": "ZIP code must be a valid postal code."
+                                    }
+                                },
+                                "description": "The ZIP code of the shipping address.",
+                                "displayName": "ZIP",
+                                "displayType": "number",
+                                "placeholder": "Enter ZIP code"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The country of the shipping address.",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The shipping address of the order.",
+                    "displayName": "Shipping Address",
+                    "displayType": "object"
+                },
+                "name": "shipping_address"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders.json",
+            "method": "get",
+            "params": {
+                "limit": "{{parameters.limit}}",
+                "status": "{{parameters.status}}",
+                "created_at_max": "{{parameters.created_at_max}}",
+                "created_at_min": "{{parameters.created_at_min}}",
+                "updated_at_min": "{{parameters.updated_at_min}}"
+            },
             "headers": {
                 "Content-Type": "application/json",
                 "X-Shopify-Access-Token": "{{secrets.access_token}}"
@@ -189,16 +688,94 @@
         "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
+                    "options": [
+                        {
+                            "label": "Open",
+                            "value": "open"
+                        },
+                        {
+                            "label": "Closed",
+                            "value": "closed"
+                        },
+                        {
+                            "label": "Cancelled",
+                            "value": "cancelled"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
                     },
-                    "description": "The ID of the blog where the entry will be created.",
-                    "displayName": "Blog ID",
-                    "displayType": "text",
-                    "placeholder": "Enter blog ID"
+                    "description": "Filter orders by their status.",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select order status"
                 },
-                "name": "blog_id"
+                "name": "status"
             },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "description": "Filter orders created after this date and time.",
+                    "displayName": "Created At Min",
+                    "displayType": "datetime",
+                    "placeholder": "Select date and time"
+                },
+                "name": "created_at_min"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "description": "Filter orders created before this date and time.",
+                    "displayName": "Created At Max",
+                    "displayType": "datetime",
+                    "placeholder": "Select date and time"
+                },
+                "name": "created_at_max"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "description": "Filter orders updated after this date and time.",
+                    "displayName": "Updated At Min",
+                    "displayType": "datetime",
+                    "placeholder": "Select date and time"
+                },
+                "name": "updated_at_min"
+            },
+            {
+                "meta": {
+                    "description": "Limit the number of orders returned.",
+                    "displayName": "Limit",
+                    "displayType": "number",
+                    "placeholder": "Limit of orders"
+                },
+                "name": "limit"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}.json",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "X-shopify-access-token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
             {
                 "meta": {
                     "config": {
@@ -206,13 +783,13 @@
                         "body": {
                             "name": "shopify",
                             "secret": "{{parameters.secret}}",
-                            "resource": "blog",
-                            "operation": "blog.create_entry",
-                            "loadOptionsMethod": "get_list"
+                            "resource": "orders",
+                            "operation": "orders.get",
+                            "loadOptionsMethod": "getOrders"
                         },
                         "method": "post",
                         "urlType": "options",
-                        "labelKey": "title",
+                        "labelKey": "name",
                         "valueKey": "id"
                     },
                     "options": [],
@@ -222,167 +799,23 @@
                     "validation": {
                         "required": true
                     },
-                    "description": "The ID of the blog where the entry will be created.",
-                    "displayName": "Blog ID",
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
                     "displayType": "select",
-                    "placeholder": "Enter blog ID"
+                    "placeholder": "Select an order"
                 },
-                "name": "blog_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The title of the new blog entry.",
-                    "displayName": "Title",
-                    "displayType": "text",
-                    "placeholder": "Enter article title"
-                },
-                "name": "title"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The HTML content of the blog entry.",
-                    "displayName": "Content",
-                    "displayType": "textarea",
-                    "placeholder": "Enter article content"
-                },
-                "name": "body_html"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The author of the blog entry.",
-                    "displayName": "Author",
-                    "displayType": "text",
-                    "placeholder": "Enter author name"
-                },
-                "name": "author"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Yes",
-                            "value": true
-                        },
-                        {
-                            "label": "No",
-                            "value": false
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Set to true to publish the article immediately.",
-                    "displayName": "Published",
-                    "displayType": "select",
-                    "placeholder": "Select publish status"
-                },
-                "name": "published"
-            }
-        ]
-    },
-    "get_list": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections.json?ids={{parameters.ids}}",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The IDs of the custom collections to retrieve.",
-                    "displayName": "Collection IDs",
-                    "displayType": "text",
-                    "placeholder": "Enter comma-separated collection IDs"
-                },
-                "name": "ids"
-            }
-        ]
-    },
-    "create": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections.json",
-            "body": {
-                "custom_collection": {
-                    "title": "{{parameters.title}}",
-                    "body_html": "{{parameters.body_html}}"
-                }
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The title of the custom collection.",
-                    "displayName": "Title",
-                    "displayType": "text",
-                    "placeholder": "Enter the title of the custom collection"
-                },
-                "name": "title"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "height": "200px",
-                        "language": "html",
-                        "fullscreen": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The description of the custom collection.",
-                    "displayName": "Description",
-                    "displayType": "code",
-                    "placeholder": "Enter a description for the custom collection"
-                },
-                "name": "body_html"
+                "name": "order_id"
             }
         ]
     },
     "update": {
         "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections/{{parameters.custom_collection_id}}.json",
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}.json",
             "body": {
-                "custom_collection": {
-                    "title": "{{parameters.title}}",
-                    "body_html": "{{parameters.body_html}}"
+                "order": {
+                    "id": "{{parameters.order_id}}",
+                    "note": "{{parameters.note}}",
+                    "email": "{{parameters.email}}"
                 }
             },
             "method": "put",
@@ -393,7 +826,7 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
+                    "message": "{{response.data}}"
                 },
                 "output": "{{response.data}}"
             }
@@ -401,142 +834,73 @@
         "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.update",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
                     },
-                    "description": "The ID of the custom collection to update.",
-                    "displayName": "Custom Collection ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the custom collection ID"
-                },
-                "name": "custom_collection_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The new title of the custom collection.",
-                    "displayName": "Title",
-                    "displayType": "text",
-                    "placeholder": "Enter the new title of the custom collection"
-                },
-                "name": "title"
-            },
-            {
-                "meta": {
+                    "options": [],
                     "htmlProps": {
-                        "height": "200px",
-                        "language": "html",
-                        "fullscreen": true
+                        "allowDynamic": true
                     },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "The new description of the custom collection.",
-                    "displayName": "Description",
-                    "displayType": "code",
-                    "placeholder": "Enter a new description for the custom collection"
-                },
-                "name": "body_html"
-            }
-        ]
-    },
-    "get": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/collections/{{parameters.collection_id}}.json",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
                     "validation": {
                         "required": true
                     },
-                    "description": "The ID of the collection to retrieve.",
-                    "displayName": "Collection ID",
-                    "displayType": "text",
-                    "placeholder": "Enter the collection ID"
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Select an order"
                 },
-                "name": "collection_id"
-            }
-        ]
-    },
-    "get_products": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/collections/{{parameters.collection_id}}/products.json",
-            "method": "get",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+                "name": "order_id"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the collection to retrieve products for.",
-                    "displayName": "Collection ID",
+                    "description": "The new note for the order.",
+                    "displayName": "Order Note",
                     "displayType": "text",
-                    "placeholder": "Enter the collection ID"
+                    "placeholder": "Enter the order note"
                 },
-                "name": "collection_id"
-            }
-        ]
-    },
-    "delete": {
-        "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/custom_collections/{{parameters.custom_collection_id}}.json",
-            "method": "delete",
-            "headers": {
-                "X-Shopify-Access-Token": "{{secrets.access_token}}"
+                "name": "note"
             },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.errors.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "The ID of the custom collection to delete.",
-                    "displayName": "Custom Collection ID",
+                    "description": "The new email for the order.",
+                    "displayName": "Email",
                     "displayType": "text",
-                    "placeholder": "Enter the custom collection ID"
+                    "placeholder": "Enter the new email"
                 },
-                "name": "custom_collection_id"
+                "name": "email"
             }
         ]
     },
-    "find": {
+    "addline": {
         "definition": {
-            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}/transactions.json",
-            "method": "get",
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}.json",
+            "body": {
+                "order": {
+                    "id": "{{parameters.order_id}}",
+                    "line_items": [
+                        {
+                            "price": "{{parameters.price}}",
+                            "quantity": "{{parameters.quantity}}",
+                            "variant_id": "{{parameters.variant_id}}"
+                        }
+                    ]
+                }
+            },
+            "method": "put",
             "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
                 "X-Shopify-Access-Token": "{{secrets.access_token}}"
             },
             "response": {
@@ -555,8 +919,216 @@
                         "body": {
                             "name": "shopify",
                             "secret": "{{parameters.secret}}",
-                            "resource": "transaction",
-                            "operation": "transaction.find",
+                            "resource": "orders",
+                            "operation": "orders.addline",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Select an order"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the product variant to add to the order.",
+                    "displayName": "Variant ID",
+                    "displayType": "number",
+                    "placeholder": "Enter the variant ID"
+                },
+                "name": "variant_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "min": 1,
+                        "required": true
+                    },
+                    "description": "The number of items to add to the order.",
+                    "displayName": "Quantity",
+                    "displayType": "number",
+                    "placeholder": "Enter the quantity"
+                },
+                "name": "quantity"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The price of the line item.",
+                    "displayName": "Price",
+                    "displayType": "number",
+                    "placeholder": "Enter the price"
+                },
+                "name": "price"
+            }
+        ]
+    },
+    "close": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}/close.json",
+            "body": {
+                "order_id": "{{parameters.order_id}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-shopify-access-token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "Order closed successfully.  {{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.close",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Select an order"
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "cancel": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}/cancel.json",
+            "body": {
+                "order": "{{parameters}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-shopify-access-token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.cancel",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the order to be updated.",
+                    "displayName": "Order ID",
+                    "displayType": "select",
+                    "placeholder": "Select an order"
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The reason for the order cancellation. Valid values: customer, inventory, fraud, declined, other.",
+                    "displayName": "Reason",
+                    "displayType": "text",
+                    "placeholder": "Enter the reason"
+                },
+                "name": "reason"
+            }
+        ]
+    },
+    "reopen": {
+        "definition": {
+            "url": "https://{{secrets.domain}}.myshopify.com/admin/api/2024-07/orders/{{parameters.order_id}}/open.json",
+            "body": {
+                "order_id": "{{parameters.order_id}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-shopify-access-token": "{{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "shopify",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.reopen",
                             "loadOptionsMethod": "getOrders"
                         },
                         "method": "post",

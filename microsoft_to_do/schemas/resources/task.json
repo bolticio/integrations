@@ -73,244 +73,6 @@
             }
         }
     },
-    "deletetodolist": {
-        "definition": {
-            "url": "https://graph.microsoft.com/v1.0/me/todo/lists/{{parameters.todo_list_id}}",
-            "method": "delete",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data}}"
-            },
-            "transform": {
-                "output": "return { message: 'List deleted successfully' };"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "microsoft_todo",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "list",
-                            "operation": "list.deleteTodoList",
-                            "loadOptionsMethod": "loadTodoLists"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "displayName",
-                        "valueKey": "id"
-                    },
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Choose a Microsoft To Do list to delete",
-                    "displayName": "To Do List",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a To Do list to delete"
-                },
-                "name": "todo_list_id"
-            }
-        ]
-    },
-    "create": {
-        "definition": {
-            "url": "https://graph.microsoft.com/v1.0/me/todo/lists/{{parameters.todo_list_id}}/tasks",
-            "body": {
-                "body": {
-                    "content": "{{parameters.content_data}}",
-                    "contentType": "text"
-                },
-                "title": "{{parameters.taskName}}",
-                "importance": "{{parameters.importance}}",
-                "dueDateTime": {
-                    "dateTime": "{{parameters.datetime_due}}",
-                    "timeZone": "{{parameters.timezone}}"
-                },
-                "isReminderOn": true,
-                "reminderDateTime": {
-                    "dateTime": "{{parameters.datetime}}",
-                    "timeZone": "{{parameters.timezone}}"
-                }
-            },
-            "method": "post",
-            "headers": {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "microsoft_todo",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "task",
-                            "operation": "task.create",
-                            "loadOptionsMethod": "loadTodoLists"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "displayName",
-                        "valueKey": "id"
-                    },
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Choose a Microsoft To Do list to create a task",
-                    "displayName": "To Do List",
-                    "displayType": "autocomplete",
-                    "placeholder": "Select a To Do list where you want to create task"
-                },
-                "name": "todo_list_id"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Enter the name of the task you want to create.",
-                    "displayName": "Task Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the task"
-                },
-                "name": "taskName"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "High",
-                            "value": "high"
-                        },
-                        {
-                            "label": "Normal",
-                            "value": "normal"
-                        },
-                        {
-                            "label": "Low",
-                            "value": "low"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Importance is a required field"
-                        }
-                    },
-                    "description": "Select how much the task is important.",
-                    "displayName": "Importance",
-                    "displayType": "select",
-                    "placeholder": "Select how much the task is important"
-                },
-                "name": "importance",
-                "prop": "personalInfo"
-            },
-            {
-                "meta": {
-                    "readOnly": false,
-                    "htmlProps": {
-                        "format": "YYYY-MM-DD HH:mm:ss",
-                        "disabled": false,
-                        "timeSteps": {
-                            "hours": 1,
-                            "minutes": 5,
-                            "seconds": 5
-                        }
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please enter date and start time",
-                    "displayName": "Start Date And Time",
-                    "displayType": "datetime",
-                    "placeholder": "Enter the reminder date of the task"
-                },
-                "name": "datetime"
-            },
-            {
-                "meta": {
-                    "readOnly": false,
-                    "htmlProps": {
-                        "format": "YYYY-MM-DD HH:mm:ss",
-                        "disabled": false,
-                        "timeSteps": {
-                            "hours": 1,
-                            "minutes": 5,
-                            "seconds": 5
-                        }
-                    },
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Please enter Due date and time",
-                    "displayName": "Due Date And Time",
-                    "displayType": "datetime",
-                    "placeholder": "Enter the Due date of the task"
-                },
-                "name": "datetime_due"
-            },
-            {
-                "meta": {
-                    "value": "UTC",
-                    "validation": {
-                        "required": true
-                    },
-                    "description": "Microsoft To Do Supports UTC+5:30 format.",
-                    "displayName": "Timezone",
-                    "displayType": "text",
-                    "placeholder": "Enter the timezone"
-                },
-                "name": "timezone"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "maxRows": 4,
-                        "minRows": 4
-                    },
-                    "validation": {
-                        "required": false,
-                        "maxLength": 300,
-                        "minLength": 5,
-                        "requiredDetail": {
-                            "errorMsg": "content is required"
-                        }
-                    },
-                    "description": "Please provide your content to be added to task",
-                    "displayName": "Content Of Your Task",
-                    "displayType": "textarea",
-                    "placeholder": "Enter your content here"
-                },
-                "name": "content_data"
-            }
-        ]
-    },
     "update": {
         "definition": {
             "url": "https://graph.microsoft.com/v1.0/me/todo/lists/{{parameters.todo_list_id}}/tasks/{{parameters.todo_task_id}}",
@@ -505,12 +267,27 @@
             }
         ]
     },
-    "custom_api": {
+    "create": {
         "definition": {
-            "qs": "{{parameters.query_params}}",
-            "url": "{{parameters.base_url}}",
-            "body": "{{parameters.body}}",
-            "method": "{{parameters.method}}",
+            "url": "https://graph.microsoft.com/v1.0/me/todo/lists/{{parameters.todo_list_id}}/tasks",
+            "body": {
+                "body": {
+                    "content": "{{parameters.content_data}}",
+                    "contentType": "text"
+                },
+                "title": "{{parameters.taskName}}",
+                "importance": "{{parameters.importance}}",
+                "dueDateTime": {
+                    "dateTime": "{{parameters.datetime_due}}",
+                    "timeZone": "{{parameters.timezone}}"
+                },
+                "isReminderOn": true,
+                "reminderDateTime": {
+                    "dateTime": "{{parameters.datetime}}",
+                    "timeZone": "{{parameters.timezone}}"
+                }
+            },
+            "method": "post",
             "headers": {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -518,7 +295,7 @@
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data}}"
+                    "message": "{{response.data.error.message}}"
                 },
                 "output": "{{response.data}}"
             }
@@ -526,145 +303,155 @@
         "parameters": [
             {
                 "meta": {
-                    "value": "get",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "microsoft_todo",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create",
+                            "loadOptionsMethod": "loadTodoLists"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a Microsoft To Do list to create a task",
+                    "displayName": "To Do List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a To Do list where you want to create task"
+                },
+                "name": "todo_list_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the name of the task you want to create.",
+                    "displayName": "Task Name",
+                    "displayType": "text",
+                    "placeholder": "Enter the name of the task"
+                },
+                "name": "taskName"
+            },
+            {
+                "meta": {
                     "options": [
                         {
-                            "label": "GET",
-                            "value": "get"
+                            "label": "High",
+                            "value": "high"
                         },
                         {
-                            "label": "PUT",
-                            "value": "put"
+                            "label": "Normal",
+                            "value": "normal"
                         },
                         {
-                            "label": "POST",
-                            "value": "post"
-                        },
-                        {
-                            "label": "PATCH",
-                            "value": "patch"
-                        },
-                        {
-                            "label": "DELETE",
-                            "value": "delete"
+                            "label": "Low",
+                            "value": "low"
                         }
                     ],
-                    "validation": {
-                        "required": true
+                    "htmlProps": {
+                        "allowDynamic": true
                     },
-                    "description": "The HTTP Method to be used for the request.",
-                    "displayName": "Method",
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Importance is a required field"
+                        }
+                    },
+                    "description": "Select how much the task is important.",
+                    "displayName": "Importance",
                     "displayType": "select",
-                    "placeholder": "Select Method"
+                    "placeholder": "Select how much the task is important"
                 },
-                "name": "method"
+                "name": "importance",
+                "prop": "personalInfo"
             },
             {
                 "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
                     "validation": {
                         "required": true
                     },
-                    "description": "The URL of the HTTP Request.",
-                    "displayName": "Base URL",
+                    "description": "Please enter date and start time",
+                    "displayName": "Start Date And Time",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the reminder date of the task"
+                },
+                "name": "datetime"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Please enter Due date and time",
+                    "displayName": "Due Date And Time",
+                    "displayType": "datetime",
+                    "placeholder": "Enter the Due date of the task"
+                },
+                "name": "datetime_due"
+            },
+            {
+                "meta": {
+                    "value": "UTC",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Microsoft To Do Supports UTC+5:30 format.",
+                    "displayName": "Timezone",
                     "displayType": "text",
-                    "placeholder": "Eg. https://www.example.com"
+                    "placeholder": "Enter the timezone"
                 },
-                "name": "base_url"
+                "name": "timezone"
             },
             {
                 "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
+                    "htmlProps": {
+                        "maxRows": 4,
+                        "minRows": 4
+                    },
+                    "validation": {
+                        "required": false,
+                        "maxLength": 300,
+                        "minLength": 5,
+                        "requiredDetail": {
+                            "errorMsg": "content is required"
                         }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
                     },
-                    "description": "You don't have to add authorization headers, we already did that for you.",
-                    "displayName": "Headers",
-                    "displayType": "keyvalue",
-                    "placeholder": "Add Headers"
+                    "description": "Please provide your content to be added to task",
+                    "displayName": "Content Of Your Task",
+                    "displayType": "textarea",
+                    "placeholder": "Enter your content here"
                 },
-                "name": "headers"
-            },
-            {
-                "meta": {
-                    "children": [
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Key is required"
-                                    }
-                                },
-                                "displayName": "key",
-                                "displayType": "text"
-                            },
-                            "name": "key"
-                        },
-                        {
-                            "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Value is required"
-                                    }
-                                },
-                                "displayName": "value",
-                                "displayType": "text"
-                            },
-                            "name": "value"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowAdd": true
-                    },
-                    "description": "Add the Query Params you want.",
-                    "displayName": "Query String",
-                    "displayType": "keyvalue",
-                    "placeholder": "Query Params"
-                },
-                "name": "query_params"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "size": "md",
-                        "language": "json",
-                        "fullscreen": true,
-                        "showSuggestions": true
-                    },
-                    "description": "The Payload (Body) of the HTTP Request.",
-                    "displayName": "Body",
-                    "displayType": "code",
-                    "placeholder": "Required Body"
-                },
-                "name": "body"
+                "name": "content_data"
             }
         ]
     },

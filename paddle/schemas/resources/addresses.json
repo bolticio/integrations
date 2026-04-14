@@ -44,31 +44,141 @@
             "name": "operation"
         }
     ],
+    "list": {
+        "definition": {
+            "qs": {
+                "id": "{{parameters.id}}",
+                "search": "{{parameters.search}}",
+                "status": "{{parameters.status}}",
+                "order_by": "{{parameters.order_by}}"
+            },
+            "url": "https://{{secrets.environment_url}}/customers/{{parameters.customer_id}}/addresses",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "qs": {
+                    "per_page": 50
+                },
+                "type": "url",
+                "default": {
+                    "next_url": null,
+                    "per_page": 50
+                },
+                "next_url": "{{response.data.meta.pagination.next}}",
+                "condition": "{{response.data.meta.pagination.has_more}} !== false"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Paddle ID of the customer entity to work with.",
+                    "displayName": "Customer ID",
+                    "displayType": "text",
+                    "placeholder": "ctm_01h04vsc0qhwtsbz6ajhbd842n"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return only the IDs specified. Use a comma-separated list to get multiple entities.",
+                    "displayName": "Address IDs",
+                    "displayType": "text",
+                    "placeholder": "add_01h04vsc0qhwtsbz6ajhbd842n,add_01h04vsc0qhwtsbz6ajhbd842x"
+                },
+                "name": "id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "ID (ascending)",
+                            "value": "id[ASC]"
+                        },
+                        {
+                            "label": "ID (descending)",
+                            "value": "id[DESC]"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Order returned entities by the specified field and direction ([ASC] or [DESC]). Valid fields for ordering: id.",
+                    "displayName": "Order By",
+                    "displayType": "select",
+                    "placeholder": "id[ASC]"
+                },
+                "name": "order_by"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities that match a search query. Searches all fields except status, created_at, and updated_at.",
+                    "displayName": "Search",
+                    "displayType": "text",
+                    "placeholder": "Enter search query"
+                },
+                "name": "search"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Active",
+                            "value": "active"
+                        },
+                        {
+                            "label": "Archived",
+                            "value": "archived"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Return entities that match the specified status. Use a comma-separated list to specify multiple status values.",
+                    "displayName": "Status",
+                    "displayType": "multiselect",
+                    "placeholder": "Select status values"
+                },
+                "name": "status"
+            }
+        ]
+    },
     "create": {
         "definition": {
-            "url": "https://{{secrets.environment_url}}/prices",
+            "url": "https://{{secrets.environment_url}}/customers/{{parameters.customer_id}}/addresses",
             "body": {
-                "name": "{{parameters.name}}",
-                "type": "{{parameters.type}}",
-                "quantity": {
-                    "maximum": "{{parameters.quantity_maximum}}",
-                    "minimum": "{{parameters.quantity_minimum}}"
-                },
-                "tax_mode": "{{parameters.tax_mode}}",
-                "product_id": "{{parameters.product_id}}",
-                "unit_price": {
-                    "amount": "{{parameters.unit_price_amount}}",
-                    "currency_code": "{{parameters.unit_price_currency_code}}"
-                },
+                "city": "{{parameters.city}}",
+                "region": "{{parameters.region}}",
+                "first_line": "{{parameters.first_line}}",
+                "custom_data": "{{parameters.custom_data}}",
                 "description": "{{parameters.description}}",
-                "trial_period": {
-                    "interval": "{{parameters.trial_period_interval}}",
-                    "frequency": "{{parameters.trial_period_frequency}}"
-                },
-                "billing_cycle": {
-                    "interval": "{{parameters.billing_cycle_interval}}",
-                    "frequency": "{{parameters.billing_cycle_frequency}}"
-                }
+                "postal_code": "{{parameters.postal_code}}",
+                "second_line": "{{parameters.second_line}}",
+                "country_code": "{{parameters.country_code}}"
             },
             "method": "post",
             "headers": {
@@ -90,414 +200,160 @@
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Name of the price is required."
+                            "errorMsg": "Customer ID is required."
                         }
                     },
-                    "description": "Name of this price, shown to customers at checkout and on invoices.",
-                    "displayName": "Name",
+                    "description": "Paddle ID of the customer entity to work with.",
+                    "displayName": "Customer ID",
                     "displayType": "text",
-                    "placeholder": "Enter the name of the price"
+                    "placeholder": "Enter customer ID (e.g., cus_01hv6y...)"
                 },
-                "name": "name"
+                "name": "customer_id"
             },
             {
                 "meta": {
                     "validation": {
+                        "min": 2,
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Description is required."
+                            "errorMsg": "Country code is required."
                         }
                     },
-                    "description": "Internal description for this price, not shown to customers.",
+                    "description": "Supported two-letter ISO 3166-1 alpha-2 country code for this address.",
+                    "displayName": "Country Code",
+                    "displayType": "text",
+                    "placeholder": "Enter 2-letter country code (e.g., US)"
+                },
+                "name": "country_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Memorable description for this address.",
                     "displayName": "Description",
                     "displayType": "text",
-                    "placeholder": "Enter the description of the price"
+                    "placeholder": "Enter address description (e.g., Head Office)"
                 },
                 "name": "description"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Product ID is required."
-                        }
+                        "required": false
                     },
-                    "description": "Paddle ID for the product that this price is for, prefixed with pro_.",
-                    "displayName": "Product ID",
+                    "description": "First line of this address.",
+                    "displayName": "First Line",
                     "displayType": "text",
-                    "placeholder": "Enter the product ID"
+                    "placeholder": "Enter first line of address"
                 },
-                "name": "product_id"
+                "name": "first_line"
             },
             {
                 "meta": {
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Amount is required."
-                        }
+                        "required": false
                     },
-                    "description": "Amount in the lowest denomination for the currency, e.g. 10 USD = 1000 (cents).",
-                    "displayName": "Amount",
-                    "displayType": "number",
-                    "placeholder": "Enter the amount"
+                    "description": "Second line of this address.",
+                    "displayName": "Second Line",
+                    "displayType": "text",
+                    "placeholder": "Enter second line of address"
                 },
-                "name": "unit_price_amount"
+                "name": "second_line"
             },
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "United States Dollar",
-                            "value": "USD"
-                        },
-                        {
-                            "label": "Euro",
-                            "value": "EUR"
-                        },
-                        {
-                            "label": "Pound Sterling",
-                            "value": "GBP"
-                        },
-                        {
-                            "label": "Japanese Yen",
-                            "value": "JPY"
-                        },
-                        {
-                            "label": "Australian Dollar",
-                            "value": "AUD"
-                        },
-                        {
-                            "label": "Canadian Dollar",
-                            "value": "CAD"
-                        },
-                        {
-                            "label": "Swiss Franc",
-                            "value": "CHF"
-                        },
-                        {
-                            "label": "Hong Kong Dollar",
-                            "value": "HKD"
-                        },
-                        {
-                            "label": "Singapore Dollar",
-                            "value": "SGD"
-                        },
-                        {
-                            "label": "Swedish Krona",
-                            "value": "SEK"
-                        },
-                        {
-                            "label": "Argentine Peso",
-                            "value": "ARS"
-                        },
-                        {
-                            "label": "Brazilian Real",
-                            "value": "BRL"
-                        },
-                        {
-                            "label": "Chinese Yuan",
-                            "value": "CNY"
-                        },
-                        {
-                            "label": "Colombian Peso",
-                            "value": "COP"
-                        },
-                        {
-                            "label": "Czech Koruna",
-                            "value": "CZK"
-                        },
-                        {
-                            "label": "Danish Krone",
-                            "value": "DKK"
-                        },
-                        {
-                            "label": "Hungarian Forint",
-                            "value": "HUF"
-                        },
-                        {
-                            "label": "Israeli Shekel",
-                            "value": "ILS"
-                        },
-                        {
-                            "label": "Indian Rupee",
-                            "value": "INR"
-                        },
-                        {
-                            "label": "South Korean Won",
-                            "value": "KRW"
-                        },
-                        {
-                            "label": "Mexican Peso",
-                            "value": "MXN"
-                        },
-                        {
-                            "label": "Norwegian Krone",
-                            "value": "NOK"
-                        },
-                        {
-                            "label": "New Zealand Dollar",
-                            "value": "NZD"
-                        },
-                        {
-                            "label": "Polish Zloty",
-                            "value": "PLN"
-                        },
-                        {
-                            "label": "Russian Ruble",
-                            "value": "RUB"
-                        },
-                        {
-                            "label": "Thai Baht",
-                            "value": "THB"
-                        },
-                        {
-                            "label": "Turkish Lira",
-                            "value": "TRY"
-                        },
-                        {
-                            "label": "New Taiwan Dollar",
-                            "value": "TWD"
-                        },
-                        {
-                            "label": "Ukrainian Hryvnia",
-                            "value": "UAH"
-                        },
-                        {
-                            "label": "South African Rand",
-                            "value": "ZAR"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Currency code is required."
-                        }
+                        "required": false
                     },
-                    "description": "Select a supported three-letter ISO 4217 currency code.",
-                    "displayName": "Currency Code",
-                    "displayType": "select",
-                    "placeholder": "Select a currency code"
+                    "description": "City of this address.",
+                    "displayName": "City",
+                    "displayType": "text",
+                    "placeholder": "Enter city"
                 },
-                "name": "unit_price_currency_code"
+                "name": "city"
             },
             {
                 "meta": {
-                    "options": [
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "ZIP or postal code of this address. Required for some countries.",
+                    "displayName": "Postal Code",
+                    "displayType": "text",
+                    "placeholder": "Enter postal/ZIP code"
+                },
+                "name": "postal_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "State, county, or region of this address.",
+                    "displayName": "Region",
+                    "displayType": "text",
+                    "placeholder": "Enter state/region (e.g., NY)"
+                },
+                "name": "region"
+            },
+            {
+                "meta": {
+                    "children": [
                         {
-                            "label": "Day",
-                            "value": "day"
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
                         },
                         {
-                            "label": "Week",
-                            "value": "week"
-                        },
-                        {
-                            "label": "Month",
-                            "value": "month"
-                        },
-                        {
-                            "label": "Year",
-                            "value": "year"
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
                         }
                     ],
+                    "readOnly": false,
                     "htmlProps": {
+                        "allowAdd": true,
                         "allowDynamic": true
                     },
                     "validation": {
                         "required": false
                     },
-                    "description": "How often this price should be charged. Empty if price is non-recurring (one-time).",
-                    "displayName": "Billing cycle interval",
-                    "displayType": "select",
-                    "placeholder": "Select an interval"
+                    "description": "Your own structured key-value data.",
+                    "displayName": "Custom Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter custom data"
                 },
-                "name": "billing_cycle_interval"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Billing cycle frequency is required if interval is given"
-                        }
-                    },
-                    "description": "How often this price should be charged. Empty if price is non-recurring (one-time).",
-                    "displayName": "Billing cycle frequency",
-                    "displayType": "number",
-                    "placeholder": "Enter the frequency",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "billing_cycle_interval",
-                                "value": 1,
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "billing_cycle_frequency"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Day",
-                            "value": "day"
-                        },
-                        {
-                            "label": "Week",
-                            "value": "week"
-                        },
-                        {
-                            "label": "Month",
-                            "value": "month"
-                        },
-                        {
-                            "label": "Year",
-                            "value": "year"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Trial period for the product related to this price. The billing cycle begins once the trial period is over. Empty for no trial period. Requires billing cycle.",
-                    "displayName": "Trial period interval",
-                    "displayType": "select",
-                    "placeholder": "Select an interval"
-                },
-                "name": "trial_period_interval"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Trial period frequency is required if interval is given"
-                        }
-                    },
-                    "description": "Trial period for the product related to this price. The billing cycle begins once the trial period is over. Empty for no trial period. Requires billing cycle.",
-                    "displayName": "Trial period frequency",
-                    "displayType": "number",
-                    "placeholder": "Enter the frequency",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "trial_period_interval",
-                                "value": 1,
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "trial_period_frequency"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Standard",
-                            "value": "standard"
-                        },
-                        {
-                            "label": "Custom",
-                            "value": "custom"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Type of item. Standard items are considered part of your catalog and are shown on the Paddle web app. Custom or non-catalog items are typically created for a specific transaction or subscription and not returned when listing or shown in the Paddle web app.",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Select a type"
-                },
-                "name": "type"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Account setting",
-                            "value": "account_setting"
-                        },
-                        {
-                            "label": "External",
-                            "value": "external"
-                        },
-                        {
-                            "label": "Internal",
-                            "value": "internal"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "How tax is calculated for this price.",
-                    "displayName": "Tax mode",
-                    "displayType": "select",
-                    "placeholder": "Select a tax mode"
-                },
-                "name": "tax_mode"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": false
-                    },
-                    "description": "Minimum quantity of the product related to this price that can be bought. Required if maximum set.",
-                    "displayName": "Minimum Quantity",
-                    "displayType": "number",
-                    "placeholder": "Enter minimum quantity"
-                },
-                "name": "quantity_minimum"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "min": 1,
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Maximum quantity is required if minimum is given."
-                        }
-                    },
-                    "description": "Maximum quantity of the product related to this price that can be bought. Required if minimum set.",
-                    "displayName": "Maximum Quantity",
-                    "displayType": "number",
-                    "placeholder": "Enter maximum quantity",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "quantity_minimum",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "quantity_maximum"
+                "name": "custom_data"
             }
         ]
     },
-    "get": {
+    "update": {
         "definition": {
-            "url": "https://{{secrets.environment_url}}/prices/{{parameters.price_id}}",
-            "method": "get",
+            "url": "https://{{secrets.environment_url}}/customers/{{parameters.customer_id}}/addresses/{{parameters.address_id}}",
+            "body": {
+                "city": "{{parameters.city}}",
+                "region": "{{parameters.region}}",
+                "status": "{{parameters.status}}",
+                "first_line": "{{parameters.first_line}}",
+                "custom_data": "{{parameters.custom_data}}",
+                "description": "{{parameters.description}}",
+                "postal_code": "{{parameters.postal_code}}",
+                "second_line": "{{parameters.second_line}}",
+                "country_code": "{{parameters.country_code}}"
+            },
+            "method": "patch",
             "headers": {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -515,174 +371,148 @@
             {
                 "meta": {
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Price ID is required"
-                        }
+                        "required": true
                     },
-                    "description": "Paddle ID of the price entity to work with.",
-                    "displayName": "Price ID",
+                    "description": "Paddle ID of the customer entity to work with.",
+                    "displayName": "Customer ID",
                     "displayType": "text",
-                    "placeholder": "Enter the price ID"
+                    "placeholder": "e.g., ctm_01h04vsc0qhwtsbz6ajhbd842n"
                 },
-                "name": "price_id"
-            }
-        ]
-    },
-    "update": {
-        "definition": {
-            "url": "https://{{secrets.environment_url}}/products/{{parameters.product_id}}",
-            "body": {
-                "name": "{{parameters.name}}",
-                "type": "{{parameters.type}}",
-                "status": "{{parameters.status}}",
-                "image_url": "{{parameters.image_url}}",
-                "description": "{{parameters.description}}",
-                "tax_category": "{{parameters.tax_category}}"
+                "name": "customer_id"
             },
-            "method": "patch",
-            "headers": {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {{secrets.api_key}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
             {
                 "meta": {
                     "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Product ID is required."
-                        }
+                        "required": true
                     },
-                    "description": "Paddle ID of the product entity to work with.",
-                    "displayName": "Product ID",
+                    "description": "Paddle ID of the address entity to work with.",
+                    "displayName": "Address ID",
                     "displayType": "text",
-                    "placeholder": "Enter the product ID"
+                    "placeholder": "e.g., add_01h04vsfyx8vanh3xpyqhxgc10"
                 },
-                "name": "product_id"
+                "name": "address_id"
             },
             {
                 "meta": {
                     "validation": {
                         "required": false
                     },
-                    "description": "Name of your paddle product.",
-                    "displayName": "Name",
-                    "displayType": "text",
-                    "placeholder": "Enter the name of the product"
-                },
-                "name": "name"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Short description for this product.",
+                    "description": "Memorable description for this address.",
                     "displayName": "Description",
                     "displayType": "text",
-                    "placeholder": "Enter the description of the product"
+                    "placeholder": "e.g., Head Office"
                 },
                 "name": "description"
             },
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "Custom",
-                            "value": "custom"
-                        },
-                        {
-                            "label": "Standard",
-                            "value": "standard"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
                     "validation": {
                         "required": false
                     },
-                    "description": "Type of item. Standard items are considered part of your catalog and are shown on the Paddle web app. Custom or Non-catalog item and not returned when listing or shown in the Paddle web app.",
-                    "displayName": "Type",
-                    "displayType": "select",
-                    "placeholder": "Select a type"
-                },
-                "name": "type"
-            },
-            {
-                "meta": {
-                    "options": [
-                        {
-                            "label": "Digital Goods",
-                            "value": "digital-goods"
-                        },
-                        {
-                            "label": "eBooks",
-                            "value": "ebooks"
-                        },
-                        {
-                            "label": "Implementation Services",
-                            "value": "implementation-services"
-                        },
-                        {
-                            "label": "Professional Services",
-                            "value": "professional-services"
-                        },
-                        {
-                            "label": "SAAS",
-                            "value": "saas"
-                        },
-                        {
-                            "label": "Software Programming Services",
-                            "value": "software-programming-services"
-                        },
-                        {
-                            "label": "Standard",
-                            "value": "standard"
-                        },
-                        {
-                            "label": "Training Services",
-                            "value": "training-services"
-                        },
-                        {
-                            "label": "Website Hosting",
-                            "value": "website-hosting"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Tax category for this product. Used for charging the correct rate of tax. Selected tax category must be enabled on your Paddle account.",
-                    "displayName": "Tax category",
-                    "displayType": "select",
-                    "placeholder": "Select a tax category"
-                },
-                "name": "tax_category"
-            },
-            {
-                "meta": {
-                    "validation": {
-                        "required": false
-                    },
-                    "description": "Image for this product. Included in the checkout and on some customer documents.",
-                    "displayName": "Image URL",
+                    "description": "First line of this address.",
+                    "displayName": "First Line",
                     "displayType": "text",
-                    "placeholder": "Enter image URL"
+                    "placeholder": "e.g., 4050 Jefferson Plaza, 41st Floor"
                 },
-                "name": "image_url"
+                "name": "first_line"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Second line of this address.",
+                    "displayName": "Second Line",
+                    "displayType": "text",
+                    "placeholder": "e.g., Apartment 12"
+                },
+                "name": "second_line"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "City of this address.",
+                    "displayName": "City",
+                    "displayType": "text",
+                    "placeholder": "e.g., New York"
+                },
+                "name": "city"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "ZIP or postal code of this address. Required for some countries.",
+                    "displayName": "Postal Code",
+                    "displayType": "text",
+                    "placeholder": "e.g., 10007"
+                },
+                "name": "postal_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "State, county, or region of this address.",
+                    "displayName": "Region",
+                    "displayType": "text",
+                    "placeholder": "e.g., NY"
+                },
+                "name": "region"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Supported two-letter ISO 3166-1 alpha-2 country code for this address.",
+                    "displayName": "Country Code",
+                    "displayType": "text",
+                    "placeholder": "e.g., US"
+                },
+                "name": "country_code"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Your own structured key-value data.",
+                    "displayName": "Custom Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter custom data"
+                },
+                "name": "custom_data",
+                "schema": {
+                    "type": "event_properties",
+                    "label": "Event Properties",
+                    "children": [
+                        {
+                            "name": "key",
+                            "validation": {
+                                "required": true
+                            },
+                            "displayName": "Key",
+                            "displayType": "text"
+                        },
+                        {
+                            "name": "value",
+                            "validation": {
+                                "required": true
+                            },
+                            "displayName": "Value",
+                            "displayType": "text"
+                        }
+                    ],
+                    "validation": {}
+                }
             },
             {
                 "meta": {
@@ -705,145 +535,53 @@
                     "description": "Whether this entity can be used in Paddle.",
                     "displayName": "Status",
                     "displayType": "select",
-                    "placeholder": "Select the status"
+                    "placeholder": "Select status"
                 },
                 "name": "status"
             }
         ]
     },
-    "list": {
+    "get": {
         "definition": {
-            "qs": {
-                "id": "{{parameters.id}}",
-                "order_by": "{{parameters.order_by}}"
-            },
-            "url": "https://{{secrets.environment_url}}/products",
-            "method": "get",
+            "url": "https://{{secrets.environment_url}}/customers/{{parameters.customer_id}}/addresses/{{parameters.address_id}}",
+            "method": "GET",
             "headers": {
                 "Accept": "application/json",
+                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.api_key}}"
             },
             "response": {
                 "error": {
                     "code": "{{response.status}}",
-                    "message": "{{response.data.error}}"
+                    "message": "{{response.data}}"
                 },
                 "output": "{{response.data.data}}"
-            },
-            "pagination": {
-                "qs": {
-                    "per_page": 200
-                },
-                "type": "url",
-                "default": {
-                    "next_url": null,
-                    "per_page": 200
-                },
-                "next_url": "{{response.data.meta.pagination.next}}",
-                "condition": "{{response.data.meta.pagination.has_more}} !== false"
             }
         },
         "parameters": [
             {
                 "meta": {
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "Return only the IDs specified. Use a comma-separated list to get multiple entities.",
-                    "displayName": "ID",
+                    "description": "Paddle ID of the customer entity to work with.",
+                    "displayName": "Customer ID",
                     "displayType": "text",
-                    "placeholder": "Enter the product ID or comma-separated list."
+                    "placeholder": "e.g., ctm_01h04vsc0qhwtsbz6ajhbd842n"
                 },
-                "name": "id"
+                "name": "customer_id"
             },
             {
                 "meta": {
-                    "options": [
-                        {
-                            "label": "Created at (ascending)",
-                            "value": "created_at[ASC]"
-                        },
-                        {
-                            "label": "Created at (descending)",
-                            "value": "created_at[DESC]"
-                        },
-                        {
-                            "label": "Custom data (ascending)",
-                            "value": "custom_data[ASC]"
-                        },
-                        {
-                            "label": "Custom data (descending)",
-                            "value": "custom_data[DESC]"
-                        },
-                        {
-                            "label": "Description (ascending)",
-                            "value": "description[ASC]"
-                        },
-                        {
-                            "label": "Description (descending)",
-                            "value": "description[DESC]"
-                        },
-                        {
-                            "label": "ID (ascending)",
-                            "value": "id[ASC]"
-                        },
-                        {
-                            "label": "ID (descending)",
-                            "value": "id[DESC]"
-                        },
-                        {
-                            "label": "Image URL (ascending)",
-                            "value": "image_url[ASC]"
-                        },
-                        {
-                            "label": "Image URL (descending)",
-                            "value": "image_url[DESC]"
-                        },
-                        {
-                            "label": "Name (ascending)",
-                            "value": "name[ASC]"
-                        },
-                        {
-                            "label": "Name (descending)",
-                            "value": "name[DESC]"
-                        },
-                        {
-                            "label": "Status (ascending)",
-                            "value": "status[ASC]"
-                        },
-                        {
-                            "label": "Status (descending)",
-                            "value": "status[DESC]"
-                        },
-                        {
-                            "label": "Tax category (ascending)",
-                            "value": "tax_category[ASC]"
-                        },
-                        {
-                            "label": "Tax category (descending)",
-                            "value": "tax_category[DESC]"
-                        },
-                        {
-                            "label": "Updated at (ascending)",
-                            "value": "updated_at[ASC]"
-                        },
-                        {
-                            "label": "Updated at (descending)",
-                            "value": "updated_at[DESC]"
-                        }
-                    ],
-                    "htmlProps": {
-                        "allowDynamic": true
-                    },
                     "validation": {
-                        "required": false
+                        "required": true
                     },
-                    "description": "Order returned entities by the specified field and direction ([ASC] or [DESC]). For example, ?order_by=id[ASC].",
-                    "displayName": "Order By",
-                    "displayType": "select",
-                    "placeholder": "Select a response entity"
+                    "description": "Paddle ID of the address entity to work with.",
+                    "displayName": "Address ID",
+                    "displayType": "text",
+                    "placeholder": "e.g., add_01hv8gq3318ktkfengj2r75gfx"
                 },
-                "name": "order_by"
+                "name": "address_id"
             }
         ]
     }
