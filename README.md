@@ -62,6 +62,7 @@ integration-name/
 ## 📖 Index
 <!-- INTEGRATIONS_INDEX:START -->
 - [adobe_commerce](./adobe_commerce/)
+- [aipim_webhook](./aipim_webhook/)
 - [aircall](./aircall/)
 - [anthropic](./anthropic/)
 - [asana](./asana/)
@@ -98,6 +99,7 @@ integration-name/
 - [Granola](./Granola/)
 - [hubspot](./hubspot/)
 - [hugging_face](./hugging_face/)
+- [instagram](./instagram/)
 - [interakt](./interakt/)
 - [Intercom](./Intercom/)
 - [jenkins](./jenkins/)

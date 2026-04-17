@@ -1,0 +1,262 @@
+# AIPIM Webhook Trigger
+
+The **AIPIM Webhook Trigger** allows you to start workflows automatically based on specific events that occur in **AIPIM** (AI Product Information Management). It enables seamless event-driven automation, helping you react to changes in products, attributes, categories, category trees, and templates in real time.
+
+## How It Works
+
+When a selected event occurs in AIPIM, this trigger activates your workflow and passes the event data as payload. You can configure it by selecting your AIPIM account credentials, the entity type to monitor, the API version, and the specific event types (create, update, delete).
+
+## Use Cases
+
+- **Product Sync**: Automatically sync product updates from AIPIM to your e-commerce platform
+- **Data Validation**: Trigger data quality checks when attributes are created or updated
+- **Notification System**: Send alerts to teams when categories or templates are modified
+- **Analytics**: Track product catalog changes for business intelligence
+- **Multi-System Sync**: Keep multiple systems in sync when AIPIM data changes
+
+## Configuration Steps
+
+### 1. Select AIPIM Account
+- **Required**: Yes
+- **Description**: Choose the AIPIM organization credentials that will authenticate webhook requests and securely connect your workflow to AIPIM.
+
+### 2. Select Event Name
+- **Required**: Yes
+- **Description**: Choose the specific entity for which you want to listen to events. The available event names will be dynamically loaded from your AIPIM account based on the configured webhook events.
+
+### 3. Select Event Version
+- **Required**: Yes
+- **Description**: Choose the API version for the webhook events. This ensures the trigger listens to the correct event payload structure.
+
+### 4. Select Events (Multi-select)
+- **Required**: Yes
+- **Description**: Choose one or more event types you want the trigger to respond to:
+
+**Note**: You can select multiple event types. For example, selecting both "Create" and "Update" will trigger your workflow for both new and modified records.
+
+## Configuration Examples
+
+### Example 1: Product Creation
+
+Monitor when new products are added to AIPIM:
+
+- **AIPIM Account:** My AIPIM Org
+- **Event Name:** Product
+- **Event Version:** v2
+- **Events:** Create
+
+This setup will trigger your workflow whenever a new product is created in AIPIM.
+
+### Example 2: Category Updates
+
+Track all changes to categories:
+
+- **AIPIM Account:** My AIPIM Org
+- **Event Name:** Category
+- **Event Version:** v2
+- **Events:** Create, Update, Delete
+
+This setup triggers the workflow for any category creation, modification, or deletion.
+
+### Example 3: Attribute Management
+
+Monitor attribute lifecycle:
+
+- **AIPIM Account:** My AIPIM Org
+- **Event Name:** Attribute
+- **Event Version:** v1
+- **Events:** Create, Update
+
+This configuration triggers workflows when attributes are created or updated.
+
+## Event Payload Structure
+
+When an event occurs, AIPIM sends a webhook payload to Boltic. You can access this data in subsequent workflow steps using `{{payload}}`.
+
+The webhook payload has the following structure:
+- **event**: Metadata about the webhook event
+- **company_id**: Your AIPIM organization ID
+- **payload**: The actual entity data (product, attribute, category, etc.)
+
+### Sample Payload (Product Create Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.bf3822b0-3729-11f1-a402-a573e82ca2f7"],
+    "name": "product",
+    "type": "create",
+    "version": "1",
+    "created_timestamp": 1776078786651,
+    "id": "Wfs4YT6c+Nt8gSOIr15uvAKbvJAJzgizI39M7ERJTbQ=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "sku": "SAMPLE-SKU-001",
+    "images": [],
+    "brand_details": {
+      "_id": "69daca896fbbeac49c26c318",
+      "name": "Sample Brand",
+      "brand_tone": "professional",
+      "org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f"
+    },
+    "mrp": 999,
+    "selling_price": 899,
+    "keywords": ["sample", "product"],
+    "title": "Sample Product",
+    "description": "This is a sample product description",
+    "category": [
+      {
+        "name": "Electronics",
+        "code": "ELEC_001",
+        "level": 1
+      }
+    ],
+    "category_mapping": "ELEC_001",
+    "tags": ["new", "featured"],
+    "attribute_groups": [],
+    "attributes": [
+      {
+        "name": "Color",
+        "code": "A001",
+        "value": "Black"
+      }
+    ],
+    "brand": "69daca896fbbeac49c26c318"
+  }
+}
+```
+
+### Sample Payload (Attribute Create Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.ed98d8c0-3729-11f1-82bd-3bf37f725ab1"],
+    "name": "attribute",
+    "type": "create",
+    "version": "1",
+    "created_timestamp": 1776078864460,
+    "id": "TWipI0da/OdY+YNxuPPHN5wYNNaXoQnQOTbkJM77Bik=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": "69dcd01073915eda34cc7808",
+    "formatting": "None",
+    "name": "Sample Attribute",
+    "active": true,
+    "code": "SAMPLE_ATTR",
+    "auto_sync_to_prod": true,
+    "description": "Sample attribute description",
+    "vms_visible": true,
+    "vms_editable": true,
+    "store_filter": false,
+    "store_display_plp": false,
+    "store_display_pdp": false,
+    "store_search": false,
+    "store_compare": false,
+    "tags": [],
+    "type": "Short Text",
+    "mandatory": false,
+    "is_global": false,
+    "is_agentic": false,
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "created_by": "3145898e8495eeb58749d844",
+    "modified_by": "3145898e8495eeb58749d844",
+    "created_at": "2026-04-13T11:14:24.430Z",
+    "updated_at": "2026-04-13T11:14:24.430Z",
+    "__v": 0,
+    "action": "create"
+  }
+}
+```
+
+### Sample Payload (Category Delete Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["sample.trace-id"],
+    "name": "category",
+    "type": "delete",
+    "version": "1",
+    "created_timestamp": 1776078900000,
+    "id": "SAMPLE_EVENT_ID",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": "507f1f77bcf86cd799439011",
+    "deleted_at": "2026-04-13T12:00:00Z"
+  }
+}
+```
+
+## Accessing Payload Data
+
+In your workflow activities, you can reference webhook data using template variables:
+
+| Variable | Description |
+|---|---|
+| `{{payload.event.name}}` | The entity type (product, attribute, category, etc.) |
+| `{{payload.event.type}}` | The action (create, update, delete) |
+| `{{payload.event.version}}` | The API version used |
+| `{{payload.event.created_timestamp}}` | Unix timestamp when the event occurred |
+| `{{payload.event.id}}` | Unique event identifier |
+| `{{payload.company_id}}` | Your AIPIM organization ID |
+| `{{payload.payload._id}}` | The entity record ID |
+| `{{payload.payload.name}}` | The entity name (if available) |
+| `{{payload.payload.title}}` | The entity title (for products) |
+| `{{payload.payload}}` | Full entity data object |
+
+## Workflow Example
+
+**Scenario**: When a new product is created in AIPIM, send a Slack notification and create a record in Google Sheets.
+
+1. **Trigger**: AIPIM Webhook (Event Name: Product, Events: Create)
+2. **Activity 1**: Send Slack message
+   - Channel: #product-updates
+   - Message: "New product created: `{{payload.payload.title}}` (SKU: `{{payload.payload.sku}}`)"
+3. **Activity 2**: Add row to Google Sheets
+   - Spreadsheet: Product Catalog
+   - Row data: SKU (`{{payload.payload.sku}}`), Title (`{{payload.payload.title}}`), Price (`{{payload.payload.selling_price}}`)
+
+## Notes
+
+- You must configure and verify your **AIPIM organization credentials** before using this trigger
+- Event versions (v1 vs v2) may have different payload structures — consult AIPIM API documentation
+- The trigger passes detailed event payloads to the workflow, accessible via `{{payload}}`
+- Multiple event types can be selected to trigger on create, update, and delete in a single configuration
+- Ideal for building event-driven automations such as syncing data, updating systems, or sending notifications when AIPIM data changes
+
+## Best Practices
+
+1. **Test with Sample Data**: Use the "Test" feature to see sample payloads before deploying
+2. **Handle All Event Types**: If selecting multiple events, ensure your workflow logic handles create, update, and delete appropriately
+3. **Version Consistency**: Use v2 for new integrations to leverage the latest features
+4. **Error Handling**: Add error handling activities to manage failed webhook processing
+5. **Filter Events**: Use Boltic's filter activities to process only relevant events based on specific criteria
+
+## Troubleshooting
+
+### Webhook Not Triggering
+
+- Verify your AIPIM credentials are valid
+- Check that the webhook is properly registered in AIPIM
+- Ensure the selected event types match the actual events occurring
+- Confirm network connectivity between AIPIM and Boltic
+
+### Incorrect Payload Data
+
+- Verify the event version (v1 vs v2) matches your AIPIM configuration
+- Check AIPIM API documentation for the expected payload structure
+- Use the Test feature to inspect sample payloads
+
+### Multiple Triggers Firing
+
+- Review your event type selections — selecting multiple events will trigger for each
+- Consider using filters to process only specific events
+- Check for duplicate webhook configurations
+
