@@ -1,0 +1,592 @@
+{
+    "getSites": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.sites}}"
+            }
+        }
+    },
+    "getOrders": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/orders",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.orders}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.pagination.limit}} + {{response.data.pagination.offset}}"
+                },
+                "type": "offset",
+                "default": {
+                    "limit": 100,
+                    "offset": 0
+                },
+                "condition": "{{response.data.pagination.offset}} < {{response.data.pagination.total}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Orders",
+                        "value": "orders.list",
+                        "description": "List orders for a selected site."
+                    },
+                    {
+                        "label": "Get Order",
+                        "value": "orders.get",
+                        "description": "Retrieve a selected order."
+                    },
+                    {
+                        "label": "Update Order",
+                        "value": "orders.update",
+                        "description": "Update order metadata such as notes and tracking."
+                    },
+                    {
+                        "label": "Fulfill Order",
+                        "value": "orders.fulfill",
+                        "description": "Mark a selected order as fulfilled."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the order operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "get": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/orders/{{parameters.order_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.get",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the site that contains the order.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "orders",
+                            "operation": "orders.get",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "orderId",
+                        "valueKey": "orderId",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the order you want to retrieve.",
+                    "displayName": "Order",
+                    "displayType": "select",
+                    "placeholder": "Select an order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.get",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "status": "{{parameters.status}}"
+            },
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/orders",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.orders}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.pagination.limit}} + {{response.data.pagination.offset}}"
+                },
+                "type": "offset",
+                "default": {
+                    "limit": 100,
+                    "offset": 0
+                },
+                "condition": "{{response.data.pagination.offset}} < {{response.data.pagination.total}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.list",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the site whose orders you want to list.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Pending",
+                            "value": "pending"
+                        },
+                        {
+                            "label": "Unfulfilled",
+                            "value": "unfulfilled"
+                        },
+                        {
+                            "label": "Fulfilled",
+                            "value": "fulfilled"
+                        },
+                        {
+                            "label": "Disputed",
+                            "value": "disputed"
+                        },
+                        {
+                            "label": "Dispute Lost",
+                            "value": "dispute-lost"
+                        },
+                        {
+                            "label": "Refunded",
+                            "value": "refunded"
+                        }
+                    ],
+                    "description": "Optional. Filter orders by status.",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "All statuses",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/orders/{{parameters.order_id}}",
+            "body": {
+                "comment": "{{parameters.comment}}",
+                "shippingProvider": "{{parameters.shipping_provider}}",
+                "shippingTracking": "{{parameters.shipping_tracking}}",
+                "shippingTrackingURL": "{{parameters.shipping_tracking_url}}"
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.update",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the site that contains the order.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "orders",
+                            "operation": "orders.update",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "orderId",
+                        "valueKey": "orderId",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the order you want to update.",
+                    "displayName": "Order",
+                    "displayType": "select",
+                    "placeholder": "Select an order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Internal note to store on the order.",
+                    "displayName": "Comment",
+                    "displayType": "textarea",
+                    "placeholder": "Enter an internal note",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "comment"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Shipping provider or shipping method.",
+                    "displayName": "Shipping Provider",
+                    "displayType": "text",
+                    "placeholder": "UPS",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "shipping_provider"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Shipment tracking number.",
+                    "displayName": "Tracking Number",
+                    "displayType": "text",
+                    "placeholder": "TRK123456789",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "shipping_tracking"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Public URL for tracking the shipment.",
+                    "displayName": "Tracking URL",
+                    "displayType": "url",
+                    "placeholder": "https://carrier.example/track/123",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "shipping_tracking_url"
+            }
+        ]
+    },
+    "fulfill": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/orders/{{parameters.order_id}}/fulfill",
+            "body": {
+                "sendOrderFulfilledEmail": "{{parameters.send_order_fulfilled_email}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.fulfill",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the site that contains the order.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.fulfill",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "orders",
+                            "operation": "orders.fulfill",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "orderId",
+                        "valueKey": "orderId",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the order you want to fulfill.",
+                    "displayName": "Order",
+                    "displayType": "select",
+                    "placeholder": "Select an order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.fulfill",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Optional. Send Webflow's order fulfilled email to the customer.",
+                    "displayName": "Send Fulfilled Email",
+                    "displayType": "toggle",
+                    "placeholder": "Enable customer notification",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.fulfill",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "send_order_fulfilled_email"
+            }
+        ]
+    }
+}

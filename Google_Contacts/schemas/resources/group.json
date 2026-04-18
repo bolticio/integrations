@@ -1,0 +1,246 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Group",
+                        "value": "group.creategroup",
+                        "description": "Create a New Group."
+                    },
+                    {
+                        "label": "Delete Group",
+                        "value": "group.deletegroup",
+                        "description": "Delete an Existing Group."
+                    },
+                    {
+                        "label": "Add Contact To Group",
+                        "value": "group.addcontacttogroup",
+                        "description": "Add Contact to an Existing Group."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "group",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "loadContacts": {
+        "definition": {
+            "url": "https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.connections}}"
+            },
+            "transform": {
+                "output": "var list = output; if (list && list.data) list = list.data; var res = []; for (var i = 0; i < (list || []).length; i++) { var x = list[i]; while (x && x.d) { x = x.d; } var n = (x && x.names && x.names[0]) ? x.names[0] : null; res.push({ resourceName: x ? x.resourceName : undefined, name: n ? n.displayName : (x ? x.name : undefined) }); } return res;"
+            }
+        }
+    },
+    "loadContactsGroups": {
+        "definition": {
+            "url": "https://people.googleapis.com/v1/contactGroups",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.contactGroups}}"
+            },
+            "transform": {
+                "output": "var list = output; if (list && list.data) list = list.data; var res = []; for (var i = 0; i < (list || []).length; i++) { var x = list[i]; while (x && x.d) { x = x.d; } if (x && x.groupType === 'USER_CONTACT_GROUP' || x.name === 'myContacts') { res.push(x); } } return res;"
+            }
+        }
+    },
+    "creategroup": {
+        "definition": {
+            "url": "https://people.googleapis.com/v1/contactGroups",
+            "body": {
+                "contactGroup": {
+                    "name": "{{parameters.groupName}}"
+                }
+            },
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter Name of New Group.",
+                    "displayName": "Group Name",
+                    "displayType": "text",
+                    "placeholder": "Enter group name"
+                },
+                "name": "groupName"
+            }
+        ]
+    },
+    "addcontacttogroup": {
+        "definition": {
+            "url": "https://people.googleapis.com/v1/{{parameters.contactGroupResourceName}}/members:modify",
+            "body": {
+                "contactResourceName": "{{parameters.contactResourceName}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "let contact = body.contactResourceName; if(!contact.startsWith('people/')){ contact = 'people/' + contact; } const obj = { resourceNamesToAdd: [contact] }; return obj;",
+                "output": "return { message: 'contact added successfully' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_contacts",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "group",
+                            "operation": "group.addContactToGroup",
+                            "loadOptionsMethod": "loadContactsGroups"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "resourceName"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the contact group where the selected contact will be added.",
+                    "displayName": "Contact Group",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a Contact Group"
+                },
+                "name": "contactGroupResourceName"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_contacts",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "group",
+                            "operation": "group.addContactToGroup",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "resourceName"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the contact that should be added to the chosen contact group.",
+                    "displayName": "Contact",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a Contact"
+                },
+                "name": "contactResourceName"
+            }
+        ]
+    },
+    "deletegroup": {
+        "definition": {
+            "url": "https://people.googleapis.com/v1/{{parameters.resourcegroup_id}}",
+            "method": "delete",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.status}}"
+            },
+            "transform": {
+                "output": "return { message: 'Group deleted successfully' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_contacts",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "group",
+                            "operation": "group.deleteGroup",
+                            "loadOptionsMethod": "loadContactsGroups"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "resourceName"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": false
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose a group to delete",
+                    "displayName": "Group",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a group"
+                },
+                "name": "resourcegroup_id"
+            }
+        ]
+    }
+}

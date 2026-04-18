@@ -1,7 +1,7 @@
 {
     "oauth2": {
         "token": {
-            "url": "https://api.webflow.com/oauth/access_token",
+            "url": "https://oauth2.googleapis.com/token",
             "body": {
                 "code": "{{code}}",
                 "client_id": "{{secrets.client_id}}",
@@ -14,11 +14,15 @@
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
                 "output": "{{response.data}}"
             }
         },
         "refresh": {
-            "url": "https://api.webflow.com/oauth/access_token",
+            "url": "https://oauth2.googleapis.com/token",
             "body": {
                 "client_id": "{{secrets.client_id}}",
                 "grant_type": "refresh_token",
@@ -31,14 +35,14 @@
             },
             "response": {
                 "error": {
-                    "code": "{{response.data.error}}",
-                    "message": "{{response.data.error_description}}"
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
             }
         },
         "validate": {
-            "url": "https://api.webflow.com/v2/token/authorized_by",
+            "url": "https://www.googleapis.com/oauth2/v3/userinfo",
             "method": "get",
             "headers": {
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -53,13 +57,15 @@
         },
         "authorize": {
             "qs": {
-                "scope": "authorized_user:read workspace:read sites:read sites:write cms:read cms:write pages:read pages:write assets:read assets:write forms:read forms:write ecommerce:read ecommerce:write components:read",
+                "scope": "https://www.googleapis.com/auth/contacts openid email profile",
                 "state": "{{uuidv4()}}",
+                "prompt": "consent",
                 "client_id": "{{secrets.client_id}}",
+                "access_type": "offline",
                 "redirect_uri": "{{secrets.redirect_uri}}",
                 "response_type": "code"
             },
-            "url": "https://webflow.com/oauth/authorize",
+            "url": "https://accounts.google.com/o/oauth2/v2/auth",
             "method": "get",
             "response": {
                 "output": "{{response.data}}"
@@ -68,8 +74,8 @@
         "parameters": [
             {
                 "meta": {
-                    "value": "v1/webflow/oauth2/callback",
-                    "displayName": "Redirect URI",
+                    "value": "v1/google/callback",
+                    "displayName": "redirect_uri",
                     "displayType": "hidden",
                     "dependencies": {
                         "conditions": [
@@ -87,29 +93,25 @@
                 "meta": {
                     "htmlProps": {
                         "size": "small",
-                        "style": {
-                            "color": "#ffffff",
-                            "height": "40px",
-                            "padding": "16px",
-                            "fontSize": "14px",
-                            "fontWeight": 700,
-                            "backgroundColor": "#ff592f"
-                        },
                         "variant": "contained"
                     },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Please connect with your Webflow account"
+                            "errorMsg": "Please Connect To Google Contacts Account"
                         }
                     },
-                    "description": "Click to connect your Webflow account.",
-                    "displayName": "Connect Webflow Account",
+                    "description": "Please Connect to Google Contacts Account",
+                    "displayName": "Connect To Google Contacts Account",
                     "displayType": "button",
                     "dependencies": {
                         "conditions": [
                             {
-                                "field": "access_token",
+                                "field": "refresh_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
                                 "operator": "EMPTY"
                             },
                             {
@@ -132,13 +134,17 @@
                         },
                         "variant": "contained"
                     },
-                    "description": "Your Webflow account is connected.",
-                    "displayName": "Webflow Account Connected",
+                    "description": "Account connected successfully",
+                    "displayName": "Google Account Connected",
                     "displayType": "button",
                     "dependencies": {
                         "conditions": [
                             {
-                                "field": "access_token",
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
                                 "operator": "NOT_EMPTY"
                             },
                             {
@@ -153,45 +159,19 @@
             },
             {
                 "meta": {
-                    "htmlProps": {
-                        "size": "small",
-                        "style": {
-                            "color": "#ffffff",
-                            "backgroundColor": "#dc3545"
-                        },
-                        "variant": "contained"
-                    },
-                    "description": "Reconnect your Webflow account.",
-                    "displayName": "Reconnect Webflow",
-                    "displayType": "button",
+                    "displayName": "Refresh Token",
+                    "displayType": "hidden",
                     "dependencies": {
                         "conditions": [
                             {
-                                "field": "refresh_token",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "expires_in",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "expiry_date",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
                                 "field": "type",
                                 "value": "oauth2",
-                                "operator": "EQUALS"
-                            },
-                            {
-                                "field": "meta.auth_status",
-                                "value": "REVOKED",
                                 "operator": "EQUALS"
                             }
                         ]
                     }
                 },
-                "name": "oauth2_reconnect"
+                "name": "refresh_token"
             },
             {
                 "meta": {
@@ -208,71 +188,39 @@
                     }
                 },
                 "name": "access_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Expiry Date",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expiry_date"
             }
         ]
     },
     "parameters": [
         {
             "meta": {
-                "value": "access_token",
+                "value": "oauth2",
                 "options": [
                     {
-                        "label": "Access Token",
-                        "value": "access_token"
+                        "label": "OAuth2",
+                        "value": "oauth2"
                     }
                 ],
-                "isDisabled": true,
-                "validation": {
-                    "required": true
-                },
-                "description": "Authenticate Webflow account using an access token",
-                "displayName": "Webflow Authentication Type",
-                "displayType": "select",
-                "placeholder": "Select a Webflow authentication type"
+                "displayName": "Authentication Type",
+                "displayType": "hidden"
             },
             "name": "type"
         }
-    ],
-    "access_token": {
-        "validate": {
-            "url": "https://api.webflow.com/v2/token/authorized_by",
-            "method": "get",
-            "headers": {
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data}}"
-            }
-        },
-        "parameters": [
-            {
-                "meta": {
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Personal access token is mandatory"
-                        }
-                    },
-                    "description": "Refer to the Webflow authentication documentation for detailed instructions on getting your access token.",
-                    "displayName": "Personal Access Token",
-                    "displayType": "password",
-                    "placeholder": "Enter personal access token",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "type",
-                                "value": "access_token",
-                                "operator": "EQUALS"
-                            }
-                        ]
-                    }
-                },
-                "name": "access_token"
-            }
-        ]
-    }
+    ]
 }

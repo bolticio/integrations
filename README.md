@@ -93,6 +93,7 @@ integration-name/
 - [fynd_tms](./fynd_tms/)
 - [geckoboard](./geckoboard/)
 - [gemini](./gemini/)
+- [Google_Contacts](./Google_Contacts/)
 - [Google_Programmable_Search](./Google_Programmable_Search/)
 - [Google_Tasks](./Google_Tasks/)
 - [google_translate](./google_translate/)

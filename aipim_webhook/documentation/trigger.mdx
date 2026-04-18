@@ -13,6 +13,10 @@ When a selected event occurs in AIPIM, this trigger activates your workflow and 
 - **Notification System**: Send alerts to teams when categories or templates are modified
 - **Analytics**: Track product catalog changes for business intelligence
 - **Multi-System Sync**: Keep multiple systems in sync when AIPIM data changes
+- **Template Management**: Trigger workflows when product templates are created or updated to ensure consistency across product types
+- **Category Hierarchy Sync**: Sync category mappings across multiple systems whenever the category structure changes
+- **Variant Tracking**: Monitor product variant relationships and configurations to maintain accurate product listings
+- **Bundle Management**: Track parent-child product relationships for bundle updates and inventory management
 
 ## Configuration Steps
 
@@ -22,7 +26,15 @@ When a selected event occurs in AIPIM, this trigger activates your workflow and 
 
 ### 2. Select Event Name
 - **Required**: Yes
-- **Description**: Choose the specific entity for which you want to listen to events. The available event names will be dynamically loaded from your AIPIM account based on the configured webhook events.
+- **Description**: Choose the specific entity for which you want to listen to events. The available event names are dynamically loaded from your AIPIM account based on the configured webhook events. Common event types include:
+  - **Product events**: Product catalog items
+  - **Attribute events**: Product attributes and specifications
+  - **Template events**: Product templates and configurations
+  - **Category events**: Product categories
+  - **Category-Mapping events**: Category hierarchy mappings
+  - **Relationship-Mapping events**: Product relationships such as bundles and variants
+  
+  Note: Additional event types may be introduced in the future as AIPIM evolves.
 
 ### 3. Select Event Version
 - **Required**: Yes
@@ -53,7 +65,7 @@ Track all changes to categories:
 
 - **AIPIM Account:** My AIPIM Org
 - **Event Name:** Category
-- **Event Version:** v2
+- **Event Version:** v1
 - **Events:** Create, Update, Delete
 
 This setup triggers the workflow for any category creation, modification, or deletion.
@@ -78,7 +90,7 @@ The webhook payload has the following structure:
 - **company_id**: Your AIPIM organization ID
 - **payload**: The actual entity data (product, attribute, category, etc.)
 
-### Sample Payload (Product Create Event)
+### Sample Payload (Product v1 - Create Event)
 
 ```json
 {
@@ -93,34 +105,96 @@ The webhook payload has the following structure:
   },
   "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
   "payload": {
-    "sku": "SAMPLE-SKU-001",
-    "images": [],
+    "sku": "SAMSUNG-GALAXY-S21-BLK",
+    "grouped_sku": "SAMSUNG-GALAXY-S21",
+    "images": [
+      {
+        "src": "https://cdn.example.com/galaxy-s21-black-front.jpg",
+        "type": "front"
+      },
+      {
+        "src": "https://cdn.example.com/galaxy-s21-black-back.jpg",
+        "type": "back"
+      }
+    ],
     "brand_details": {
       "_id": "69daca896fbbeac49c26c318",
-      "name": "Sample Brand",
-      "brand_tone": "professional",
+      "name": "Samsung",
+      "brand_tone": "innovative",
       "org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f"
     },
-    "mrp": 999,
-    "selling_price": 899,
-    "keywords": ["sample", "product"],
-    "title": "Sample Product",
-    "description": "This is a sample product description",
+    "mrp": 79999,
+    "selling_price": 49999,
+    "keywords": ["smartphone", "5g", "android", "flagship"],
+    "title": "Samsung Galaxy S21 5G (Phantom Black, 128GB)",
+    "description": "Experience the power of Samsung Galaxy S21 with 120Hz display, advanced camera system, and 5G connectivity",
     "category": [
       {
         "name": "Electronics",
-        "code": "ELEC_001",
+        "code": "electronics",
         "level": 1
+      },
+      {
+        "name": "Mobiles",
+        "code": "mobiles",
+        "level": 2
+      },
+      {
+        "name": "Smartphones",
+        "code": "smartphones",
+        "level": 3
       }
     ],
-    "category_mapping": "ELEC_001",
-    "tags": ["new", "featured"],
-    "attribute_groups": [],
+    "category_mapping": "electronics_mobiles_smartphones",
+    "tags": ["new-arrival", "featured", "5g", "bestseller"],
+    "attribute_groups": [
+      {
+        "name": "Basic Information",
+        "sequence": 1,
+        "attributes": [
+          {
+            "name": "Color",
+            "code": "color",
+            "value": "Phantom Black",
+            "sequence": 1
+          },
+          {
+            "name": "Storage",
+            "code": "storage",
+            "value": "128GB",
+            "sequence": 2
+          }
+        ]
+      },
+      {
+        "name": "Technical Specifications",
+        "sequence": 2,
+        "attributes": [
+          {
+            "name": "RAM",
+            "code": "ram",
+            "value": "8GB",
+            "sequence": 3
+          },
+          {
+            "name": "Display Size",
+            "code": "display_size",
+            "value": "6.2 inches",
+            "sequence": 4
+          }
+        ]
+      }
+    ],
     "attributes": [
       {
-        "name": "Color",
-        "code": "A001",
-        "value": "Black"
+        "name": "Processor",
+        "code": "processor",
+        "value": "Exynos 2100"
+      },
+      {
+        "name": "Battery",
+        "code": "battery",
+        "value": "4000mAh"
       }
     ],
     "brand": "69daca896fbbeac49c26c318"
@@ -128,7 +202,249 @@ The webhook payload has the following structure:
 }
 ```
 
-### Sample Payload (Attribute Create Event)
+### Sample Payload (Product v1 - Update Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.cf4933c1-4830-22g2-b513-b684f83cb3g8"],
+    "name": "product",
+    "type": "update",
+    "version": "1",
+    "created_timestamp": 1776165186651,
+    "id": "Xgt5ZU7d+Ou9hTPJsA6vwBLcwKBK0hjzK40N8FSKUcR=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "sku": "SAMSUNG-GALAXY-S21-BLK",
+    "grouped_sku": "SAMSUNG-GALAXY-S21",
+    "images": [
+      {
+        "src": "https://cdn.example.com/galaxy-s21-black-front.jpg",
+        "type": "front"
+      }
+    ],
+    "brand_details": {
+      "_id": "69daca896fbbeac49c26c318",
+      "name": "Samsung",
+      "brand_tone": "innovative",
+      "org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f"
+    },
+    "mrp": 79999,
+    "selling_price": 44999,
+    "keywords": ["smartphone", "5g", "android", "flagship", "sale"],
+    "title": "Samsung Galaxy S21 5G (Phantom Black, 128GB) - Limited Offer",
+    "description": "Experience the power of Samsung Galaxy S21 - Now with special pricing!",
+    "category": [
+      {
+        "name": "Electronics",
+        "code": "electronics",
+        "level": 1
+      },
+      {
+        "name": "Mobiles",
+        "code": "mobiles",
+        "level": 2
+      },
+      {
+        "name": "Smartphones",
+        "code": "smartphones",
+        "level": 3
+      }
+    ],
+    "category_mapping": "electronics_mobiles_smartphones",
+    "tags": ["new-arrival", "featured", "5g", "bestseller", "sale"],
+    "attribute_groups": [
+      {
+        "name": "Basic Information",
+        "sequence": 1,
+        "attributes": [
+          {
+            "name": "Color",
+            "code": "color",
+            "value": "Phantom Black",
+            "sequence": 1
+          },
+          {
+            "name": "Storage",
+            "code": "storage",
+            "value": "128GB",
+            "sequence": 2
+          }
+        ]
+      }
+    ],
+    "attributes": [
+      {
+        "name": "Processor",
+        "code": "processor",
+        "value": "Exynos 2100"
+      }
+    ],
+    "brand": "69daca896fbbeac49c26c318"
+  }
+}
+```
+
+### Sample Payload (Product v1 - Delete Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.dg5044d2-5941-33h3-c624-c795g94dc4h9"],
+    "name": "product",
+    "type": "delete",
+    "version": "1",
+    "created_timestamp": 1776251586651,
+    "id": "Yhu6AV8e+Pv0iUQKtB7wxCMdxLCL1ikaL51O9GTLVdS=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "sku": "SAMSUNG-GALAXY-S21-BLK",
+    "grouped_sku": "SAMSUNG-GALAXY-S21"
+  }
+}
+```
+
+### Sample Payload (Product v2 - Create Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.eh6155e3-6052-44i4-d735-d806h05ed5i0"],
+    "name": "product",
+    "type": "create",
+    "version": "2",
+    "created_timestamp": 1776337986651,
+    "id": "Ziv7BW9f+Qw1jVRLuC8xyDNeymDM2jlbM62P0HUMWeTR=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "sku": "IPHONE-15-PRO-MAX-256GB-BLU",
+    "grouped_sku": "IPHONE-15-PRO-MAX",
+    "images": [
+      {
+        "src": "https://cdn.example.com/iphone-15-pro-max-blue-front.jpg",
+        "type": "front"
+      }
+    ],
+    "brand_details": {
+      "_id": "70ebdb907gccebd50d37d429",
+      "name": "Apple",
+      "brand_tone": "premium",
+      "org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f"
+    },
+    "mrp": 159900,
+    "selling_price": 149900,
+    "keywords": ["iphone", "5g", "ios", "premium"],
+    "title": "iPhone 15 Pro Max 256GB - Blue Titanium",
+    "description": "Most advanced iPhone with A17 Pro chip and titanium design",
+    "category": [
+      {
+        "name": "Electronics",
+        "code": "electronics",
+        "level": 1
+      },
+      {
+        "name": "Mobiles",
+        "code": "mobiles",
+        "level": 2
+      },
+      {
+        "name": "Smartphones",
+        "code": "smartphones",
+        "level": 3
+      }
+    ],
+    "category_mapping": "electronics_mobiles_smartphones",
+    "tags": ["premium", "5g", "flagship", "new-launch"],
+    "attribute_groups": [
+      {
+        "name": "Basic Information",
+        "sequence": 1,
+        "attributes": [
+          {
+            "name": "Color",
+            "code": "color",
+            "value": "Blue Titanium",
+            "sequence": 1
+          },
+          {
+            "name": "Storage",
+            "code": "storage",
+            "value": "256GB",
+            "sequence": 2
+          }
+        ]
+      }
+    ],
+    "attributes": [
+      {
+        "name": "Processor",
+        "code": "processor",
+        "value": "A17 Pro"
+      }
+    ],
+    "brand": "70ebdb907gccebd50d37d429"
+  }
+}
+```
+
+### Sample Payload (Product v2 - Update Event)
+
+**Note:** Product v2 update events have the same payload structure as v1. Only the `event.version` field differs.
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.fi7266f4-7163-55j5-e846-e917i16fe6j6"],
+    "name": "product",
+    "type": "update",
+    "version": "2",
+    "created_timestamp": 1776424386651,
+    "id": "Akw8CX0g+Rx2kURMvD9yzENezdNc2kmcN73Q1IVNXfUS=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "sku": "IPHONE-15-PRO-MAX-256GB-BLU",
+    "grouped_sku": "IPHONE-15-PRO-MAX",
+    "selling_price": 139900,
+    "title": "iPhone 15 Pro Max 256GB - Blue Titanium (Special Offer)",
+    "tags": ["premium", "5g", "flagship", "new-launch", "sale"]
+  }
+}
+```
+
+### Sample Payload (Product v2 - Delete Event)
+
+**Note:** Product v2 delete events have the same payload structure as v1. Only the `event.version` field differs.
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.gj8377g5-8274-66k6-f957-f028j27gf7k7"],
+    "name": "product",
+    "type": "delete",
+    "version": "2",
+    "created_timestamp": 1776510786651,
+    "id": "Blx9DY1h+Sy3lVSNwE0z0FO0afeOd3lndO84R2JWOYgVT=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "sku": "IPHONE-15-PRO-MAX-256GB-BLU",
+    "grouped_sku": "IPHONE-15-PRO-MAX"
+  }
+}
+```
+
+**Note on Product Versions:** Product events are available in both v1 and v2. The payload structure is identical between versions - only the `event.version` field differs. Use the version that matches your AIPIM configuration.
+
+### Sample Payload (Attribute v1 - Create Event)
 
 ```json
 {
@@ -145,20 +461,20 @@ The webhook payload has the following structure:
   "payload": {
     "_id": "69dcd01073915eda34cc7808",
     "formatting": "None",
-    "name": "Sample Attribute",
+    "name": "Screen Size",
     "active": true,
-    "code": "SAMPLE_ATTR",
+    "code": "screen_size",
     "auto_sync_to_prod": true,
-    "description": "Sample attribute description",
+    "description": "Display screen size in inches",
     "vms_visible": true,
     "vms_editable": true,
-    "store_filter": false,
-    "store_display_plp": false,
-    "store_display_pdp": false,
-    "store_search": false,
-    "store_compare": false,
-    "tags": [],
-    "type": "Short Text",
+    "store_filter": true,
+    "store_display_plp": true,
+    "store_display_pdp": true,
+    "store_search": true,
+    "store_compare": true,
+    "tags": ["electronics", "display"],
+    "type": "Decimal",
     "mandatory": false,
     "is_global": false,
     "is_agentic": false,
@@ -173,23 +489,676 @@ The webhook payload has the following structure:
 }
 ```
 
-### Sample Payload (Category Delete Event)
+### Sample Payload (Attribute v1 - Update Event)
 
 ```json
 {
   "event": {
-    "trace_id": ["sample.trace-id"],
-    "name": "category",
-    "type": "delete",
+    "trace_id": ["nenya.fe09e9d1-4830-22g2-93ce-4eg48g836cb2"],
+    "name": "attribute",
+    "type": "update",
     "version": "1",
-    "created_timestamp": 1776078900000,
-    "id": "SAMPLE_EVENT_ID",
+    "created_timestamp": 1776165264460,
+    "id": "UXjqJ1eb/PeZ+ZOyvQQIiO6pZOObXpRoROaUbkKN88Cjl=",
     "category": "organization"
   },
   "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
   "payload": {
-    "_id": "507f1f77bcf86cd799439011",
-    "deleted_at": "2026-04-13T12:00:00Z"
+    "_id": "69dcd01073915eda34cc7808",
+    "formatting": "None",
+    "name": "Screen Size",
+    "active": true,
+    "code": "screen_size",
+    "auto_sync_to_prod": true,
+    "description": "Display screen size in inches (diagonal measurement)",
+    "vms_visible": true,
+    "vms_editable": true,
+    "store_filter": true,
+    "store_display_plp": true,
+    "store_display_pdp": true,
+    "store_search": true,
+    "store_compare": true,
+    "tags": ["electronics", "display", "specifications"],
+    "type": "Decimal",
+    "mandatory": false,
+    "is_global": false,
+    "is_agentic": false,
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "created_by": "3145898e8495eeb58749d844",
+    "modified_by": "3145898e8495eeb58749d844",
+    "created_at": "2026-04-13T11:14:24.430Z",
+    "updated_at": "2026-04-14T15:22:10.125Z",
+    "__v": 0,
+    "action": "update"
+  }
+}
+```
+
+### Sample Payload (Attribute v1 - Delete Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.gf10fae2-5941-33h3-a4df-5fh59h947dc3"],
+    "name": "attribute",
+    "type": "delete",
+    "version": "1",
+    "created_timestamp": 1776251664460,
+    "id": "VYkrK2fc/QfA+APzvRRJjP7qaBPcYqSppSpbVclLO99Dkm=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": "69dcd01073915eda34cc7808",
+    "code": "screen_size",
+    "action": "delete"
+  }
+}
+```
+
+### Sample Payload (Template v1 - Create Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.hg21gbe3-6052-44i4-b5eg-6gi60i058ed4"],
+    "name": "template",
+    "type": "create",
+    "version": "1",
+    "created_timestamp": 1776338064460,
+    "id": "WZlsL3gd/RgB+BQ0wSSKkQ8rbCQdZrTqqTqcWdmMPA0Eln=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": "69dde12184026fe545dd8909",
+    "name": "Electronics Product Template",
+    "description": "Standard template for all electronic products",
+    "active": true,
+    "expirable": false,
+    "physical": true,
+    "public": false,
+    "tags": ["electronics", "standard"],
+    "is_global": false,
+    "is_agentic": false,
+    "attributes": [
+      {
+        "_id": "69dcd01073915eda34cc7808",
+        "code": "screen_size",
+        "name": "Screen Size",
+        "type": "Decimal",
+        "active": true
+      },
+      {
+        "_id": "69dcd12184026fe545dd7919",
+        "code": "battery",
+        "name": "Battery",
+        "type": "Short Text",
+        "active": true
+      }
+    ],
+    "groups": [
+      {
+        "name": "Basic Information",
+        "active": true,
+        "attributes": [
+          {
+            "_id": "69dcd01073915eda34cc7808",
+            "code": "screen_size",
+            "name": "Screen Size",
+            "type": "Decimal"
+          }
+        ]
+      },
+      {
+        "name": "Technical Specifications",
+        "active": true,
+        "attributes": [
+          {
+            "_id": "69dcd12184026fe545dd7919",
+            "code": "battery",
+            "name": "Battery",
+            "type": "Short Text"
+          }
+        ]
+      }
+    ],
+    "category_mapping": [
+      {
+        "_id": 1,
+        "code": "electronics",
+        "name": "Electronics"
+      }
+    ],
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "created_by": "3145898e8495eeb58749d844",
+    "modified_by": "3145898e8495eeb58749d844",
+    "created_at": "2026-04-13T11:14:24.430Z",
+    "updated_at": "2026-04-13T11:14:24.430Z",
+    "action": "create"
+  }
+}
+```
+
+### Sample Payload (Template v1 - Update Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.ih32hcf4-7163-55j5-c6fh-7hj71j169fe5"],
+    "name": "template",
+    "type": "update",
+    "version": "1",
+    "created_timestamp": 1776424464460,
+    "id": "XAmtM4he/ShC+CR1xTTLlR9scDRedSuUrrSrdXenQB1Fmo=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": "69dde12184026fe545dd8909",
+    "name": "Electronics Product Template",
+    "description": "Updated standard template for all electronic products - includes warranty fields",
+    "active": true,
+    "expirable": false,
+    "physical": true,
+    "public": false,
+    "tags": ["electronics", "standard", "updated"],
+    "is_global": false,
+    "is_agentic": false,
+    "attributes": [
+      {
+        "_id": "69dcd01073915eda34cc7808",
+        "code": "screen_size",
+        "name": "Screen Size",
+        "type": "Decimal",
+        "active": true
+      },
+      {
+        "_id": "69dcd12184026fe545dd7919",
+        "code": "battery",
+        "name": "Battery",
+        "type": "Short Text",
+        "active": true
+      },
+      {
+        "_id": "69dcd23295137gf656ee8a20",
+        "code": "warranty",
+        "name": "Warranty",
+        "type": "Short Text",
+        "active": true
+      }
+    ],
+    "groups": [
+      {
+        "name": "Basic Information",
+        "active": true,
+        "attributes": [
+          {
+            "_id": "69dcd01073915eda34cc7808",
+            "code": "screen_size",
+            "name": "Screen Size",
+            "type": "Decimal"
+          }
+        ]
+      },
+      {
+        "name": "Technical Specifications",
+        "active": true,
+        "attributes": [
+          {
+            "_id": "69dcd12184026fe545dd7919",
+            "code": "battery",
+            "name": "Battery",
+            "type": "Short Text"
+          },
+          {
+            "_id": "69dcd23295137gf656ee8a20",
+            "code": "warranty",
+            "name": "Warranty",
+            "type": "Short Text"
+          }
+        ]
+      }
+    ],
+    "category_mapping": [
+      {
+        "_id": 1,
+        "code": "electronics",
+        "name": "Electronics"
+      }
+    ],
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "created_by": "3145898e8495eeb58749d844",
+    "modified_by": "3145898e8495eeb58749d844",
+    "created_at": "2026-04-13T11:14:24.430Z",
+    "updated_at": "2026-04-14T11:14:24.430Z",
+    "action": "update"
+  }
+}
+```
+
+### Sample Payload (Template v1 - Delete Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.ji43ide5-8274-66k6-d7gi-8ik82k270gf6"],
+    "name": "template",
+    "type": "delete",
+    "version": "1",
+    "created_timestamp": 1776510864460,
+    "id": "YBnuN5if/TiD+DS2yUUMmS0tdESfeRvVrsSseYfoRc2Gnp=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": "69dde12184026fe545dd8909",
+    "action": "delete"
+  }
+}
+```
+
+### Sample Payload (Category v1 - Create Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.kj54jef6-9385-77l7-e8hj-9jl93l381hg7"],
+    "name": "category",
+    "type": "create",
+    "version": "1",
+    "created_timestamp": 1776597264460,
+    "id": "ZCovO6jg/UjE+ET3zVVNnT1ueFTgfSwWstTtfZgpSd3Hoq=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": 42,
+    "name": "Smartphones",
+    "code": "smartphones",
+    "archive": false,
+    "tags": ["electronics", "mobile", "top-selling"],
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "created_by": "3145898e8495eeb58749d844",
+    "modified_by": "3145898e8495eeb58749d844",
+    "is_global": false,
+    "is_agentic": false,
+    "created_at": "2026-04-13T11:14:24.430Z",
+    "updated_at": "2026-04-13T11:14:24.430Z",
+    "action": "create"
+  }
+}
+```
+
+### Sample Payload (Category v1 - Update Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.lk65kfg7-0496-88m8-f9ik-0km04m492ih8"],
+    "name": "category",
+    "type": "update",
+    "version": "1",
+    "created_timestamp": 1776683664460,
+    "id": "ADpwP7kh/VkF+FU40WWOoU2vfGUhgTxXtuUugAhqTe4Ipr=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": 42,
+    "name": "Smartphones",
+    "code": "smartphones",
+    "archive": false,
+    "tags": ["electronics", "mobile", "top-selling", "trending"],
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "created_by": "3145898e8495eeb58749d844",
+    "modified_by": "3145898e8495eeb58749d844",
+    "is_global": false,
+    "is_agentic": false,
+    "created_at": "2026-04-13T11:14:24.430Z",
+    "updated_at": "2026-04-14T16:45:00.000Z",
+    "action": "update"
+  }
+}
+```
+
+### Sample Payload (Category v1 - Delete Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.ml76lgh8-1507-99n9-g0jl-1ln15n503ji9"],
+    "name": "category",
+    "type": "delete",
+    "version": "1",
+    "created_timestamp": 1776770064460,
+    "id": "BEqxQ8li/WlG+GV51XXPpV3wgHVihUyYuvVvhBirUf5Jqs=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "_id": 42,
+    "code": "smartphones",
+    "action": "delete"
+  }
+}
+```
+
+### Sample Payload (Category-Mapping v1 - Create Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.nm87mhi9-2618-00o0-h1km-2mo26o614kj0"],
+    "name": "category-mapping",
+    "type": "create",
+    "version": "1",
+    "created_timestamp": 1776856464460,
+    "id": "CFryR9mj/XmH+HW62YYQqW4xhIWjiVzZvwWwiBjsVg6Krt=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "name": "Electronics > Mobiles > Smartphones",
+    "code": "electronics_mobiles_smartphones",
+    "mapping": [
+      {
+        "name": "Electronics",
+        "code": "electronics",
+        "sequence": 0
+      },
+      {
+        "name": "Mobiles",
+        "code": "mobiles",
+        "sequence": 1
+      },
+      {
+        "name": "Smartphones",
+        "code": "smartphones",
+        "sequence": 2
+      }
+    ],
+    "archive": false,
+    "brickCode": "10000001",
+    "tags": ["active", "featured", "high-demand"],
+    "action": "create"
+  }
+}
+```
+
+### Sample Payload (Category-Mapping v1 - Update Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.on98nij0-3729-11p1-i2ln-3np37p725lk1"],
+    "name": "category-mapping",
+    "type": "update",
+    "version": "1",
+    "created_timestamp": 1776942864460,
+    "id": "DGszS0nk/YnI+IX73ZZRrX5yiJXkjW0AwxXxjCktWh7Lsu=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "name": "Electronics > Mobiles > Smartphones > 5G",
+    "code": "electronics_mobiles_smartphones",
+    "mapping": [
+      {
+        "name": "Electronics",
+        "code": "electronics",
+        "sequence": 0
+      },
+      {
+        "name": "Mobiles",
+        "code": "mobiles",
+        "sequence": 1
+      },
+      {
+        "name": "Smartphones",
+        "code": "smartphones",
+        "sequence": 2
+      },
+      {
+        "name": "5G",
+        "code": "5g",
+        "sequence": 3
+      }
+    ],
+    "archive": false,
+    "brickCode": "10000001",
+    "tags": ["active", "featured", "high-demand", "5g-enabled"],
+    "action": "update"
+  }
+}
+```
+
+### Sample Payload (Category-Mapping v1 - Delete Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["nenya.po09ojk1-4830-22q2-j3mo-4oq48q836ml2"],
+    "name": "category-mapping",
+    "type": "delete",
+    "version": "1",
+    "created_timestamp": 1777029264460,
+    "id": "EHt0T1ol/ZoJ+JY84AAStY6zjKYlkX1BxyykDluXi8Mtv=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "code": "electronics_mobiles_smartphones",
+    "action": "delete"
+  }
+}
+```
+
+### Sample Payload (Relationship-Mapping v1 - Create Parent-Child Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.qp10pkl2-5941-33r3-k4np-5pr59r947nm3"],
+    "name": "relationship-mapping",
+    "type": "create",
+    "version": "1",
+    "created_timestamp": 1777115664460,
+    "id": "FIu1U2pm/ApK+KZ95BBTuZ70kLZmY2CyzAzlEmuYj9Nuw=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "type": "parent-child",
+    "relationship_name": "Smartphone Bundle",
+    "product_data": {
+      "sku": "SMARTPHONE-BUNDLE-001",
+      "category": [
+        {
+          "name": "Electronics",
+          "code": "electronics",
+          "level": 1
+        },
+        {
+          "name": "Mobiles",
+          "code": "mobiles",
+          "level": 2
+        }
+      ]
+    },
+    "parent": "SMARTPHONE-BUNDLE-001",
+    "childs": [
+      {
+        "sku": "SAMSUNG-GALAXY-S21-BLK",
+        "quantity": 1
+      },
+      {
+        "sku": "CHARGER-FAST-25W",
+        "quantity": 1
+      },
+      {
+        "sku": "CASE-PROTECTIVE-BLK",
+        "quantity": 1
+      }
+    ],
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "category": [
+      {
+        "name": "Electronics",
+        "code": "electronics",
+        "level": 1
+      },
+      {
+        "name": "Mobiles",
+        "code": "mobiles",
+        "level": 2
+      }
+    ],
+    "action": "create"
+  }
+}
+```
+
+### Sample Payload (Relationship-Mapping v1 - Create Variant Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.rq21qlm3-6052-44s4-l5oq-6qs60s058on4"],
+    "name": "relationship-mapping",
+    "type": "create",
+    "version": "1",
+    "created_timestamp": 1777202064460,
+    "id": "GJv2V3qn/BqL+La06CCUvA81lMaanZ3Dz0B0mFnvZk0Ovx=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "type": "variant",
+    "variants": ["SAMSUNG-GALAXY-S21"],
+    "primary_sku": "SAMSUNG-GALAXY-S21",
+    "product_data": {
+      "sku": "SAMSUNG-GALAXY-S21",
+      "category": [
+        {
+          "name": "Electronics",
+          "code": "electronics",
+          "level": 1
+        },
+        {
+          "name": "Mobiles",
+          "code": "mobiles",
+          "level": 2
+        }
+      ]
+    },
+    "variant_config": [
+      {
+        "action": "create",
+        "variantHash": "variant-hash-123",
+        "relationship_name": "Color Variant",
+        "relationship_info": {
+          "name": "Color Variant",
+          "slug": "color-variant"
+        }
+      }
+    ],
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "category": [
+      {
+        "name": "Electronics",
+        "code": "electronics",
+        "level": 1
+      },
+      {
+        "name": "Mobiles",
+        "code": "mobiles",
+        "level": 2
+      }
+    ],
+    "action": "create"
+  }
+}
+```
+
+### Sample Payload (Relationship-Mapping v1 - Update Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.sr32rmn4-7163-55t5-m6pr-7rt71t169po5"],
+    "name": "relationship-mapping",
+    "type": "update",
+    "version": "1",
+    "created_timestamp": 1777288464460,
+    "id": "HKw3W4ro/CrM+Mb17DDVwB92mNbboadE01C1nGowAl1Pwy=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "type": "parent-child",
+    "relationship_name": "Smartphone Bundle",
+    "product_data": {
+      "sku": "SMARTPHONE-BUNDLE-001",
+      "category": [
+        {
+          "name": "Electronics",
+          "code": "electronics",
+          "level": 1
+        }
+      ]
+    },
+    "parent": "SMARTPHONE-BUNDLE-001",
+    "childs": [
+      {
+        "sku": "SAMSUNG-GALAXY-S21-BLK",
+        "quantity": 1
+      },
+      {
+        "sku": "CHARGER-FAST-25W",
+        "quantity": 1
+      },
+      {
+        "sku": "CASE-PROTECTIVE-BLK",
+        "quantity": 1
+      },
+      {
+        "sku": "SCREEN-PROTECTOR",
+        "quantity": 1
+      }
+    ],
+    "x_org_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+    "category": [
+      {
+        "name": "Electronics",
+        "code": "electronics",
+        "level": 1
+      }
+    ],
+    "action": "update"
+  }
+}
+```
+
+### Sample Payload (Relationship-Mapping v1 - Delete Event)
+
+```json
+{
+  "event": {
+    "trace_id": ["valar.ts43sno5-8274-66u6-n7qs-8su82u270qp6"],
+    "name": "relationship-mapping",
+    "type": "delete",
+    "version": "1",
+    "created_timestamp": 1777374864460,
+    "id": "ILx4X5sp/DsN+Nc28EEWxC03nOccpbeF12D2oHpxBm2Qxz=",
+    "category": "organization"
+  },
+  "company_id": "a84fd338-f722-4597-95e6-7b8032f03d8f",
+  "payload": {
+    "type": "parent-child",
+    "relationship_name": "Smartphone Bundle",
+    "parent": "SMARTPHONE-BUNDLE-001",
+    "action": "delete"
   }
 }
 ```
@@ -198,20 +1167,85 @@ The webhook payload has the following structure:
 
 In your workflow activities, you can reference webhook data using template variables:
 
-| Variable | Description |
-|---|---|
-| `{{payload.event.name}}` | The entity type (product, attribute, category, etc.) |
-| `{{payload.event.type}}` | The action (create, update, delete) |
-| `{{payload.event.version}}` | The API version used |
-| `{{payload.event.created_timestamp}}` | Unix timestamp when the event occurred |
-| `{{payload.event.id}}` | Unique event identifier |
-| `{{payload.company_id}}` | Your AIPIM organization ID |
-| `{{payload.payload._id}}` | The entity record ID |
-| `{{payload.payload.name}}` | The entity name (if available) |
-| `{{payload.payload.title}}` | The entity title (for products) |
-| `{{payload.payload}}` | Full entity data object |
+### Common Fields (Available in All Events)
 
-## Workflow Example
+- **`{{payload.event.name}}`** - The entity type (product, attribute, template, category, category-mapping, relationship-mapping)
+- **`{{payload.event.type}}`** - The action (create, update, delete)
+- **`{{payload.event.version}}`** - The API version used (e.g., "1" or "2")
+- **`{{payload.event.created_timestamp}}`** - Unix timestamp when the event occurred
+- **`{{payload.event.id}}`** - Unique event identifier
+- **`{{payload.company_id}}`** - Your AIPIM organization ID
+- **`{{payload.payload}}`** - Full entity data object
+
+### Event-Specific Fields
+
+**Product Events:**
+- **`{{payload.payload.sku}}`** - Product SKU
+- **`{{payload.payload.title}}`** - Product title
+- **`{{payload.payload.selling_price}}`** - Selling price
+- **`{{payload.payload.mrp}}`** - Maximum retail price
+- **`{{payload.payload.brand}}`** - Brand ID
+- **`{{payload.payload.category}}`** - Category array
+- **`{{payload.payload.images}}`** - Image array
+
+**Attribute Events:**
+- **`{{payload.payload._id}}`** - Attribute ID
+- **`{{payload.payload.name}}`** - Attribute name
+- **`{{payload.payload.code}}`** - Attribute code
+- **`{{payload.payload.type}}`** - Attribute type (e.g., "Decimal", "Short Text")
+- **`{{payload.payload.action}}`** - Action field (create/update/delete)
+
+**Template Events:**
+- **`{{payload.payload._id}}`** - Template ID
+- **`{{payload.payload.name}}`** - Template name
+- **`{{payload.payload.attributes}}`** - Attributes array
+- **`{{payload.payload.groups}}`** - Attribute groups array
+- **`{{payload.payload.action}}`** - Action field (create/update/delete)
+
+**Category Events:**
+- **`{{payload.payload._id}}`** - Category ID
+- **`{{payload.payload.name}}`** - Category name
+- **`{{payload.payload.code}}`** - Category code
+- **`{{payload.payload.action}}`** - Action field (create/update/delete)
+
+**Category-Mapping Events:**
+- **`{{payload.payload.code}}`** - Mapping code
+- **`{{payload.payload.name}}`** - Mapping name (e.g., "Electronics > Mobiles > Smartphones")
+- **`{{payload.payload.mapping}}`** - Hierarchy mapping array
+- **`{{payload.payload.action}}`** - Action field (create/update/delete)
+
+**Relationship-Mapping Events:**
+- **`{{payload.payload.type}}`** - Relationship type (parent-child or variant)
+- **`{{payload.payload.parent}}`** - Parent SKU (for parent-child relationships)
+- **`{{payload.payload.childs}}`** - Child products array
+- **`{{payload.payload.variants}}`** - Variants array (for variant relationships)
+- **`{{payload.payload.action}}`** - Action field (create/update/delete)
+
+### Safe Access Patterns
+
+Since delete events have minimal payloads, always check for field existence:
+
+**Example 1 - Safe product title access:**
+```
+{{#if payload.payload.title}}
+  Product: {{payload.payload.title}}
+{{else}}
+  Product SKU: {{payload.payload.sku}}
+{{/if}}
+```
+
+**Example 2 - Conditional logic based on event type:**
+```
+{{#if (eq payload.event.type "delete")}}
+  Deleted {{payload.event.name}} with ID: {{payload.payload._id}}
+{{else}}
+  {{payload.event.type}} {{payload.event.name}}: {{payload.payload.name}}
+{{/if}}
+```
+
+## Workflow Examples
+
+### Example 1: Product Creation Notification
 
 **Scenario**: When a new product is created in AIPIM, send a Slack notification and create a record in Google Sheets.
 
@@ -222,6 +1256,34 @@ In your workflow activities, you can reference webhook data using template varia
 3. **Activity 2**: Add row to Google Sheets
    - Spreadsheet: Product Catalog
    - Row data: SKU (`{{payload.payload.sku}}`), Title (`{{payload.payload.title}}`), Price (`{{payload.payload.selling_price}}`)
+
+### Example 2: Template Update Notification
+
+**Scenario**: When a product template is created or updated, send an email notification to the product team.
+
+1. **Trigger**: AIPIM Webhook (Event Name: Template, Events: Create, Update)
+2. **Activity 1**: Send Email
+   - To: product-team@company.com
+   - Subject: "Template {{payload.event.type}}: `{{payload.payload.name}}`"
+   - Body: "Template `{{payload.payload.name}}` was {{payload.event.type}}d in AIPIM. Description: `{{payload.payload.description}}`"
+3. **Activity 2**: Log to Database
+   - Table: template_audit_log
+   - Fields: template_id (`{{payload.payload._id}}`), action (`{{payload.payload.action}}`), timestamp (`{{payload.event.created_timestamp}}`)
+
+### Example 3: Bundle Management with Inventory Sync
+
+**Scenario**: When a relationship-mapping event occurs (bundle created/updated), sync inventory levels across all child products.
+
+1. **Trigger**: AIPIM Webhook (Event Name: Relationship-Mapping, Events: Create, Update)
+2. **Activity 1**: Filter (only process parent-child relationships)
+   - Condition: `{{payload.payload.type}}` equals "parent-child"
+3. **Activity 2**: Loop through child products
+   - Array: `{{payload.payload.childs}}`
+   - For each child:
+     - Update inventory system with SKU (`{{item.sku}}`) and quantity (`{{item.quantity}}`)
+4. **Activity 3**: Send Slack notification
+   - Channel: #inventory-updates
+   - Message: "Bundle `{{payload.payload.relationship_name}}` {{payload.event.type}}d with {{payload.payload.childs.length}} child products"
 
 ## Notes
 
@@ -238,6 +1300,9 @@ In your workflow activities, you can reference webhook data using template varia
 3. **Version Consistency**: Use v2 for new integrations to leverage the latest features
 4. **Error Handling**: Add error handling activities to manage failed webhook processing
 5. **Filter Events**: Use Boltic's filter activities to process only relevant events based on specific criteria
+6. **Handle Partial Payloads**: Delete events typically have minimal payloads containing only identifiers - ensure your workflow handles these gracefully by checking for field existence before accessing nested properties
+7. **Version-Specific Logic**: For product events, be aware that both v1 and v2 versions exist with identical payload structures - choose the version that matches your AIPIM configuration
+8. **Event Type Awareness**: Use `{{payload.event.type}}` to determine the action (create, update, delete) and build conditional logic accordingly for different event handling
 
 ## Troubleshooting
 
@@ -259,4 +1324,17 @@ In your workflow activities, you can reference webhook data using template varia
 - Review your event type selections — selecting multiple events will trigger for each
 - Consider using filters to process only specific events
 - Check for duplicate webhook configurations
+
+### Missing Fields
+
+- Some event types have minimal payloads, especially delete events which typically contain only identifiers
+- Ensure your workflow safely accesses optional fields using conditional logic (e.g., check if `{{payload.payload.title}}` exists before using it)
+- Different event types have different structures - for example, product events don't include an `action` field in the payload while attribute, template, category, category-mapping, and relationship-mapping events do
+
+### Unexpected Payload Structure
+
+- Different event types (product, attribute, template, category, category-mapping, relationship-mapping) have different payload structures
+- Verify you're processing the correct event type by checking `{{payload.event.name}}`
+- Delete events have minimal payloads compared to create/update events
+- Product v1 and v2 have identical payload structures - only the `event.version` field differs
 
