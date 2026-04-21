@@ -1,0 +1,189 @@
+{
+    "getForms": {
+        "definition": {
+            "qs": {},
+            "url": "https://creator.zoho.in/api/v2/{{parameters.workspace}}/{{parameters.application}}/forms",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.response.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.response.message}}"
+                },
+                "output": "{{response.data.forms}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Record",
+                        "value": "record.create",
+                        "description": "Create a new record in Zoho Creator."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "record",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getApplicationsByWorkspace": {
+        "definition": {
+            "qs": {},
+            "url": "https://creator.zoho.in/api/v2/{{parameters.workspace}}/applications",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.response.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.response.message}}"
+                },
+                "output": "{{response.data.applications}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://creator.zoho.in/api/v2/{{parameters.workspace}}/{{parameters.application}}/form/{{parameters.form}}",
+            "body": {
+                "data": "{{parameters.data}}",
+                "result": {
+                    "tasks": false,
+                    "fields": [],
+                    "message": true
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "error": "{{response}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Workspace name is required"
+                        }
+                    },
+                    "description": "Specify the Zoho Creator workspace or application owner name. (without spaces) (e.g. 'megan9')",
+                    "displayName": "Workspace",
+                    "displayType": "text",
+                    "placeholder": "Enter workspace name/Application Owner name"
+                },
+                "name": "workspace"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_creator",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "record",
+                            "operation": "record.create",
+                            "workspace": "{{parameters.workspace}}",
+                            "loadOptionsMethod": "getApplicationsByWorkspace"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "application_name",
+                        "valueKey": "link_name",
+                        "condition": "{{parameters.workspace}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the Zoho Creator application to work with.",
+                    "displayName": "Application",
+                    "displayType": "select",
+                    "placeholder": "Select an application"
+                },
+                "name": "application"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_creator",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "record",
+                            "operation": "record.create",
+                            "workspace": "{{parameters.workspace}}",
+                            "application": "{{parameters.application}}",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "display_name",
+                        "valueKey": "link_name",
+                        "condition": "{{parameters.application}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose the Zoho Creator application's form to work with.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select an Form"
+                },
+                "name": "form"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Record data is required"
+                        }
+                    },
+                    "description": "Provide the data for the record in JSON format or use Dynamic Variables.",
+                    "displayName": "Data",
+                    "displayType": "textarea",
+                    "placeholder": "Enter record data in JSON format"
+                },
+                "name": "data"
+            }
+        ]
+    }
+}

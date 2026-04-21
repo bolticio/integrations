@@ -1,0 +1,634 @@
+{
+    "getTaxes": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/settings/taxes?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.taxes}}"
+            }
+        }
+    },
+    "getVendors": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/contacts?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.contacts}}"
+            },
+            "transform": {
+                "output": "const updatedOutput = output.filter(customer => customer.contact_type === 'vendor').map(customer => { return { ...customer, display_name: !customer.first_name || !customer.last_name ? customer.customer_name : `${customer.first_name} ${customer.last_name}` }; }); return updatedOutput;"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Item",
+                        "value": "item.create",
+                        "description": "Create a new item in Zoho Books."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Choose the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "item",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getAccounts": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/chartofaccounts?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.chartofaccounts}}"
+            },
+            "transform": {
+                "output": "const allowed = [\"other_current_asset\",\"fixed_asset\",\"other_current_liability\",\"income\"]; const updatedOutput = output.filter(t => allowed.includes(t.account_type)); return updatedOutput;"
+            }
+        }
+    },
+    "getLocations": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/locations?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.locations}}"
+            }
+        }
+    },
+    "getOrganizations": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        }
+    },
+    "getPurchaseAccounts": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/chartofaccounts?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.chartofaccounts}}"
+            },
+            "transform": {
+                "output": "const allowed = [\"fixed_asset\",\"expense\",\"cost_of_goods_sold\"]; const updatedOutput = output.filter(t => allowed.includes(t.account_type)); return updatedOutput;"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/items?organization_id={{parameters.organization_id}}",
+            "body": {
+                "sku": "{{parameters.sku}}",
+                "name": "{{parameters.name}}",
+                "rate": "{{parameters.rate}}",
+                "item_type": "{{parameters.item_type}}",
+                "locations": "{{parameters.locations}}",
+                "vendor_id": "{{parameters.vendor_id}}",
+                "account_id": "{{parameters.account_id}}",
+                "is_taxable": "{{parameters.is_taxable}}",
+                "description": "{{parameters.description}}",
+                "product_type": "{{parameters.product_type}}",
+                "purchase_rate": "{{parameters.purchase_rate}}",
+                "reorder_level": "{{parameters.reorder_level}}",
+                "tax_percentage": "{{parameters.tax_percentage}}",
+                "tax_exemption_id": "{{parameters.tax_exemption_id}}",
+                "purchase_account_id": "{{parameters.purchase_account_id}}",
+                "inventory_account_id": "{{parameters.inventory_account_id}}",
+                "item_tax_preferences": "{{parameters.item_tax_preferences}}",
+                "purchase_description": "{{parameters.purchase_description}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "item",
+                            "operation": "item.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the item (max 100 chars)",
+                    "displayName": "Item Name",
+                    "displayType": "text",
+                    "placeholder": "Enter item name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Price of the item",
+                    "displayName": "Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter item price"
+                },
+                "name": "rate"
+            },
+            {
+                "meta": {
+                    "description": "Description for the item (max 2000 chars)",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter item description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_books",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "item",
+                                        "operation": "item.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getLocations"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "location_name",
+                                    "valueKey": "location_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Location ID for the opening balance",
+                                "displayName": "Location ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter location ID"
+                            },
+                            "name": "location_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "Opening stock of the item",
+                                "displayName": "Initial Stock",
+                                "displayType": "text",
+                                "placeholder": "Enter opening stock"
+                            },
+                            "name": "initial_stock"
+                        },
+                        {
+                            "meta": {
+                                "description": "Unit price of the opening stock",
+                                "displayName": "Initial Stock Rate",
+                                "displayType": "text",
+                                "placeholder": "Enter unit price"
+                            },
+                            "name": "initial_stock_rate"
+                        }
+                    ],
+                    "description": "Item locations and stock information",
+                    "displayName": "Location",
+                    "displayType": "array"
+                },
+                "name": "locations"
+            },
+            {
+                "meta": {
+                    "description": "Percent of the tax",
+                    "displayName": "Tax Percentage",
+                    "displayType": "text",
+                    "placeholder": "Enter tax percentage"
+                },
+                "name": "tax_percentage"
+            },
+            {
+                "meta": {
+                    "description": "SKU value of item (must be unique)",
+                    "displayName": "SKU",
+                    "displayType": "text",
+                    "placeholder": "Enter SKU"
+                },
+                "name": "sku"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Goods",
+                            "value": "goods"
+                        },
+                        {
+                            "label": "Service",
+                            "value": "service"
+                        },
+                        {
+                            "label": "Digital Service",
+                            "value": "digital_service"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Type of the item, and supported values [goods, service, digital_service]",
+                    "displayName": "Product Type",
+                    "displayType": "select",
+                    "placeholder": "Select product type"
+                },
+                "name": "product_type"
+            },
+            {
+                "meta": {
+                    "value": true,
+                    "description": "Whether the item is taxable",
+                    "displayName": "Is Taxable",
+                    "displayType": "toggle",
+                    "placeholder": "Is taxable"
+                },
+                "name": "is_taxable"
+            },
+            {
+                "meta": {
+                    "description": "ID of the tax exemption (required if is_taxable is false)",
+                    "displayName": "Tax Exemption ID",
+                    "displayType": "text",
+                    "placeholder": "Enter tax exemption ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "is_taxable",
+                                "value": false,
+                                "operator": "equals"
+                            }
+                        ]
+                    }
+                },
+                "name": "tax_exemption_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Sales",
+                            "value": "sales"
+                        },
+                        {
+                            "label": "Purchases",
+                            "value": "purchases"
+                        },
+                        {
+                            "label": "Sales and Purchases",
+                            "value": "sales_and_purchases"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of the item, and supported values [sales, purchases, sales_and_purchases]",
+                    "displayName": "Item Type",
+                    "displayType": "select",
+                    "placeholder": "Select item type"
+                },
+                "name": "item_type"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "item",
+                            "operation": "item.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getAccounts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "account_name",
+                        "valueKey": "account_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "ID of the account to associate with the item",
+                    "displayName": "Account ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter account ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "item_type",
+                                "value": "sales",
+                                "operator": "CONTAINS"
+                            }
+                        ]
+                    }
+                },
+                "name": "account_id"
+            },
+            {
+                "meta": {
+                    "description": "Purchase description for the item",
+                    "displayName": "Purchase Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter purchase description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "item_type",
+                                "value": "purchases",
+                                "operator": "CONTAINS"
+                            }
+                        ]
+                    }
+                },
+                "name": "purchase_description"
+            },
+            {
+                "meta": {
+                    "description": "Purchase price of the item",
+                    "displayName": "Purchase Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter purchase price",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "item_type",
+                                "value": "purchases",
+                                "operator": "CONTAINS"
+                            }
+                        ]
+                    }
+                },
+                "name": "purchase_rate"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "item",
+                            "operation": "item.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getPurchaseAccounts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "account_name",
+                        "valueKey": "account_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "ID of the COGS account (required for purchase/sales_and_purchases/inventory types)",
+                    "displayName": "Purchase Account ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter purchase account ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "item_type",
+                                "value": "purchases",
+                                "operator": "CONTAINS"
+                            }
+                        ]
+                    }
+                },
+                "name": "purchase_account_id"
+            },
+            {
+                "meta": {
+                    "description": "ID of the stock account (required for inventory type)",
+                    "displayName": "Inventory Account ID",
+                    "displayType": "text",
+                    "placeholder": "Enter inventory account ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "item_type",
+                                "value": "purchases",
+                                "operator": "CONTAINS"
+                            }
+                        ]
+                    }
+                },
+                "name": "inventory_account_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "item",
+                            "operation": "item.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getVendors"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "display_name",
+                        "valueKey": "contact_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Preferred vendor ID",
+                    "displayName": "Vendor ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter vendor ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "item_type",
+                                "value": "purchases",
+                                "operator": "CONTAINS"
+                            }
+                        ]
+                    }
+                },
+                "name": "vendor_id"
+            },
+            {
+                "meta": {
+                    "description": "Reorder level of the item",
+                    "displayName": "Reorder Level",
+                    "displayType": "number",
+                    "placeholder": "Enter reorder level"
+                },
+                "name": "reorder_level"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "item",
+                                        "operation": "item.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getTaxes"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "tax_name",
+                                    "valueKey": "tax_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Unique to denote the tax associated to the creditnote",
+                                "displayName": "Tax ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter tax ID"
+                            },
+                            "name": "tax_id"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Intra State",
+                                        "value": "intra"
+                                    },
+                                    {
+                                        "label": "Inter State",
+                                        "value": "interstate"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Tax type (intra/interstate), and supported values [intra, interstate]",
+                                "displayName": "Tax Specification",
+                                "displayType": "select",
+                                "placeholder": "Select tax specification"
+                            },
+                            "name": "tax_specification"
+                        }
+                    ],
+                    "description": "Tax preferences for the item (India only)",
+                    "displayName": "Item Tax Preference",
+                    "displayType": "array"
+                },
+                "name": "item_tax_preferences"
+            }
+        ]
+    }
+}

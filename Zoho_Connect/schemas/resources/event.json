@@ -1,0 +1,838 @@
+{
+    "getGroups": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/api/allGroups?scopeID={{parameters.scope_id}}&isRecentSort=true",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data.allGroups.groups}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Event",
+                        "value": "event.create",
+                        "description": "Create a new event in Zoho Connect."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose an action for Event.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "getNetworks": {
+        "definition": {
+            "qs": {},
+            "url": "https://connect.zoho.in/pulse/api/allScopes",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": "{{response.data}}",
+                "output": "{{response.data.allScopes.scopes}}"
+            }
+        }
+    },
+    "getNetworkUsers": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/nativeapi/orgMembers?scopeID={{parameters.scope_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data.orgMembers.usersDetails}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "qs": {
+                "desc": "{{parameters.desc}}",
+                "title": "{{parameters.title}}",
+                "allDay": "{{parameters.allDay}}",
+                "endMin": "{{parameters.endMin}}",
+                "fields": "{{parameters.fields}}",
+                "endDate": "{{parameters.endDate}}",
+                "endHour": "{{parameters.endHour}}",
+                "endYear": "{{parameters.endYear}}",
+                "scopeID": "{{parameters.scope_id}}",
+                "endMonth": "{{parameters.endMonth}}",
+                "location": "{{parameters.location}}",
+                "startMin": "{{parameters.startMin}}",
+                "startDate": "{{parameters.startDate}}",
+                "startHour": "{{parameters.startHour}}",
+                "startYear": "{{parameters.startYear}}",
+                "startMonth": "{{parameters.startMonth}}",
+                "intervalDay": "{{parameters.intervalDay}}",
+                "partitionId": "{{parameters.partitionId}}",
+                "intervalHour": "{{parameters.intervalHour}}",
+                "invitedGroups": "{{parameters.invitedGroups}}",
+                "intervalMinute": "{{parameters.intervalMinute}}",
+                "invitedMembers": "{{parameters.invitedMembers}}"
+            },
+            "url": "https://connect.zoho.in/pulse/api/addEvent",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "error": "{{response.data}}",
+                    "message": "Failed to create event"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.create",
+                            "loadOptionsMethod": "getNetworks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the network (scope) where the event will be created",
+                    "displayName": "Network",
+                    "displayType": "select",
+                    "placeholder": "Select Network",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "scope_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Event title.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Event title",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "description": "Event description.",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Describe the event",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "desc"
+            },
+            {
+                "meta": {
+                    "description": "Event location.",
+                    "displayName": "Location",
+                    "displayType": "text",
+                    "placeholder": "Meeting room / address",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "value": true,
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": true
+                        },
+                        {
+                            "label": "No",
+                            "value": false
+                        }
+                    ],
+                    "description": "Is this a private event?",
+                    "displayName": "Private Event",
+                    "displayType": "radio",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "isPrivate"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Start year for the event (YYYY).",
+                    "displayName": "Start Year",
+                    "displayType": "text",
+                    "placeholder": "2024",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "startYear"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Start month for the event (MM).",
+                    "displayName": "Start Month",
+                    "displayType": "text",
+                    "placeholder": "01",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "startMonth"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Start date for the event (DD).",
+                    "displayName": "Start Date",
+                    "displayType": "text",
+                    "placeholder": "15",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "startDate"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Start hour (24-hour format).",
+                    "displayName": "Start Hour",
+                    "displayType": "text",
+                    "placeholder": "14",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "startHour"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Start minute.",
+                    "displayName": "Start Minute",
+                    "displayType": "text",
+                    "placeholder": "30",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "startMin"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "End year for the event (YYYY).",
+                    "displayName": "End Year",
+                    "displayType": "text",
+                    "placeholder": "2024",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "endYear"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "End month for the event (MM).",
+                    "displayName": "End Month",
+                    "displayType": "text",
+                    "placeholder": "01",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "endMonth"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "End date for the event (DD).",
+                    "displayName": "End Date",
+                    "displayType": "text",
+                    "placeholder": "15",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "endDate"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "End hour (24-hour format).",
+                    "displayName": "End Hour",
+                    "displayType": "text",
+                    "placeholder": "15",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "endHour"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "End minute.",
+                    "displayName": "End Minute",
+                    "displayType": "text",
+                    "placeholder": "30",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "endMin"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": true
+                        }
+                    ],
+                    "description": "Is this an all-day event?",
+                    "displayName": "All Day",
+                    "displayType": "checkbox",
+                    "placeholder": "All Day",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "allDay"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "scope_id": "{{parameters.scope_id}}",
+                            "operation": "event.create",
+                            "loadOptionsMethod": "getNetworkUsers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Select members to invite.",
+                    "displayName": "Invited Members",
+                    "displayType": "multiselect",
+                    "placeholder": "Select Members",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "scope_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "isPrivate",
+                                "value": true,
+                                "operator": "NOT_EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "invitedMembers"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "scope_id": "{{parameters.scope_id}}",
+                            "operation": "event.create",
+                            "loadOptionsMethod": "getGroups"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id",
+                        "condition": "{{parameters.scope_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Select partition (group or calendar) where the event will be added.",
+                    "displayName": "Partition / Group",
+                    "displayType": "select",
+                    "placeholder": "Select Partition",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "scope_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "isPrivate",
+                                "value": true,
+                                "operator": "NOT_EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "partitionId"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "scope_id": "{{parameters.scope_id}}",
+                            "operation": "event.create",
+                            "loadOptionsMethod": "getGroups"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id",
+                        "condition": "{{parameters.scope_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Select groups to invite.",
+                    "displayName": "Invited Groups",
+                    "displayType": "multiselect",
+                    "placeholder": "Select Groups",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "scope_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "isPrivate",
+                                "value": true,
+                                "operator": "NOT_EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "invitedGroups"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "0",
+                            "value": 0
+                        },
+                        {
+                            "label": "1",
+                            "value": 1
+                        },
+                        {
+                            "label": "2",
+                            "value": 2
+                        },
+                        {
+                            "label": "7",
+                            "value": 7
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Interval in days for recurring events.",
+                    "displayName": "Interval Day",
+                    "displayType": "select",
+                    "placeholder": "Select Interval Day",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "intervalDay"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "5",
+                            "value": 5
+                        },
+                        {
+                            "label": "15",
+                            "value": 15
+                        },
+                        {
+                            "label": "30",
+                            "value": 30
+                        },
+                        {
+                            "label": "60",
+                            "value": 60
+                        },
+                        {
+                            "label": "120",
+                            "value": 120
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Interval in minutes for recurring events.",
+                    "displayName": "Interval Minute",
+                    "displayType": "select",
+                    "placeholder": "Select Interval Minute",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "intervalMinute"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "0",
+                            "value": 0
+                        },
+                        {
+                            "label": "1",
+                            "value": 1
+                        },
+                        {
+                            "label": "2",
+                            "value": 2
+                        },
+                        {
+                            "label": "3",
+                            "value": 3
+                        },
+                        {
+                            "label": "4",
+                            "value": 4
+                        },
+                        {
+                            "label": "5",
+                            "value": 5
+                        },
+                        {
+                            "label": "6",
+                            "value": 6
+                        },
+                        {
+                            "label": "7",
+                            "value": 7
+                        },
+                        {
+                            "label": "8",
+                            "value": 8
+                        },
+                        {
+                            "label": "9",
+                            "value": 9
+                        },
+                        {
+                            "label": "10",
+                            "value": 10
+                        },
+                        {
+                            "label": "11",
+                            "value": 11
+                        },
+                        {
+                            "label": "12",
+                            "value": 12
+                        },
+                        {
+                            "label": "13",
+                            "value": 13
+                        },
+                        {
+                            "label": "14",
+                            "value": 14
+                        },
+                        {
+                            "label": "15",
+                            "value": 15
+                        },
+                        {
+                            "label": "16",
+                            "value": 16
+                        },
+                        {
+                            "label": "17",
+                            "value": 17
+                        },
+                        {
+                            "label": "18",
+                            "value": 18
+                        },
+                        {
+                            "label": "19",
+                            "value": 19
+                        },
+                        {
+                            "label": "20",
+                            "value": 20
+                        },
+                        {
+                            "label": "21",
+                            "value": 21
+                        },
+                        {
+                            "label": "22",
+                            "value": 22
+                        },
+                        {
+                            "label": "23",
+                            "value": 23
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Interval in hours for recurring events.",
+                    "displayName": "Interval Hour",
+                    "displayType": "select",
+                    "placeholder": "Select Interval Hour",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "intervalHour"
+            },
+            {
+                "meta": {
+                    "description": "Upload files using upload files API and then return the file IDs. The user can add up to 10 files to an event. Multiple file IDs should be separated by a comma.",
+                    "displayName": "File IDs",
+                    "displayType": "text",
+                    "placeholder": "Add File IDs",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "event.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "fields"
+            }
+        ]
+    }
+}

@@ -1,0 +1,625 @@
+{
+    "getLists": {
+        "definition": {
+            "url": "https://campaigns.zoho.in/api/v1.1/getmailinglists?resfmt=JSON",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.list_of_details}}"
+            }
+        }
+    },
+    "getTopics": {
+        "definition": {
+            "url": "https://campaigns.zoho.in/api/v1.1/topics",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.topicDetails}}"
+            }
+        },
+        "parameters": []
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Campaign",
+                        "value": "campaign.create",
+                        "description": "Create a new campaign in Zoho Campaigns."
+                    },
+                    {
+                        "label": "Send Campaign",
+                        "value": "campaign.send",
+                        "description": "Send an existing campaign."
+                    },
+                    {
+                        "label": "Find Campaign",
+                        "value": "campaign.find",
+                        "description": "Find recent campaigns."
+                    },
+                    {
+                        "label": "Clone Campaign",
+                        "value": "campaign.clone",
+                        "description": "Clone an existing campaign."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "campaign",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getCampaigns": {
+        "definition": {
+            "url": "https://campaigns.zoho.in/api/v1.1/recentcampaigns?resfmt=JSON",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.recent_campaigns}}"
+            }
+        }
+    },
+    "getListContacts": {
+        "definition": {
+            "qs": {
+                "listkey": "{{parameters.listkey}}"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/getlistsubscribers?resfmt=JSON",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.list_of_details}}"
+            }
+        },
+        "parameters": []
+    },
+    "clone": {
+        "definition": {
+            "qs": {
+                "resfmt": "{{parameters.resfmt}}",
+                "campaigninfo": "{ \"campaignname\": \"{{parameters.campaigninfo.campaignname}}\", \"subject\": \"{{parameters.campaigninfo.subject}}\", \"oldcampaignkey\": \"{{parameters.campaigninfo.oldcampaignkey}}\", \"from_name\": \"{{parameters.campaigninfo.from_name}}\", \"from_add\": \"{{parameters.campaigninfo.from_add}}\", \"reply_to\": \"{{parameters.campaigninfo.reply_to}}\", \"encode_type\": \"{{parameters.campaigninfo.encode_type}}\" }"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/json/clonecampaign",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "JSON",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Name for the cloned campaign",
+                                "displayName": "New Campaign Name",
+                                "displayType": "text",
+                                "placeholder": "Enter new campaign name"
+                            },
+                            "name": "campaignname"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Subject line for the cloned campaign",
+                                "displayName": "Subject",
+                                "displayType": "text",
+                                "placeholder": "Enter email subject"
+                            },
+                            "name": "subject"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_campaigns",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "campaign",
+                                        "operation": "campaign.clone",
+                                        "loadOptionsMethod": "getCampaigns"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "campaign_name",
+                                    "valueKey": "campaign_key"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Campaign key of the campaign to be cloned",
+                                "displayName": "Original Campaign Key",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter original campaign key"
+                            },
+                            "name": "oldcampaignkey"
+                        },
+                        {
+                            "meta": {
+                                "value": "",
+                                "description": "Sender's name for the cloned campaign",
+                                "displayName": "From Name",
+                                "displayType": "text",
+                                "placeholder": "Enter sender name"
+                            },
+                            "name": "from_name"
+                        },
+                        {
+                            "meta": {
+                                "value": "",
+                                "validation": {
+                                    "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+                                },
+                                "description": "Sender's email address",
+                                "displayName": "From Address",
+                                "displayType": "text",
+                                "placeholder": "sender@example.com"
+                            },
+                            "name": "from_add"
+                        },
+                        {
+                            "meta": {
+                                "value": "",
+                                "validation": {
+                                    "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+                                },
+                                "description": "Reply-to email address",
+                                "displayName": "Reply To",
+                                "displayType": "text",
+                                "placeholder": "reply@example.com"
+                            },
+                            "name": "reply_to"
+                        },
+                        {
+                            "meta": {
+                                "value": "UTF-8",
+                                "options": [
+                                    {
+                                        "label": "UTF-8",
+                                        "value": "UTF-8"
+                                    },
+                                    {
+                                        "label": "ISO-8859-1",
+                                        "value": "ISO-8859-1"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Character encoding for the campaign, supported values [UTF-8, ISO-8859-1]",
+                                "displayName": "Encoding Type",
+                                "displayType": "select",
+                                "placeholder": "Select encoding"
+                            },
+                            "name": "encode_type"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Campaign information object for cloning",
+                    "displayName": "Campaign Info",
+                    "displayType": "object"
+                },
+                "name": "campaigninfo"
+            }
+        ]
+    },
+    "find": {
+        "definition": {
+            "qs": {
+                "sort": "{{parameters.sort}}",
+                "range": "{{parameters.range}}",
+                "resfmt": "{{parameters.resfmt}}",
+                "status": "{{parameters.status}}",
+                "fromindex": "{{parameters.fromindex}}"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/recentcampaigns",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "JSON",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "value": "desc",
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "asc"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "desc"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Sort order for the campaigns, and supported values [asc, desc]",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order"
+                },
+                "name": "sort"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "description": "Starting index for pagination",
+                    "displayName": "From Index",
+                    "displayType": "number",
+                    "placeholder": "1"
+                },
+                "name": "fromindex"
+            },
+            {
+                "meta": {
+                    "value": 10,
+                    "description": "Number of campaigns to retrieve",
+                    "displayName": "Range",
+                    "displayType": "number",
+                    "placeholder": "10"
+                },
+                "name": "range"
+            },
+            {
+                "meta": {
+                    "value": "all",
+                    "options": [
+                        {
+                            "label": "All",
+                            "value": "all"
+                        },
+                        {
+                            "label": "All Campaigns",
+                            "value": "all campaigns"
+                        },
+                        {
+                            "label": "Drafts",
+                            "value": "drafts"
+                        },
+                        {
+                            "label": "Scheduled",
+                            "value": "scheduled"
+                        },
+                        {
+                            "label": "In Progress",
+                            "value": "inprogress"
+                        },
+                        {
+                            "label": "Sent",
+                            "value": "sent"
+                        },
+                        {
+                            "label": "Stopped",
+                            "value": "stopped"
+                        },
+                        {
+                            "label": "Canceled",
+                            "value": "canceled"
+                        },
+                        {
+                            "label": "To Be Reviewed",
+                            "value": "tobereviewed"
+                        },
+                        {
+                            "label": "Reviewed",
+                            "value": "reviewed"
+                        },
+                        {
+                            "label": "Paused",
+                            "value": "paused"
+                        },
+                        {
+                            "label": "In Testing",
+                            "value": "intesting"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Filter campaigns by status, and supported values [all, all campaigns, drafts, scheduled, inprogress, sent, stopped, canceled, tobereviewed, reviewed, paused, completed, intesting]",
+                    "displayName": "Campaign Status",
+                    "displayType": "select",
+                    "placeholder": "Select status"
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "send": {
+        "definition": {
+            "qs": {
+                "resfmt": "{{parameters.resfmt}}",
+                "campaignkey": "{{parameters.campaignkey}}"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/sendcampaign",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "JSON",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_campaigns",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "campaign",
+                            "operation": "campaign.send",
+                            "loadOptionsMethod": "getCampaigns"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "campaign_name",
+                        "valueKey": "campaign_key"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Campaign key obtained from the recent campaign response",
+                    "displayName": "Campaign Key",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter campaign key"
+                },
+                "name": "campaignkey"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "qs": {
+                "resfmt": "{{parameters.resfmt}}",
+                "subject": "{{parameters.subject}}",
+                "topicId": "{{parameters.topicId}}",
+                "from_email": "{{parameters.from_email}}",
+                "content_url": "{{parameters.content_url}}",
+                "campaignname": "{{parameters.campaignname}}",
+                "list_details": "{{{parameters.listkey}}:{{parameters.segmentsId}}}"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/createCampaign",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A name for your campaign",
+                    "displayName": "Campaign Name",
+                    "displayType": "text",
+                    "placeholder": "Enter campaign name"
+                },
+                "name": "campaignname"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                        "required": true
+                    },
+                    "description": "Email address of the sender",
+                    "displayName": "From Email",
+                    "displayType": "text",
+                    "placeholder": "sender@example.com"
+                },
+                "name": "from_email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Subject line for the campaign email",
+                    "displayName": "Subject Line",
+                    "displayType": "text",
+                    "placeholder": "Enter email subject"
+                },
+                "name": "subject"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "description": "A valid HTML URL for your campaign content",
+                    "displayName": "Content URL",
+                    "displayType": "text",
+                    "placeholder": "https://example.com/content.html"
+                },
+                "name": "content_url"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_campaigns",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "campaign",
+                            "operation": "campaign.find",
+                            "loadOptionsMethod": "getLists"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "listname",
+                        "valueKey": "listkey"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List Key to retrieve contacts from the list.",
+                    "displayName": "List Key",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select list key"
+                },
+                "name": "listkey"
+            },
+            {
+                "meta": {
+                    "value": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Enter the segments ID of the users you want to invite.",
+                    "displayName": "Segments ID",
+                    "displayType": "multitext",
+                    "placeholder": "Enter segments ID"
+                },
+                "name": "segmentsId"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_campaigns",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "campaign",
+                            "operation": "campaign.create",
+                            "loadOptionsMethod": "getTopics"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "topicName",
+                        "valueKey": "topicId"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Topic ID for the topic created",
+                    "displayName": "Topic ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter topic ID"
+                },
+                "name": "topicId"
+            }
+        ]
+    }
+}

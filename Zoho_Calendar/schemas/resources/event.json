@@ -1,0 +1,1983 @@
+{
+    "getEvents": {
+        "definition": {
+            "url": "https://calendar.zoho.in/api/v1/calendars/{{parameters.calendar_uid}}/events",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.events}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create New Event",
+                        "value": "event.create",
+                        "description": "Create a new event in Zoho Calendar."
+                    },
+                    {
+                        "label": "Update Event",
+                        "value": "event.update",
+                        "description": "Update an existing event in Zoho Calendar."
+                    },
+                    {
+                        "label": "Delete Event",
+                        "value": "event.delete",
+                        "description": "Delete an event from Zoho Calendar."
+                    },
+                    {
+                        "label": "Search Event",
+                        "value": "event.search",
+                        "description": "Search for events in Zoho Calendar."
+                    },
+                    {
+                        "label": "Quick Add Event",
+                        "value": "event.quickadd",
+                        "description": "Quickly add an event with minimal details."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "event",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getCalendars": {
+        "definition": {
+            "qs": {},
+            "url": "http://calendar.zoho.in/api/v1/calendars",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.errors.status}}",
+                    "message": "{{response.data.errors.message}}"
+                },
+                "output": "{{response.data.calendars}}"
+            }
+        }
+    },
+    "getEventETag": {
+        "definition": {
+            "url": "https://calendar.zoho.in/api/v1/calendars/{{parameters.calendar_uid}}/events",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.events}}"
+            },
+            "transform": {
+                "output": "return output.map(e => ({ ...e, etagWithEventName: e.etag + '-' + e.title }));"
+            }
+        }
+    },
+    "quickadd": {
+        "definition": {
+            "qs": {
+                "eventdata": ""
+            },
+            "url": "https://calendar.zoho.in/api/v1/calendars/{{parameters.calendar_uid}}/events",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error[0].description}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "qs": "return { eventdata: `{\"title\":\"{{parameters.title}}\",\"dateandtime\":{\"start\":\"${(() => { const t = new Date(); const y = t.getFullYear(); const m = `${t.getMonth() + 1}`.padStart(2, '0'); const d = `${t.getDate()}`.padStart(2, '0'); return `${y}${m}${d}`; })()}\", \"end\":\"${(() => { const t = new Date(); t.setDate(t.getDate() + 1); const y = t.getFullYear(); const m = `${t.getMonth() + 1}`.padStart(2, '0'); const d = `${t.getDate()}`.padStart(2, '0'); return `${y}${m}${d}`; })()}\", \"timezone\":\"Asia/Kolkata\"}}` };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.create",
+                            "loadOptionsMethod": "getCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "uid"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Calendar where the event will be created",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select calendar"
+                },
+                "name": "calendar_uid"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Specifies the title of the event to be added.",
+                    "displayName": "Event Title",
+                    "displayType": "text",
+                    "placeholder": "Enter event title"
+                },
+                "name": "title"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "qs": {
+                "eventdata": ""
+            },
+            "url": "https://calendar.zoho.in/api/v1/calendars/{{parameters.calendar_uid}}/events/{{parameters.event_uid}}",
+            "method": "put",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error[0].description}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "qs": "return { eventdata: JSON.stringify({ title: \"{{parameters.title}}\", location: \"{{parameters.location}}\", isprivate: {{parameters.isprivate}}, dateandtime: { start: new Date('{{parameters.dateandtime.start}}+05:30').toISOString().replace(/^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}).*$/,'$1$2$3T$4$5$6Z'), end: new Date('{{parameters.dateandtime.end}}+05:30').toISOString().replace(/^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}).*$/,'$1$2$3T$4$5$6Z'), timezone: \"{{parameters.dateandtime.timezone}}\" }, richtext_description: \"{{parameters.richtext_description}}\", allowForwarding: {{parameters.allowForwarding}}, transparency: {{parameters.transparency}}, color: \"{{parameters.color}}\", isallday: {{parameters.isallday}}, attendees: {{parameters.attendees}}, reminders: {{parameters.reminders}}, url: \"{{parameters.url}}\", notify_attendee: {{parameters.notify_attendee}}, conference: \"{{parameters.conference}}\", notifyType: {{parameters.notifyType}}, etag: \"{{parameters.etag}}\" }) };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.create",
+                            "loadOptionsMethod": "getCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "uid"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Calendar where the event will be created",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select calendar"
+                },
+                "name": "calendar_uid"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.update",
+                            "calendar_uid": "{{parameters.calendar_uid}}",
+                            "loadOptionsMethod": "getEvents"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "uid",
+                        "condition": "{{parameters.calendar_uid}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "UID of the event to be updated",
+                    "displayName": "Event UID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter event UID"
+                },
+                "name": "event_uid"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "event_uid": "{{parameters.event_uid}}",
+                            "operation": "event.update",
+                            "calendar_uid": "{{parameters.calendar_uid}}",
+                            "loadOptionsMethod": "getEventETag"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "etagWithEventName",
+                        "valueKey": "etag",
+                        "condition": "{{parameters.event_uid}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Etag of the event to be deleted",
+                    "displayName": "Etag",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select etag"
+                },
+                "name": "etag"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Specifies the title of the event to be added.",
+                    "displayName": "Event Title",
+                    "displayType": "text",
+                    "placeholder": "Enter event title"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "value": "#8cbf40",
+                    "options": [
+                        {
+                            "label": "Topaz yellow",
+                            "value": "#ffc464"
+                        },
+                        {
+                            "label": "Salmon orange",
+                            "value": "#fea178"
+                        },
+                        {
+                            "label": "Pastel red",
+                            "value": "#fc6060"
+                        },
+                        {
+                            "label": "Persian pink",
+                            "value": "#f574b0"
+                        },
+                        {
+                            "label": "Bright lavender",
+                            "value": "#ba88db"
+                        },
+                        {
+                            "label": "Blueberry blue",
+                            "value": "#548bfe"
+                        },
+                        {
+                            "label": "Light turquoise",
+                            "value": "#83dcd6"
+                        },
+                        {
+                            "label": "Citrine yellow",
+                            "value": "#dcd414"
+                        },
+                        {
+                            "label": "Light yellow green",
+                            "value": "#aad867"
+                        },
+                        {
+                            "label": "Bud green",
+                            "value": "#7caa56"
+                        },
+                        {
+                            "label": "Fern green",
+                            "value": "#8cbf40"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Color for the event, and supported values [#ffc464, #fea178, #fc6060, #f574b0, #ba88db, #548bfe, #83dcd6, #dcd414, #aad867, #7caa56, #8cbf40]",
+                    "displayName": "Event Color",
+                    "displayType": "select",
+                    "placeholder": "Select an option"
+                },
+                "name": "color"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "format": "YYYY-MM-DD HH:mm:ss",
+                                    "disabled": false,
+                                    "timeSteps": {
+                                        "hours": 1,
+                                        "minutes": 5,
+                                        "seconds": 5
+                                    }
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Start date and time. Format: YYYY-MM-DD HH:mm:ss for specific time, e.g. 2025-09-01 10:00:00, YYYY-MM-DD for all-day event.",
+                                "displayName": "Start Date and Time",
+                                "displayType": "datetime",
+                                "placeholder": "set start date and time"
+                            },
+                            "name": "start"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "format": "YYYY-MM-DD HH:mm:ss",
+                                    "disabled": false,
+                                    "timeSteps": {
+                                        "hours": 1,
+                                        "minutes": 5,
+                                        "seconds": 5
+                                    }
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "End date and time. Format: YYYY-MM-DD HH:mm:ss for specific time, e.g. 2025-09-01 10:00:00, YYYY-MM-DD for all-day event.",
+                                "displayName": "End Date and Time",
+                                "displayType": "datetime",
+                                "placeholder": "set end date and time"
+                            },
+                            "name": "end"
+                        },
+                        {
+                            "meta": {
+                                "value": "Asia/Kolkata",
+                                "description": "Timezone in which the event is being created.",
+                                "displayName": "Timezone",
+                                "displayType": "text",
+                                "placeholder": "Asia/Kolkata"
+                            },
+                            "name": "timezone"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "JSON Object of the start time, end time and timezone information.",
+                    "displayName": "Date and Time",
+                    "displayType": "object"
+                },
+                "name": "dateandtime"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Specifies whether the event is an all-day event or not.",
+                    "displayName": "All Day Event",
+                    "displayType": "toggle",
+                    "placeholder": "Select an option"
+                },
+                "name": "isallday"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Email ID of the attendee",
+                                "displayName": "Email",
+                                "displayType": "text",
+                                "placeholder": "Enter email"
+                            },
+                            "name": "email"
+                        },
+                        {
+                            "meta": {
+                                "description": "ZUID of the attendee",
+                                "displayName": "ZUID",
+                                "displayType": "number",
+                                "placeholder": "123456"
+                            },
+                            "name": "zid"
+                        },
+                        {
+                            "meta": {
+                                "value": 1,
+                                "options": [
+                                    {
+                                        "label": "Guest",
+                                        "value": 0
+                                    },
+                                    {
+                                        "label": "View",
+                                        "value": 1
+                                    },
+                                    {
+                                        "label": "Invite",
+                                        "value": 2
+                                    },
+                                    {
+                                        "label": "Edit",
+                                        "value": 3
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Attendee's permission for the event, supported values [0, 1, 2, 3]",
+                                "displayName": "Permission",
+                                "displayType": "select",
+                                "placeholder": "Select permission"
+                            },
+                            "name": "permission"
+                        },
+                        {
+                            "meta": {
+                                "value": 1,
+                                "options": [
+                                    {
+                                        "label": "Non-participant",
+                                        "value": 0
+                                    },
+                                    {
+                                        "label": "Required participant",
+                                        "value": 1
+                                    },
+                                    {
+                                        "label": "Optional participant",
+                                        "value": 2
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Attendance of the attendee, supported values [0, 1, 2]",
+                                "displayName": "Attendance",
+                                "displayType": "select",
+                                "placeholder": "Select attendance"
+                            },
+                            "name": "attendance"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "description": "Attendee details for the event",
+                    "displayName": "Attendees",
+                    "displayType": "array"
+                },
+                "name": "attendees"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Whether attendees are allowed to forward the event",
+                    "displayName": "Allow Forwarding",
+                    "displayType": "toggle",
+                    "placeholder": "Allow forwarding"
+                },
+                "name": "allowForwarding"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Location details for the event. Maximum length: 255 characters.",
+                    "displayName": "Location",
+                    "displayType": "text",
+                    "placeholder": "Enter event location"
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Specifies whether the event is private or not.",
+                    "displayName": "Private Event",
+                    "displayType": "toggle",
+                    "placeholder": "Select an option"
+                },
+                "name": "isprivate"
+            },
+            {
+                "meta": {
+                    "value": 0,
+                    "options": [
+                        {
+                            "label": "Add to free/busy schedule",
+                            "value": 0
+                        },
+                        {
+                            "label": "Don't add to free/busy schedule",
+                            "value": 1
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Whether event should be added to free/busy schedule, supported values [0, 1]",
+                    "displayName": "Transparency",
+                    "displayType": "select",
+                    "placeholder": "Select transparency"
+                },
+                "name": "transparency"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "email",
+                                "options": [
+                                    {
+                                        "label": "Email",
+                                        "value": "email"
+                                    },
+                                    {
+                                        "label": "Popup",
+                                        "value": "popup"
+                                    },
+                                    {
+                                        "label": "Notification",
+                                        "value": "notification"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Reminder type, supported values [email, popup, notification]",
+                                "displayName": "Action",
+                                "displayType": "select",
+                                "placeholder": "Select action"
+                            },
+                            "name": "action"
+                        },
+                        {
+                            "meta": {
+                                "value": -15,
+                                "options": [
+                                    {
+                                        "label": "Before 5m",
+                                        "value": -5
+                                    },
+                                    {
+                                        "label": "After 5m",
+                                        "value": 5
+                                    },
+                                    {
+                                        "label": "Before 10m",
+                                        "value": -10
+                                    },
+                                    {
+                                        "label": "After 10m",
+                                        "value": 10
+                                    },
+                                    {
+                                        "label": "Before 15m",
+                                        "value": -15
+                                    },
+                                    {
+                                        "label": "After 15m",
+                                        "value": 15
+                                    },
+                                    {
+                                        "label": "Before 20m",
+                                        "value": -20
+                                    },
+                                    {
+                                        "label": "After 20m",
+                                        "value": 20
+                                    },
+                                    {
+                                        "label": "Before 25m",
+                                        "value": -25
+                                    },
+                                    {
+                                        "label": "After 25m",
+                                        "value": 25
+                                    },
+                                    {
+                                        "label": "Before 30m",
+                                        "value": -30
+                                    },
+                                    {
+                                        "label": "After 30m",
+                                        "value": 30
+                                    },
+                                    {
+                                        "label": "Before 35m",
+                                        "value": -35
+                                    },
+                                    {
+                                        "label": "After 35m",
+                                        "value": 35
+                                    },
+                                    {
+                                        "label": "Before 40m",
+                                        "value": -40
+                                    },
+                                    {
+                                        "label": "After 40m",
+                                        "value": 40
+                                    },
+                                    {
+                                        "label": "Before 45m",
+                                        "value": -45
+                                    },
+                                    {
+                                        "label": "After 45m",
+                                        "value": 45
+                                    },
+                                    {
+                                        "label": "Before 1h",
+                                        "value": -60
+                                    },
+                                    {
+                                        "label": "After 1h",
+                                        "value": 60
+                                    },
+                                    {
+                                        "label": "Before 2h",
+                                        "value": -120
+                                    },
+                                    {
+                                        "label": "After 2h",
+                                        "value": 120
+                                    },
+                                    {
+                                        "label": "Before 4h",
+                                        "value": -240
+                                    },
+                                    {
+                                        "label": "After 4h",
+                                        "value": 240
+                                    },
+                                    {
+                                        "label": "Before 6h",
+                                        "value": -360
+                                    },
+                                    {
+                                        "label": "After 6h",
+                                        "value": 360
+                                    },
+                                    {
+                                        "label": "Before 8h",
+                                        "value": -480
+                                    },
+                                    {
+                                        "label": "After 8h",
+                                        "value": 480
+                                    },
+                                    {
+                                        "label": "Before 12h",
+                                        "value": -720
+                                    },
+                                    {
+                                        "label": "After 12h",
+                                        "value": 720
+                                    },
+                                    {
+                                        "label": "Before 1d",
+                                        "value": -1440
+                                    },
+                                    {
+                                        "label": "After 1d",
+                                        "value": 1440
+                                    },
+                                    {
+                                        "label": "Before 2d",
+                                        "value": -2880
+                                    },
+                                    {
+                                        "label": "After 2d",
+                                        "value": 2880
+                                    },
+                                    {
+                                        "label": "Before 3d",
+                                        "value": -4320
+                                    },
+                                    {
+                                        "label": "After 3d",
+                                        "value": 4320
+                                    },
+                                    {
+                                        "label": "Before 4d",
+                                        "value": -5760
+                                    },
+                                    {
+                                        "label": "After 4d",
+                                        "value": 5760
+                                    },
+                                    {
+                                        "label": "Before 5d",
+                                        "value": -7200
+                                    },
+                                    {
+                                        "label": "After 5d",
+                                        "value": 7200
+                                    },
+                                    {
+                                        "label": "Before 6d",
+                                        "value": -8640
+                                    },
+                                    {
+                                        "label": "After 6d",
+                                        "value": 8640
+                                    },
+                                    {
+                                        "label": "Before 7d",
+                                        "value": -10080
+                                    },
+                                    {
+                                        "label": "After 7d",
+                                        "value": 10080
+                                    },
+                                    {
+                                        "label": "Before 8d",
+                                        "value": -11520
+                                    },
+                                    {
+                                        "label": "After 8d",
+                                        "value": 11520
+                                    },
+                                    {
+                                        "label": "Before 9d",
+                                        "value": -12960
+                                    },
+                                    {
+                                        "label": "After 9d",
+                                        "value": 12960
+                                    },
+                                    {
+                                        "label": "Before 10d",
+                                        "value": -14400
+                                    },
+                                    {
+                                        "label": "After 10d",
+                                        "value": 14400
+                                    },
+                                    {
+                                        "label": "Before 11d",
+                                        "value": -15840
+                                    },
+                                    {
+                                        "label": "After 11d",
+                                        "value": 15840
+                                    },
+                                    {
+                                        "label": "Before 12d",
+                                        "value": -17280
+                                    },
+                                    {
+                                        "label": "After 12d",
+                                        "value": 17280
+                                    },
+                                    {
+                                        "label": "Before 13d",
+                                        "value": -18720
+                                    },
+                                    {
+                                        "label": "After 13d",
+                                        "value": 18720
+                                    },
+                                    {
+                                        "label": "Before 14d",
+                                        "value": -20160
+                                    },
+                                    {
+                                        "label": "After 14d",
+                                        "value": 20160
+                                    },
+                                    {
+                                        "label": "Before 15d",
+                                        "value": -21600
+                                    },
+                                    {
+                                        "label": "After 15d",
+                                        "value": 21600
+                                    },
+                                    {
+                                        "label": "Before 30d",
+                                        "value": -43200
+                                    },
+                                    {
+                                        "label": "After 30d",
+                                        "value": 43200
+                                    },
+                                    {
+                                        "label": "Before 45d",
+                                        "value": -64800
+                                    },
+                                    {
+                                        "label": "After 45d",
+                                        "value": 64800
+                                    },
+                                    {
+                                        "label": "Before 60d",
+                                        "value": -86400
+                                    },
+                                    {
+                                        "label": "After 60d",
+                                        "value": 86400
+                                    },
+                                    {
+                                        "label": "Before 90d",
+                                        "value": -129600
+                                    },
+                                    {
+                                        "label": "After 90d",
+                                        "value": 129600
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Minutes for the calendar, supported values [-5 to 129600]",
+                                "displayName": "Minutes",
+                                "displayType": "select",
+                                "placeholder": "Select minutes"
+                            },
+                            "name": "minutes"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "description": "Reminders for the event",
+                    "displayName": "Reminders",
+                    "displayType": "array"
+                },
+                "name": "reminders"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Rich-text formatted description. Maximum length: 12000 characters. Cannot be used with description.",
+                    "displayName": "Rich Text Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter rich text description"
+                },
+                "name": "richtext_description"
+            },
+            {
+                "meta": {
+                    "value": 0,
+                    "options": [
+                        {
+                            "label": "None",
+                            "value": 0
+                        },
+                        {
+                            "label": "Notify attendees only",
+                            "value": 1
+                        },
+                        {
+                            "label": "Notify both attendees and myself",
+                            "value": 2
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Notification settings for attendees, supported values [0, 1, 2]",
+                    "displayName": "Notify Attendee",
+                    "displayType": "select",
+                    "placeholder": "Select notification option"
+                },
+                "name": "notify_attendee"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Zoho Meeting",
+                            "value": "zmeeting",
+                            "description": "If you want to add url for zoho meeting then select this option"
+                        },
+                        {
+                            "label": "None",
+                            "value": "none",
+                            "description": "If you don't want to add url for zoho meeting then select this option"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Conference option to associate with the event. If you select Zoho Meeting, the URL must be a valid Zoho Meeting link. If you select None, you can provide any meeting URL. Supported values [zmeeting, none]",
+                    "displayName": "Conference",
+                    "displayType": "select",
+                    "placeholder": "Select conference option"
+                },
+                "name": "conference"
+            },
+            {
+                "meta": {
+                    "value": "https://example.com",
+                    "description": "URL details that need to be shared for the event.",
+                    "displayName": "URL",
+                    "displayType": "text",
+                    "placeholder": "https://example.com"
+                },
+                "name": "url"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "options": [
+                        {
+                            "label": "Default Notification",
+                            "value": 1
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Notification type, supported values [1]",
+                    "displayName": "Notification Type",
+                    "displayType": "select",
+                    "placeholder": "Select notification type"
+                },
+                "name": "notifyType"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "qs": {
+                "end": "",
+                "start": "",
+                "searchtext": ""
+            },
+            "url": "https://calendar.zoho.in/api/v1/calendars/{{parameters.calendar_uid}}/search",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error[0].description}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "qs": "return {\"searchtext\": \"{{parameters.searchtext}}\", \"start\": new Date('{{parameters.start}}+05:30').toISOString().replace(/^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}).*$/,'$1$2$3T$4$5$6Z'), \"end\": new Date('{{parameters.end}}+05:30').toISOString().replace(/^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}).*$/,'$1$2$3T$4$5$6Z')};"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.search",
+                            "loadOptionsMethod": "getCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "uid"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Calendar to search events in",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select calendar"
+                },
+                "name": "calendar_uid"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Text to search for in event titles",
+                    "displayName": "Search Text",
+                    "displayType": "text",
+                    "placeholder": "Enter search text"
+                },
+                "name": "searchtext"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Start date and time. Format: YYYY-MM-DD HH:mm:ss for specific time, e.g. 2025-09-01 10:00:00, YYYY-MM-DD for all-day event.",
+                    "displayName": "Start Date and Time",
+                    "displayType": "datetime",
+                    "placeholder": "set start date and time"
+                },
+                "name": "start"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "End date and time. Format: YYYY-MM-DD HH:mm:ss for specific time, e.g. 2025-09-01 10:00:00, YYYY-MM-DD for all-day event.",
+                    "displayName": "End Date and Time",
+                    "displayType": "datetime",
+                    "placeholder": "set end date and time"
+                },
+                "name": "end"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "qs": {
+                "eventdata": ""
+            },
+            "url": "https://calendar.zoho.in/api/v1/calendars/{{parameters.calendar_uid}}/events",
+            "method": "post",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error[0].description}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "qs": "return { eventdata: JSON.stringify({ title: \"{{parameters.title}}\", location: \"{{parameters.location}}\", isprivate: {{parameters.isprivate}}, dateandtime: { start: new Date('{{parameters.dateandtime.start}}+05:30').toISOString().replace(/^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}).*$/,'$1$2$3T$4$5$6Z'), end: new Date('{{parameters.dateandtime.end}}+05:30').toISOString().replace(/^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}).*$/,'$1$2$3T$4$5$6Z'), timezone: \"{{parameters.dateandtime.timezone}}\" }, richtext_description: \"{{parameters.richtext_description}}\", allowForwarding: {{parameters.allowForwarding}}, transparency: {{parameters.transparency}}, color: \"{{parameters.color}}\", isallday: {{parameters.isallday}}, attendees: {{parameters.attendees}}, reminders: {{parameters.reminders}}, url: \"{{parameters.url}}\", notify_attendee: {{parameters.notify_attendee}}, conference: \"{{parameters.conference}}\", notifyType: {{parameters.notifyType}} }) };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.create",
+                            "loadOptionsMethod": "getCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "uid"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Calendar where the event will be created",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select calendar"
+                },
+                "name": "calendar_uid"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Specifies the title of the event to be added.",
+                    "displayName": "Event Title",
+                    "displayType": "text",
+                    "placeholder": "Enter event title"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "value": "#8cbf40",
+                    "options": [
+                        {
+                            "label": "Topaz yellow",
+                            "value": "#ffc464"
+                        },
+                        {
+                            "label": "Salmon orange",
+                            "value": "#fea178"
+                        },
+                        {
+                            "label": "Pastel red",
+                            "value": "#fc6060"
+                        },
+                        {
+                            "label": "Persian pink",
+                            "value": "#f574b0"
+                        },
+                        {
+                            "label": "Bright lavender",
+                            "value": "#ba88db"
+                        },
+                        {
+                            "label": "Blueberry blue",
+                            "value": "#548bfe"
+                        },
+                        {
+                            "label": "Light turquoise",
+                            "value": "#83dcd6"
+                        },
+                        {
+                            "label": "Citrine yellow",
+                            "value": "#dcd414"
+                        },
+                        {
+                            "label": "Light yellow green",
+                            "value": "#aad867"
+                        },
+                        {
+                            "label": "Bud green",
+                            "value": "#7caa56"
+                        },
+                        {
+                            "label": "Fern green",
+                            "value": "#8cbf40"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Color for the event and supported values [#ffc464, #fea178, #fc6060, #f574b0, #ba88db, #548bfe, #83dcd6, #dcd414, #aad867, #7caa56, #8cbf40]",
+                    "displayName": "Event Color",
+                    "displayType": "select",
+                    "placeholder": "Select an option"
+                },
+                "name": "color"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "format": "YYYY-MM-DD HH:mm:ss",
+                                    "disabled": false,
+                                    "timeSteps": {
+                                        "hours": 1,
+                                        "minutes": 5,
+                                        "seconds": 5
+                                    }
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Start date and time. Format: YYYY-MM-DD HH:mm:ss for specific time, e.g. 2025-09-01 10:00:00, YYYY-MM-DD for all-day event.",
+                                "displayName": "Start Date and Time",
+                                "displayType": "datetime",
+                                "placeholder": "set start date and time"
+                            },
+                            "name": "start"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "format": "YYYY-MM-DD HH:mm:ss",
+                                    "disabled": false,
+                                    "timeSteps": {
+                                        "hours": 1,
+                                        "minutes": 5,
+                                        "seconds": 5
+                                    }
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "End date and time. Format: YYYY-MM-DD HH:mm:ss for specific time, e.g. 2025-09-01 10:00:00, YYYY-MM-DD for all-day event.",
+                                "displayName": "End Date and Time",
+                                "displayType": "datetime",
+                                "placeholder": "set end date and time"
+                            },
+                            "name": "end"
+                        },
+                        {
+                            "meta": {
+                                "value": "Asia/Kolkata",
+                                "description": "Timezone in which the event is being created.",
+                                "displayName": "Timezone",
+                                "displayType": "text",
+                                "placeholder": "Asia/Kolkata"
+                            },
+                            "name": "timezone"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "JSON Object of the start time, end time and timezone information.",
+                    "displayName": "Date and Time",
+                    "displayType": "object"
+                },
+                "name": "dateandtime"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Specifies whether the event is an all-day event or not.",
+                    "displayName": "All Day Event",
+                    "displayType": "toggle",
+                    "placeholder": "Select an option"
+                },
+                "name": "isallday"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Email ID of the attendee",
+                                "displayName": "Email",
+                                "displayType": "text",
+                                "placeholder": "user@domain.com"
+                            },
+                            "name": "email"
+                        },
+                        {
+                            "meta": {
+                                "description": "ZUID of the attendee",
+                                "displayName": "ZUID",
+                                "displayType": "number",
+                                "placeholder": "123456"
+                            },
+                            "name": "zid"
+                        },
+                        {
+                            "meta": {
+                                "value": 1,
+                                "options": [
+                                    {
+                                        "label": "Guest",
+                                        "value": 0
+                                    },
+                                    {
+                                        "label": "View",
+                                        "value": 1
+                                    },
+                                    {
+                                        "label": "Invite",
+                                        "value": 2
+                                    },
+                                    {
+                                        "label": "Edit",
+                                        "value": 3
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Attendee's permission for the event and supported values [0, 1, 2, 3]",
+                                "displayName": "Permission",
+                                "displayType": "select",
+                                "placeholder": "Select permission"
+                            },
+                            "name": "permission"
+                        },
+                        {
+                            "meta": {
+                                "value": 1,
+                                "options": [
+                                    {
+                                        "label": "Non-participant",
+                                        "value": 0
+                                    },
+                                    {
+                                        "label": "Required participant",
+                                        "value": 1
+                                    },
+                                    {
+                                        "label": "Optional participant",
+                                        "value": 2
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Attendance of the attendee and supported values [0, 1, 2]",
+                                "displayName": "Attendance",
+                                "displayType": "select",
+                                "placeholder": "Select attendance"
+                            },
+                            "name": "attendance"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "description": "Attendee details for the event",
+                    "displayName": "Attendees",
+                    "displayType": "array"
+                },
+                "name": "attendees"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Whether attendees are allowed to forward the event",
+                    "displayName": "Allow Forwarding",
+                    "displayType": "toggle",
+                    "placeholder": "Allow forwarding"
+                },
+                "name": "allowForwarding"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Location details for the event. Maximum length: 255 characters.",
+                    "displayName": "Location",
+                    "displayType": "text",
+                    "placeholder": "Enter event location"
+                },
+                "name": "location"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Specifies whether the event is private or not.",
+                    "displayName": "Private Event",
+                    "displayType": "toggle",
+                    "placeholder": "Select an option"
+                },
+                "name": "isprivate"
+            },
+            {
+                "meta": {
+                    "value": 0,
+                    "options": [
+                        {
+                            "label": "Add to free/busy schedule",
+                            "value": 0
+                        },
+                        {
+                            "label": "Don't add to free/busy schedule",
+                            "value": 1
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Whether event should be added to free/busy schedule and supported values [0, 1]",
+                    "displayName": "Transparency",
+                    "displayType": "select",
+                    "placeholder": "Select transparency"
+                },
+                "name": "transparency"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "value": "email",
+                                "options": [
+                                    {
+                                        "label": "Email",
+                                        "value": "email"
+                                    },
+                                    {
+                                        "label": "Popup",
+                                        "value": "popup"
+                                    },
+                                    {
+                                        "label": "Notification",
+                                        "value": "notification"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Reminder type and supported values [email, popup, notification]",
+                                "displayName": "Action",
+                                "displayType": "select",
+                                "placeholder": "Select action"
+                            },
+                            "name": "action"
+                        },
+                        {
+                            "meta": {
+                                "value": -15,
+                                "options": [
+                                    {
+                                        "label": "Before 5m",
+                                        "value": -5
+                                    },
+                                    {
+                                        "label": "After 5m",
+                                        "value": 5
+                                    },
+                                    {
+                                        "label": "Before 10m",
+                                        "value": -10
+                                    },
+                                    {
+                                        "label": "After 10m",
+                                        "value": 10
+                                    },
+                                    {
+                                        "label": "Before 15m",
+                                        "value": -15
+                                    },
+                                    {
+                                        "label": "After 15m",
+                                        "value": 15
+                                    },
+                                    {
+                                        "label": "Before 20m",
+                                        "value": -20
+                                    },
+                                    {
+                                        "label": "After 20m",
+                                        "value": 20
+                                    },
+                                    {
+                                        "label": "Before 25m",
+                                        "value": -25
+                                    },
+                                    {
+                                        "label": "After 25m",
+                                        "value": 25
+                                    },
+                                    {
+                                        "label": "Before 30m",
+                                        "value": -30
+                                    },
+                                    {
+                                        "label": "After 30m",
+                                        "value": 30
+                                    },
+                                    {
+                                        "label": "Before 35m",
+                                        "value": -35
+                                    },
+                                    {
+                                        "label": "After 35m",
+                                        "value": 35
+                                    },
+                                    {
+                                        "label": "Before 40m",
+                                        "value": -40
+                                    },
+                                    {
+                                        "label": "After 40m",
+                                        "value": 40
+                                    },
+                                    {
+                                        "label": "Before 45m",
+                                        "value": -45
+                                    },
+                                    {
+                                        "label": "After 45m",
+                                        "value": 45
+                                    },
+                                    {
+                                        "label": "Before 1h",
+                                        "value": -60
+                                    },
+                                    {
+                                        "label": "After 1h",
+                                        "value": 60
+                                    },
+                                    {
+                                        "label": "Before 2h",
+                                        "value": -120
+                                    },
+                                    {
+                                        "label": "After 2h",
+                                        "value": 120
+                                    },
+                                    {
+                                        "label": "Before 4h",
+                                        "value": -240
+                                    },
+                                    {
+                                        "label": "After 4h",
+                                        "value": 240
+                                    },
+                                    {
+                                        "label": "Before 6h",
+                                        "value": -360
+                                    },
+                                    {
+                                        "label": "After 6h",
+                                        "value": 360
+                                    },
+                                    {
+                                        "label": "Before 8h",
+                                        "value": -480
+                                    },
+                                    {
+                                        "label": "After 8h",
+                                        "value": 480
+                                    },
+                                    {
+                                        "label": "Before 12h",
+                                        "value": -720
+                                    },
+                                    {
+                                        "label": "After 12h",
+                                        "value": 720
+                                    },
+                                    {
+                                        "label": "Before 1d",
+                                        "value": -1440
+                                    },
+                                    {
+                                        "label": "After 1d",
+                                        "value": 1440
+                                    },
+                                    {
+                                        "label": "Before 2d",
+                                        "value": -2880
+                                    },
+                                    {
+                                        "label": "After 2d",
+                                        "value": 2880
+                                    },
+                                    {
+                                        "label": "Before 3d",
+                                        "value": -4320
+                                    },
+                                    {
+                                        "label": "After 3d",
+                                        "value": 4320
+                                    },
+                                    {
+                                        "label": "Before 4d",
+                                        "value": -5760
+                                    },
+                                    {
+                                        "label": "After 4d",
+                                        "value": 5760
+                                    },
+                                    {
+                                        "label": "Before 5d",
+                                        "value": -7200
+                                    },
+                                    {
+                                        "label": "After 5d",
+                                        "value": 7200
+                                    },
+                                    {
+                                        "label": "Before 6d",
+                                        "value": -8640
+                                    },
+                                    {
+                                        "label": "After 6d",
+                                        "value": 8640
+                                    },
+                                    {
+                                        "label": "Before 7d",
+                                        "value": -10080
+                                    },
+                                    {
+                                        "label": "After 7d",
+                                        "value": 10080
+                                    },
+                                    {
+                                        "label": "Before 8d",
+                                        "value": -11520
+                                    },
+                                    {
+                                        "label": "After 8d",
+                                        "value": 11520
+                                    },
+                                    {
+                                        "label": "Before 9d",
+                                        "value": -12960
+                                    },
+                                    {
+                                        "label": "After 9d",
+                                        "value": 12960
+                                    },
+                                    {
+                                        "label": "Before 10d",
+                                        "value": -14400
+                                    },
+                                    {
+                                        "label": "After 10d",
+                                        "value": 14400
+                                    },
+                                    {
+                                        "label": "Before 11d",
+                                        "value": -15840
+                                    },
+                                    {
+                                        "label": "After 11d",
+                                        "value": 15840
+                                    },
+                                    {
+                                        "label": "Before 12d",
+                                        "value": -17280
+                                    },
+                                    {
+                                        "label": "After 12d",
+                                        "value": 17280
+                                    },
+                                    {
+                                        "label": "Before 13d",
+                                        "value": -18720
+                                    },
+                                    {
+                                        "label": "After 13d",
+                                        "value": 18720
+                                    },
+                                    {
+                                        "label": "Before 14d",
+                                        "value": -20160
+                                    },
+                                    {
+                                        "label": "After 14d",
+                                        "value": 20160
+                                    },
+                                    {
+                                        "label": "Before 15d",
+                                        "value": -21600
+                                    },
+                                    {
+                                        "label": "After 15d",
+                                        "value": 21600
+                                    },
+                                    {
+                                        "label": "Before 30d",
+                                        "value": -43200
+                                    },
+                                    {
+                                        "label": "After 30d",
+                                        "value": 43200
+                                    },
+                                    {
+                                        "label": "Before 45d",
+                                        "value": -64800
+                                    },
+                                    {
+                                        "label": "After 45d",
+                                        "value": 64800
+                                    },
+                                    {
+                                        "label": "Before 60d",
+                                        "value": -86400
+                                    },
+                                    {
+                                        "label": "After 60d",
+                                        "value": 86400
+                                    },
+                                    {
+                                        "label": "Before 90d",
+                                        "value": -129600
+                                    },
+                                    {
+                                        "label": "After 90d",
+                                        "value": 129600
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Minutes for the calendar and supported values [-5 to 129600]",
+                                "displayName": "Minutes",
+                                "displayType": "select",
+                                "placeholder": "Select minutes"
+                            },
+                            "name": "minutes"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "description": "Reminders for the event",
+                    "displayName": "Reminders",
+                    "displayType": "array"
+                },
+                "name": "reminders"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "validation": {
+                        "maxLength": 12000
+                    },
+                    "description": "Rich-text formatted description. Maximum length: 12000 characters. Cannot be used with description. HTML tags are supported. e.g. <b>bold</b>, <i>italic</i>, <u>underline</u>, <a href='https://www.zoho.com'>link</a>",
+                    "displayName": "Rich Text Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter rich text description"
+                },
+                "name": "richtext_description"
+            },
+            {
+                "meta": {
+                    "value": 0,
+                    "options": [
+                        {
+                            "label": "None",
+                            "value": 0
+                        },
+                        {
+                            "label": "Notify attendees only",
+                            "value": 1
+                        },
+                        {
+                            "label": "Notify both attendees and myself",
+                            "value": 2
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Notification settings for attendees and supported values [0, 1, 2]",
+                    "displayName": "Notify Attendee",
+                    "displayType": "select",
+                    "placeholder": "Select notification option"
+                },
+                "name": "notify_attendee"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Zoho Meeting",
+                            "value": "zmeeting",
+                            "description": "If you want to add url for zoho meeting then select this option"
+                        },
+                        {
+                            "label": "None",
+                            "value": "none",
+                            "description": "If you don't want to add url for zoho meeting then select this option"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Conference option to associate with the event. If you select Zoho Meeting, the URL must be a valid Zoho Meeting link. If you select None, you can provide any meeting URL. Supported values [zmeeting, none]",
+                    "displayName": "Conference",
+                    "displayType": "select",
+                    "placeholder": "Select conference option"
+                },
+                "name": "conference"
+            },
+            {
+                "meta": {
+                    "value": "https://example.com",
+                    "description": "URL details that need to be shared for the event.",
+                    "displayName": "URL",
+                    "displayType": "text",
+                    "placeholder": "https://example.com"
+                },
+                "name": "url"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "options": [
+                        {
+                            "label": "Default Notification",
+                            "value": 1
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Notification type for the event. Supported values [1]",
+                    "displayName": "Notification Type",
+                    "displayType": "select",
+                    "placeholder": "Select notification type"
+                },
+                "name": "notifyType"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://calendar.zoho.in/api/v1/calendars/{{parameters.calendar_uid}}/events/{{parameters.event_uid}}",
+            "method": "delete",
+            "headers": {
+                "etag": "{{parameters.etag}}",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error[0].description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.delete",
+                            "loadOptionsMethod": "getCalendars"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "uid"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Calendar containing the event",
+                    "displayName": "Calendar",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select calendar"
+                },
+                "name": "calendar_uid"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "operation": "event.delete",
+                            "calendar_uid": "{{parameters.calendar_uid}}",
+                            "loadOptionsMethod": "getEvents"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "uid",
+                        "condition": "{{parameters.calendar_uid}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique identifier of the event to delete",
+                    "displayName": "Event UID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select event UID"
+                },
+                "name": "event_uid"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_calendar",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "event",
+                            "event_uid": "{{parameters.event_uid}}",
+                            "operation": "event.delete",
+                            "calendar_uid": "{{parameters.calendar_uid}}",
+                            "loadOptionsMethod": "getEventETag"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "etagWithEventName",
+                        "valueKey": "etag",
+                        "condition": "{{parameters.event_uid}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Etag of the event to be deleted",
+                    "displayName": "Etag",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select etag"
+                },
+                "name": "etag"
+            }
+        ]
+    }
+}

@@ -1,0 +1,248 @@
+{
+    "oauth2": {
+        "token": {
+            "url": "https://accounts.zoho.in/oauth/v2/token",
+            "body": {
+                "code": "{{code}}",
+                "scope": [
+                    "ZohoBookings.data.READ",
+                    "ZohoBookings.data.CREATE"
+                ],
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "authorization_code",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error_description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "refresh": {
+            "qs": {
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "refresh_token",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}",
+                "refresh_token": "{{secrets.refresh_token}}"
+            },
+            "url": "https://accounts.zoho.in/oauth/v2/token",
+            "method": "post",
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error_description}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "validate": {
+            "url": "https://www.zohoapis.in/bookings/v1/json/services",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "authorize": {
+            "qs": {
+                "scope": "ZohoBookings.data.READ,ZohoBookings.data.CREATE",
+                "state": "{{uuidv4()}}",
+                "prompt": "consent",
+                "client_id": "{{secrets.client_id}}",
+                "access_type": "offline",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "response_type": "code"
+            },
+            "url": "https://accounts.zoho.in/oauth/v2/auth",
+            "method": "get",
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "v1/zoho_bookings/oauth2/callback",
+                    "displayName": "Redirect URI",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "redirect_uri"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "medium",
+                        "style": {
+                            "color": "#ffffff",
+                            "height": "40px",
+                            "padding": "16px",
+                            "fontSize": "14px",
+                            "fontWeight": 700,
+                            "backgroundColor": "#ff592f"
+                        },
+                        "variant": "contained"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please connect your Zoho Bookings account."
+                        }
+                    },
+                    "description": "Click here to connect your Zoho Bookings account.",
+                    "displayName": "Connect Zoho Bookings Account",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "medium",
+                        "style": {
+                            "color": "#ffffff",
+                            "height": "32px",
+                            "padding": "8px",
+                            "fontSize": "12px",
+                            "fontWeight": 700,
+                            "backgroundColor": "#4caf50"
+                        },
+                        "variant": "contained"
+                    },
+                    "description": "Click here to disconnect your Zoho Bookings account.",
+                    "displayName": "Zoho Bookings Account Connected",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_connected"
+            },
+            {
+                "meta": {
+                    "displayName": "Refresh Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "refresh_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Access Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Expires In",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expires_in"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "oauth2",
+                "options": [
+                    {
+                        "label": "OAuth2",
+                        "value": "oauth2"
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Authentication type is required"
+                    }
+                },
+                "description": "Choose the type of authentication you want to use.",
+                "displayName": "Authentication Type",
+                "displayType": "select",
+                "placeholder": "Select an authentication type"
+            },
+            "name": "type"
+        }
+    ]
+}

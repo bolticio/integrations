@@ -1,0 +1,136 @@
+# Zoho Connect Integration
+
+## Overview
+
+Zoho Connect is an enterprise social collaboration platform that helps teams connect, share ideas, and stay up-to-date with what's happening across the organization. This integration allows you to manage group memberships, create events and tasks, and invite users to your network directly from Boltic workflows.
+
+## Authenticating with Zoho Connect
+
+### Step 1: Set Up OAuth 2.0
+
+- Log in to your Zoho account and navigate to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+- Create a new client or use an existing one to obtain your Client ID and Client Secret.
+
+### Step 2: Configure the Connection in Boltic
+
+- Log in to your Boltic account and navigate to the "Integrations" page from Left Navigation.
+- Click on the "Sources" Panel and then click on "Add new Source".
+- Select or filter the "Zoho Connect" Connector.
+- Enter the integration name and description.
+- Click on the "Connect Zoho Connect Account" button, which will redirect you to the Zoho authorization page.
+- Sign in with your Zoho credentials and grant the requested scopes (`zohopulse.networklist.ALL`, `zohopulse.networkAdmin.CREATE`, `zohopulse.grouplist.CREATE`, `zohopulse.userDetail.READ`, `zohopulse.events.ALL`, `zohopulse.tasks.ALL`).
+- Once the Connect button indicator turns green, click "Save" — your OAuth tokens are now securely stored.
+
+## Using Zoho Connect with Boltic
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button.
+- Add a Zoho Connect action node to your workflow.
+
+### Step 2: Configure the Actions
+
+Select a resource (Group, Event, Task, or Network) and then choose from the available operations:
+
+- **Add Member to Group**: Add one or more members to an existing group in your network.
+- **Create Event**: Create a new event (public or private) in your network.
+- **Create Task**: Create a task with assignees, priority, reminders, and checklists.
+- **Invite User to Network**: Invite users via email to join your Zoho Connect network.
+
+## Available Actions
+
+### Add Member to Group
+
+Adds one or more members to an existing group within your Zoho Connect network.
+
+**Required Fields:**
+- **Network**: The network to which the group belongs (auto-populated).
+- **Group**: The group to add members to (auto-populated based on selected network).
+- **Members**: One or more members to add to the group (auto-populated based on selected network; multiselect).
+
+---
+
+### Create Event
+
+Creates a new event in your Zoho Connect network. Supports both public and private events with full scheduling, attendee, and recurrence options.
+
+**Required Fields:**
+- **Network**: The network where the event will be created (auto-populated).
+- **Title**: Event title.
+- **Start Year**: Start year (YYYY).
+- **Start Month**: Start month (MM).
+- **Start Date**: Start date (DD).
+- **Start Hour**: Start hour in 24-hour format.
+- **Start Minute**: Start minute.
+- **End Year**: End year (YYYY).
+- **End Month**: End month (MM).
+- **End Date**: End date (DD).
+- **End Hour**: End hour in 24-hour format.
+- **End Minute**: End minute.
+
+**Optional Fields:**
+- **Description**: Event description.
+- **Location**: Event location or meeting room address.
+- **Private Event**: Whether this is a private event — Yes or No (default: Yes).
+- **All Day**: Whether this is an all-day event.
+- **Invited Members**: Select members to invite (shown when event is not private; multiselect, auto-populated based on network).
+- **Partition / Group**: Group or calendar where the event will be added (shown when event is not private; auto-populated based on network).
+- **Invited Groups**: Groups to invite to the event (shown when event is not private; multiselect, auto-populated based on network).
+- **Interval Day**: Interval in days for recurring events — 0, 1, 2, or 7.
+- **Interval Minute**: Interval in minutes for recurring events — 5, 15, 30, 60, or 120.
+- **Interval Hour**: Interval in hours for recurring events — 0 to 23.
+- **File IDs**: Comma-separated file IDs to attach (up to 10 files).
+
+---
+
+### Create Task
+
+Creates a task in your Zoho Connect network with assignees, priority, due dates, reminders, checklists, tags, and file attachments.
+
+**Required Fields:**
+- **Network**: The network where the task will be created (auto-populated).
+- **Title**: Task title (max 100 characters).
+- **Priority**: Task priority — None, Low, Medium, or High.
+
+**Optional Fields:**
+- **Description**: Task description (max 5000 characters).
+- **Assignees**: Users to assign the task to (multiselect, auto-populated based on network).
+- **Due Year**: Due year (YYYY).
+- **Due Month**: Due month (MM).
+- **Due Date**: Due date (DD).
+- **Self Reminder**: Enable reminder for yourself.
+- **Reminder Year**: Reminder year (YYYY) — shown when Self Reminder is enabled.
+- **Reminder Month**: Reminder month (MM) — shown when Self Reminder is enabled.
+- **Reminder Day**: Reminder day (DD) — shown when Self Reminder is enabled.
+- **Reminder Hour**: Reminder hour in 24-hour format — shown when Self Reminder is enabled.
+- **Reminder Minute**: Reminder minute — shown when Self Reminder is enabled.
+- **Checklist**: Comma-separated checklist items (max 10 items, total max 200 characters).
+- **File IDs**: Comma-separated file IDs to attach (up to 10 files).
+- **Tags**: Comma-separated tag names.
+
+---
+
+### Invite User to Network
+
+Sends email invitations to one or more users to join your Zoho Connect network, optionally adding them to specific groups.
+
+**Required Fields:**
+- **Network**: The network to invite users to (auto-populated).
+- **Group**: Groups to add the invited users to (multiselect, auto-populated based on network).
+- **Emails**: Email addresses of the users to invite, separated by commas (1 to 1000 addresses).
+
+## Troubleshooting
+
+### Common Errors
+
+- **400 Bad Request**: Invalid parameters or missing required fields. Verify all required fields are provided.
+- **401 Unauthorized**: Invalid or expired authentication token. Reconnect your Zoho Connect account.
+- **403 Forbidden**: Insufficient permissions. Check your OAuth scopes.
+- **404 Not Found**: Network, group, or user not found. Verify the Network ID and Group ID.
+- **429 Too Many Requests**: Rate limit exceeded. Implement retry logic with backoff.
+
+### Support
+
+- Contact Boltic support for assistance with connecting Zoho Connect to Boltic.
+- Check Zoho Connect API documentation at [https://www.zoho.com/connect/api/](https://www.zoho.com/connect/api/) for detailed technical information.

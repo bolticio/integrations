@@ -1,0 +1,242 @@
+{
+    "getGroups": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/api/allGroups?scopeID={{parameters.scope_id}}&isRecentSort=true",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data.allGroups.groups}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Add Member to Group",
+                        "value": "group.add_member",
+                        "description": "Add one or more members to an existing group in Zoho Connect."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose an action for Group.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "group",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getNetworks": {
+        "definition": {
+            "qs": {},
+            "url": "https://connect.zoho.in/pulse/api/allScopes",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": "{{response.data}}",
+                "output": "{{response.data.allScopes.scopes}}"
+            }
+        }
+    },
+    "getNetworkUsers": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/nativeapi/orgMembers?scopeID={{parameters.scope_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data.orgMembers.usersDetails}}"
+            }
+        }
+    },
+    "add_member": {
+        "definition": {
+            "qs": {
+                "scopeID": "{{parameters.scope_id}}",
+                "memberIds": "{{parameters.member_ids}}",
+                "partitionId": "{{parameters.group_id}}"
+            },
+            "url": "https://connect.zoho.in/pulse/api/addUsersToGroup",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "error": "{{response.data}}",
+                    "message": "Failed to add members to group"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "group",
+                            "operation": "group.add_member",
+                            "loadOptionsMethod": "getNetworks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the network to which the group belongs.",
+                    "displayName": "Network",
+                    "displayType": "select",
+                    "placeholder": "Select Network",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "group.add_member",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "scope_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "group",
+                            "scope_id": "{{parameters.scope_id}}",
+                            "operation": "group.add_member",
+                            "loadOptionsMethod": "getGroups"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id",
+                        "condition": "{{parameters.scope_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the group to which members will be added.",
+                    "displayName": "Group",
+                    "displayType": "select",
+                    "placeholder": "Select Group",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "group.add_member",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "scope_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "group_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "group_id": "{{parameters.group_id}}",
+                            "resource": "group",
+                            "scope_id": "{{parameters.scope_id}}",
+                            "operation": "group.add_member",
+                            "loadOptionsMethod": "getNetworkUsers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id",
+                        "condition": "{{parameters.group_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select one or more members to add to the group.",
+                    "displayName": "Members",
+                    "displayType": "multiselect",
+                    "placeholder": "Select Members",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "group.add_member",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "scope_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "group_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "member_ids"
+            }
+        ]
+    }
+}

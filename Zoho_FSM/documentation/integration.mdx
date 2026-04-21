@@ -1,0 +1,108 @@
+# Zoho FSM Integration
+
+## Overview
+
+Zoho FSM (Field Service Management) is a cloud-based field service solution that helps businesses streamline job scheduling, dispatching, invoicing, and customer communication. This integration allows you to create and update service requests in Zoho FSM directly from your Boltic workflows.
+
+## Authenticating with Zoho FSM
+
+### Step 1: Set Up OAuth 2.0
+
+- Log in to your Zoho account and navigate to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+- Create a new client or use an existing one to obtain your Client ID and Client Secret.
+
+### Step 2: Configure the Connection in Boltic
+
+- Log in to your Boltic account and navigate to the "Integrations" page from Left Navigation.
+- Click on the "Sources" Panel and then click on "Add new Source".
+- Select or filter the "Zoho FSM" Connector.
+- Enter the integration name and description.
+- Click on the "Connect Zoho FSM Account" button, which will redirect you to the Zoho authorization page.
+- Sign in with your Zoho credentials and grant the requested scopes (`ZohoFSM.modules.Requests.READ`, `ZohoFSM.modules.Requests.CREATE`, `ZohoFSM.modules.Requests.UPDATE`, `ZohoFSM.modules.Contacts.READ`, `ZohoFSM.modules.Companies.READ`, `ZohoFSM.modules.Territories.READ`, `ZohoFSM.modules.Assets.READ`).
+- Once the Connect button indicator turns green, click "Save" — your OAuth tokens are now securely stored.
+
+## Using Zoho FSM with Boltic
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button.
+- Add a Zoho FSM action node to your workflow.
+
+### Step 2: Configure the Actions
+
+Select **Requests** as the resource and then choose from the available operations:
+
+- **Create Request**: Create a new service request in Zoho FSM.
+- **Update Request**: Update an existing service request in Zoho FSM.
+
+Configure the action settings including company, territory, contact, addresses, and request details.
+
+## Available Actions
+
+### Create Request
+
+Creates a new service request in Zoho FSM with company, territory, contact, and address details.
+
+**Required Fields:**
+- **Summary**: A summary for the request (max 200 characters).
+- **Company**: The company for which the request is being created (auto-populated from your Zoho FSM account).
+- **Territory**: The territory where the request should be assigned, must fall under the service territory of the company (auto-populated).
+- **Contact**: The contact for whom the request is being created (auto-populated).
+- **Service Address**: The service address for the request, must be associated with the company (auto-populated based on selected contact; appears after contact is selected).
+- **Billing Address**: The billing address for the request, must be associated with the company (auto-populated based on selected contact; appears after contact is selected).
+
+**Optional Fields:**
+- **Priority**: Priority level — Low, Medium (default), High, or Critical.
+- **Due Date**: Due date for the request (YYYY-MM-DD).
+- **Email**: Email address for the request.
+- **Phone**: Phone number for the request (formatted as +91XXXXXXXXXX).
+- **Asset ID**: Asset related to this request (auto-populated from your Zoho FSM account).
+- **Currency**: Currency for the request — INR (default), USD, EUR, GBP, AUD, or CAD.
+- **Exchange Rate**: Exchange rate for currency conversion (default: 1).
+- **Preferred Date 1**: First preferred date for service (YYYY-MM-DD).
+- **Preferred Date 2**: Second preferred date for service (YYYY-MM-DD).
+- **Preferred Time**: Preferred time for service (HH:MM format).
+- **Preference Note**: Additional notes about preferences.
+
+---
+
+### Update Request
+
+Updates an existing service request in Zoho FSM. Only include the fields that need to be changed.
+
+**Required Fields:**
+- **Request ID**: The request to update (auto-populated from your Zoho FSM account).
+
+**Optional Fields:**
+- **Summary**: Updated summary for the request (max 200 characters).
+- **Company**: Updated company (auto-populated).
+- **Territory**: Updated territory (auto-populated).
+- **Contact**: Updated contact (auto-populated).
+- **Priority**: Updated priority — Low, Medium (default), High, or Critical.
+- **Due Date**: Updated due date (YYYY-MM-DD).
+- **Email**: Updated email address.
+- **Phone**: Updated phone number.
+- **Asset ID**: Updated asset (auto-populated).
+- **Currency**: Updated currency — INR (default), USD, EUR, GBP, AUD, or CAD.
+- **Exchange Rate**: Updated exchange rate (default: 1).
+- **Preferred Date 1**: Updated first preferred date (YYYY-MM-DD).
+- **Preferred Date 2**: Updated second preferred date (YYYY-MM-DD).
+- **Preferred Time**: Updated preferred time (HH:MM).
+- **Preference Note**: Updated preference notes.
+
+## Troubleshooting
+
+### Common Errors
+
+- **400 Bad Request**: Invalid parameters or missing required fields. Verify all required fields are provided.
+- **401 Unauthorized**: Invalid or expired authentication token. Reconnect your Zoho FSM account.
+- **403 Forbidden**: Insufficient permissions. Check your OAuth scopes.
+- **404 Not Found**: Request, contact, company, or territory not found. Verify the record IDs.
+- **422 Unprocessable Entity**: Field validation errors or business rule violations (e.g., territory not under company's service territory).
+- **429 Too Many Requests**: Rate limit exceeded. Implement retry logic with backoff.
+
+### Support
+
+- Contact Boltic support for assistance with connecting Zoho FSM to Boltic.
+- Check Zoho FSM API documentation at [https://www.zoho.com/fsm/developer/help/api/](https://www.zoho.com/fsm/developer/help/api/) for detailed technical information.

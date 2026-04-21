@@ -1,0 +1,195 @@
+{
+    "getGroups": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/api/allGroups?scopeID={{parameters.scope_id}}&isRecentSort=true",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data.allGroups.groups}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Invite User to Network",
+                        "value": "network.invite_user",
+                        "description": "Invite one or more users to join your Zoho Connect network."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose an action for Network.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "network",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getNetworks": {
+        "definition": {
+            "qs": {},
+            "url": "https://connect.zoho.in/pulse/api/allScopes",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": "{{response.data}}",
+                "output": "{{response.data.allScopes.scopes}}"
+            }
+        }
+    },
+    "invite_user": {
+        "definition": {
+            "qs": {
+                "scopeID": "{{parameters.scope_id}}",
+                "emailIds": "{{parameters.emails}}",
+                "partitionIds": "{{parameters.group_id}}"
+            },
+            "url": "https://connect.zoho.in/pulse/api/inviteUsersToNetwork",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.inviteUsersToNetwork.reason}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "network",
+                            "operation": "network.invite_user",
+                            "loadOptionsMethod": "getNetworks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the network in which the private task will be created.",
+                    "displayName": "Network",
+                    "displayType": "select",
+                    "placeholder": "Select Network",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "network.invite_user",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "scope_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "network",
+                            "scope_id": "{{parameters.scope_id}}",
+                            "operation": "network.invite_user",
+                            "loadOptionsMethod": "getGroups"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id",
+                        "condition": "{{parameters.scope_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the groups to which members will be added. for Dynamic value you can provide groupIds comma separated as string",
+                    "displayName": "Group",
+                    "displayType": "multiselect",
+                    "placeholder": "Select Groups",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "network.invite_user",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "scope_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "group_id"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 1000,
+                        "min": 1,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add between 1 and 1000 valid email addresses."
+                        }
+                    },
+                    "description": "Enter the email addresses of the users you want to invite, separated by commas.",
+                    "displayName": "Emails",
+                    "displayType": "multitext",
+                    "placeholder": "Enter email addresses separated by commas"
+                },
+                "name": "emails"
+            }
+        ]
+    }
+}

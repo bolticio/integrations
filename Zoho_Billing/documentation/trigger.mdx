@@ -1,0 +1,360 @@
+# Zoho Billing Trigger
+
+## Overview
+
+Zoho Billing triggers allow you to start workflows automatically when specific billing and subscription events occur in your Zoho Billing organization. These triggers use a polling mechanism to detect new events, subscription changes, and payment updates in your account.
+
+## Authenticating with Zoho Billing
+
+Before using triggers, connect your Zoho Billing account via OAuth 2.0 in Boltic. See the [Integration documentation](./integration.mdx) for setup steps.
+
+## Setting Up a Trigger
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button and select "Zoho Billing" as the trigger.
+
+### Step 2: Configure the Trigger
+
+1. Select your **Zoho Billing Account** connection.
+2. Select **Webhook** as the resource.
+3. Choose the **Event** you want to listen to.
+4. Select your **Organization ID** from the dropdown.
+5. Test the trigger to verify it receives data correctly.
+
+**Polling Interval:** Triggers check for new records every 15 seconds.
+
+## Available Triggers
+
+### New Credit Note
+
+Triggered when a new credit note is created in your Zoho Billing organization.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.creditnote_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches credit notes sorted by creation time in descending order.
+- **Data Returned**: Credit note details, amount, customer information, and line items.
+
+**Use Cases:**
+- Accounting system updates
+- Customer refund notifications
+- Financial reporting
+
+---
+
+### New Invoice
+
+Triggered when a new invoice is generated in your Zoho Billing organization.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.invoice_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches invoices sorted by creation time in descending order.
+- **Data Returned**: Invoice details, line items, amount, due date, and customer information.
+
+**Use Cases:**
+- Payment processing automation
+- Customer notifications
+- Accounting integration
+
+---
+
+### Invoice Updated
+
+Triggered when an existing invoice is modified in your Zoho Billing organization.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.invoice_updated`
+- **Polling Criteria**: Timestamp-based on `updated_time` field (ISO format).
+- **API Endpoint**: Fetches invoices sorted by update time in descending order.
+- **Data Returned**: Updated invoice information and change details.
+
+**Use Cases:**
+- Accounting corrections
+- Customer notifications
+- Audit trails
+
+---
+
+### New Item
+
+Triggered when a new billable item is added to the catalog.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.item_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches items sorted by creation time in descending order.
+- **Data Returned**: Item details, pricing, tax settings, and subscription parameters.
+
+**Use Cases:**
+- Catalog synchronization
+- Pricing updates
+- Inventory management
+
+---
+
+### New Project
+
+Triggered when a new project is created for project-based billing.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.project_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches projects sorted by creation time in descending order.
+- **Data Returned**: Project details, customer assignment, and billing settings.
+
+**Use Cases:**
+- Project management integration
+- Resource allocation
+- Time tracking setup
+
+---
+
+### New Quote
+
+Triggered when a new quote is created for a potential customer.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.quote_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches estimates sorted by creation time in descending order.
+- **Data Returned**: Quote details, pricing, terms, expiration date, and prospect information.
+
+**Use Cases:**
+- Sales pipeline tracking
+- Follow-up automation
+- Conversion monitoring
+
+---
+
+### New Retainer Invoice
+
+Triggered when a new retainer invoice is created for prepaid services.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.retainerinvoice_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches retainer invoices sorted by creation time in descending order.
+- **Data Returned**: Retainer invoice details, amount, and customer information.
+
+**Use Cases:**
+- Prepaid service tracking
+- Credit balance management
+- Customer account updates
+
+---
+
+### New Subscription
+
+Triggered when a new subscription is created for a customer.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.subscription_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches events and filters for `subscription_created` event type.
+- **Data Returned**: Subscription details, plan information, billing cycle, and customer data.
+
+**Use Cases:**
+- Welcome workflows
+- Service provisioning
+- Customer onboarding
+
+---
+
+### Subscription Cancelled
+
+Triggered when a subscription is cancelled by a customer or administrator.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.subscription_cancelled`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches events and filters for `subscription_cancelled` event type.
+- **Data Returned**: Subscription details, cancellation reason, effective date, and customer information.
+
+**Use Cases:**
+- Customer retention workflows
+- Exit surveys
+- Service deactivation
+
+---
+
+### Subscription Paused
+
+Triggered when a subscription is paused in your Zoho Billing organization.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.subscription_paused`
+- **Polling Criteria**: Timestamp-based on `updated_time` field (ISO format).
+- **API Endpoint**: Fetches subscriptions sorted by update time in descending order.
+- **Data Returned**: Subscription details, pause date, and customer information.
+
+**Use Cases:**
+- Service suspension workflows
+- Customer communication
+- Billing hold management
+
+---
+
+### Subscription Resumed
+
+Triggered when a paused subscription is resumed.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.subscription_resumed`
+- **Polling Criteria**: Timestamp-based on `updated_time` field (ISO format).
+- **API Endpoint**: Fetches live subscriptions filtered by `SubscriptionStatus.LIVE`.
+- **Data Returned**: Subscription details, resume date, and customer information.
+
+**Use Cases:**
+- Service reactivation
+- Customer notifications
+- Billing restart workflows
+
+---
+
+### Subscription Downgraded
+
+Triggered when a customer downgrades their subscription plan.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.subscription_downgraded`
+- **Polling Criteria**: Timestamp-based on `updated_time` field (ISO format).
+- **API Endpoint**: Fetches events and filters for `subscription_downgraded` event type.
+- **Data Returned**: Old and new plan details, effective date, and prorated amounts.
+
+**Use Cases:**
+- Service level adjustments
+- Billing modifications
+- Customer communication
+
+---
+
+### Subscription Renewed
+
+Triggered when a subscription automatically renews for another billing period.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.subscription_renewed`
+- **Polling Criteria**: Timestamp-based on `updated_time` field (ISO format).
+- **API Endpoint**: Fetches events and filters for `subscription_renewed` event type.
+- **Data Returned**: Renewal details, new term dates, and billing information.
+
+**Use Cases:**
+- Service continuity
+- Renewal notifications
+- Usage tracking reset
+
+---
+
+### Subscription Upgraded
+
+Triggered when a customer upgrades their subscription plan.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.subscription_upgraded`
+- **Polling Criteria**: Timestamp-based on `updated_time` field (ISO format).
+- **API Endpoint**: Fetches events and filters for `subscription_upgraded` event type.
+- **Data Returned**: Old and new plan details, effective date, and prorated amounts.
+
+**Use Cases:**
+- Service enhancement
+- Billing adjustments
+- Feature activation
+
+---
+
+### Payment Success
+
+Triggered when a payment is successfully processed.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.payment_success`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches events and filters for `payment_thankyou` event type.
+- **Data Returned**: Payment details, amount, method, and invoice information.
+
+**Use Cases:**
+- Receipt generation
+- Service activation
+- Accounting updates
+
+---
+
+### Payment Failure
+
+Triggered when a payment attempt fails for an invoice or subscription.
+
+**Configuration:**
+- **Organization ID** (Required): Select your Zoho Billing organization.
+
+**Trigger Details:**
+- **Event**: `webhook.payment_failure`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches events and filters for `payment_declined` event type.
+- **Data Returned**: Payment details, failure reason, invoice information, and retry schedule.
+
+**Use Cases:**
+- Dunning management
+- Customer notifications
+- Payment retry workflows
+
+## Troubleshooting
+
+### Common Issues
+
+- **No data received**: Ensure your Zoho Billing organization has recent records matching the trigger event.
+- **Authentication errors**: Reconnect your Zoho Billing account if the access token has expired.
+- **Missing Organization ID**: Make sure you have selected a valid organization from the dropdown.
+- **Rate limits**: Zoho Billing API has rate limits that vary by plan and endpoint type. Monitor usage to avoid hitting limits.
+
+### Support
+
+- Contact Boltic support for assistance with configuring Zoho Billing triggers.
+- Check Zoho Billing API documentation at [https://www.zoho.com/billing/api/v1/](https://www.zoho.com/billing/api/v1/) for detailed technical information.

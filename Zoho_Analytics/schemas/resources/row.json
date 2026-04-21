@@ -1,0 +1,641 @@
+{
+    "getViews": {
+        "definition": {
+            "qs": {},
+            "url": "https://analyticsapi.zoho.in/restapi/v2/workspaces/{{parameters.workspace_id}}/views",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "ZANALYTICS-ORGID": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data.errorCode}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.data.errorMessage || response.data}}",
+                    "summary": "{{response.data.summary}}"
+                },
+                "output": "{{response.data.data.views}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Add Row",
+                        "value": "row.create",
+                        "description": "Add a new row in the specified Zoho Analytics table."
+                    },
+                    {
+                        "label": "Update Row(s)",
+                        "value": "row.update",
+                        "description": "Update existing row(s) in the specified Zoho Analytics table."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Choose the operation you want to perform on rows.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "row",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getWorkspaces": {
+        "definition": {
+            "qs": {},
+            "url": "https://analyticsapi.zoho.in/restapi/v2/workspaces",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data.errorCode}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.data.errorMessage || response.data}}",
+                    "summary": "{{response.data.summary}}"
+                },
+                "output": "{{response.data.data.ownedWorkspaces}}"
+            }
+        },
+        "parameters": []
+    },
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://analyticsapi.zoho.in/restapi/v2/orgs",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data.errorCode}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.data.errorMessage || response.data}}",
+                    "summary": "{{response.data.summary}}"
+                },
+                "output": "{{response.data.data.orgs}}"
+            }
+        }
+    },
+    "update": {
+        "definition": {
+            "qs": {
+                "CONFIG": "{ \"columns\": \"{{parameters.columns}}\", \"dateFormat\": \"{{parameters.date_format}}\", \"criteria\": \"\\\"{{parameters.table_name}}\\\".\\\"{{parameters.column_name}}\\\"{{parameters.operator}}'{{parameters.value}}'\", \"updateAllRows\": false, \"addIfNotExist\": true, \"columnDateFormat\": {} }"
+            },
+            "url": "https://analyticsapi.zoho.in/restapi/v2/workspaces/{{parameters.workspace_id}}/views/{{parameters.view_id}}/rows",
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "ZANALYTICS-ORGID": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.data.errorCode}}",
+                    "status": "{{response.data.status}}",
+                    "message": "{{response.data.data.errorMessage}}",
+                    "summary": "{{response.data.summary}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_analytics",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "row",
+                            "operation": "row.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "orgName",
+                        "valueKey": "orgId"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Analytics Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_analytics",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "row",
+                            "operation": "row.update",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "workspaceName",
+                        "valueKey": "workspaceId"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Zoho Analytics Workspace ID where the row will be updated",
+                    "displayName": "Workspace ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Workspace ID"
+                },
+                "name": "workspace_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_analytics",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "row",
+                            "operation": "row.update",
+                            "workspace_id": "{{parameters.workspace_id}}",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getViews"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "viewName",
+                        "valueKey": "viewId",
+                        "condition": "{{parameters.workspace_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Zoho Analytics Table or View ID",
+                    "displayName": "Table/View ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Table/View ID"
+                },
+                "name": "view_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_analytics",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "row",
+                                        "operation": "row.update",
+                                        "workspace_id": "{{parameters.workspace_id}}",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getViews"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "viewName",
+                                    "valueKey": "viewName",
+                                    "condition": "{{parameters.workspace_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Zoho Analytics Table or View ID",
+                                "displayName": "Table/View ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter Table/View ID"
+                            },
+                            "name": "table_name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Enter the name of the column",
+                                "displayName": "Column Name",
+                                "displayType": "text",
+                                "placeholder": "Enter column name"
+                            },
+                            "name": "column_name"
+                        },
+                        {
+                            "meta": {
+                                "value": "=",
+                                "options": [
+                                    {
+                                        "label": "Equals",
+                                        "value": "="
+                                    },
+                                    {
+                                        "label": "Not Equals",
+                                        "value": "!="
+                                    },
+                                    {
+                                        "label": "Greater Than",
+                                        "value": ">"
+                                    },
+                                    {
+                                        "label": "Less Than",
+                                        "value": "<"
+                                    },
+                                    {
+                                        "label": "Greater Than or Equal To",
+                                        "value": ">="
+                                    },
+                                    {
+                                        "label": "Less Than or Equal To",
+                                        "value": "<="
+                                    },
+                                    {
+                                        "label": "Between",
+                                        "value": "BETWEEN"
+                                    },
+                                    {
+                                        "label": "Like (Contains)",
+                                        "value": "LIKE"
+                                    },
+                                    {
+                                        "label": "Not Like (Does not contain)",
+                                        "value": "NOT LIKE"
+                                    },
+                                    {
+                                        "label": "In List",
+                                        "value": "IN"
+                                    },
+                                    {
+                                        "label": "Not In List",
+                                        "value": "NOT IN"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Operator to match rows for updating, and supported values [=, !=, >, <, >=, <=, BETWEEN, LIKE, NOT LIKE, IN, NOT IN]",
+                                "displayName": "Operator",
+                                "displayType": "select",
+                                "placeholder": "Enter operator"
+                            },
+                            "name": "operator"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Enter the value.",
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "Enter value"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "description": "Criteria to match rows for updating",
+                    "displayName": "Criteria",
+                    "displayType": "section"
+                },
+                "name": "criteria"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "ColumnName",
+                                "displayType": "text",
+                                "placeholder": "Enter column name"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "Enter column value"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Key-value pairs of column names and their values",
+                    "displayName": "Columns Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter columns data"
+                },
+                "name": "columns"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "If true, updates all rows in the table, WARNING: This will overwrite existing rows",
+                    "displayName": "Update All Rows",
+                    "displayType": "toggle",
+                    "placeholder": "Update all rows"
+                },
+                "name": "updateAllRows"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "If true, adds a new row if no row matches the criteria",
+                    "displayName": "Add If Not Exist",
+                    "displayType": "toggle",
+                    "placeholder": "Add if not exist"
+                },
+                "name": "addIfNotExist"
+            },
+            {
+                "meta": {
+                    "description": "Date format if column contains a date field, <a href=\"https://www.zoho.com/analytics/help/table/date-format.html\" target=\"_blank\">Date Format Documentation</a>",
+                    "displayName": "Date Format",
+                    "displayType": "text",
+                    "placeholder": "dd-MMM-YYYY"
+                },
+                "name": "dateFormat"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "displayName": "Column",
+                                "displayType": "text",
+                                "placeholder": "Enter column name"
+                            },
+                            "name": "column"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Date format if column contains a date field, e.g. DD-MM-YYYY, MM-dd-YYYY",
+                                "displayName": "Format",
+                                "displayType": "text",
+                                "placeholder": "dd-MMM-YYYY"
+                            },
+                            "name": "format"
+                        }
+                    ],
+                    "description": "Date format for specific columns if multiple formats exist",
+                    "displayName": "Column Date Format",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter column date format"
+                },
+                "name": "columnDateFormat"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "qs": {
+                "CONFIG": "{'columns': '{{parameters.columns}}','dateFormat': '{{parameters.dateFormat}}','columnDateFormat': '{{parameters.columnDateFormat}}'}"
+            },
+            "url": "https://analyticsapi.zoho.in/restapi/v2/workspaces/{{parameters.workspace_id}}/views/{{parameters.view_id}}/rows",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "ZANALYTICS-ORGID": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_analytics",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "row",
+                            "operation": "row.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "orgName",
+                        "valueKey": "orgId"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Analytics Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_analytics",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "row",
+                            "operation": "row.create",
+                            "loadOptionsMethod": "getWorkspaces"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "workspaceName",
+                        "valueKey": "workspaceId"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Analytics workspace ID",
+                    "displayName": "Workspace ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Workspace ID"
+                },
+                "name": "workspace_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_analytics",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "row",
+                            "operation": "row.create",
+                            "workspace_id": "{{parameters.workspace_id}}",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getViews"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "viewName",
+                        "valueKey": "viewId",
+                        "condition": "{{parameters.workspace_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Zoho Analytics Table or View ID",
+                    "displayName": "Table/View ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Table/View ID"
+                },
+                "name": "view_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "ColumnName",
+                                "displayType": "text",
+                                "placeholder": "Enter column name"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "Enter column value"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Key-value pairs of column names and their values",
+                    "displayName": "Columns Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter columns data"
+                },
+                "name": "columns"
+            },
+            {
+                "meta": {
+                    "description": "Date format if column contains a date field, <a href=\"https://www.zoho.com/analytics/help/table/date-format.html\" target=\"_blank\">Date Format Documentation</a>",
+                    "displayName": "Date Format",
+                    "displayType": "text",
+                    "placeholder": "dd-MMM-YYYY"
+                },
+                "name": "dateFormat"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "displayName": "Column",
+                                "displayType": "text",
+                                "placeholder": "Enter column name"
+                            },
+                            "name": "column"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": false
+                                },
+                                "description": "Date format if column contains a date field, e.g. dd-MM-YYYY, MM-dd-YYYY",
+                                "displayName": "Format",
+                                "displayType": "text",
+                                "placeholder": "dd-MMM-YYYY"
+                            },
+                            "name": "format"
+                        }
+                    ],
+                    "description": "Date format for specific columns if multiple formats exist",
+                    "displayName": "Column Date Format",
+                    "displayType": "keyvalue",
+                    "placeholder": "Enter column date format"
+                },
+                "name": "columnDateFormat"
+            }
+        ]
+    }
+}

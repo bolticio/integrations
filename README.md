@@ -145,8 +145,17 @@ integration-name/
 - [zendesk](./zendesk/)
 - [Zendesk_Gather](./Zendesk_Gather/)
 - [Zendesk_Talk](./Zendesk_Talk/)
+- [Zoho_Analytics](./Zoho_Analytics/)
+- [Zoho_Billing](./Zoho_Billing/)
+- [Zoho_Bookings](./Zoho_Bookings/)
+- [Zoho_Books](./Zoho_Books/)
+- [Zoho_Calendar](./Zoho_Calendar/)
+- [Zoho_Campaigns](./Zoho_Campaigns/)
+- [Zoho_Connect](./Zoho_Connect/)
+- [Zoho_Creator](./Zoho_Creator/)
 - [Zoho_CRM](./Zoho_CRM/)
 - [Zoho_Desk](./Zoho_Desk/)
+- [Zoho_FSM](./Zoho_FSM/)
 <!-- INTEGRATIONS_INDEX:END -->
 
 ## 🔒 Licensing

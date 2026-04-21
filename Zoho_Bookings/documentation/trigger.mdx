@@ -1,0 +1,131 @@
+# Zoho Bookings Trigger
+
+## Overview
+
+Zoho Bookings triggers allow you to start workflows automatically when appointment events occur in your Zoho Bookings account. These triggers use a polling mechanism to detect new bookings, cancellations, and rescheduled appointments.
+
+## Authenticating with Zoho Bookings
+
+Before using triggers, connect your Zoho Bookings account via OAuth 2.0 in Boltic. See the [Integration documentation](./integration.mdx) for setup steps.
+
+## Setting Up a Trigger
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button and select "Zoho Bookings" as the trigger.
+
+### Step 2: Configure the Trigger
+
+1. Select your **Zoho Bookings Account** connection.
+2. Select **Webhook** as the resource.
+3. Choose the **Event** you want to listen to.
+4. Configure the required parameters (Service ID, Staff ID).
+5. Test the trigger to verify it receives data correctly.
+
+**Polling Interval:** Triggers check for new records every 15 seconds.
+
+## Available Triggers
+
+### Appointment Booked
+
+Triggered when a new appointment is booked in Zoho Bookings with status UPCOMING.
+
+**Required Fields:**
+- **Service ID**: The booking service to monitor (auto-populated from your Zoho Bookings account).
+- **Staff ID**: The staff member assigned to the service (auto-populated from your Zoho Bookings account).
+
+**Optional Fields:**
+- **From Time**: Start of the time range to filter appointments. Format: `dd-MMM-yyyy HH:mm:ss` (e.g. `01-Jan-2022 10:00:00`).
+- **To Time**: End of the time range to filter appointments. Format: `dd-MMM-yyyy HH:mm:ss` (e.g. `01-Jan-2022 10:00:00`).
+- **Need Customer More Info**: Set to Yes to provide additional customer details for filtering:
+  - **Customer Name**: Name of the customer.
+  - **Customer Email**: Email address of the customer.
+  - **Customer Phone Number**: Phone number of the customer.
+
+**Trigger Details:**
+- **Event**: `webhook.appointment_booked`
+- **Polling Criteria**: Timestamp-based on `last_updated_timestamp` field (ISO format).
+- **API Endpoint**: Fetches appointments with UPCOMING status, sorted by last updated time in descending order.
+- **Data Returned**: Complete appointment details including service, staff, customer information, booking time, and status.
+
+**Use Cases:**
+- Customer confirmation emails and SMS notifications
+- Staff calendar synchronization
+- CRM integration for customer management
+- Resource allocation and preparation workflows
+
+---
+
+### Appointment Cancelled
+
+Triggered when an existing appointment is cancelled in Zoho Bookings.
+
+**Required Fields:**
+- **Service ID**: The booking service to monitor (auto-populated from your Zoho Bookings account).
+- **Staff ID**: The staff member assigned to the service (auto-populated from your Zoho Bookings account).
+
+**Optional Fields:**
+- **From Time**: Start of the time range to filter appointments. Format: `dd-MMM-yyyy HH:mm:ss` (e.g. `01-Jan-2022 10:00:00`).
+- **To Time**: End of the time range to filter appointments. Format: `dd-MMM-yyyy HH:mm:ss` (e.g. `01-Jan-2022 10:00:00`).
+- **Need Customer More Info**: Set to Yes to provide additional customer details for filtering:
+  - **Customer Name**: Name of the customer.
+  - **Customer Email**: Email address of the customer.
+  - **Customer Phone Number**: Phone number of the customer.
+
+**Trigger Details:**
+- **Event**: `webhook.appointment_cancelled`
+- **Polling Criteria**: Timestamp-based on `last_updated_timestamp` field (ISO format).
+- **API Endpoint**: Fetches appointments with CANCEL status, sorted by last updated time in descending order.
+- **Data Returned**: Cancelled appointment details including original booking information, cancellation timestamp, and customer data.
+
+**Use Cases:**
+- Customer cancellation confirmation notifications
+- Staff schedule updates and availability restoration
+- Waiting list notifications to other customers
+- Cancellation analytics and trend analysis
+
+---
+
+### Appointment Rescheduled
+
+Triggered when an existing appointment is rescheduled to a different date or time in Zoho Bookings.
+
+**Required Fields:**
+- **Service ID**: The booking service to monitor (auto-populated from your Zoho Bookings account).
+- **Staff ID**: The staff member assigned to the service (auto-populated from your Zoho Bookings account).
+
+**Optional Fields:**
+- **From Time**: Start of the time range to filter appointments. Format: `dd-MMM-yyyy HH:mm:ss` (e.g. `01-Jan-2022 10:00:00`).
+- **To Time**: End of the time range to filter appointments. Format: `dd-MMM-yyyy HH:mm:ss` (e.g. `01-Jan-2022 10:00:00`).
+- **Need Customer More Info**: Set to Yes to provide additional customer details for filtering:
+  - **Customer Name**: Name of the customer.
+  - **Customer Email**: Email address of the customer.
+  - **Customer Phone Number**: Phone number of the customer.
+
+**Trigger Details:**
+- **Event**: `webhook.appointment_rescheduled`
+- **Polling Criteria**: Timestamp-based on `last_updated_timestamp` field (ISO format).
+- **API Endpoint**: Fetches UPCOMING appointments and detects rescheduled ones via last updated time, sorted in descending order.
+- **Data Returned**: Updated appointment details including new date/time, staff assignment, and customer information.
+
+**Use Cases:**
+- Customer notification about schedule changes
+- Staff calendar updates and conflict resolution
+- Resource reallocation for new time slots
+- Schedule optimization analytics
+
+## Troubleshooting
+
+### Common Issues
+
+- **No data received**: Ensure your Zoho Bookings account has recent appointments matching the trigger event and selected Service/Staff IDs.
+- **Authentication errors**: Reconnect your Zoho Bookings account if the access token has expired.
+- **Missing Service or Staff ID**: Make sure you have selected valid Service and Staff from the dropdowns.
+- **Time format errors**: Ensure From Time and To Time follow the `dd-MMM-yyyy HH:mm:ss` format (e.g. `01-Jan-2022 10:00:00`).
+- **Rate limits**: Zoho Bookings API has rate limits. Monitor usage to avoid hitting limits.
+
+### Support
+
+- Contact Boltic support for assistance with configuring Zoho Bookings triggers.
+- Check Zoho Bookings API documentation at [https://www.zoho.com/bookings/help/api/v1/](https://www.zoho.com/bookings/help/api/v1/) for detailed technical information.

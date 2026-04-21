@@ -1,0 +1,169 @@
+# Zoho Calendar Integration
+
+## Overview
+
+Zoho Calendar is a cloud-based scheduling and calendar management application used to manage events, appointments, and group schedules with easy sharing and collaboration. This integration allows you to create calendars, manage events, and automate scheduling workflows directly from Boltic.
+
+## Authenticating with Zoho Calendar
+
+### Step 1: Set Up OAuth 2.0
+
+- Log in to your Zoho account and navigate to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+- Create a new client or use an existing one to obtain your Client ID and Client Secret.
+
+### Step 2: Configure the Connection in Boltic
+
+- Log in to your Boltic account and navigate to the "Integrations" page from Left Navigation.
+- Click on the "Sources" Panel and then click on "Add new Source".
+- Select or filter the "Zoho Calendar" Connector.
+- Enter the integration name and description.
+- Click on the "Connect Zoho Calendar Account" button, which will redirect you to the Zoho authorization page.
+- Sign in with your Zoho credentials and grant the requested scopes (`ZohoCalendar.calendar.ALL`, `ZohoCalendar.event.ALL`, `ZohoCalendar.search.READ`, `ZohoCalendar.calendar.READ`).
+- Once the Connect button indicator turns green, click "Save" — your OAuth tokens are now securely stored.
+
+## Using Zoho Calendar with Boltic
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button.
+- Add a Zoho Calendar action node to your workflow.
+
+### Step 2: Configure the Actions
+
+Select a resource (Calendar or Event) and then choose from the available operations:
+
+**Calendar Resource:**
+- **Create Calendar**: Create a new calendar with custom settings, colors, and reminders.
+
+**Event Resource:**
+- **Create New Event**: Add a fully configured event with attendees, reminders, and conferencing.
+- **Update Event**: Modify an existing event's details, time, attendees, or settings.
+- **Delete Event**: Permanently remove an event from a calendar.
+- **Search Event**: Find events by text within a date range.
+- **Quick Add Event**: Rapidly create an event with just a title.
+
+## Available Actions
+
+### Create Calendar
+
+Creates a new calendar in your Zoho Calendar account with custom display settings, sharing permissions, and reminder configurations.
+
+**Required Fields:**
+- **Calendar Name**: Name of the calendar to be created.
+- **Color**: Color code for the calendar in hex format (e.g. `#8cbf40`).
+
+**Optional Fields:**
+- **Include in Free/Busy**: Whether to include this calendar in free/busy responses — Busy or Free.
+- **Private**: Make this calendar private — Yes (enable) or No (disable).
+- **Timezone**: Timezone for the calendar (default: `Asia/Kolkata`).
+- **Public**: Public visibility setting — OFF (disable), View only Free/Busy, or View event details.
+- **Description**: Description of the calendar.
+- **Text Color**: Text color for the calendar — Black (`#000000`) or White (`#FFFFFF`).
+- **Reminders**: Array of reminders, each with:
+  - **Action**: Reminder type — Email, Popup, or Notification.
+  - **Minutes**: Timing relative to event (e.g. Before 5m, After 1h, Before 1d — ranges from 5 minutes to 90 days).
+- **Status**: Whether all events in the calendar should be visible — Yes or No.
+
+---
+
+### Create New Event
+
+Adds a new event to a specified calendar with complete event details including title, date/time, attendees, reminders, and conferencing options.
+
+**Required Fields:**
+- **Calendar**: Calendar where the event will be created (auto-populated).
+- **Event Title**: Title of the event.
+- **Date and Time**: Start and end date/time with timezone:
+  - **Start Date and Time**: Format `YYYY-MM-DD HH:mm:ss` (e.g. `2025-09-01 10:00:00`), or `YYYY-MM-DD` for all-day events.
+  - **End Date and Time**: Same format as start.
+  - **Timezone**: Timezone for the event (default: `Asia/Kolkata`).
+
+**Optional Fields:**
+- **Event Color**: Color for the event — Topaz yellow, Salmon orange, Pastel red, Persian pink, Bright lavender, Blueberry blue, Light turquoise, Citrine yellow, Light yellow green, Bud green, or Fern green.
+- **All Day Event**: Whether the event spans the entire day.
+- **Attendees**: Array of attendees, each with:
+  - **Email** (Required): Email ID of the attendee.
+  - **ZUID**: Zoho User ID of the attendee.
+  - **Permission**: Guest, View, Invite, or Edit.
+  - **Attendance**: Non-participant, Required participant, or Optional participant.
+- **Allow Forwarding**: Whether attendees can forward the event.
+- **Location**: Event location (max 255 characters).
+- **Private Event**: Whether the event is private.
+- **Transparency**: Add to free/busy schedule or Don't add to free/busy schedule.
+- **Reminders**: Array of reminders, each with:
+  - **Action**: Email, Popup, or Notification.
+  - **Minutes**: Timing relative to event (ranges from 5 minutes to 90 days before/after).
+- **Rich Text Description**: HTML-formatted description (max 12000 characters). Supports `<b>`, `<i>`, `<u>`, `<a>` tags.
+- **Notify Attendee**: None, Notify attendees only, or Notify both attendees and myself.
+- **Conference**: Zoho Meeting or None.
+- **URL**: URL to share for the event.
+- **Notification Type**: Default Notification.
+
+---
+
+### Update Event
+
+Modifies an existing event with updated details including time, location, attendees, or other settings.
+
+**Required Fields:**
+- **Calendar**: Calendar containing the event (auto-populated).
+- **Event UID**: The event to update (auto-populated based on selected calendar).
+- **Etag**: Version identifier of the event for concurrency control (auto-populated based on selected event).
+- **Event Title**: Updated title of the event.
+- **Date and Time**: Updated start/end date/time with timezone:
+  - **Start Date and Time**: Format `YYYY-MM-DD HH:mm:ss`.
+  - **End Date and Time**: Same format as start.
+  - **Timezone**: Timezone for the event (default: `Asia/Kolkata`).
+
+**Optional Fields:**
+- Same optional fields as Create New Event (Event Color, All Day Event, Attendees, Allow Forwarding, Location, Private Event, Transparency, Reminders, Rich Text Description, Notify Attendee, Conference, URL, Notification Type).
+
+---
+
+### Delete Event
+
+Permanently removes an event from a specified calendar.
+
+**Required Fields:**
+- **Calendar**: Calendar containing the event (auto-populated).
+- **Event UID**: The event to delete (auto-populated based on selected calendar).
+- **Etag**: Version identifier of the event for concurrency control (auto-populated based on selected event).
+
+---
+
+### Search Event
+
+Finds events in a calendar by searching event titles within a specified date range.
+
+**Required Fields:**
+- **Calendar**: Calendar to search events in (auto-populated).
+- **Search Text**: Text to search for in event titles.
+- **Start Date and Time**: Start of the search date range. Format: `YYYY-MM-DD HH:mm:ss`.
+- **End Date and Time**: End of the search date range. Format: `YYYY-MM-DD HH:mm:ss`.
+
+---
+
+### Quick Add Event
+
+Rapidly creates an event with minimal details — just a calendar and title. The event is automatically set as an all-day event for the current day.
+
+**Required Fields:**
+- **Calendar**: Calendar where the event will be created (auto-populated).
+- **Event Title**: Title of the event.
+
+## Troubleshooting
+
+### Common Errors
+
+- **400 Bad Request**: Invalid parameters or malformed event data. Verify all required fields are provided.
+- **401 Unauthorized**: Invalid or expired authentication token. Reconnect your Zoho Calendar account.
+- **403 Forbidden**: Insufficient permissions. Check your OAuth scopes.
+- **404 Not Found**: Calendar or event not found. Verify the Calendar UID and Event UID.
+- **409 Conflict**: Etag mismatch — the event was modified by another process. Refresh and retry.
+- **429 Too Many Requests**: Rate limit exceeded. Implement retry logic with backoff.
+
+### Support
+
+- Contact Boltic support for assistance with connecting Zoho Calendar to Boltic.
+- Check Zoho Calendar API documentation at [https://www.zoho.com/calendar/help/api/introduction.html](https://www.zoho.com/calendar/help/api/introduction.html) for detailed technical information.

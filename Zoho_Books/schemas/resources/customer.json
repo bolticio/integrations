@@ -1,0 +1,761 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Customer",
+                        "value": "customer.create",
+                        "description": "Create a new customer in Zoho Books."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Choose the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "customer",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getCurrency": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.zohoapis.in/books/v3/settings/currencies?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.currencies}}"
+            }
+        }
+    },
+    "getLocations": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/locations?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.locations}}"
+            }
+        }
+    },
+    "getOrganizations": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/contacts?organization_id={{parameters.organization_id}}",
+            "body": {
+                "email": "{{parameters.email}}",
+                "notes": "{{parameters.notes}}",
+                "twitter": "{{parameters.twitter}}",
+                "website": "{{parameters.website}}",
+                "facebook": "{{parameters.facebook}}",
+                "currency_id": "{{parameters.currency_id}}",
+                "company_name": "{{parameters.company_name}}",
+                "contact_name": "{{parameters.contact_name}}",
+                "contact_type": "{{parameters.contact_type}}",
+                "credit_limit": "{{parameters.credit_limit}}",
+                "language_code": "{{parameters.language_code}}",
+                "payment_terms": "{{parameters.payment_terms}}",
+                "billing_address": "{{parameters.billing_address}}",
+                "contact_persons": "{{parameters.contact_persons}}",
+                "opening_balances": "{{parameters.opening_balances}}",
+                "shipping_address": "{{parameters.shipping_address}}",
+                "customer_sub_type": "{{parameters.customer_sub_type}}",
+                "is_portal_enabled": "{{parameters.is_portal_enabled}}",
+                "payment_terms_label": "{{parameters.payment_terms_label}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customer",
+                            "operation": "customer.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 200,
+                        "required": true
+                    },
+                    "description": "Display Name of the contact",
+                    "displayName": "Contact Name",
+                    "displayType": "text",
+                    "placeholder": "Enter contact name"
+                },
+                "name": "contact_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Email of the contact",
+                    "displayName": "Email",
+                    "displayType": "email",
+                    "placeholder": "Enter email"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 200
+                    },
+                    "description": "Company name of the contact",
+                    "displayName": "Company Name",
+                    "displayType": "text",
+                    "placeholder": "Enter company name"
+                },
+                "name": "company_name"
+            },
+            {
+                "meta": {
+                    "description": "Website of the contact",
+                    "displayName": "Website",
+                    "displayType": "url",
+                    "placeholder": "https://example.com"
+                },
+                "name": "website"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "English",
+                            "value": "en"
+                        },
+                        {
+                            "label": "English (UK)",
+                            "value": "en_gb"
+                        },
+                        {
+                            "label": "German",
+                            "value": "de"
+                        },
+                        {
+                            "label": "Spanish",
+                            "value": "es"
+                        },
+                        {
+                            "label": "French",
+                            "value": "fr"
+                        },
+                        {
+                            "label": "Italian",
+                            "value": "it"
+                        },
+                        {
+                            "label": "Japanese",
+                            "value": "ja"
+                        },
+                        {
+                            "label": "Dutch",
+                            "value": "nl"
+                        },
+                        {
+                            "label": "Portuguese",
+                            "value": "pt"
+                        },
+                        {
+                            "label": "Portuguese (Brazil)",
+                            "value": "pt_br"
+                        },
+                        {
+                            "label": "Swedish",
+                            "value": "sv"
+                        },
+                        {
+                            "label": "Chinese",
+                            "value": "zh"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Language code of the contact, and supported values [en, en_gb, de, es, fr, it, ja, nl, pt, pt_br, sv, zh]",
+                    "displayName": "Language Code",
+                    "displayType": "select",
+                    "placeholder": "Select language code"
+                },
+                "name": "language_code"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Customer",
+                            "value": "customer"
+                        },
+                        {
+                            "label": "Vendor",
+                            "value": "vendor"
+                        },
+                        {
+                            "label": "Other",
+                            "value": "other"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Type of the contact, and supported values [customer, vendor, other]",
+                    "displayName": "Contact Type",
+                    "displayType": "select",
+                    "placeholder": "Select contact type"
+                },
+                "name": "contact_type"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Business",
+                            "value": "business"
+                        },
+                        {
+                            "label": "Individual",
+                            "value": "individual"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Customer sub type of the contact, and supported values [business, individual]",
+                    "displayName": "Customer Sub Type",
+                    "displayType": "select",
+                    "placeholder": "Enter customer sub type"
+                },
+                "name": "customer_sub_type"
+            },
+            {
+                "meta": {
+                    "description": "Note: Enable Customer Credit Limits in your contact preferences to start setting credit limits.",
+                    "displayName": "Credit Limit",
+                    "displayType": "number",
+                    "placeholder": "Enter credit limit"
+                },
+                "name": "credit_limit"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Enable client portal for this contact",
+                    "displayName": "Enable Portal",
+                    "displayType": "toggle",
+                    "placeholder": "Enable portal"
+                },
+                "name": "is_portal_enabled"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customer",
+                            "operation": "customer.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getCurrency"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "currency_code",
+                        "valueKey": "currency_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Currency ID of the contact",
+                    "displayName": "Currency ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter currency ID"
+                },
+                "name": "currency_id"
+            },
+            {
+                "meta": {
+                    "description": "Payment terms for the contact",
+                    "displayName": "Payment Terms",
+                    "displayType": "number",
+                    "placeholder": "Enter payment terms"
+                },
+                "name": "payment_terms"
+            },
+            {
+                "meta": {
+                    "description": "Payment terms label for the contact",
+                    "displayName": "Payment Terms Label",
+                    "displayType": "text",
+                    "placeholder": "Enter payment terms label"
+                },
+                "name": "payment_terms_label"
+            },
+            {
+                "meta": {
+                    "description": "Notes for the contact",
+                    "displayName": "Notes",
+                    "displayType": "text",
+                    "placeholder": "Enter notes"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Mr.",
+                                        "value": "Mr."
+                                    },
+                                    {
+                                        "label": "Ms.",
+                                        "value": "Ms."
+                                    },
+                                    {
+                                        "label": "Mrs.",
+                                        "value": "Mrs."
+                                    },
+                                    {
+                                        "label": "Miss.",
+                                        "value": "Miss."
+                                    },
+                                    {
+                                        "label": "Dr.",
+                                        "value": "Dr."
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Salutation of the contact person, and supported values [Mr., Ms., Mrs., Miss., Dr.]",
+                                "displayName": "Salutation",
+                                "displayType": "select",
+                                "placeholder": "Select salutation"
+                            },
+                            "name": "salutation"
+                        },
+                        {
+                            "meta": {
+                                "description": "First name of the contact person",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter first name"
+                            },
+                            "name": "first_name"
+                        },
+                        {
+                            "meta": {
+                                "description": "Last name of the contact person",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter last name"
+                            },
+                            "name": "last_name"
+                        },
+                        {
+                            "meta": {
+                                "description": "Email of the contact person",
+                                "displayName": "Email",
+                                "displayType": "text",
+                                "placeholder": "Enter email"
+                            },
+                            "name": "email"
+                        },
+                        {
+                            "meta": {
+                                "description": "Phone of the contact person",
+                                "displayName": "Phone",
+                                "displayType": "text",
+                                "placeholder": "Enter phone"
+                            },
+                            "name": "phone"
+                        },
+                        {
+                            "meta": {
+                                "description": "Mobile of the contact person",
+                                "displayName": "Mobile",
+                                "displayType": "text",
+                                "placeholder": "Enter mobile"
+                            },
+                            "name": "mobile"
+                        },
+                        {
+                            "meta": {
+                                "description": "Designation of the contact person",
+                                "displayName": "Designation",
+                                "displayType": "text",
+                                "placeholder": "Enter designation"
+                            },
+                            "name": "designation"
+                        },
+                        {
+                            "meta": {
+                                "description": "Department of the contact person",
+                                "displayName": "Department",
+                                "displayType": "text",
+                                "placeholder": "Enter department"
+                            },
+                            "name": "department"
+                        },
+                        {
+                            "meta": {
+                                "description": "Skype of the contact person",
+                                "displayName": "Skype",
+                                "displayType": "text",
+                                "placeholder": "Enter skype"
+                            },
+                            "name": "skype"
+                        },
+                        {
+                            "meta": {
+                                "value": true,
+                                "description": "Is primary contact for the contact",
+                                "displayName": "Is Primary Contact",
+                                "displayType": "toggle"
+                            },
+                            "name": "is_primary_contact"
+                        },
+                        {
+                            "meta": {
+                                "value": false,
+                                "description": "Enable client portal for this contact",
+                                "displayName": "Enable Portal",
+                                "displayType": "toggle"
+                            },
+                            "name": "enable_portal"
+                        }
+                    ],
+                    "description": "Contact persons for the contact",
+                    "displayName": "Contact Person",
+                    "displayType": "array"
+                },
+                "name": "contact_persons"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Attention of the contact",
+                                "displayName": "Attention",
+                                "displayType": "text",
+                                "placeholder": "Enter attention"
+                            },
+                            "name": "attention"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "max": 500
+                                },
+                                "description": "Address of the contact",
+                                "displayName": "Address",
+                                "displayType": "text",
+                                "placeholder": "Enter address"
+                            },
+                            "name": "address"
+                        },
+                        {
+                            "meta": {
+                                "description": "Street 2 of the contact",
+                                "displayName": "Street 2",
+                                "displayType": "text",
+                                "placeholder": "Enter street 2"
+                            },
+                            "name": "street2"
+                        },
+                        {
+                            "meta": {
+                                "description": "State code of the contact",
+                                "displayName": "State Code",
+                                "displayType": "text",
+                                "placeholder": "Enter state code"
+                            },
+                            "name": "state_code"
+                        },
+                        {
+                            "meta": {
+                                "description": "City of the contact",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "description": "State of the contact",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "description": "Zip of the contact",
+                                "displayName": "Zip",
+                                "displayType": "text",
+                                "placeholder": "Enter zip"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "description": "Country of the contact",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        }
+                    ],
+                    "description": "Billing address of the contact",
+                    "displayName": "Billing Address",
+                    "displayType": "object"
+                },
+                "name": "billing_address"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Attention of the contact",
+                                "displayName": "Attention",
+                                "displayType": "text",
+                                "placeholder": "Enter attention"
+                            },
+                            "name": "attention"
+                        },
+                        {
+                            "meta": {
+                                "description": "Address of the contact",
+                                "displayName": "Address",
+                                "displayType": "text",
+                                "placeholder": "Enter address"
+                            },
+                            "name": "address"
+                        },
+                        {
+                            "meta": {
+                                "description": "Street 2 of the contact",
+                                "displayName": "Street 2",
+                                "displayType": "text",
+                                "placeholder": "Enter street 2"
+                            },
+                            "name": "street2"
+                        },
+                        {
+                            "meta": {
+                                "description": "State code of the contact",
+                                "displayName": "State Code",
+                                "displayType": "text",
+                                "placeholder": "Enter state code"
+                            },
+                            "name": "state_code"
+                        },
+                        {
+                            "meta": {
+                                "description": "City of the contact",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "description": "State of the contact",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "description": "Zip of the contact",
+                                "displayName": "Zip",
+                                "displayType": "text",
+                                "placeholder": "Enter zip"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "description": "Country of the contact",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        }
+                    ],
+                    "description": "Shipping address of the contact",
+                    "displayName": "Shipping Address",
+                    "displayType": "object"
+                },
+                "name": "shipping_address"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_books",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "customer",
+                                        "operation": "customer.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getLocations"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "location_name",
+                                    "valueKey": "location_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Location ID for the opening balance",
+                                "displayName": "Location ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter location ID"
+                            },
+                            "name": "location_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "Exchange rate for the opening balance",
+                                "displayName": "Exchange Rate",
+                                "displayType": "number",
+                                "placeholder": "Enter exchange rate"
+                            },
+                            "name": "exchange_rate"
+                        },
+                        {
+                            "meta": {
+                                "description": "Opening balance amount for the opening balance",
+                                "displayName": "Opening Balance Amount",
+                                "displayType": "number",
+                                "placeholder": "Enter opening balance amount"
+                            },
+                            "name": "opening_balance_amount"
+                        }
+                    ],
+                    "description": "Opening balance for the contact",
+                    "displayName": "Opening Balance",
+                    "displayType": "array"
+                },
+                "name": "opening_balances"
+            },
+            {
+                "meta": {
+                    "description": "Enter your Facebook profile username only (e.g., profile_name). Do not include the full URL (http://www.facebook.com/)",
+                    "displayName": "Facebook",
+                    "displayType": "text",
+                    "placeholder": "Enter Facebook URL"
+                },
+                "name": "facebook"
+            },
+            {
+                "meta": {
+                    "description": "Enter your Twitter profile username only (e.g., profile_name). Do not include the full URL (https://x.com/).",
+                    "displayName": "Twitter",
+                    "displayType": "text",
+                    "placeholder": "Enter Twitter URL"
+                },
+                "name": "twitter"
+            }
+        ]
+    }
+}

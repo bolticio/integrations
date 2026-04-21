@@ -1,0 +1,858 @@
+{
+    "getItems": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/items?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.items}}"
+            }
+        }
+    },
+    "getTaxes": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/settings/taxes?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.taxes}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Estimate",
+                        "value": "estimate.create",
+                        "description": "Create a new estimate in Zoho Books."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Choose the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "estimate",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getCurrency": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.zohoapis.in/books/v3/settings/currencies?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.currencies}}"
+            }
+        }
+    },
+    "getProjects": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/projects?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.projects}}"
+            }
+        }
+    },
+    "getCustomers": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/contacts?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contacts}}"
+            },
+            "transform": {
+                "output": "const updatedOutput = output.map(customer => {return {...customer, display_name: !customer.first_name || !customer.last_name ? customer.customer_name : `${customer.first_name} ${customer.last_name}` };});return updatedOutput;"
+            }
+        }
+    },
+    "getLocations": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/locations?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.locations}}"
+            }
+        }
+    },
+    "getOrganizations": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        }
+    },
+    "getContactPersons": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/contacts/{{parameters.customer_id}}/contactpersons?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contact_persons}}"
+            }
+        }
+    },
+    "getEstimateTemplates": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/estimates/templates?organization_id={{parameters.organization_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.templates}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/books/v3/estimates?organization_id={{parameters.organization_id}}",
+            "body": {
+                "date": "{{parameters.date}}",
+                "notes": "{{parameters.notes}}",
+                "terms": "{{parameters.terms}}",
+                "gst_no": "{{parameters.gst_no}}",
+                "tax_id": "{{parameters.tax_id}}",
+                "discount": "{{parameters.discount}}",
+                "adjustment": "{{parameters.adjustment}}",
+                "line_items": "{{parameters.line_items}}",
+                "project_id": "{{parameters.project_id}}",
+                "custom_body": "{{parameters.custom_body}}",
+                "customer_id": "{{parameters.customer_id}}",
+                "expiry_date": "{{parameters.expiry_date}}",
+                "template_id": "{{parameters.template_id}}",
+                "custom_fields": "{{parameters.custom_fields}}",
+                "discount_type": "{{parameters.discount_type}}",
+                "exchange_rate": "{{parameters.exchange_rate}}",
+                "tax_treatment": "{{parameters.tax_treatment}}",
+                "vat_treatment": "{{parameters.vat_treatment}}",
+                "custom_subject": "{{parameters.custom_subject}}",
+                "accept_retainer": "{{parameters.accept_retainer}}",
+                "avatax_use_code": "{{parameters.avatax_use_code}}",
+                "estimate_number": "{{parameters.estimate_number}}",
+                "shipping_charge": "{{parameters.shipping_charge}}",
+                "avatax_exempt_no": "{{parameters.avatax_exempt_no}}",
+                "is_inclusive_tax": "{{parameters.is_inclusive_tax}}",
+                "reference_number": "{{parameters.reference_number}}",
+                "salesperson_name": "{{parameters.salesperson_name}}",
+                "tax_authority_id": "{{parameters.tax_authority_id}}",
+                "tax_exemption_id": "{{parameters.tax_exemption_id}}",
+                "retainer_percentage": "{{parameters.retainer_percentage}}",
+                "adjustment_description": "{{parameters.adjustment_description}}",
+                "is_discount_before_tax": "{{parameters.is_discount_before_tax}}",
+                "is_reverse_charge_applied": "{{parameters.is_reverse_charge_applied}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "estimate",
+                            "operation": "estimate.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "estimate",
+                            "operation": "estimate.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getCustomers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "display_name",
+                        "valueKey": "contact_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Search estimates by customer ID",
+                    "displayName": "Customer ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter customer ID"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "estimate",
+                            "operation": "estimate.create",
+                            "customer_id": "{{parameters.customer_id}}",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getEstimateTemplates"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "template_name",
+                        "valueKey": "template_id",
+                        "condition": "{{parameters.customer_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "ID of the PDF template associated with the estimate",
+                    "displayName": "Template ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter template ID"
+                },
+                "name": "template_id"
+            },
+            {
+                "meta": {
+                    "description": "15 digit GST identification number of the customer (India only)",
+                    "displayName": "GST Number",
+                    "displayType": "text",
+                    "placeholder": "Enter GST number"
+                },
+                "name": "gst_no"
+            },
+            {
+                "meta": {
+                    "description": "Unique identifier for the estimate. If not provided, the system auto-generates one.",
+                    "displayName": "Estimate Number",
+                    "displayType": "text",
+                    "placeholder": "Enter estimate number"
+                },
+                "name": "estimate_number"
+            },
+            {
+                "meta": {
+                    "description": "Reference number for the estimate",
+                    "displayName": "Reference Number",
+                    "displayType": "text",
+                    "placeholder": "Enter reference number"
+                },
+                "name": "reference_number"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false,
+                        "allowDynamic": true
+                    },
+                    "description": "Estimate creation date, e.g., 2023-10-03",
+                    "displayName": "Date",
+                    "displayType": "date",
+                    "placeholder": "Select estimate date"
+                },
+                "name": "date"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "views": [
+                            "year",
+                            "month",
+                            "day"
+                        ],
+                        "format": "YYYY-MM-DD",
+                        "disabled": false,
+                        "allowDynamic": true
+                    },
+                    "description": "Date of expiration of the estimate, e.g., 2023-10-03",
+                    "displayName": "Expiry Date",
+                    "displayType": "date",
+                    "placeholder": "Select expiry date"
+                },
+                "name": "expiry_date"
+            },
+            {
+                "meta": {
+                    "description": "Exchange rate of the currency",
+                    "displayName": "Exchange Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter exchange rate"
+                },
+                "name": "exchange_rate"
+            },
+            {
+                "meta": {
+                    "description": "Discount applied to the estimate",
+                    "displayName": "Discount",
+                    "displayType": "text",
+                    "placeholder": "Enter discount (e.g. 10% or 100)"
+                },
+                "name": "discount"
+            },
+            {
+                "meta": {
+                    "value": true,
+                    "description": "Specify if discount is applied before tax",
+                    "displayName": "Discount Before Tax",
+                    "displayType": "toggle",
+                    "placeholder": "Discount before tax"
+                },
+                "name": "is_discount_before_tax"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Entity Level",
+                            "value": "entity_level"
+                        },
+                        {
+                            "label": "Item Level",
+                            "value": "item_level"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "How the discount is specified, and supported values [entity_level, item_level]",
+                    "displayName": "Discount Type",
+                    "displayType": "select",
+                    "placeholder": "Select discount type"
+                },
+                "name": "discount_type"
+            },
+            {
+                "meta": {
+                    "description": "Custom body text for the estimate",
+                    "displayName": "Custom Body",
+                    "displayType": "text",
+                    "placeholder": "Enter custom body"
+                },
+                "name": "custom_body"
+            },
+            {
+                "meta": {
+                    "description": "Custom subject line for the estimate",
+                    "displayName": "Custom Subject",
+                    "displayType": "text",
+                    "placeholder": "Enter custom subject"
+                },
+                "name": "custom_subject"
+            },
+            {
+                "meta": {
+                    "description": "Name of the salesperson associated with the estimate",
+                    "displayName": "Salesperson Name",
+                    "displayType": "text",
+                    "placeholder": "Enter salesperson name"
+                },
+                "name": "salesperson_name"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Whether line item rates include tax (Not applicable for US, Canada)",
+                    "displayName": "Inclusive Tax",
+                    "displayType": "toggle",
+                    "placeholder": "Inclusive tax"
+                },
+                "name": "is_inclusive_tax"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_books",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "estimate",
+                                        "operation": "estimate.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getItems"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "item_name",
+                                    "valueKey": "item_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "required": true,
+                                    "allowDynamic": true
+                                },
+                                "description": "ID of the item",
+                                "displayName": "Item ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter item ID"
+                            },
+                            "name": "item_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "Name of the line item",
+                                "displayName": "Item Name",
+                                "displayType": "text",
+                                "placeholder": "Enter item name"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "description": "Description of the line item",
+                                "displayName": "Description",
+                                "displayType": "textarea",
+                                "placeholder": "Enter description"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "description": "Order of the line item in the estimate",
+                                "displayName": "Item Order",
+                                "displayType": "number",
+                                "placeholder": "Enter item order"
+                            },
+                            "name": "item_order"
+                        },
+                        {
+                            "meta": {
+                                "description": "Base currency rate of the line item",
+                                "displayName": "BCY Rate",
+                                "displayType": "number",
+                                "placeholder": "Enter BCY rate"
+                            },
+                            "name": "bcy_rate"
+                        },
+                        {
+                            "meta": {
+                                "description": "Rate of the line item",
+                                "displayName": "Rate",
+                                "displayType": "number",
+                                "placeholder": "Enter rate"
+                            },
+                            "name": "rate"
+                        },
+                        {
+                            "meta": {
+                                "description": "Quantity of the line item",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter quantity"
+                            },
+                            "name": "quantity"
+                        },
+                        {
+                            "meta": {
+                                "description": "Unit of the line item",
+                                "displayName": "Unit",
+                                "displayType": "text",
+                                "placeholder": "Enter unit (e.g., Nos, Kgs)"
+                            },
+                            "name": "unit"
+                        },
+                        {
+                            "meta": {
+                                "description": "Discount amount for the line item",
+                                "displayName": "Discount Amount",
+                                "displayType": "number",
+                                "placeholder": "Enter discount amount"
+                            },
+                            "name": "discount_amount"
+                        },
+                        {
+                            "meta": {
+                                "description": "Discount applied to the line item",
+                                "displayName": "Discount",
+                                "displayType": "text",
+                                "placeholder": "Enter discount (e.g. 10% or 100)"
+                            },
+                            "name": "discount"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_books",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "estimate",
+                                        "operation": "estimate.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getTaxes"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "tax_name",
+                                    "valueKey": "tax_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Unique to denote the tax associated to the line item",
+                                "displayName": "Tax ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter tax ID"
+                            },
+                            "name": "tax_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "Name of the tax associated with the line item",
+                                "displayName": "Tax Name",
+                                "displayType": "text",
+                                "placeholder": "Enter tax name"
+                            },
+                            "name": "tax_name"
+                        },
+                        {
+                            "meta": {
+                                "description": "Type of tax applied to the line item (e.g., CGST, SGST, IGST)",
+                                "displayName": "Tax Type",
+                                "displayType": "text",
+                                "placeholder": "Enter tax type"
+                            },
+                            "name": "tax_type"
+                        },
+                        {
+                            "meta": {
+                                "description": "Percentage of tax applied to the line item",
+                                "displayName": "Tax Percentage",
+                                "displayType": "number",
+                                "placeholder": "Enter tax percentage"
+                            },
+                            "name": "tax_percentage"
+                        },
+                        {
+                            "meta": {
+                                "description": "Total amount for the line item after applying rate, quantity, and tax",
+                                "displayName": "Item Total",
+                                "displayType": "number",
+                                "placeholder": "Enter item total"
+                            },
+                            "name": "item_total"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_books",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "estimate",
+                                        "operation": "estimate.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getLocations"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "location_name",
+                                    "valueKey": "location_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Location ID for the opening balance",
+                                "displayName": "Location ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter location ID"
+                            },
+                            "name": "location_id"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one line item is required"
+                        }
+                    },
+                    "description": "Line items of the estimate (Required)",
+                    "displayName": "Line Items",
+                    "displayType": "array"
+                },
+                "name": "line_items"
+            },
+            {
+                "meta": {
+                    "description": "Notes added below the estimate",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter notes"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "description": "Terms and conditions for the estimate",
+                    "displayName": "Terms",
+                    "displayType": "textarea",
+                    "placeholder": "Enter terms"
+                },
+                "name": "terms"
+            },
+            {
+                "meta": {
+                    "description": "Shipping charge for the estimate",
+                    "displayName": "Shipping Charge",
+                    "displayType": "text",
+                    "placeholder": "Enter shipping charge"
+                },
+                "name": "shipping_charge"
+            },
+            {
+                "meta": {
+                    "description": "Adjustment amount for the estimate",
+                    "displayName": "Adjustment",
+                    "displayType": "number",
+                    "placeholder": "Enter adjustment amount"
+                },
+                "name": "adjustment"
+            },
+            {
+                "meta": {
+                    "description": "Description for the adjustment amount",
+                    "displayName": "Adjustment Description",
+                    "displayType": "text",
+                    "placeholder": "Enter adjustment description"
+                },
+                "name": "adjustment_description"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "estimate",
+                            "operation": "estimate.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getTaxes"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "tax_name",
+                        "valueKey": "tax_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Unique to denote the tax associated to the creditnote",
+                    "displayName": "Tax ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter tax ID"
+                },
+                "name": "tax_id"
+            },
+            {
+                "meta": {
+                    "description": "Tax exemption ID for the estimate",
+                    "displayName": "Tax Exemption ID",
+                    "displayType": "text",
+                    "placeholder": "Enter tax exemption ID"
+                },
+                "name": "tax_exemption_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": true
+                        },
+                        {
+                            "label": "No",
+                            "value": false
+                        }
+                    ],
+                    "description": "Reverse charge for the estimate",
+                    "displayName": "Reverse Charge",
+                    "displayType": "radio"
+                },
+                "name": "is_reverse_charge_applied"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_books",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "estimate",
+                            "operation": "estimate.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getProjects"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "project_name",
+                        "valueKey": "project_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "ID of the project",
+                    "displayName": "Project ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter project ID"
+                },
+                "name": "project_id"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": true
+                        },
+                        {
+                            "label": "No",
+                            "value": false
+                        }
+                    ],
+                    "description": "Boolean flag indicating whether a retainer invoice should be automatically created if the customer accepts this estimate. When set to true, a retainer invoice is generated upon acceptance, streamlining the process for upfront payments or deposits. Allowed values: true and false.",
+                    "displayName": "Accept Retainer",
+                    "displayType": "radio"
+                },
+                "name": "accept_retainer"
+            },
+            {
+                "meta": {
+                    "description": "Percentage of the estimate amount to be collected as a retainer (upfront payment) when the estimate is accepted. Specify a value between 0 and 100. This determines the portion of the total estimate that will be invoiced as a retainer.",
+                    "displayName": "Retainer Percentage",
+                    "displayType": "number",
+                    "placeholder": "Enter retainer percentage"
+                },
+                "name": "retainer_percentage"
+            }
+        ]
+    }
+}

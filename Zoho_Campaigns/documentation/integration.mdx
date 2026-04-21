@@ -1,0 +1,174 @@
+# Zoho Campaigns Integration
+
+## Overview
+
+Zoho Campaigns is a comprehensive email marketing platform that helps businesses create, send, and track email campaigns to engage with their audience effectively. This integration allows you to manage contacts and mailing lists, create and send campaigns, and automate email marketing workflows directly from Boltic.
+
+## Authenticating with Zoho Campaigns
+
+### Step 1: Set Up OAuth 2.0
+
+- Log in to your Zoho account and navigate to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+- Create a new client or use an existing one to obtain your Client ID and Client Secret.
+
+### Step 2: Configure the Connection in Boltic
+
+- Log in to your Boltic account and navigate to the "Integrations" page from Left Navigation.
+- Click on the "Sources" Panel and then click on "Add new Source".
+- Select or filter the "Zoho Campaigns" Connector.
+- Enter the integration name and description.
+- Click on the "Connect Zoho Campaigns Account" button, which will redirect you to the Zoho authorization page.
+- Sign in with your Zoho credentials and grant the requested scopes (`ZohoCampaigns.campaign.ALL`, `ZohoCampaigns.contact.ALL`).
+- Once the Connect button indicator turns green, click "Save" — your OAuth tokens are now securely stored.
+
+## Using Zoho Campaigns with Boltic
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button.
+- Add a Zoho Campaigns action node to your workflow.
+
+### Step 2: Configure the Actions
+
+Select a resource (Contact & Unsubscribe or Campaign) and then choose from the available operations:
+
+**Contact & Unsubscribe Resource:**
+- **Add Contact**: Create a new mailing list and add contacts to it.
+- **Find Contact**: Search and retrieve contacts from an existing mailing list.
+- **Find or Add Contact**: Add contacts to an existing mailing list in bulk.
+- **Unsubscribe Contact**: Unsubscribe a contact from a mailing list.
+
+**Campaign Resource:**
+- **Create Campaign**: Create a new email campaign with content and targeting.
+- **Send Campaign**: Send an existing campaign to its target audience.
+- **Find Campaign**: Retrieve recent campaigns with filtering options.
+- **Clone Campaign**: Duplicate an existing campaign with new settings.
+
+## Available Actions
+
+### Add Contact
+
+Creates a new mailing list and adds contacts to it. Use this action to build new subscriber lists with email addresses.
+
+**Required Fields:**
+- **Emails**: Email addresses of the contacts to add (1 to 10 email addresses).
+- **List Name**: Name of the new mailing list to be created.
+- **Signup Form**: Type of signup form for the list — Public or Private.
+- **Mode**: Mode for creating the list (default: `newlist`).
+
+**Optional Fields:**
+- **List Description**: Description for the mailing list.
+
+---
+
+### Find Contact
+
+Searches and retrieves contacts from an existing mailing list with pagination and filtering options.
+
+**Required Fields:**
+- **List Key**: The mailing list to retrieve contacts from (auto-populated from your Zoho Campaigns account).
+
+**Optional Fields:**
+- **Sort Order**: Sort contacts — Ascending or Descending (default: Ascending).
+- **From Index**: Starting index for pagination (default: 1).
+- **Range**: Number of records to retrieve (default: 10).
+- **Status**: Filter contacts by status — Active, Recent, Most Recent, Unsubscribed, or Bounced (default: Active).
+
+---
+
+### Find or Add Contact
+
+Adds contacts in bulk to an existing mailing list. If contacts already exist, they are updated; if not, they are added.
+
+**Required Fields:**
+- **List Key**: The mailing list to add contacts to (auto-populated from your Zoho Campaigns account).
+- **Emails**: Email addresses of the contacts to add (1 to 10 email addresses).
+
+---
+
+### Unsubscribe Contact
+
+Removes a contact from a mailing list by marking them as unsubscribed. Helps maintain compliance with email marketing regulations.
+
+**Required Fields:**
+- **Contact Info**: Contact information for unsubscribing:
+  - **Contact Email** (Required): Email address of the contact to unsubscribe.
+  - **First Name**: First name of the contact.
+  - **Last Name**: Last name of the contact.
+
+**Optional Fields:**
+- **List Key**: The mailing list to unsubscribe from (auto-populated from your Zoho Campaigns account).
+- **Topic ID**: Topic to unsubscribe from (auto-populated from your Zoho Campaigns account).
+
+---
+
+### Create Campaign
+
+Creates a new email campaign with content, sender details, and targeting options.
+
+**Required Fields:**
+- **Campaign Name**: A name for your campaign.
+- **From Email**: Email address of the sender.
+- **Subject Line**: Subject line for the campaign email.
+- **List Key**: The mailing list to send the campaign to (auto-populated from your Zoho Campaigns account).
+
+**Optional Fields:**
+- **Content URL**: A valid HTML URL for your campaign content.
+- **Segments ID**: Segment IDs to target specific subscribers within the list.
+- **Topic ID**: Topic ID for the campaign (auto-populated from your Zoho Campaigns account).
+
+---
+
+### Send Campaign
+
+Launches an existing email campaign to its targeted contact lists.
+
+**Required Fields:**
+- **Campaign Key**: The campaign to send (auto-populated from your Zoho Campaigns account).
+
+---
+
+### Find Campaign
+
+Retrieves recent campaigns from your account with sorting, pagination, and status filtering.
+
+**Optional Fields:**
+- **Sort Order**: Sort campaigns — Ascending or Descending (default: Descending).
+- **From Index**: Starting index for pagination (default: 1).
+- **Range**: Number of campaigns to retrieve (default: 10).
+- **Campaign Status**: Filter by status — All, All Campaigns, Drafts, Scheduled, In Progress, Sent, Stopped, Canceled, To Be Reviewed, Reviewed, Paused, or In Testing (default: All).
+
+---
+
+### Clone Campaign
+
+Creates a copy of an existing campaign with new settings for reuse or testing purposes.
+
+**Required Fields:**
+- **Campaign Info**: Campaign information object for cloning:
+  - **New Campaign Name** (Required): Name for the cloned campaign.
+  - **Subject** (Required): Subject line for the cloned campaign.
+  - **Original Campaign Key** (Required): The campaign to clone (auto-populated from your Zoho Campaigns account).
+
+**Optional Fields (within Campaign Info):**
+- **From Name**: Sender's name for the cloned campaign.
+- **From Address**: Sender's email address.
+- **Reply To**: Reply-to email address.
+- **Encoding Type**: Character encoding — UTF-8 (default) or ISO-8859-1.
+
+## Troubleshooting
+
+### Common Errors
+
+- **400 Bad Request**: Invalid parameters or malformed email addresses. Verify all required fields are provided.
+- **401 Unauthorized**: Invalid or expired authentication token. Reconnect your Zoho Campaigns account.
+- **403 Forbidden**: Insufficient permissions. Check your OAuth scopes.
+- **404 Not Found**: Contact, campaign, or mailing list not found. Verify the List Key and Campaign Key.
+- **422 Unprocessable Entity**: Email validation errors or list limitations.
+- **429 Too Many Requests**: Rate limit exceeded. Implement retry logic with backoff.
+
+### Support
+
+- Contact Boltic support for assistance with connecting Zoho Campaigns to Boltic.
+- Check Zoho Campaigns API documentation at [https://www.zoho.com/campaigns/help/developers/](https://www.zoho.com/campaigns/help/developers/) for detailed technical information.

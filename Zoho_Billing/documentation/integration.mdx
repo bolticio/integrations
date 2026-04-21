@@ -1,0 +1,348 @@
+# Zoho Billing Integration
+
+## Overview
+
+Zoho Billing is a cloud-based subscription billing and revenue management platform designed for businesses with recurring revenue models. This integration allows you to create and manage customers, subscriptions, invoices, quotes, credit notes, items, plans, and addons directly from your Boltic workflows.
+
+## Authenticating with Zoho Billing
+
+### Step 1: Set Up OAuth 2.0
+
+- Log in to your Zoho account and navigate to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+- Create a new client or use an existing one to obtain your Client ID and Client Secret.
+
+### Step 2: Configure the Connection in Boltic
+
+- Log in to your Boltic account and navigate to the "Integrations" page from Left Navigation.
+- Click on the "Sources" Panel and then click on "Add new Source".
+- Select or filter the "Zoho Billing" Connector.
+- Enter the integration name and description.
+- Click on the "Connect Zoho Billing Account" button, which will redirect you to the Zoho authorization page.
+- Sign in with your Zoho credentials and grant the requested scopes (e.g. `ZohoSubscriptions.creditnotes.CREATE`, `ZohoSubscriptions.customers.READ`, `ZohoSubscriptions.invoices.CREATE`, `ZohoSubscriptions.subscriptions.UPDATE`, `ZohoSubscriptions.payments.READ`, etc.).
+- Once the Connect button indicator turns green, click "Save" — your OAuth tokens are now securely stored.
+
+## Using Zoho Billing with Boltic
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button.
+- Add a Zoho Billing action node to your workflow.
+
+### Step 2: Configure the Actions
+
+Select from the available Zoho Billing actions:
+
+- **Create Credit Note**: Issue credit notes for refunds, adjustments, or billing corrections.
+- **Create Customer**: Add new customers with billing information and payment preferences.
+- **Find Customer**: Search and retrieve existing customer records.
+- **Update Customer**: Modify existing customer information and billing details.
+- **Create Invoice**: Generate invoices for subscription services or one-time charges.
+- **List Invoices**: Retrieve a list of invoices with optional status filtering.
+- **Create Item**: Add products or services to your billing catalog.
+- **Create Quote**: Generate professional quotes for potential subscription customers.
+- **Create Subscription**: Set up new recurring billing subscriptions for customers.
+- **Create Plan**: Establish subscription plans with pricing models and billing frequencies.
+- **Create Addon**: Create additional services or features for existing subscriptions.
+
+Configure the action settings based on the selected action, including required parameters such as Organization ID, Customer ID, or Plan details.
+
+## Available Actions
+
+### Create Credit Note
+
+Issues a credit note for subscription refunds, adjustments, or billing corrections.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Customer ID**: Customer for whom the credit note is raised (auto-populated).
+- **Date**: The date on which the credit note is raised.
+- **Credit Note Number**: Unique number for the credit note (starts with CN, e.g. CN-001).
+- **Credit Note Items**: At least one line item with:
+  - **Item Name**: Name of the item.
+  - **Code**: Unique code for the line item (e.g. SKU, UPC).
+  - **Quantity**: Quantity of the item.
+  - **Price**: Price of the item.
+
+**Optional Fields:**
+- **Exchange Rate**: Exchange rate for the customer's currency.
+- **Ignore Auto Number Generation**: Set to true to provide your own credit note number.
+- **Reference Number**: Reference number for the payment.
+- **Notes**: A short note for the credit note.
+- **Terms**: Terms & conditions to display on the credit note.
+- **Template ID**: Unique ID of the credit note template.
+- **Tax Treatment**: VAT treatment (Mexico only) — Home Country Mexico, Border Region Mexico, Non Mexico.
+- **CFDI Usage**: CFDI Usage (Mexico only) — multiple options available.
+- **CFDI Reference Type**: CFDI Reference Type (Mexico only).
+
+**Line Item Optional Fields:**
+- Item ID, Description, Account ID, Tax ID, TDS Tax ID, Tax Exemption ID, SAT Item Key Code, Unit Key Code.
+
+---
+
+### Create Customer
+
+Creates a new customer profile in your Zoho Billing organization with billing information and payment preferences.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Display Name**: Name of the customer displayed in the interface and invoices.
+- **Email**: Email address of the customer.
+
+**Optional Fields:**
+- **Salutation**: Salutation (Mr/Ms/Dr etc.).
+- **First Name / Last Name**: Customer's first and last name.
+- **Company Name**: Registered company name.
+- **Phone / Mobile**: Landline and mobile phone numbers.
+- **Department / Designation**: Customer's department and designation.
+- **Website**: Customer's website URL.
+- **Billing Address**: Address details (attention, street, city, state, zip, country, state code, fax).
+- **Shipping Address**: Shipping address details (same fields as billing address).
+- **Payment Terms**: Net payment term in days.
+- **Payment Terms Label**: Custom label for payment terms.
+- **Currency Code**: Currency code (e.g. USD).
+- **ACH Supported**: Whether ACH payment is supported.
+- **Twitter / Facebook / Skype**: Social media profiles.
+- **Notes**: A short note about the customer.
+- **Enable Portal**: Enable client portal access.
+- **Is TDS Registered**: Whether the customer is registered for TDS.
+- **GST Number**: GSTIN Number (India only).
+- **GST Treatment**: GST Treatment (India only) — Business GST, Business None, Consumer, Overseas.
+- **Default Templates**: Default invoice and credit note template IDs.
+
+---
+
+### Find Customer
+
+Searches and retrieves existing customer records from your Zoho Billing organization.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+
+---
+
+### Update Customer
+
+Modifies existing customer information including billing details, payment methods, and account preferences.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Customer ID**: The customer to update (auto-populated).
+- **Display Name**: Updated display name.
+- **Email**: Updated email address.
+
+**Optional Fields:**
+- Same optional fields as Create Customer (salutation, name, company, phone, mobile, department, designation, website, billing/shipping address, payment terms, currency code, ACH, social profiles, notes, portal, TDS, GST, default templates).
+
+---
+
+### Create Invoice
+
+Generates an invoice for subscription services or one-time charges.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Date**: Date on which the invoice is created.
+- **Invoice Items**: At least one line item with:
+  - **Product ID**: The item included in the invoice (auto-populated).
+  - **Quantity**: Quantity of the item.
+
+**Optional Fields:**
+- **Customer ID**: Customer for the invoice (auto-populated).
+- **Invoice Number**: Custom invoice number (starts with INV).
+- **Reference Number**: Reference number.
+- **Place of Supply**: Place where goods/services are supplied.
+- **GST Treatment**: GST treatment (India only) — Business GST, Business None, Overseas, Consumer.
+- **GST No**: 15-digit GST identification number (India only).
+- **Template ID**: PDF template ID.
+- **Payment Terms / Payment Terms Label**: Payment terms in days and custom label.
+- **Due Date**: Invoice due date.
+- **Discount / Discount Before Tax / Discount Type**: Discount configuration (Entity Level or Item Level).
+- **Inclusive Tax**: Whether tax is inclusive.
+- **Exchange Rate**: Currency exchange rate.
+- **Invoiced Estimate ID**: ID of the estimate from which the invoice is created.
+- **Salesperson Name**: Associated salesperson.
+- **Custom Body / Custom Subject**: Custom email content.
+- **Notes / Terms**: Notes and terms & conditions.
+- **Shipping Charge**: Shipping charges.
+- **Adjustment / Adjustment Description / Reason**: Adjustment details.
+- **Tax Authority ID / Tax Exemption ID**: Tax configuration (US, Canada only).
+
+**Line Item Optional Fields:**
+- Project ID, Expense ID, Product Type (Goods/Service), Description, Item Order, Price, Unit, Discount, Tax ID, TDS Tax ID, Tax Name, Tax Type, Tax Percentage, Item Total.
+
+---
+
+### List Invoices
+
+Retrieves a list of invoices from your Zoho Billing organization with optional filtering.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+
+**Optional Fields:**
+- **Customer ID**: Filter invoices by customer.
+- **Invoice Status**: Filter by status — All, Sent, Draft, Overdue, Paid, Partially Paid, Void, Unpaid.
+
+---
+
+### Create Item
+
+Adds a new product or service to your Zoho Billing catalog.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Item Name**: Name of the item (max 100 characters).
+- **Rate**: Per unit price of the item.
+
+**Optional Fields:**
+- **Description**: Item description (max 2000 characters).
+- **Tax ID**: ID of the tax associated with the item.
+- **SKU**: Unique Stock Keeping Unit.
+- **Product Type**: Goods or Service.
+- **Tax Exemption ID**: Required if item is not taxable (US, CA, IN only).
+- **HSN/SAC Code**: HSN Code (India only).
+- **SAT Item Key Code / Unit Key Code**: SAT codes (Mexico only).
+- **Item Tax Preferences**: Tax preferences with Tax ID and Tax Specification (Interstate/Intrastate) — India only.
+
+---
+
+### Create Quote
+
+Generates a professional quote for potential subscription customers.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Customer ID**: Customer for the quote (auto-populated).
+- **Line Items**: At least one line item with:
+  - **Item ID**: Unique ID of the item (auto-populated).
+  - **Rate**: Rate of the line item.
+  - **Quantity**: Quantity of the line item.
+
+**Optional Fields:**
+- **Template ID**: PDF template for the quote.
+- **Place of Supply**: Place where goods/services are supplied (India only).
+- **GST Treatment**: GST treatment (India only) — Business GST, Business None, Overseas, Consumer.
+- **Tax Treatment**: VAT treatment (Mexico only) — Home Country Mexico, Border Region Mexico, Non Mexico.
+- **GST No**: 15-digit GST identification number (India only).
+- **Quote Number / Reference Number**: Quote serial number and reference.
+- **Date / Expiry Date**: Quote date and expiration date.
+- **Discount / Discount Type / Discount Before Tax**: Discount configuration.
+- **Inclusive Tax**: Whether rates include tax.
+- **Custom Body / Custom Subject**: Custom email content.
+- **Salesperson Name**: Associated salesperson.
+- **Notes / Terms**: Notes and terms & conditions.
+- **Shipping Charge**: Shipping charges.
+- **Adjustment / Adjustment Description**: Adjustment details.
+- **Tax ID / Tax Authority ID**: Tax configuration.
+- **Avatax Exempt No**: Avatax exempt number.
+- **VAT Treatment**: VAT treatment (UK only).
+- **Project ID**: Associated project.
+
+**Line Item Optional Fields:**
+- Name, Description, Item Order, Unit, Discount Amount, Discount, Tax ID, TDS Tax ID, Tax Name, Tax Type, Tax Percentage, Item Total.
+
+---
+
+### Create Subscription
+
+Sets up a new recurring billing subscription for a customer.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Product ID**: Product associated with the subscription (auto-populated).
+- **Plan**: Plan details including:
+  - **Plan Code**: Code of the plan (auto-populated based on product).
+  - **Quantity** (optional): Number of units.
+  - **Price** (optional): Custom price override.
+
+**Optional Fields:**
+- **Customer ID**: Existing customer for the subscription (auto-populated).
+- **Add to Unbilled Charges**: When true, charges are added as unbilled.
+- **Payment Terms / Payment Terms Label**: Payment terms in days and label.
+- **Auto Collect**: Automatically charge customer's card on renewal.
+- **Card ID**: Required if auto_collect is true (auto-populated based on customer).
+- **Start Date**: Subscription start date (past or future).
+- **Exchange Rate**: Currency exchange rate.
+- **Addons**: Array of addons with addon code, quantity, and price.
+- **Coupon Code**: Coupon code for the subscription (auto-populated).
+- **Reference ID**: Custom reference ID for tracking.
+- **Salesperson Name**: Associated salesperson.
+- **Payment Gateways**: Payment gateways — Test Gateway, Payflow Pro, Stripe, 2Checkout, Authorize.net, Payments Pro, Forte, Worldpay, Wepay.
+- **Create Backdated Invoice**: Create invoice for current billing cycle for backdated subscriptions.
+- **Charge Setup Fee Immediately**: Raise separate invoice for setup fee at start of trial.
+- **Template ID**: Default invoice template ID.
+- **Account ID**: Bank account ID (required if auto_collect is true).
+
+---
+
+### Create Plan
+
+Establishes a subscription plan with pricing models, billing frequencies, and feature sets.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Plan Code**: Unique code for the plan.
+- **Plan Name**: Name of the plan.
+- **Recurring Price**: Amount charged at each billing interval.
+- **Interval**: Number of units for each billing cycle.
+- **Product ID**: Product associated with the plan (auto-populated).
+
+**Optional Fields:**
+- **Unit**: Unit of the plan (box, cm, dz, ft, g, in, kg, km, lb, mg, ml, m, pcs).
+- **Interval Unit**: Billing interval unit — Months or Years.
+- **Billing Cycles**: Number of billing cycles (-1 for infinite).
+- **Trial Period**: Trial period in days.
+- **Setup Fee**: One-time setup fee.
+- **Setup Fee Account ID**: Account ID for setup fee.
+- **Product Type**: Service or Goods.
+- **Item Tax Preferences**: Tax preferences with Tax Specification (Inter/Intra), Tax Name, Tax Percentage, Tax ID.
+- **Tax ID**: Tax to apply to the plan.
+- **Description**: Short description (max 2000 characters).
+- **Store Markup Description**: Long description for the store (max 2000 characters).
+- **Charge Setup Fee Immediately**: Whether to charge setup fee immediately.
+
+---
+
+### Create Addon
+
+Creates additional services or features that can be added to existing subscriptions.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Billing Organization ID.
+- **Addon Code**: Unique code for the addon.
+- **Addon Name**: Name of the addon (max 100 characters).
+- **Unit Name**: Name to refer to one unit of the addon (e.g. user, license).
+- **Price Brackets**: At least one price bracket with:
+  - **Start Quantity**: Starting quantity.
+  - **End Quantity**: Ending quantity.
+  - **Price**: Price for the quantity range.
+- **Associated Plans**: At least one plan code the addon applies to (auto-populated).
+- **Product ID**: Product associated with the addon (auto-populated).
+
+**Optional Fields:**
+- **Pricing Scheme**: Pricing scheme — Unit, Volume, Tier, Package.
+- **Addon Type**: Recurring or One-time.
+- **Interval Unit**: Billing interval — Monthly or Yearly.
+- **Applicable to All Plans**: Whether the addon applies to all plans.
+- **Description**: Short description (max 2000 characters).
+- **Store Markup Description**: Long description (max 2000 characters).
+- **Tax ID**: Tax to apply to the addon.
+- **Product Type**: Service or Goods.
+- **Item Tax Preferences**: Tax preferences with Tax Specification (Inter/Intra), Tax Name, Tax Percentage, Tax ID.
+
+## Troubleshooting
+
+### Common Errors
+
+- **400 Bad Request**: Invalid parameters or missing required fields. Verify all required fields are provided.
+- **401 Unauthorized**: Invalid or expired authentication token. Reconnect your Zoho Billing account.
+- **403 Forbidden**: Insufficient permissions. Check your OAuth scopes.
+- **404 Not Found**: Organization, customer, subscription, or resource not found. Verify the Organization ID and resource IDs.
+- **422 Unprocessable Entity**: Business rule violations or subscription conflicts.
+- **429 Too Many Requests**: Rate limit exceeded. Implement retry logic with backoff.
+
+### Support
+
+- Contact Boltic support for assistance with connecting Zoho Billing to Boltic.
+- Check Zoho Billing API documentation at [https://www.zoho.com/billing/api/v1/](https://www.zoho.com/billing/api/v1/) for detailed technical information.

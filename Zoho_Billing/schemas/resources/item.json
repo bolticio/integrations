@@ -1,0 +1,264 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Item",
+                        "value": "item.create",
+                        "description": "Create a new item in Zoho Billing."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "item",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.zohoapis.in/billing/v1/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        },
+        "parameters": []
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/items",
+            "body": {
+                "sku": "{{parameters.sku}}",
+                "name": "{{parameters.name}}",
+                "rate": "{{parameters.rate}}",
+                "tax_id": "{{parameters.tax_id}}",
+                "hsn_or_sac": "{{parameters.hsn_or_sac}}",
+                "description": "{{parameters.description}}",
+                "product_type": "{{parameters.product_type}}",
+                "unitkey_code": "{{parameters.unitkey_code}}",
+                "tax_exemption_id": "{{parameters.tax_exemption_id}}",
+                "sat_item_key_code": "{{parameters.sat_item_key_code}}",
+                "item_tax_preferences": "{{parameters.item_tax_preferences}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "item",
+                            "operation": "item.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the item (max 100 characters)",
+                    "displayName": "Item Name",
+                    "displayType": "text",
+                    "placeholder": "Enter item name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Per unit price of the item",
+                    "displayName": "Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter per unit price"
+                },
+                "name": "rate"
+            },
+            {
+                "meta": {
+                    "description": "Description for the item (max 2000 characters)",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "description": "ID of the tax associated to the item",
+                    "displayName": "Tax ID",
+                    "displayType": "text",
+                    "placeholder": "Enter tax ID"
+                },
+                "name": "tax_id"
+            },
+            {
+                "meta": {
+                    "description": "Stock Keeping Unit, must be unique",
+                    "displayName": "SKU",
+                    "displayType": "text",
+                    "placeholder": "Enter SKU"
+                },
+                "name": "sku"
+            },
+            {
+                "meta": {
+                    "value": "goods",
+                    "options": [
+                        {
+                            "label": "Goods",
+                            "value": "goods"
+                        },
+                        {
+                            "label": "Service",
+                            "value": "service"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Specify the type of item, and supported values [goods, service]",
+                    "displayName": "Product Type",
+                    "displayType": "select",
+                    "placeholder": "Select product type"
+                },
+                "name": "product_type"
+            },
+            {
+                "meta": {
+                    "description": "Required if is_taxable is false (US, CA, IN only)",
+                    "displayName": "Tax Exemption ID",
+                    "displayType": "text",
+                    "placeholder": "Enter tax exemption ID"
+                },
+                "name": "tax_exemption_id"
+            },
+            {
+                "meta": {
+                    "description": "HSN Code (IN only)",
+                    "displayName": "HSN/SAC Code",
+                    "displayType": "text",
+                    "placeholder": "Enter HSN/SAC code"
+                },
+                "name": "hsn_or_sac"
+            },
+            {
+                "meta": {
+                    "description": "SAT Item Key Code (MX only)",
+                    "displayName": "SAT Item Key Code",
+                    "displayType": "text",
+                    "placeholder": "Enter SAT item key code"
+                },
+                "name": "sat_item_key_code"
+            },
+            {
+                "meta": {
+                    "description": "Unit Key Code (MX only)",
+                    "displayName": "Unit Key Code",
+                    "displayType": "text",
+                    "placeholder": "Enter unit key code"
+                },
+                "name": "unitkey_code"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "ID of the tax to be associated",
+                                "displayName": "Tax ID",
+                                "displayType": "text",
+                                "placeholder": "Enter tax ID"
+                            },
+                            "name": "tax_id"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Interstate",
+                                        "value": "interstate"
+                                    },
+                                    {
+                                        "label": "Intrastate",
+                                        "value": "intrastate"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Tax type for IN only [interstate, intrastate]",
+                                "displayName": "Tax Specification",
+                                "displayType": "select",
+                                "placeholder": "Select tax type"
+                            },
+                            "name": "tax_specification"
+                        }
+                    ],
+                    "description": "Tax preferences for the item",
+                    "displayName": "Item Tax Preferences",
+                    "displayType": "array"
+                },
+                "name": "item_tax_preferences"
+            }
+        ]
+    }
+}

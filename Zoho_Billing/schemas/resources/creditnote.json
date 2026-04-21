@@ -1,0 +1,668 @@
+{
+    "getItems": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/items",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.items}}"
+            }
+        },
+        "parameters": []
+    },
+    "getTaxes": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/settings/taxes",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.taxes}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Credit Note",
+                        "value": "creditnote.create",
+                        "description": "Create a new credit note in Zoho Billing."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "creditnote",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getCustomers": {
+        "definition": {
+            "qs": {
+                "page_size": "{{parameters.page_size}}",
+                "current_page": "{{parameters.current_page}}"
+            },
+            "url": "https://www.zohoapis.in/billing/v1/customers",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.customers}}"
+            }
+        }
+    },
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.zohoapis.in/billing/v1/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        },
+        "parameters": []
+    },
+    "getTaxExemptions": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/settings/taxexemptions",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.tax_exemptions}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/creditnotes",
+            "body": {
+                "date": "{{parameters.date}}",
+                "notes": "{{parameters.notes}}",
+                "terms": "{{parameters.terms}}",
+                "cfdi_usage": "{{parameters.cfdi_usage}}",
+                "line_items": "{{parameters.creditnote_items}}",
+                "customer_id": "{{parameters.customer_id}}",
+                "template_id": "{{parameters.template_id}}",
+                "custom_fields": [],
+                "exchange_rate": "{{parameters.exchange_rate}}",
+                "tax_treatment": "{{parameters.tax_treatment}}",
+                "contact_persons": [],
+                "reference_number": "{{parameters.reference_number}}",
+                "creditnote_number": "{{parameters.creditnote_number}}",
+                "cfdi_reference_type": "{{parameters.cfdi_reference_type}}",
+                "ignore_auto_number_generation": "{{parameters.ignore_auto_number_generation}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "creditnote",
+                            "operation": "creditnote.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "creditnote",
+                            "operation": "creditnote.create",
+                            "loadOptionsMethod": "getCustomers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "display_name",
+                        "valueKey": "customer_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Customer ID of the customer for whom the credit note is raised",
+                    "displayName": "Customer ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Customer ID"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The date on which credit note is raised",
+                    "displayName": "Date",
+                    "displayType": "date",
+                    "placeholder": "Select date"
+                },
+                "name": "date"
+            },
+            {
+                "meta": {
+                    "description": "Exchange rate for the currency associated with the customer",
+                    "displayName": "Exchange Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter exchange rate"
+                },
+                "name": "exchange_rate"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Name of the item included in the credit note",
+                                "displayName": "Item Name",
+                                "displayType": "text",
+                                "placeholder": "Enter item name"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "description": "A small description about the item",
+                                "displayName": "Description",
+                                "displayType": "text",
+                                "placeholder": "Enter item description"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "creditnote",
+                                        "operation": "creditnote.create",
+                                        "loadOptionsMethod": "getItems"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "name",
+                                    "valueKey": "item_id"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Unique ID of the item included in the credit note",
+                                "displayName": "Item ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter item ID"
+                            },
+                            "name": "item_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Unique code for the creditnote line item. e.g. SKU, UPC, etc.",
+                                "displayName": "Code",
+                                "displayType": "text",
+                                "placeholder": "Enter item code"
+                            },
+                            "name": "code"
+                        },
+                        {
+                            "meta": {
+                                "description": "Unique ID to denote the account",
+                                "displayName": "Account ID",
+                                "displayType": "text",
+                                "placeholder": "Enter account ID"
+                            },
+                            "name": "account_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Quantity of the item included",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter quantity"
+                            },
+                            "name": "quantity"
+                        },
+                        {
+                            "meta": {
+                                "value": "",
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "creditnote",
+                                        "operation": "creditnote.create",
+                                        "loadOptionsMethod": "getTaxes"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "tax_name",
+                                    "valueKey": "tax_id"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Unique to denote the tax associated to the creditnote",
+                                "displayName": "Tax ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter tax ID"
+                            },
+                            "name": "tax_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "ID of the TDS tax (Mexico only)",
+                                "displayName": "TDS Tax ID",
+                                "displayType": "text",
+                                "placeholder": "Enter TDS tax ID"
+                            },
+                            "name": "tds_tax_id"
+                        },
+                        {
+                            "meta": {
+                                "value": "",
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "creditnote",
+                                        "operation": "creditnote.create",
+                                        "loadOptionsMethod": "getTaxExemptions"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "tax_exemption_code",
+                                    "valueKey": "tax_exemption_id"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Unique ID of the tax exemption (Sales Tax, GST only)",
+                                "displayName": "Tax Exemption ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter tax exemption ID"
+                            },
+                            "name": "tax_exemption_id"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The price of the item included",
+                                "displayName": "Price",
+                                "displayType": "number",
+                                "placeholder": "Enter price"
+                            },
+                            "name": "price"
+                        },
+                        {
+                            "meta": {
+                                "description": "Add SAT Item Key Code for your goods/services (Mexico only)",
+                                "displayName": "SAT Item Key Code",
+                                "displayType": "text",
+                                "placeholder": "Enter SAT Item Key Code"
+                            },
+                            "name": "sat_item_key_code"
+                        },
+                        {
+                            "meta": {
+                                "description": "Add SAT Unit Key Code for your goods/services (Mexico only)",
+                                "displayName": "Unit Key Code",
+                                "displayType": "text",
+                                "placeholder": "Enter Unit Key Code"
+                            },
+                            "name": "unitkey_code"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List of items involved in the credit note",
+                    "displayName": "Credit Note Items",
+                    "displayType": "array"
+                },
+                "name": "line_items"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique number generated which will be displayed in the interface and credit notes",
+                    "displayName": "Credit Note Number",
+                    "displayType": "text",
+                    "placeholder": "Enter credit note number (starts with CN, e.g. CN-001)"
+                },
+                "name": "creditnote_number"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": true
+                        },
+                        {
+                            "label": "No",
+                            "value": false
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Set to true if you need to provide your own credit note number and supported values [true, false]. By default, it's set to false",
+                    "displayName": "Ignore Auto Number Generation",
+                    "displayType": "select",
+                    "placeholder": "Select an option"
+                },
+                "name": "ignore_auto_number_generation"
+            },
+            {
+                "meta": {
+                    "description": "Reference number generated for the payment",
+                    "displayName": "Reference Number",
+                    "displayType": "text",
+                    "placeholder": "Enter reference number"
+                },
+                "name": "reference_number"
+            },
+            {
+                "meta": {
+                    "description": "A short note for the credit note",
+                    "displayName": "Notes",
+                    "displayType": "text",
+                    "placeholder": "Enter notes"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "description": "Terms & condition to be displayed in the credit note",
+                    "displayName": "Terms",
+                    "displayType": "text",
+                    "placeholder": "Enter terms"
+                },
+                "name": "terms"
+            },
+            {
+                "meta": {
+                    "description": "Unique ID of the creditnote template",
+                    "displayName": "Template ID",
+                    "displayType": "text",
+                    "placeholder": "Enter template ID"
+                },
+                "name": "template_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Home Country Mexico",
+                            "value": "home_country_mexico"
+                        },
+                        {
+                            "label": "Border Region Mexico",
+                            "value": "border_region_mexico"
+                        },
+                        {
+                            "label": "Non Mexico",
+                            "value": "non_mexico"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "VAT treatment for the invoice (Mexico only), supported values [home_country_mexico, border_region_mexico, non_mexico]",
+                    "displayName": "Tax Treatment",
+                    "displayType": "select",
+                    "placeholder": "Select tax treatment"
+                },
+                "name": "tax_treatment"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Acquisition of Merchandise",
+                            "value": "acquisition_of_merchandise"
+                        },
+                        {
+                            "label": "Return Discount Bonus",
+                            "value": "return_discount_bonus"
+                        },
+                        {
+                            "label": "General Expense",
+                            "value": "general_expense"
+                        },
+                        {
+                            "label": "Buildings",
+                            "value": "buildings"
+                        },
+                        {
+                            "label": "Furniture Office Equipment",
+                            "value": "furniture_office_equipment"
+                        },
+                        {
+                            "label": "Transport Equipment",
+                            "value": "transport_equipment"
+                        },
+                        {
+                            "label": "Computer Equipment",
+                            "value": "computer_equipment"
+                        },
+                        {
+                            "label": "Dye Molds Tools",
+                            "value": "dye_molds_tools"
+                        },
+                        {
+                            "label": "Telephone Communication",
+                            "value": "telephone_communication"
+                        },
+                        {
+                            "label": "Satellite Communication",
+                            "value": "satellite_communication"
+                        },
+                        {
+                            "label": "Other Machinery Equipment",
+                            "value": "other_machinery_equipment"
+                        },
+                        {
+                            "label": "Hospital Expense",
+                            "value": "hospital_expense"
+                        },
+                        {
+                            "label": "Medical Expense Disability",
+                            "value": "medical_expense_disability"
+                        },
+                        {
+                            "label": "Funeral Expense",
+                            "value": "funeral_expense"
+                        },
+                        {
+                            "label": "Donation",
+                            "value": "donation"
+                        },
+                        {
+                            "label": "Interest Mortage Loans",
+                            "value": "interest_mortage_loans"
+                        },
+                        {
+                            "label": "Contribution SAR",
+                            "value": "contribution_sar"
+                        },
+                        {
+                            "label": "Medical Expense Insurance Premium",
+                            "value": "medical_expense_insurance_pormium"
+                        },
+                        {
+                            "label": "School Transportation Expense",
+                            "value": "school_transportation_expense"
+                        },
+                        {
+                            "label": "Deposit Saving Account",
+                            "value": "deposit_saving_account"
+                        },
+                        {
+                            "label": "Payment Educational Service",
+                            "value": "payment_educational_service"
+                        },
+                        {
+                            "label": "No Tax Effect",
+                            "value": "no_tax_effect"
+                        },
+                        {
+                            "label": "Payment",
+                            "value": "payment"
+                        },
+                        {
+                            "label": "Payroll",
+                            "value": "payroll"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Choose CFDI Usage (Mexico only) supported values [acquisition_of_merchandise, return_discount_bonus, general_expense, buildings, furniture_office_equipment, transport_equipment, computer_equipment, dye_molds_tools, telephone_communication, satellite_communication, other_machinery_equipment, hospital_expense, medical_expense_disability, funeral_expense, donation, interest_mortage_loans, contribution_sar, medical_expense_insurance_pormium, school_transportation_expense, deposit_saving_account, payment_educational_service, no_tax_effect, payment, payroll]",
+                    "displayName": "CFDI Usage",
+                    "displayType": "select",
+                    "placeholder": "Select CFDI usage"
+                },
+                "name": "cfdi_usage"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Return of Merchandise",
+                            "value": "return_of_merchandise"
+                        },
+                        {
+                            "label": "Substitution Previous CFDI",
+                            "value": "substitution_previous_cfdi"
+                        },
+                        {
+                            "label": "Transfer of Goods",
+                            "value": "transfer_of_goods"
+                        },
+                        {
+                            "label": "Invoice Generated From Order",
+                            "value": "invoice_generated_from_order"
+                        },
+                        {
+                            "label": "CFDI for Advance",
+                            "value": "cfdi_for_advance"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Choose CFDI Reference Type (Mexico only) and supported values [return_of_merchandise, substitution_previous_cfdi, transfer_of_goods, invoice_generated_from_order, cfdi_for_advance]",
+                    "displayName": "CFDI Reference Type",
+                    "displayType": "select",
+                    "placeholder": "Select CFDI reference type"
+                },
+                "name": "cfdi_reference_type"
+            }
+        ]
+    }
+}

@@ -1,0 +1,948 @@
+{
+    "getAssets": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Assets",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Request",
+                        "value": "fsm_requests.create",
+                        "description": "Create a new service request in Zoho FSM"
+                    },
+                    {
+                        "label": "Update Request",
+                        "value": "fsm_requests.update",
+                        "description": "Update an existing service request in Zoho FSM"
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select an operation",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "fsm_requests",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getContacts": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Contacts",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "transform": {
+                "output": "return output.map(contact => ({ ...contact, DisplayName: `${contact.FirstName} ${contact.LastName}` }));"
+            }
+        }
+    },
+    "getRequests": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Requests",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getCompanies": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Companies",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getTerritories": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Territories",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data.data}}"
+            }
+        }
+    },
+    "getContactDetails": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Contacts/{{parameters.contact_id}}",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "transform": {
+                "output": "return output.map(contact => ({ ...contact, 'ServiceAddressName': contact.Service_Address.name, 'ServiceAddressId': contact.Service_Address.id, 'BillingAddressName': contact.Billing_Address.name, 'BillingAddressId': contact.Billing_Address.id }));"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Requests",
+            "body": {
+                "data": [
+                    {
+                        "Asset": "{{parameters.asset_id}}",
+                        "Email": "{{parameters.email}}",
+                        "Phone": "{{parameters.phone}}",
+                        "Company": "{{parameters.company_id}}",
+                        "Contact": "{{parameters.contact_id}}",
+                        "Summary": "{{parameters.summary}}",
+                        "Currency": "{{parameters.currency}}",
+                        "Due_Date": "{{parameters.due_date}}",
+                        "Priority": "{{parameters.priority}}",
+                        "Territory": "{{parameters.territory_id}}",
+                        "Preference": {
+                            "Preferred_Time": "{{parameters.preferred_time}}",
+                            "Preference_Note": "{{parameters.preference_note}}",
+                            "Preferred_Date_1": "{{parameters.preferred_date_1}}",
+                            "Preferred_Date_2": "{{parameters.preferred_date_2}}"
+                        },
+                        "Exchange_Rate": "{{parameters.exchange_rate}}",
+                        "Billing_Address": {
+                            "id": "{{parameters.billing_address_id}}"
+                        },
+                        "Service_Address": {
+                            "id": "{{parameters.service_address_id}}"
+                        }
+                    }
+                ]
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "maxLength": 200
+                    },
+                    "description": "A summary for the request (required)",
+                    "displayName": "Summary",
+                    "displayType": "textarea",
+                    "placeholder": "Enter request summary"
+                },
+                "name": "summary"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.create",
+                            "loadOptionsMethod": "getCompanies"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Company_Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The company for which the request is being created",
+                    "displayName": "Company",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select or search company"
+                },
+                "name": "company_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.create",
+                            "loadOptionsMethod": "getTerritories"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The territory where the request should be assigned, must fall under the service territory of the company",
+                    "displayName": "Territory",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter service Territory ID"
+                },
+                "name": "territory_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.create",
+                            "loadOptionsMethod": "getContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Full_Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The contact for whom the request is being created",
+                    "displayName": "Contact",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter contact ID"
+                },
+                "name": "contact_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.create",
+                            "contact_id": "{{parameters.contact_id}}",
+                            "loadOptionsMethod": "getContactDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "ServiceAddressName",
+                        "valueKey": "ServiceAddressId",
+                        "condition": "{{parameters.contact_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The service address for the request, must be associated with the company",
+                    "displayName": "Service Address",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter service address ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "contact_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "service_address_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.create",
+                            "contact_id": "{{parameters.contact_id}}",
+                            "loadOptionsMethod": "getContactDetails"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "BillingAddressName",
+                        "valueKey": "BillingAddressId",
+                        "condition": "{{parameters.contact_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The billing address for the request, must be associated with the company",
+                    "displayName": "Billing Address",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter billing address ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "contact_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "billing_address_id"
+            },
+            {
+                "meta": {
+                    "value": "Medium",
+                    "options": [
+                        {
+                            "label": "Low",
+                            "value": "Low"
+                        },
+                        {
+                            "label": "Medium",
+                            "value": "Medium"
+                        },
+                        {
+                            "label": "High",
+                            "value": "High"
+                        },
+                        {
+                            "label": "Critical",
+                            "value": "Critical"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Priority level for the request",
+                    "displayName": "Priority",
+                    "displayType": "select",
+                    "placeholder": "Select priority level"
+                },
+                "name": "priority"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Due date for the request",
+                    "displayName": "Due Date",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "due_date"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Email address for the request",
+                    "displayName": "Email",
+                    "displayType": "email",
+                    "placeholder": "Enter email address"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Phone number for the request, formatted as +91XXXXXXXXXX",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.create",
+                            "loadOptionsMethod": "getAssets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Asset ID related to this request",
+                    "displayName": "Asset ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select or Enter asset ID"
+                },
+                "name": "asset_id"
+            },
+            {
+                "meta": {
+                    "value": "INR",
+                    "options": [
+                        {
+                            "label": "INR - Indian Rupee",
+                            "value": "INR"
+                        },
+                        {
+                            "label": "USD - US Dollar",
+                            "value": "USD"
+                        },
+                        {
+                            "label": "EUR - Euro",
+                            "value": "EUR"
+                        },
+                        {
+                            "label": "GBP - British Pound",
+                            "value": "GBP"
+                        },
+                        {
+                            "label": "AUD - Australian Dollar",
+                            "value": "AUD"
+                        },
+                        {
+                            "label": "CAD - Canadian Dollar",
+                            "value": "CAD"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Currency for the request",
+                    "displayName": "Currency",
+                    "displayType": "select",
+                    "placeholder": "Select currency"
+                },
+                "name": "currency"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Exchange rate for currency conversion",
+                    "displayName": "Exchange Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter exchange rate"
+                },
+                "name": "exchange_rate"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "First preferred date for service",
+                    "displayName": "Preferred Date 1",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "preferred_date_1"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Second preferred date for service",
+                    "displayName": "Preferred Date 2",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "preferred_date_2"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Preferred time for service (HH:MM format)",
+                    "displayName": "Preferred Time",
+                    "displayType": "text",
+                    "placeholder": "HH:MM"
+                },
+                "name": "preferred_time"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Additional notes about preferences",
+                    "displayName": "Preference Note",
+                    "displayType": "textarea",
+                    "placeholder": "Enter preference notes"
+                },
+                "name": "preference_note"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://fsm.zoho.in/fsm/v1/Requests/{{parameters.request_id}}",
+            "body": {
+                "data": [
+                    {
+                        "Asset": "{{parameters.asset_id}}",
+                        "Email": "{{parameters.email}}",
+                        "Phone": "{{parameters.phone}}",
+                        "Company": "{{parameters.company_id}}",
+                        "Contact": "{{parameters.contact_id}}",
+                        "Summary": "{{parameters.summary}}",
+                        "Currency": "{{parameters.currency}}",
+                        "Due_Date": "{{parameters.due_date}}",
+                        "Priority": "{{parameters.priority}}",
+                        "Territory": "{{parameters.territory_id}}",
+                        "Preference": {
+                            "Preferred_Time": "{{parameters.preferred_time}}",
+                            "Preference_Note": "{{parameters.preference_note}}",
+                            "Preferred_Date_1": "{{parameters.preferred_date_1}}",
+                            "Preferred_Date_2": "{{parameters.preferred_date_2}}"
+                        },
+                        "Exchange_Rate": "{{parameters.exchange_rate}}"
+                    }
+                ]
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.code}}",
+                    "error": "{{response.data}}",
+                    "message": "{{response.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.update",
+                            "loadOptionsMethod": "getRequests"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Name",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The unique ID of the request to update",
+                    "displayName": "Request ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select or Enter Request ID"
+                },
+                "name": "request_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false,
+                        "maxLength": 200
+                    },
+                    "description": "A summary for the request (required)",
+                    "displayName": "Summary",
+                    "displayType": "textarea",
+                    "placeholder": "Enter request summary"
+                },
+                "name": "summary"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.update",
+                            "loadOptionsMethod": "getCompanies"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Company_Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The company for which the request is being created",
+                    "displayName": "Company",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select or search company"
+                },
+                "name": "company_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.update",
+                            "loadOptionsMethod": "getTerritories"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The territory where the request should be assigned, must fall under the service territory of the company",
+                    "displayName": "Territory",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter service Territory ID"
+                },
+                "name": "territory_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.update",
+                            "loadOptionsMethod": "getContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Full_Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "The contact for whom the request is being created",
+                    "displayName": "Contact",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter contact ID"
+                },
+                "name": "contact_id"
+            },
+            {
+                "meta": {
+                    "value": "Medium",
+                    "options": [
+                        {
+                            "label": "Low",
+                            "value": "Low"
+                        },
+                        {
+                            "label": "Medium",
+                            "value": "Medium"
+                        },
+                        {
+                            "label": "High",
+                            "value": "High"
+                        },
+                        {
+                            "label": "Critical",
+                            "value": "Critical"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Priority level for the request",
+                    "displayName": "Priority",
+                    "displayType": "select",
+                    "placeholder": "Select priority level"
+                },
+                "name": "priority"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Due date for the request",
+                    "displayName": "Due Date",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "due_date"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Email address for the request",
+                    "displayName": "Email",
+                    "displayType": "email",
+                    "placeholder": "Enter email address"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Phone number for the request, formatted as +91XXXXXXXXXX",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_fsm",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "fsm_requests",
+                            "operation": "fsm_requests.update",
+                            "loadOptionsMethod": "getAssets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "Name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Asset ID related to this request",
+                    "displayName": "Asset ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select or Enter asset ID"
+                },
+                "name": "asset_id"
+            },
+            {
+                "meta": {
+                    "value": "INR",
+                    "options": [
+                        {
+                            "label": "INR - Indian Rupee",
+                            "value": "INR"
+                        },
+                        {
+                            "label": "USD - US Dollar",
+                            "value": "USD"
+                        },
+                        {
+                            "label": "EUR - Euro",
+                            "value": "EUR"
+                        },
+                        {
+                            "label": "GBP - British Pound",
+                            "value": "GBP"
+                        },
+                        {
+                            "label": "AUD - Australian Dollar",
+                            "value": "AUD"
+                        },
+                        {
+                            "label": "CAD - Canadian Dollar",
+                            "value": "CAD"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Currency for the request",
+                    "displayName": "Currency",
+                    "displayType": "select",
+                    "placeholder": "Select currency"
+                },
+                "name": "currency"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Exchange rate for currency conversion",
+                    "displayName": "Exchange Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter exchange rate"
+                },
+                "name": "exchange_rate"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "First preferred date for service",
+                    "displayName": "Preferred Date 1",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "preferred_date_1"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Second preferred date for service",
+                    "displayName": "Preferred Date 2",
+                    "displayType": "date",
+                    "placeholder": "YYYY-MM-DD"
+                },
+                "name": "preferred_date_2"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Preferred time for service (HH:MM format)",
+                    "displayName": "Preferred Time",
+                    "displayType": "text",
+                    "placeholder": "HH:MM"
+                },
+                "name": "preferred_time"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Additional notes about preferences",
+                    "displayName": "Preference Note",
+                    "displayType": "textarea",
+                    "placeholder": "Enter preference notes"
+                },
+                "name": "preference_note"
+            }
+        ]
+    }
+}

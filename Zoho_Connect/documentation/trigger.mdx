@@ -1,0 +1,131 @@
+# Zoho Connect Trigger
+
+## Overview
+
+Zoho Connect triggers allow you to start workflows automatically when specific events occur in your Zoho Connect network. These triggers use a polling mechanism to detect new events, tasks, mentions, and network member activity.
+
+## Authenticating with Zoho Connect
+
+Before using triggers, connect your Zoho Connect account via OAuth 2.0 in Boltic. See the [Integration documentation](./integration.mdx) for setup steps.
+
+## Setting Up a Trigger
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button and select "Zoho Connect" as the trigger.
+
+### Step 2: Configure the Trigger
+
+1. Select your **Zoho Connect Account** connection.
+2. Select **Webhook** as the resource.
+3. Choose the **Event** you want to listen to.
+4. Configure the required parameters (Network ID, and additional fields depending on the event).
+5. Test the trigger to verify it receives data correctly.
+
+**Polling Interval:** Triggers check for new records every 15 seconds.
+
+## Available Triggers
+
+### New Event
+
+Triggered when a new event is created in your Zoho Connect network.
+
+**Required Fields:**
+- **Network ID**: Your Zoho Connect Network (auto-populated).
+- **Group IDs**: Groups to filter events from (auto-populated based on selected network).
+
+**Optional Fields:**
+- **Start Time**: Start time for filtering events. Format: `YYYY-MM-DD HH:mm:ss`.
+- **End Time**: End time for filtering events. Format: `YYYY-MM-DD HH:mm:ss`.
+- **Shared with Me**: Filter events shared with you.
+
+**Trigger Details:**
+- **Event**: `webhook.event`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches upcoming events from the selected network and groups.
+- **Data Returned**: Event details including title, description, start/end time, attendees, location, and creator information.
+
+**Use Cases:**
+- Team calendar synchronization
+- Event notification workflows
+- Automated meeting preparation
+- Cross-platform event broadcasting
+
+---
+
+### New Mention
+
+Triggered when you are mentioned in a post, comment, or task in your Zoho Connect network.
+
+**Required Fields:**
+- **Network ID**: Your Zoho Connect Network (auto-populated).
+
+**Trigger Details:**
+- **Event**: `webhook.mention`
+- **Polling Criteria**: Timestamp-based detection of new mentions.
+- **API Endpoint**: Fetches mentions from the selected network.
+- **Data Returned**: Mention details including mention type (post/comment/task), content, mentioned by user, context ID, and timestamp.
+
+**Use Cases:**
+- Real-time notification routing
+- Task assignment tracking
+- Automated response workflows
+- Activity monitoring and alerts
+
+---
+
+### New Network Member
+
+Triggered when a new member joins your Zoho Connect network.
+
+**Required Fields:**
+- **Network ID**: Your Zoho Connect Network (auto-populated).
+
+**Trigger Details:**
+- **Event**: `webhook.network_member`
+- **Polling Criteria**: Timestamp-based on `created_at` field (ISO format).
+- **API Endpoint**: Fetches organization members from the selected network.
+- **Data Returned**: Member details including name, email, role, join date, and user profile information.
+
+**Use Cases:**
+- Employee onboarding workflows
+- Welcome message automation
+- Access provisioning and group assignment
+- HR system synchronization
+
+---
+
+### New Task
+
+Triggered when a new task is created in your Zoho Connect network that you're involved with (assigned to, created by you, or in a board you follow).
+
+**Required Fields:**
+- **Network ID**: Your Zoho Connect Network (auto-populated).
+
+**Trigger Details:**
+- **Event**: `webhook.task`
+- **Polling Criteria**: Timestamp-based detection of new tasks.
+- **API Endpoint**: Fetches tasks from the selected network.
+- **Data Returned**: Task details including title, description, creator, assignees, priority, due date, board/section information, and status.
+
+**Use Cases:**
+- Task assignment notifications
+- Project management integration
+- Deadline tracking and reminders
+- Workload monitoring and reporting
+
+## Troubleshooting
+
+### Common Issues
+
+- **No data received**: Ensure your Zoho Connect network has recent activity matching the trigger event and the correct Network ID is selected.
+- **Authentication errors**: Reconnect your Zoho Connect account if the access token has expired.
+- **Missing Network ID**: Make sure you have selected a valid network from the dropdown.
+- **Group filter issues**: For the New Event trigger, ensure the selected Group IDs contain events within the specified time range.
+- **Rate limits**: Zoho Connect API implements rate limiting. Monitor usage to avoid hitting limits.
+
+### Support
+
+- Contact Boltic support for assistance with configuring Zoho Connect triggers.
+- Check Zoho Connect API documentation at [https://www.zoho.com/connect/api/](https://www.zoho.com/connect/api/) for detailed technical information.

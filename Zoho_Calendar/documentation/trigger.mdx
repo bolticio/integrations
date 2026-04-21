@@ -1,0 +1,125 @@
+# Zoho Calendar Trigger
+
+## Overview
+
+Zoho Calendar triggers allow you to start workflows automatically when calendar or event changes occur in your Zoho Calendar account. These triggers use a polling mechanism to detect new calendars, calendar updates, new events, and event modifications.
+
+## Authenticating with Zoho Calendar
+
+Before using triggers, connect your Zoho Calendar account via OAuth 2.0 in Boltic. See the [Integration documentation](./integration.mdx) for setup steps.
+
+## Setting Up a Trigger
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button and select "Zoho Calendar" as the trigger.
+
+### Step 2: Configure the Trigger
+
+1. Select your **Zoho Calendar Account** connection.
+2. Select **Webhook** as the resource.
+3. Choose the **Event** you want to listen to.
+4. Configure additional parameters if required (e.g. Calendar selection, date range).
+5. Test the trigger to verify it receives data correctly.
+
+**Polling Interval:** Triggers check for new records every 15 seconds.
+
+## Available Triggers
+
+### Calendar Created
+
+Triggered when a new calendar is created in your Zoho Calendar account.
+
+**Configuration:**
+- No additional parameters required.
+
+**Trigger Details:**
+- **Event**: `webhook.calendar_created`
+- **Polling Criteria**: Timestamp-based on `created_time` field (ISO format).
+- **API Endpoint**: Fetches all calendars sorted by creation time in descending order.
+- **Data Returned**: Calendar details including name, color, timezone, permissions, sharing settings, and creation information.
+
+**Use Cases:**
+- Calendar synchronization with external systems
+- Access control automation
+- Organizational setup workflows
+
+---
+
+### Calendar Updated
+
+Triggered when calendar properties or settings are modified.
+
+**Configuration:**
+- No additional parameters required.
+
+**Trigger Details:**
+- **Event**: `webhook.calendar_updated`
+- **Polling Criteria**: Timestamp-based on `lastmodified_time` field (ISO format).
+- **API Endpoint**: Fetches all calendars sorted by last modified time in descending order.
+- **Data Returned**: Updated calendar information including modified settings and change details.
+
+**Use Cases:**
+- Change tracking and audit trails
+- Synchronization with other scheduling systems
+- Permission change notifications
+
+---
+
+### Event Created
+
+Triggered when a new event is added to a specific calendar.
+
+**Required Fields:**
+- **Calendar** (Required): Select the calendar to monitor for new events (auto-populated from your Zoho Calendar account).
+
+**Trigger Details:**
+- **Event**: `webhook.event_created`
+- **Polling Criteria**: Timestamp-based on `created_timestamp` field (ISO format).
+- **API Endpoint**: Fetches events from the selected calendar sorted by creation time in descending order.
+- **Data Returned**: Complete event details including title, date/time, location, attendees, recurrence settings, and reminders.
+
+**Use Cases:**
+- Meeting preparation workflows
+- Attendee notification automation
+- Resource booking and allocation
+- Integration with other scheduling systems
+
+---
+
+### Event Updated
+
+Triggered when an existing event is modified in a specific calendar within a given date range.
+
+**Required Fields:**
+- **Calendar** (Required): Select the calendar to monitor for event updates (auto-populated from your Zoho Calendar account).
+- **Start Date and Time** (Required): Start of the date range to monitor. Format: `YYYY-MM-DD HH:mm:ss`.
+- **End Date and Time** (Required): End of the date range to monitor. Format: `YYYY-MM-DD HH:mm:ss`.
+
+**Trigger Details:**
+- **Event**: `webhook.event_updated`
+- **Polling Criteria**: Timestamp-based on `lastmodified_timestamp` field (ISO format).
+- **API Endpoint**: Fetches events from the selected calendar within the specified date range, sorted by last modified time.
+- **Data Returned**: Updated event information including modified details, attendee changes, and time adjustments.
+
+**Use Cases:**
+- Change notifications to attendees
+- Calendar synchronization and conflict resolution
+- Schedule adjustment tracking
+- Automated rescheduling workflows
+
+## Troubleshooting
+
+### Common Issues
+
+- **No data received**: Ensure your Zoho Calendar account has recent calendar or event activity matching the trigger event.
+- **Authentication errors**: Reconnect your Zoho Calendar account if the access token has expired.
+- **Missing Calendar selection**: For Event Created and Event Updated triggers, make sure you have selected a valid calendar from the dropdown.
+- **Date range issues**: For Event Updated trigger, ensure the Start and End date/time are in `YYYY-MM-DD HH:mm:ss` format and the range covers the expected events.
+- **Rate limits**: Zoho Calendar API has standard rate limits per user account. Monitor usage to avoid hitting limits.
+
+### Support
+
+- Contact Boltic support for assistance with configuring Zoho Calendar triggers.
+- Check Zoho Calendar API documentation at [https://www.zoho.com/calendar/help/api/introduction.html](https://www.zoho.com/calendar/help/api/introduction.html) for detailed technical information.

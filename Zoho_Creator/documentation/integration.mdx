@@ -1,0 +1,91 @@
+# Zoho Creator Integration
+
+## Overview
+
+Zoho Creator is a low-code application development platform that allows you to build custom business applications quickly with minimal coding. This integration enables you to create records in your Zoho Creator applications directly from Boltic workflows, automating data entry and application management tasks.
+
+## Authenticating with Zoho Creator
+
+### Step 1: Set Up OAuth 2.0
+
+- Log in to your Zoho account and navigate to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+- Create a new client or use an existing one to obtain your Client ID and Client Secret.
+
+### Step 2: Configure the Connection in Boltic
+
+- Log in to your Boltic account and navigate to the "Integrations" page from Left Navigation.
+- Click on the "Sources" Panel and then click on "Add new Source".
+- Select or filter the "Zoho Creator" Connector.
+- Enter the integration name and description.
+- Click on the "Connect Zoho Creator Account" button, which will redirect you to the Zoho authorization page.
+- Sign in with your Zoho credentials and grant the requested scopes (`ZohoCreator.form.CREATE`, `ZohoCreator.report.CREATE`, `ZohoCreator.report.READ`, `ZohoCreator.report.UPDATE`, `ZohoCreator.report.DELETE`, `ZohoCreator.meta.form.READ`, `ZohoCreator.meta.application.READ`, `ZohoCreator.dashboard.READ`).
+- Once the Connect button indicator turns green, click "Save" — your OAuth tokens are now securely stored.
+
+## Using Zoho Creator with Boltic
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button.
+- Add a Zoho Creator action node to your workflow.
+
+### Step 2: Configure the Actions
+
+Select **Record(Data)** as the resource and then choose from the available operations:
+
+- **Create Record**: Insert a new record into a specified form within your Zoho Creator application.
+
+Configure the action settings including Workspace name, Application, Form, and the record data in JSON format.
+
+## Available Actions
+
+### Create Record
+
+Creates a new record in a specified form within your Zoho Creator application. The record data is submitted as a JSON object where field names match the API names defined in your form.
+
+**Required Fields:**
+- **Workspace**: The Zoho Creator workspace or application owner name (without spaces). For example: `megan9`.
+- **Application**: The Creator application to work with (auto-populated based on the workspace entered).
+- **Form**: The form where the record will be created (auto-populated based on the selected application).
+- **Data**: Record data in JSON format or using Dynamic Variables. Field names should match the API names in your form.
+
+**Data Format Example:**
+
+```json
+{
+  "Name": "John Smith",
+  "Email": "john.smith@example.com",
+  "Department": "Engineering",
+  "Salary": 75000,
+  "Join_Date": "2024-01-15"
+}
+```
+
+**Supported Field Types:**
+- **Single Line Text**: Simple text values
+- **Multi Line Text**: Text areas and long text
+- **Number**: Integer, decimal, and currency values
+- **Date/DateTime**: Date and time fields (use `YYYY-MM-DD` format)
+- **Dropdown**: Single-select dropdown values
+- **Multi-Select**: Multiple selection fields
+- **Checkbox**: Boolean values
+- **Email**: Email address fields
+- **Phone**: Phone number fields
+- **URL**: Web link fields
+- **File Upload**: File attachment fields (use File API references)
+
+## Troubleshooting
+
+### Common Errors
+
+- **400 Bad Request**: Invalid JSON data or missing required form fields. Verify the data format and field names.
+- **401 Unauthorized**: Invalid or expired authentication token. Reconnect your Zoho Creator account.
+- **403 Forbidden**: Insufficient permissions. Check your OAuth scopes.
+- **404 Not Found**: Application or form not found. Verify the Workspace name, Application, and Form selections.
+- **422 Unprocessable Entity**: Field validation errors — required fields missing, invalid data types, incorrect date format, or dropdown value not in options.
+- **429 Too Many Requests**: Rate limit exceeded. Implement retry logic with backoff.
+
+### Support
+
+- Contact Boltic support for assistance with connecting Zoho Creator to Boltic.
+- Check Zoho Creator API documentation at [https://www.zoho.com/creator/help/api/v2/](https://www.zoho.com/creator/help/api/v2/) for detailed technical information.

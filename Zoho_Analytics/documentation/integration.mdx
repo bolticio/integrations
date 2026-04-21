@@ -1,0 +1,94 @@
+# Zoho Analytics Integration
+
+## Overview
+
+Zoho Analytics is a cloud-based business intelligence and data analytics platform used to create visual reports, dashboards, and data-driven insights. This integration allows you to add and update rows in your analytics tables directly from your Boltic workflows.
+
+## Authenticating with Zoho Analytics
+
+### Step 1: Set Up OAuth 2.0
+
+- Log in to your Zoho account and navigate to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+- Create a new client or use an existing one to obtain your Client ID and Client Secret.
+
+### Step 2: Configure the Connection in Boltic
+
+- Log in to your Boltic account and navigate to the "Integrations" page from Left Navigation.
+- Click on the "Sources" Panel and then click on "Add new Source".
+- Select or filter the "Zoho Analytics" Connector.
+- Enter the integration name and description.
+- Click on the "Connect Zoho Analytics Account" button, which will redirect you to the Zoho authorization page.
+- Sign in with your Zoho credentials and grant the requested scopes (`ZohoAnalytics.data.read`, `ZohoAnalytics.data.create`, `ZohoAnalytics.data.update`, `ZohoAnalytics.metadata.read`).
+- Once the Connect button indicator turns green, click "Save" — your OAuth tokens are now securely stored.
+
+## Using Zoho Analytics with Boltic
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button.
+- Add a Zoho Analytics action node to your workflow.
+
+### Step 2: Configure the Actions
+
+Select from the available Zoho Analytics actions:
+
+- **Add Row**: Insert a new row of data into a specified Zoho Analytics table.
+- **Update Row(s)**: Update existing row(s) in a specified Zoho Analytics table based on criteria.
+
+Configure the action settings based on the selected action, including required parameters such as Organization ID, Workspace ID, and Table/View ID.
+
+## Available Actions
+
+### Add Row
+
+Inserts a new row of data into a specified Zoho Analytics table, ensuring your reports and dashboards stay current with the latest business information.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Analytics Organization ID (auto-populated from your account).
+- **Workspace ID**: The Zoho Analytics Workspace ID where the table resides (auto-populated).
+- **Table/View ID**: The target Table or View ID to insert data into (auto-populated based on selected workspace).
+- **Columns Data**: Key-value pairs of column names and their corresponding values.
+
+**Optional Fields:**
+- **Date Format**: Date format if a column contains a date field (e.g., `dd-MMM-YYYY`). See [Date Format Documentation](https://www.zoho.com/analytics/help/table/date-format.html).
+- **Column Date Format**: Date format for specific columns if multiple date formats exist, specified as column-format pairs.
+
+---
+
+### Update Row(s)
+
+Updates existing row(s) in a specified Zoho Analytics table based on matching criteria.
+
+**Required Fields:**
+- **Organization ID**: Your Zoho Analytics Organization ID (auto-populated from your account).
+- **Workspace ID**: The Zoho Analytics Workspace ID where the table resides (auto-populated).
+- **Table/View ID**: The target Table or View ID to update data in (auto-populated based on selected workspace).
+- **Criteria**: Conditions to match rows for updating:
+  - **Table/View ID**: The table or view name used in the criteria expression.
+  - **Column Name**: The column to match against.
+  - **Operator**: Comparison operator — `=`, `!=`, `>`, `<`, `>=`, `<=`, `BETWEEN`, `LIKE`, `NOT LIKE`, `IN`, `NOT IN`.
+  - **Value**: The value to match.
+- **Columns Data**: Key-value pairs of column names and their new values.
+
+**Optional Fields:**
+- **Update All Rows**: If enabled, updates all rows in the table. **WARNING**: This will overwrite existing rows.
+- **Add If Not Exist**: If enabled, adds a new row when no row matches the criteria.
+- **Date Format**: Date format if a column contains a date field (e.g., `dd-MMM-YYYY`). See [Date Format Documentation](https://www.zoho.com/analytics/help/table/date-format.html).
+- **Column Date Format**: Date format for specific columns if multiple date formats exist, specified as column-format pairs.
+
+## Troubleshooting
+
+### Common Errors
+
+- **400 Bad Request**: Invalid data format or missing required columns. Verify all required fields are provided.
+- **401 Unauthorized**: Invalid or expired authentication token. Reconnect your Zoho Analytics account.
+- **403 Forbidden**: Insufficient permissions. Check your OAuth scopes.
+- **404 Not Found**: Workspace, table, or row not found. Verify the Workspace ID and Table/View ID.
+- **422 Unprocessable Entity**: Data validation errors or constraint violations.
+- **429 Too Many Requests**: Rate limit exceeded. Implement retry logic with backoff.
+
+### Support
+
+- Contact Boltic support for assistance with connecting Zoho Analytics to Boltic.
+- Check Zoho Analytics API documentation at [https://www.zoho.com/analytics/api/v2/introduction.html](https://www.zoho.com/analytics/api/v2/introduction.html) for detailed technical information.

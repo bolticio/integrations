@@ -1,0 +1,986 @@
+{
+    "getPlans": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/plans ",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.plans}}"
+            }
+        }
+    },
+    "getTaxes": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/settings/taxes",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.taxes}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Plan",
+                        "value": "plan.create",
+                        "description": "Create a new subscription plan in Zoho Billing."
+                    },
+                    {
+                        "label": "Create Addon",
+                        "value": "plan.createAddon",
+                        "description": "Create a new addon in Zoho Billing."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "plan",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getProducts": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/products",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.products}}"
+            }
+        }
+    },
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.zohoapis.in/billing/v1/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        },
+        "parameters": []
+    },
+    "createaddon": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/addons",
+            "body": {
+                "name": "{{parameters.name}}",
+                "type": "{{parameters.type}}",
+                "plans": "{{parameters.plans}}",
+                "tax_id": "{{parameters.tax_id}}",
+                "unit_name": "{{parameters.unit_name}}",
+                "addon_code": "{{parameters.addon_code}}",
+                "product_id": "{{parameters.product_id}}",
+                "description": "{{parameters.description}}",
+                "product_type": "{{parameters.product_type}}",
+                "interval_unit": "{{parameters.interval_unit}}",
+                "price_brackets": "{{parameters.price_brackets}}",
+                "pricing_scheme": "{{parameters.pricing_scheme}}",
+                "item_tax_preferences": "{{parameters.item_tax_preferences}}",
+                "applicable_to_all_plans": "{{parameters.applicable_to_all_plans}}",
+                "store_markup_description": "{{parameters.store_markup_description}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "plan",
+                            "operation": "plan.createAddon",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique code of the addon",
+                    "displayName": "Addon Code",
+                    "displayType": "text",
+                    "placeholder": "Unique addon code"
+                },
+                "name": "addon_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the addon (max 100 characters)",
+                    "displayName": "Addon Name",
+                    "displayType": "text",
+                    "placeholder": "Enter addon name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "A name of your choice to refer to one unit of the addon.",
+                    "displayName": "Unit Name",
+                    "displayType": "text",
+                    "placeholder": "Enter unit name (e.g. user, license)"
+                },
+                "name": "unit_name"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Unit",
+                            "value": "unit"
+                        },
+                        {
+                            "label": "Volume",
+                            "value": "volume"
+                        },
+                        {
+                            "label": "Tier",
+                            "value": "tier"
+                        },
+                        {
+                            "label": "Package",
+                            "value": "package"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "The pricing scheme for the addon. Choose from the available options, and supported value is [unit, volume, tier, package]",
+                    "displayName": "Pricing Scheme",
+                    "displayType": "select",
+                    "placeholder": "Select pricing scheme"
+                },
+                "name": "pricing_scheme"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Starting quantity for the price bracket",
+                                "displayName": "Start Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter start quantity"
+                            },
+                            "name": "start_quantity"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Ending quantity for the price bracket",
+                                "displayName": "End Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter end quantity"
+                            },
+                            "name": "end_quantity"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Price for the specified quantity range",
+                                "displayName": "Price",
+                                "displayType": "number",
+                                "placeholder": "Enter price for the bracket"
+                            },
+                            "name": "price"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Define start, end quantity and price",
+                    "displayName": "Price Brackets",
+                    "displayType": "array"
+                },
+                "name": "price_brackets"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Recurring",
+                            "value": "recurring"
+                        },
+                        {
+                            "label": "One-time",
+                            "value": "one_time"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Specify whether the addon is recurring or one-time, and supported values [recurring, one_time]",
+                    "displayName": "Addon Type",
+                    "displayType": "select",
+                    "placeholder": "Select addon type"
+                },
+                "name": "type"
+            },
+            {
+                "meta": {
+                    "value": "monthly",
+                    "options": [
+                        {
+                            "label": "Monthly",
+                            "value": "monthly"
+                        },
+                        {
+                            "label": "Yearly",
+                            "value": "yearly"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "The unit of time for the billing interval, and supported values [monthly, yearly]",
+                    "displayName": "Interval Unit",
+                    "displayType": "select",
+                    "placeholder": "Select interval unit"
+                },
+                "name": "interval_unit"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Indicates whether this addon is applicable to all plans. If true, it can be added to any subscription.",
+                    "displayName": "Applicable to All Plans",
+                    "displayType": "toggle",
+                    "placeholder": "Is this addon applicable to all plans?"
+                },
+                "name": "applicable_to_all_plans"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "plan",
+                                        "operation": "plan.createAddon",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getPlans"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "plan_code",
+                                    "valueKey": "plan_code",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Code of the plan",
+                                "displayName": "Plan Code",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter plan code"
+                            },
+                            "name": "plan_code"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List of plans this addon applies to",
+                    "displayName": "Associated Plans",
+                    "displayType": "array"
+                },
+                "name": "plans"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "plan",
+                            "operation": "plan.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getProducts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "product_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the product associated with this plan. This is used for inventory tracking and reporting.",
+                    "displayName": "Product ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter product ID"
+                },
+                "name": "product_id"
+            },
+            {
+                "meta": {
+                    "description": "Short description of the addon (max 2000 characters)",
+                    "displayName": "Short Description",
+                    "displayType": "text",
+                    "placeholder": "Enter a short description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "description": "Long description of the addon (max 2000 characters)",
+                    "displayName": "Long Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a long description"
+                },
+                "name": "store_markup_description"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "plan",
+                            "operation": "plan.createAddon",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getTaxes"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "tax_name",
+                        "valueKey": "tax_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "ID of the tax to be applied to the quote",
+                    "displayName": "Tax ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter tax ID"
+                },
+                "name": "tax_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Service",
+                            "value": "service"
+                        },
+                        {
+                            "label": "Goods",
+                            "value": "goods"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "The type of product associated with this plan, and supported values [service, goods]",
+                    "displayName": "Product Type",
+                    "displayType": "select",
+                    "placeholder": "Enter product type"
+                },
+                "name": "product_type"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Inter",
+                                        "value": "inter"
+                                    },
+                                    {
+                                        "label": "Intra",
+                                        "value": "intra"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "The type of tax specification for the item, and supported values [inter, intra]",
+                                "displayName": "Tax Specification",
+                                "displayType": "select",
+                                "placeholder": "Select tax specification"
+                            },
+                            "name": "tax_specification"
+                        },
+                        {
+                            "meta": {
+                                "description": "The name of the tax applied to the item.",
+                                "displayName": "Tax Name",
+                                "displayType": "text",
+                                "placeholder": "Enter tax name"
+                            },
+                            "name": "tax_name"
+                        },
+                        {
+                            "meta": {
+                                "description": "The percentage of tax applied to the item.",
+                                "displayName": "Tax Percentage",
+                                "displayType": "number",
+                                "placeholder": "Enter tax percentage"
+                            },
+                            "name": "tax_percentage"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "plan",
+                                        "operation": "plan.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getTaxes"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "tax_name",
+                                    "valueKey": "tax_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "ID of the tax to be applied to the quote",
+                                "displayName": "Tax ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter tax ID"
+                            },
+                            "name": "tax_id"
+                        }
+                    ],
+                    "description": "List of tax preferences for the item. Each preference includes tax specification, tax name, tax percentage, and tax ID.",
+                    "displayName": "Item Tax Preferences",
+                    "displayType": "array"
+                },
+                "name": "item_tax_preferences"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/plans",
+            "body": {
+                "name": "{{parameters.name}}",
+                "unit": "{{parameters.unit}}",
+                "tax_id": "{{parameters.tax_id}}",
+                "interval": "{{parameters.interval}}",
+                "plan_code": "{{parameters.plan_code}}",
+                "setup_fee": "{{parameters.setup_fee}}",
+                "product_id": "{{parameters.product_id}}",
+                "description": "{{parameters.description}}",
+                "product_type": "{{parameters.product_type}}",
+                "trial_period": "{{parameters.trial_period}}",
+                "interval_unit": "{{parameters.interval_unit}}",
+                "billing_cycles": "{{parameters.billing_cycles}}",
+                "recurring_price": "{{parameters.recurring_price}}",
+                "item_tax_preferences": "{{parameters.item_tax_preferences}}",
+                "setup_fee_account_id": "{{parameters.setup_fee_account_id}}",
+                "store_markup_description": "{{parameters.store_markup_description}}",
+                "can_charge_setup_fee_immediately": "{{parameters.can_charge_setup_fee_immediately}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "plan",
+                            "operation": "plan.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Unique code for the plan. This will be used to identify the plan in the system.",
+                    "displayName": "Plan Code",
+                    "displayType": "text",
+                    "placeholder": "Enter Plan Code"
+                },
+                "name": "plan_code"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the plan. This will be displayed in the UI.",
+                    "displayName": "Plan Name",
+                    "displayType": "text",
+                    "placeholder": "Enter plan name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Recurring price for the plan. This is the amount charged at each billing interval.",
+                    "displayName": "Recurring Price",
+                    "displayType": "number",
+                    "placeholder": "Enter recurring price"
+                },
+                "name": "recurring_price"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "box",
+                            "value": "box"
+                        },
+                        {
+                            "label": "cm",
+                            "value": "cm"
+                        },
+                        {
+                            "label": "dz",
+                            "value": "dz"
+                        },
+                        {
+                            "label": "ft",
+                            "value": "ft"
+                        },
+                        {
+                            "label": "g",
+                            "value": "g"
+                        },
+                        {
+                            "label": "in",
+                            "value": "in"
+                        },
+                        {
+                            "label": "kg",
+                            "value": "kg"
+                        },
+                        {
+                            "label": "km",
+                            "value": "km"
+                        },
+                        {
+                            "label": "lb",
+                            "value": "lb"
+                        },
+                        {
+                            "label": "mg",
+                            "value": "mg"
+                        },
+                        {
+                            "label": "ml",
+                            "value": "ml"
+                        },
+                        {
+                            "label": "m",
+                            "value": "m"
+                        },
+                        {
+                            "label": "pcs",
+                            "value": "pcs"
+                        }
+                    ],
+                    "description": "A name of your choice to refer to one unit of the plan.",
+                    "displayName": "Unit",
+                    "displayType": "select",
+                    "placeholder": "Enter plan unit"
+                },
+                "name": "unit"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The number of units for each billing cycle. For example, if the interval is 1 and the unit is 'months', the billing will occur every month.",
+                    "displayName": "Interval",
+                    "displayType": "number",
+                    "placeholder": "Enter billing interval"
+                },
+                "name": "interval"
+            },
+            {
+                "meta": {
+                    "value": "months",
+                    "options": [
+                        {
+                            "label": "Months",
+                            "value": "months"
+                        },
+                        {
+                            "label": "Years",
+                            "value": "years"
+                        }
+                    ],
+                    "description": "The unit of time for the billing interval. For example, 'months' or 'years'.",
+                    "displayName": "Interval Unit",
+                    "displayType": "select",
+                    "placeholder": "Select interval unit"
+                },
+                "name": "interval_unit"
+            },
+            {
+                "meta": {
+                    "value": -1,
+                    "description": "The number of billing cycles for the plan. Use -1 for infinite billing cycles.",
+                    "displayName": "Billing Cycles",
+                    "displayType": "number",
+                    "placeholder": "Enter number of cycles (-1 for infinite)"
+                },
+                "name": "billing_cycles"
+            },
+            {
+                "meta": {
+                    "value": 0,
+                    "description": "The number of days for the trial period. After this period, the customer will be charged the recurring price.",
+                    "displayName": "Trial Period (days)",
+                    "displayType": "number",
+                    "placeholder": "Enter trial days"
+                },
+                "name": "trial_period"
+            },
+            {
+                "meta": {
+                    "value": 0,
+                    "description": "One-time setup fee for the plan. This is charged only once when the subscription starts.",
+                    "displayName": "Setup Fee",
+                    "displayType": "number",
+                    "placeholder": "Enter setup fee amount"
+                },
+                "name": "setup_fee"
+            },
+            {
+                "meta": {
+                    "description": "The account ID to which the setup fee will be credited. This is usually a revenue or income account.",
+                    "displayName": "Setup Fee Account ID",
+                    "displayType": "text",
+                    "placeholder": "Enter setup fee account ID"
+                },
+                "name": "setup_fee_account_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "plan",
+                            "operation": "plan.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getProducts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "product_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The ID of the product associated with this plan. This is used for inventory tracking and reporting.",
+                    "displayName": "Product ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter product ID"
+                },
+                "name": "product_id"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Service",
+                            "value": "service"
+                        },
+                        {
+                            "label": "Goods",
+                            "value": "goods"
+                        }
+                    ],
+                    "description": "The type of product associated with this plan. This can be 'service' and 'goods'.",
+                    "displayName": "Product Type",
+                    "displayType": "select",
+                    "placeholder": "Enter product type"
+                },
+                "name": "product_type"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Inter",
+                                        "value": "inter"
+                                    },
+                                    {
+                                        "label": "Intra",
+                                        "value": "intra"
+                                    }
+                                ],
+                                "description": "The type of tax specification for the item.",
+                                "displayName": "Tax Specification",
+                                "displayType": "select",
+                                "placeholder": "Select tax specification"
+                            },
+                            "name": "tax_specification"
+                        },
+                        {
+                            "meta": {
+                                "description": "The name of the tax applied to the item.",
+                                "displayName": "Tax Name",
+                                "displayType": "text",
+                                "placeholder": "Enter tax name"
+                            },
+                            "name": "tax_name"
+                        },
+                        {
+                            "meta": {
+                                "description": "The percentage of tax applied to the item.",
+                                "displayName": "Tax Percentage",
+                                "displayType": "number",
+                                "placeholder": "Enter tax percentage"
+                            },
+                            "name": "tax_percentage"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "plan",
+                                        "operation": "plan.create",
+                                        "organization_id": "{{parameters.organization_id}}",
+                                        "loadOptionsMethod": "getTaxes"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "tax_name",
+                                    "valueKey": "tax_id",
+                                    "condition": "{{parameters.organization_id}}"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "ID of the tax to be applied to the quote",
+                                "displayName": "Tax ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter tax ID"
+                            },
+                            "name": "tax_id"
+                        }
+                    ],
+                    "description": "List of tax preferences for the item. Each preference includes tax specification, tax name, tax percentage, and tax ID.",
+                    "displayName": "Item Tax Preferences",
+                    "displayType": "array"
+                },
+                "name": "item_tax_preferences"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "plan",
+                            "operation": "quote.create",
+                            "organization_id": "{{parameters.organization_id}}",
+                            "loadOptionsMethod": "getTaxes"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "tax_name",
+                        "valueKey": "tax_id",
+                        "condition": "{{parameters.organization_id}}"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "ID of the tax to be applied to the quote",
+                    "displayName": "Tax ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter tax ID"
+                },
+                "name": "tax_id"
+            },
+            {
+                "meta": {
+                    "description": "Short description of the plan (max 2000 characters)",
+                    "displayName": "Description",
+                    "displayType": "text",
+                    "placeholder": "Enter short description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "description": "Long description of the plan (max 2000 characters). This will be displayed in the store.",
+                    "displayName": "Store Markup Description",
+                    "displayType": "text",
+                    "placeholder": "Enter long description"
+                },
+                "name": "store_markup_description"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "description": "Indicates whether the setup fee should be charged immediately when the subscription starts.",
+                    "displayName": "Charge Setup Fee Immediately",
+                    "displayType": "toggle",
+                    "placeholder": "Charge Setup Fee Immediately"
+                },
+                "name": "can_charge_setup_fee_immediately"
+            }
+        ]
+    }
+}

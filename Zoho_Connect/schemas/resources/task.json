@@ -1,0 +1,537 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Task",
+                        "value": "task.create_task",
+                        "description": "Create a task (option to connect with Board)."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Choose a Task action.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "getMyBoards": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/api/myBoards?scopeID={{parameters.scope_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "getNetworks": {
+        "definition": {
+            "qs": {},
+            "url": "https://connect.zoho.in/pulse/api/allScopes",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": "{{response.data}}",
+                "output": "{{response.data.allScopes.scopes}}"
+            }
+        }
+    },
+    "getNetworkUsers": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/nativeapi/orgMembers?scopeID={{parameters.scope_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data.orgMembers.usersDetails}}"
+            }
+        }
+    },
+    "getBoardSections": {
+        "definition": {
+            "url": "https://connect.zoho.in/pulse/api/boardSections?scopeID={{parameters.scope_id}}&boardId={{parameters.boardId}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "error": "{{response.data}}",
+                    "message": "{{response.data.message || response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        }
+    },
+    "create_task": {
+        "definition": {
+            "qs": {
+                "desc": "{{parameters.desc}}",
+                "edate": "{{parameters.edate}}",
+                "eyear": "{{parameters.eyear}}",
+                "title": "{{parameters.title}}",
+                "emonth": "{{parameters.emonth}}",
+                "remDay": "{{parameters.remDay}}",
+                "remMin": "{{parameters.remMin}}",
+                "fileIds": "{{parameters.fileIds}}",
+                "remHour": "{{parameters.remHour}}",
+                "remYear": "{{parameters.remYear}}",
+                "scopeID": "{{parameters.scope_id}}",
+                "userIds": "{{parameters.userIds}}",
+                "priority": "{{parameters.priority}}",
+                "remMonth": "{{parameters.remMonth}}",
+                "tagNames": "{{parameters.tagNames}}",
+                "checkList": "{{parameters.checkList}}",
+                "isSelfReminder": "{{parameters.isSelfReminder}}"
+            },
+            "url": "https://connect.zoho.in/pulse/api/addTask",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "error": "{{response.data}}",
+                    "message": "Failed to create private task"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "operation": "task.create_task",
+                            "loadOptionsMethod": "getNetworks"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the network in which the private task will be created.",
+                    "displayName": "Network",
+                    "displayType": "select",
+                    "placeholder": "Select Network",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "scope_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "max": 100,
+                        "required": true
+                    },
+                    "description": "Task title (max 100 characters).",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Task title",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "maxLength": 5000
+                    },
+                    "description": "Task description (max 5000 characters).",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Task description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "desc"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_connect",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "task",
+                            "scope_id": "{{parameters.scope_id}}",
+                            "operation": "task.create_task",
+                            "loadOptionsMethod": "getNetworkUsers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "User IDs to assign the task to (comma separated).",
+                    "displayName": "Assignees",
+                    "displayType": "multiselect",
+                    "placeholder": "Select assignees",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "scope_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "userIds"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "None",
+                            "value": "None"
+                        },
+                        {
+                            "label": "Low",
+                            "value": "Low"
+                        },
+                        {
+                            "label": "Medium",
+                            "value": "Medium"
+                        },
+                        {
+                            "label": "High",
+                            "value": "High"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Task priority (required by API). Accepted values: None, Low, Medium, High.",
+                    "displayName": "Priority",
+                    "displayType": "select",
+                    "placeholder": "Select priority",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "priority"
+            },
+            {
+                "meta": {
+                    "description": "Due year (YYYY).",
+                    "displayName": "Due Year",
+                    "displayType": "text",
+                    "placeholder": "2024",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "eyear"
+            },
+            {
+                "meta": {
+                    "description": "Due month (MM).",
+                    "displayName": "Due Month",
+                    "displayType": "text",
+                    "placeholder": "01",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "emonth"
+            },
+            {
+                "meta": {
+                    "description": "Due date (DD).",
+                    "displayName": "Due Date",
+                    "displayType": "text",
+                    "placeholder": "31",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "edate"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Enable Reminder",
+                            "value": "true"
+                        }
+                    ],
+                    "description": "Set true to enable reminder for the self user.",
+                    "displayName": "Self Reminder",
+                    "displayType": "checkbox",
+                    "placeholder": "Is Self Reminder",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "isSelfReminder"
+            },
+            {
+                "meta": {
+                    "description": "Reminder year (YYYY).",
+                    "displayName": "Reminder Year",
+                    "displayType": "text",
+                    "placeholder": "2024",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "isSelfReminder",
+                                "value": "true",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "remYear"
+            },
+            {
+                "meta": {
+                    "description": "Reminder month (MM).",
+                    "displayName": "Reminder Month",
+                    "displayType": "text",
+                    "placeholder": "01",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "isSelfReminder",
+                                "value": "true",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "remMonth"
+            },
+            {
+                "meta": {
+                    "description": "Reminder day (DD).",
+                    "displayName": "Reminder Day",
+                    "displayType": "text",
+                    "placeholder": "31",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "isSelfReminder",
+                                "value": "true",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "remDay"
+            },
+            {
+                "meta": {
+                    "description": "Reminder hour (24-hour).",
+                    "displayName": "Reminder Hour",
+                    "displayType": "text",
+                    "placeholder": "14",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "isSelfReminder",
+                                "value": "true",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "remHour"
+            },
+            {
+                "meta": {
+                    "description": "Reminder minute.",
+                    "displayName": "Reminder Minute",
+                    "displayType": "text",
+                    "placeholder": "30",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "isSelfReminder",
+                                "value": "true",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "remMin"
+            },
+            {
+                "meta": {
+                    "description": "Maximum of 10 checklist items is allowed. The total number of characters in a checklist can go up to 200. Checklist items should be separated by a comma.",
+                    "displayName": "Checklist",
+                    "displayType": "text",
+                    "placeholder": "Item 1, Item 2, Item 3",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "checkList"
+            },
+            {
+                "meta": {
+                    "description": "Multiple file IDs should be separated by a comma. Upload files using upload files API and then use the file IDs. The user can add up to 10 files to a task.",
+                    "displayName": "File IDs",
+                    "displayType": "text",
+                    "placeholder": "fileId1,fileId2",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "fileIds"
+            },
+            {
+                "meta": {
+                    "description": "Comma-separated tag names.",
+                    "displayName": "Tags",
+                    "displayType": "text",
+                    "placeholder": "tag1,tag2",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "task.create_task",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "tagNames"
+            }
+        ]
+    }
+}

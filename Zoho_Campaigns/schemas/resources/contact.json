@@ -1,0 +1,552 @@
+{
+    "getLists": {
+        "definition": {
+            "url": "https://campaigns.zoho.in/api/v1.1/getmailinglists?resfmt=JSON",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.list_of_details}}"
+            }
+        }
+    },
+    "getTopics": {
+        "definition": {
+            "url": "https://campaigns.zoho.in/api/v1.1/topics",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.topicDetails}}"
+            }
+        },
+        "parameters": []
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Add Contact",
+                        "value": "contact.add",
+                        "description": "Add new list and contacts in Zoho Campaigns."
+                    },
+                    {
+                        "label": "Find Contact",
+                        "value": "contact.find",
+                        "description": "Find contacts in an existing list."
+                    },
+                    {
+                        "label": "Find or Add Contact",
+                        "value": "contact.findoradd",
+                        "description": "Add contacts to an existing list."
+                    },
+                    {
+                        "label": "Unsubscribe Contact",
+                        "value": "contact.unsubscribe",
+                        "description": "Unsubscribe contacts from an existing list."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "contact",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "add": {
+        "definition": {
+            "qs": {
+                "mode": "{{parameters.mode}}",
+                "resfmt": "{{parameters.resfmt}}",
+                "emailids": "{{parameters.emailids}}",
+                "listname": "{{parameters.listname}}",
+                "signupform": "{{parameters.signupform}}",
+                "listdescription": "{{parameters.listdescription}}"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/addlistandcontacts",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "JSON",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 10,
+                        "min": 1,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add between 1 and 10 valid email addresses."
+                        }
+                    },
+                    "description": "Enter the email addresses of the users you want to invite, separated by commas.",
+                    "displayName": "Emails",
+                    "displayType": "multitext",
+                    "placeholder": "Enter email addresses separated by commas"
+                },
+                "name": "emailids"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the new list to be created.",
+                    "displayName": "List Name",
+                    "displayType": "text",
+                    "placeholder": "Enter list name"
+                },
+                "name": "listname"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Public",
+                            "value": "public"
+                        },
+                        {
+                            "label": "Private",
+                            "value": "private"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of signup form for the list, and supported values [public, private]",
+                    "displayName": "Signup Form",
+                    "displayType": "select",
+                    "placeholder": "Select signup form type"
+                },
+                "name": "signupform"
+            },
+            {
+                "meta": {
+                    "value": "newlist",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Mode for creating the list.",
+                    "displayName": "Mode",
+                    "displayType": "text",
+                    "placeholder": "Enter mode type like newlist"
+                },
+                "name": "mode"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Provide a description for your list.",
+                    "displayName": "List Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter list description"
+                },
+                "name": "listdescription"
+            }
+        ]
+    },
+    "find": {
+        "definition": {
+            "qs": {
+                "sort": "{{parameters.sort}}",
+                "range": "{{parameters.range}}",
+                "resfmt": "{{parameters.resfmt}}",
+                "status": "{{parameters.status}}",
+                "listkey": "{{parameters.listkey}}",
+                "fromindex": "{{parameters.fromindex}}"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/getlistsubscribers",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_campaigns",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "contact.find",
+                            "loadOptionsMethod": "getLists"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "listname",
+                        "valueKey": "listkey"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List Key to retrieve contacts from the list.",
+                    "displayName": "List Key",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select list key"
+                },
+                "name": "listkey"
+            },
+            {
+                "meta": {
+                    "value": "JSON",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "value": "asc",
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "asc"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "desc"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Sort order for the contacts listl, and supported values [asc, desc]",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order"
+                },
+                "name": "sort"
+            },
+            {
+                "meta": {
+                    "value": 1,
+                    "description": "Starting index for pagination (values in number).",
+                    "displayName": "From Index",
+                    "displayType": "number",
+                    "placeholder": "1"
+                },
+                "name": "fromindex"
+            },
+            {
+                "meta": {
+                    "value": 10,
+                    "description": "Number of records to retrieve (values in number).",
+                    "displayName": "Range",
+                    "displayType": "number",
+                    "placeholder": "10"
+                },
+                "name": "range"
+            },
+            {
+                "meta": {
+                    "value": "active",
+                    "options": [
+                        {
+                            "label": "Active",
+                            "value": "active"
+                        },
+                        {
+                            "label": "Recent",
+                            "value": "recent"
+                        },
+                        {
+                            "label": "Most Recent",
+                            "value": "mostrecent"
+                        },
+                        {
+                            "label": "Unsubscribed",
+                            "value": "unsub"
+                        },
+                        {
+                            "label": "Bounced",
+                            "value": "bounce"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Filter contacts by status, and supported values [active, recent, mostrecent, unsub, bounce]",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select status"
+                },
+                "name": "status"
+            }
+        ]
+    },
+    "findoradd": {
+        "definition": {
+            "qs": {
+                "resfmt": "{{parameters.resfmt}}",
+                "listkey": "{{parameters.listkey}}",
+                "emailids": "{{parameters.emailids}}"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/addlistsubscribersinbulk",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_campaigns",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "contact.findoradd",
+                            "loadOptionsMethod": "getLists"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "listname",
+                        "valueKey": "listkey"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "List Key to retrieve contacts from the list.",
+                    "displayName": "List Key",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select list key"
+                },
+                "name": "listkey"
+            },
+            {
+                "meta": {
+                    "value": "JSON",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "max": 10,
+                        "min": 1,
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please add between 1 and 10 valid email addresses."
+                        }
+                    },
+                    "description": "Enter the email addresses of the users you want to invite, separated by commas.",
+                    "displayName": "Emails",
+                    "displayType": "multitext",
+                    "placeholder": "Enter email addresses separated by commas"
+                },
+                "name": "emailids"
+            }
+        ]
+    },
+    "unsubscribe": {
+        "definition": {
+            "qs": {
+                "resfmt": "{{parameters.resfmt}}",
+                "listkey": "{{parameters.listkey}}",
+                "topic_id": "{{parameters.topic_id}}",
+                "contactinfo": "{ \"First Name\": \"{{parameters.contactinfo.first_name}}\", \"Last Name\": \"{{parameters.contactinfo.last_name}}\", \"Contact Email\": \"{{parameters.contactinfo.contact_email}}\" }"
+            },
+            "url": "https://campaigns.zoho.in/api/v1.1/json/listunsubscribe",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_campaigns",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "contact.unsubscribe",
+                            "loadOptionsMethod": "getLists"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "listname",
+                        "valueKey": "listkey"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "List Key to retrieve contacts from the list.",
+                    "displayName": "List Key",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select list key"
+                },
+                "name": "listkey"
+            },
+            {
+                "meta": {
+                    "value": "JSON",
+                    "displayName": "Response Format",
+                    "displayType": "hidden"
+                },
+                "name": "resfmt"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                                    "required": true
+                                },
+                                "description": "Email address of the contact to unsubscribe",
+                                "displayName": "Contact Email",
+                                "displayType": "text",
+                                "placeholder": "contact@example.com"
+                            },
+                            "name": "contact_email"
+                        },
+                        {
+                            "meta": {
+                                "value": "",
+                                "description": "First name of the contact",
+                                "displayName": "First Name",
+                                "displayType": "text",
+                                "placeholder": "Enter first name"
+                            },
+                            "name": "first_name"
+                        },
+                        {
+                            "meta": {
+                                "value": "",
+                                "description": "Last name of the contact",
+                                "displayName": "Last Name",
+                                "displayType": "text",
+                                "placeholder": "Enter last name"
+                            },
+                            "name": "last_name"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Contact information for unsubscribing",
+                    "displayName": "Contact Info",
+                    "displayType": "object"
+                },
+                "name": "contactinfo"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_campaigns",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "contact.unsubscribe",
+                            "loadOptionsMethod": "getTopics"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "topicName",
+                        "valueKey": "topicId"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": false
+                    },
+                    "description": "Topic ID for the topic created",
+                    "displayName": "Topic ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter topic ID"
+                },
+                "name": "topic_id"
+            }
+        ]
+    }
+}

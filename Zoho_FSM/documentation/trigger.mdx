@@ -1,0 +1,78 @@
+# Zoho FSM Trigger
+
+## Overview
+
+Zoho FSM triggers allow you to start workflows automatically when service requests are created or updated in your Zoho FSM account. These triggers use a polling mechanism to detect new and modified request records.
+
+## Authenticating with Zoho FSM
+
+Before using triggers, connect your Zoho FSM account via OAuth 2.0 in Boltic. See the [Integration documentation](./integration.mdx) for setup steps.
+
+## Setting Up a Trigger
+
+### Step 1: Create a New Workflow
+
+- Log in to your Boltic account and navigate to the "Workflows" page from Left Navigation.
+- Click on the "Create New Workflow" button and select "Zoho FSM" as the trigger.
+
+### Step 2: Configure the Trigger
+
+1. Select your **Zoho FSM Account** connection.
+2. Select **Webhook** as the resource.
+3. Choose the **Event** you want to listen to.
+4. Test the trigger to verify it receives data correctly.
+
+**Polling Interval:** Triggers check for new records every 15 seconds.
+
+## Available Triggers
+
+### New Request Created
+
+Triggered when a new service request is created in your Zoho FSM account.
+
+**Configuration:** No additional parameters required.
+
+**Trigger Details:**
+- **Event**: `webhook.created`
+- **Polling Criteria**: Timestamp-based on `Created_Time` field (ISO format).
+- **API Endpoint**: Fetches requests from the Zoho FSM Requests module.
+- **Data Returned**: Complete request details including summary, status, priority, company, contact, territory, service address, billing address, due date, and preference information.
+
+**Use Cases:**
+- Technician assignment and dispatch automation
+- Customer notification workflows
+- SLA tracking and escalation
+- Service request logging and reporting
+
+---
+
+### Request Updated
+
+Triggered when an existing service request is modified in your Zoho FSM account.
+
+**Configuration:** No additional parameters required.
+
+**Trigger Details:**
+- **Event**: `webhook.updated`
+- **Polling Criteria**: Timestamp-based on `Modified_Time` field (ISO format).
+- **API Endpoint**: Fetches requests from the Zoho FSM Requests module.
+- **Data Returned**: Updated request details including all current field values, modification timestamp, and status changes.
+
+**Use Cases:**
+- Status change notifications to customers and technicians
+- Escalation workflows when priority changes
+- Audit trail and change tracking
+- Automated follow-up actions on request updates
+
+## Troubleshooting
+
+### Common Issues
+
+- **No data received**: Ensure your Zoho FSM account has recently created or updated requests.
+- **Authentication errors**: Reconnect your Zoho FSM account if the access token has expired.
+- **Rate limits**: Zoho FSM API implements rate limiting (5,000–25,000 calls per day per organization depending on plan). Monitor usage to avoid hitting limits.
+
+### Support
+
+- Contact Boltic support for assistance with configuring Zoho FSM triggers.
+- Check Zoho FSM API documentation at [https://www.zoho.com/fsm/developer/help/api/](https://www.zoho.com/fsm/developer/help/api/) for detailed technical information.

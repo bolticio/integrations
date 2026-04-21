@@ -1,0 +1,546 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Calendar",
+                        "value": "calendar.create",
+                        "description": "Create a new calendar in Zoho Calendar."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "calendar",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "create": {
+        "definition": {
+            "qs": {
+                "calendarData": "{ \"name\": \"{{parameters.name}}\", \"color\": \"{{parameters.color}}\", \"textcolor\": \"{{parameters.textcolor}}\", \"include_infreebusy\": {{parameters.include_infreebusy}}, \"timezone\": \"{{parameters.timezone}}\", \"description\": \"{{parameters.description}}\", \"private\": \"{{parameters.private}}\", \"status\": {{parameters.status}}, \"public\": \"{{parameters.public}}\", \"reminders\": {{parameters.reminders}} }"
+            },
+            "url": "https://calendar.zoho.in/api/v1/calendars",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the calendar to be created",
+                    "displayName": "Calendar Name",
+                    "displayType": "text",
+                    "placeholder": "Enter calendar name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+                        "required": true
+                    },
+                    "description": "Color code for the calendar (hex format). Example: #000000 for black, #FFFFFF for white.",
+                    "displayName": "Color",
+                    "displayType": "text",
+                    "placeholder": "#8cbf40"
+                },
+                "name": "color"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Busy",
+                            "value": true
+                        },
+                        {
+                            "label": "Free",
+                            "value": false
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Include this calendar in freebusy response and supported values [true, false]",
+                    "displayName": "Include in freebusy",
+                    "displayType": "select",
+                    "placeholder": "Select an option"
+                },
+                "name": "include_infreebusy",
+                "prop": "personalInfo"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "enable"
+                        },
+                        {
+                            "label": "No",
+                            "value": "disable"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Make this calendar private and supported values [enable, disable]",
+                    "displayName": "Private",
+                    "displayType": "select",
+                    "placeholder": "Select an option"
+                },
+                "name": "private",
+                "prop": "personalInfo"
+            },
+            {
+                "meta": {
+                    "description": "Timezone for the calendar, use Asia/Kolkata",
+                    "displayName": "Timezone",
+                    "displayType": "text",
+                    "placeholder": "Asia/Kolkata"
+                },
+                "name": "timezone"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "OFF",
+                            "value": "disable"
+                        },
+                        {
+                            "label": "View only Free/Busy",
+                            "value": "freebusy"
+                        },
+                        {
+                            "label": "View event details",
+                            "value": "view"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Make this calendar public and supported values [default: disable, view, freebusy]",
+                    "displayName": "Public",
+                    "displayType": "select",
+                    "placeholder": "Select an option"
+                },
+                "name": "public",
+                "prop": "personalInfo"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "description": "Specifies the description of the calendar.",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter calendar description"
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Black",
+                            "value": "#000000"
+                        },
+                        {
+                            "label": "White",
+                            "value": "#FFFFFF"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Text color for the calendar and supported values [default: #FFFFFF, #000000]",
+                    "displayName": "Text Color",
+                    "displayType": "select",
+                    "placeholder": "Select text color"
+                },
+                "name": "textcolor",
+                "prop": "personalInfo"
+            },
+            {
+                "meta": {
+                    "value": [],
+                    "children": [
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Email",
+                                        "value": "email"
+                                    },
+                                    {
+                                        "label": "Popup",
+                                        "value": "popup"
+                                    },
+                                    {
+                                        "label": "Notification",
+                                        "value": "notification"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Action for the calendar and supported values [email, popup, notification]",
+                                "displayName": "Action",
+                                "displayType": "select",
+                                "placeholder": "Enter action"
+                            },
+                            "name": "action",
+                            "prop": "personalInfo"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Before 5min",
+                                        "value": -5
+                                    },
+                                    {
+                                        "label": "After 5min",
+                                        "value": 5
+                                    },
+                                    {
+                                        "label": "Before 10min",
+                                        "value": -10
+                                    },
+                                    {
+                                        "label": "After 10min",
+                                        "value": 10
+                                    },
+                                    {
+                                        "label": "Before 15min",
+                                        "value": -15
+                                    },
+                                    {
+                                        "label": "After 15min",
+                                        "value": 15
+                                    },
+                                    {
+                                        "label": "Before 20min",
+                                        "value": -20
+                                    },
+                                    {
+                                        "label": "After 20min",
+                                        "value": 20
+                                    },
+                                    {
+                                        "label": "Before 25min",
+                                        "value": -25
+                                    },
+                                    {
+                                        "label": "After 25min",
+                                        "value": 25
+                                    },
+                                    {
+                                        "label": "Before 30min",
+                                        "value": -30
+                                    },
+                                    {
+                                        "label": "After 30min",
+                                        "value": 30
+                                    },
+                                    {
+                                        "label": "Before 35min",
+                                        "value": -35
+                                    },
+                                    {
+                                        "label": "After 35min",
+                                        "value": 35
+                                    },
+                                    {
+                                        "label": "Before 40min",
+                                        "value": -40
+                                    },
+                                    {
+                                        "label": "After 40min",
+                                        "value": 40
+                                    },
+                                    {
+                                        "label": "Before 45min",
+                                        "value": -45
+                                    },
+                                    {
+                                        "label": "After 45min",
+                                        "value": 45
+                                    },
+                                    {
+                                        "label": "Before 1hr",
+                                        "value": -60
+                                    },
+                                    {
+                                        "label": "After 1hr",
+                                        "value": 60
+                                    },
+                                    {
+                                        "label": "Before 2hr",
+                                        "value": -120
+                                    },
+                                    {
+                                        "label": "After 2hr",
+                                        "value": 120
+                                    },
+                                    {
+                                        "label": "Before 4hr",
+                                        "value": -240
+                                    },
+                                    {
+                                        "label": "After 4hr",
+                                        "value": 240
+                                    },
+                                    {
+                                        "label": "Before 6hr",
+                                        "value": -360
+                                    },
+                                    {
+                                        "label": "After 6hr",
+                                        "value": 360
+                                    },
+                                    {
+                                        "label": "Before 8hr",
+                                        "value": -480
+                                    },
+                                    {
+                                        "label": "After 8hr",
+                                        "value": 480
+                                    },
+                                    {
+                                        "label": "Before 12hr",
+                                        "value": -720
+                                    },
+                                    {
+                                        "label": "After 12hr",
+                                        "value": 720
+                                    },
+                                    {
+                                        "label": "Before 1d",
+                                        "value": -1440
+                                    },
+                                    {
+                                        "label": "After 1d",
+                                        "value": 1440
+                                    },
+                                    {
+                                        "label": "Before 2d",
+                                        "value": -2880
+                                    },
+                                    {
+                                        "label": "After 2d",
+                                        "value": 2880
+                                    },
+                                    {
+                                        "label": "Before 3d",
+                                        "value": -4320
+                                    },
+                                    {
+                                        "label": "After 3d",
+                                        "value": 4320
+                                    },
+                                    {
+                                        "label": "Before 4d",
+                                        "value": -5760
+                                    },
+                                    {
+                                        "label": "After 4d",
+                                        "value": 5760
+                                    },
+                                    {
+                                        "label": "Before 5d",
+                                        "value": -7200
+                                    },
+                                    {
+                                        "label": "After 5d",
+                                        "value": 7200
+                                    },
+                                    {
+                                        "label": "Before 6d",
+                                        "value": -8640
+                                    },
+                                    {
+                                        "label": "After 6d",
+                                        "value": 8640
+                                    },
+                                    {
+                                        "label": "Before 7d",
+                                        "value": -10080
+                                    },
+                                    {
+                                        "label": "After 7d",
+                                        "value": 10080
+                                    },
+                                    {
+                                        "label": "Before 8d",
+                                        "value": -11520
+                                    },
+                                    {
+                                        "label": "After 8d",
+                                        "value": 11520
+                                    },
+                                    {
+                                        "label": "Before 9d",
+                                        "value": -12960
+                                    },
+                                    {
+                                        "label": "After 9d",
+                                        "value": 12960
+                                    },
+                                    {
+                                        "label": "Before 10d",
+                                        "value": -14400
+                                    },
+                                    {
+                                        "label": "After 10d",
+                                        "value": 14400
+                                    },
+                                    {
+                                        "label": "Before 11d",
+                                        "value": -15840
+                                    },
+                                    {
+                                        "label": "After 11d",
+                                        "value": 15840
+                                    },
+                                    {
+                                        "label": "Before 12d",
+                                        "value": -17280
+                                    },
+                                    {
+                                        "label": "After 12d",
+                                        "value": 17280
+                                    },
+                                    {
+                                        "label": "Before 13d",
+                                        "value": -18720
+                                    },
+                                    {
+                                        "label": "After 13d",
+                                        "value": 18720
+                                    },
+                                    {
+                                        "label": "Before 14d",
+                                        "value": -20160
+                                    },
+                                    {
+                                        "label": "After 14d",
+                                        "value": 20160
+                                    },
+                                    {
+                                        "label": "Before 15d",
+                                        "value": -21600
+                                    },
+                                    {
+                                        "label": "After 15d",
+                                        "value": 21600
+                                    },
+                                    {
+                                        "label": "Before 30d",
+                                        "value": -43200
+                                    },
+                                    {
+                                        "label": "After 30d",
+                                        "value": 43200
+                                    },
+                                    {
+                                        "label": "Before 45d",
+                                        "value": -64800
+                                    },
+                                    {
+                                        "label": "After 45d",
+                                        "value": 64800
+                                    },
+                                    {
+                                        "label": "Before 60d",
+                                        "value": -86400
+                                    },
+                                    {
+                                        "label": "After 60d",
+                                        "value": 86400
+                                    },
+                                    {
+                                        "label": "Before 90d",
+                                        "value": -129600
+                                    },
+                                    {
+                                        "label": "After 90d",
+                                        "value": 129600
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Minutes for the calendar and supported values [-5 to 129600]",
+                                "displayName": "Minutes",
+                                "displayType": "select",
+                                "placeholder": "Select minutes"
+                            },
+                            "name": "minutes",
+                            "prop": "personalInfo"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "description": "Reminders for the calendar",
+                    "displayName": "Reminders",
+                    "displayType": "array"
+                },
+                "name": "reminders"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": true
+                        },
+                        {
+                            "label": "No",
+                            "value": false
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Status for the calendar, Determines whether all events in the calendar should be visible. and supported values [default: true, false]",
+                    "displayName": "Status",
+                    "displayType": "select",
+                    "placeholder": "Select status"
+                },
+                "name": "status",
+                "prop": "personalInfo"
+            }
+        ]
+    }
+}

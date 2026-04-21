@@ -1,0 +1,869 @@
+{
+    "getItems": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/items",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.items}}"
+            }
+        },
+        "parameters": []
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Invoice",
+                        "value": "invoice.create",
+                        "description": "Create a new invoice for a customer in Zoho Billing."
+                    },
+                    {
+                        "label": "List Invoices",
+                        "value": "invoice.list",
+                        "description": "Retrieve a list of invoices from Zoho Billing."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "invoice",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getExpenses": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/expenses",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.expenses}}"
+            }
+        }
+    },
+    "getProjects": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/projects",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.errors[0].message}}"
+                },
+                "output": "{{response.data.projects}}"
+            }
+        },
+        "parameters": []
+    },
+    "getCustomers": {
+        "definition": {
+            "qs": {
+                "page_size": "{{parameters.page_size}}",
+                "current_page": "{{parameters.current_page}}"
+            },
+            "url": "https://www.zohoapis.in/billing/v1/customers",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.customers}}"
+            }
+        }
+    },
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.zohoapis.in/billing/v1/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        },
+        "parameters": []
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "filter_by": "{{parameters.filter_by}}",
+                "customer_id": "{{parameters.customer_id}}"
+            },
+            "url": "https://www.zohoapis.in/billing/v1/invoices",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "invoice",
+                            "operation": "invoice.list",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "description": "Filter invoices by customer ID",
+                    "displayName": "Customer ID",
+                    "displayType": "text",
+                    "placeholder": "Enter customer ID"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "All",
+                            "value": "Status.All"
+                        },
+                        {
+                            "label": "Sent",
+                            "value": "Status.Sent"
+                        },
+                        {
+                            "label": "Draft",
+                            "value": "Status.Draft"
+                        },
+                        {
+                            "label": "Overdue",
+                            "value": "Status.OverDue"
+                        },
+                        {
+                            "label": "Paid",
+                            "value": "Status.Paid"
+                        },
+                        {
+                            "label": "Partially Paid",
+                            "value": "Status.PartiallyPaid"
+                        },
+                        {
+                            "label": "Void",
+                            "value": "Status.Void"
+                        },
+                        {
+                            "label": "Unpaid",
+                            "value": "Status.Unpaid"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Filter invoices by status, and supported values [Status.All, Status.Sent, Status.Draft, Status.OverDue, Status.Paid, Status.PartiallyPaid, Status.Void, Status.Unpaid]",
+                    "displayName": "Invoice Status",
+                    "displayType": "select",
+                    "placeholder": "Select invoice status (optional)"
+                },
+                "name": "filter_by"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/invoices",
+            "body": {
+                "date": "{{parameters.date}}",
+                "notes": "{{parameters.notes}}",
+                "terms": "{{parameters.terms}}",
+                "gst_no": "{{parameters.gst_no}}",
+                "reason": "{{parameters.reason}}",
+                "discount": "{{parameters.discount}}",
+                "due_date": "{{parameters.due_date}}",
+                "adjustment": "{{parameters.adjustment}}",
+                "custom_body": "{{parameters.custom_body}}",
+                "customer_id": "{{parameters.customer_id}}",
+                "template_id": "{{parameters.template_id}}",
+                "discount_type": "{{parameters.discount_type}}",
+                "exchange_rate": "{{parameters.exchange_rate}}",
+                "gst_treatment": "{{parameters.gst_treatment}}",
+                "invoice_items": "{{parameters.invoice_items}}",
+                "payment_terms": "{{parameters.payment_terms}}",
+                "custom_subject": "{{parameters.custom_subject}}",
+                "invoice_number": "{{parameters.invoice_number}}",
+                "place_of_supply": "{{parameters.place_of_supply}}",
+                "shipping_charge": "{{parameters.shipping_charge}}",
+                "is_inclusive_tax": "{{parameters.is_inclusive_tax}}",
+                "reference_number": "{{parameters.reference_number}}",
+                "salesperson_name": "{{parameters.salesperson_name}}",
+                "tax_authority_id": "{{parameters.tax_authority_id}}",
+                "tax_exemption_id": "{{parameters.tax_exemption_id}}",
+                "payment_terms_label": "{{parameters.payment_terms_label}}",
+                "invoiced_estimate_id": "{{parameters.invoiced_estimate_id}}",
+                "adjustment_description": "{{parameters.adjustment_description}}",
+                "is_discount_before_tax": "{{parameters.is_discount_before_tax}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "invoice",
+                            "operation": "invoice.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "invoice",
+                            "operation": "invoice.create",
+                            "loadOptionsMethod": "getCustomers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "display_name",
+                        "valueKey": "customer_id"
+                    },
+                    "validation": {},
+                    "description": "Customer ID of the customer to whom the invoice is raised",
+                    "displayName": "Customer ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Customer ID"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "description": "Unique ID of an invoice",
+                    "displayName": "Invoice Number",
+                    "displayType": "text",
+                    "placeholder": "Enter Invoice Number (starts with INV)"
+                },
+                "name": "invoice_number"
+            },
+            {
+                "meta": {
+                    "description": "Reference number of the invoice",
+                    "displayName": "Reference Number",
+                    "displayType": "text",
+                    "placeholder": "Enter Reference Number"
+                },
+                "name": "reference_number"
+            },
+            {
+                "meta": {
+                    "description": "Place where the goods/services are supplied to",
+                    "displayName": "Place of Supply",
+                    "displayType": "text",
+                    "placeholder": "Enter Place of Supply"
+                },
+                "name": "place_of_supply"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Business GST",
+                            "value": "business_gst"
+                        },
+                        {
+                            "label": "Business None",
+                            "value": "business_none"
+                        },
+                        {
+                            "label": "Overseas",
+                            "value": "overseas"
+                        },
+                        {
+                            "label": "Consumer",
+                            "value": "consumer"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "GST treatment for the contact (India only) and supported values [business_gst, business_none, consumer, overseas]",
+                    "displayName": "GST Treatment",
+                    "displayType": "select",
+                    "placeholder": "Select GST Treatment"
+                },
+                "name": "gst_treatment"
+            },
+            {
+                "meta": {
+                    "description": "15 digit GST identification number of the customer (India only)",
+                    "displayName": "GST No",
+                    "displayType": "text",
+                    "placeholder": "Enter 15 digit GST number"
+                },
+                "name": "gst_no"
+            },
+            {
+                "meta": {
+                    "description": "ID of the pdf template associated with the invoice",
+                    "displayName": "Template ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Template ID"
+                },
+                "name": "template_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Date on which the invoice is paid",
+                    "displayName": "Date",
+                    "displayType": "date",
+                    "placeholder": "Select Date"
+                },
+                "name": "date"
+            },
+            {
+                "meta": {
+                    "description": "Payment terms in days (e.g. 15, 30, 60)",
+                    "displayName": "Payment Terms",
+                    "displayType": "number",
+                    "placeholder": "Enter Payment Terms (days)"
+                },
+                "name": "payment_terms"
+            },
+            {
+                "meta": {
+                    "description": "Custom payment terms label",
+                    "displayName": "Payment Terms Label",
+                    "displayType": "text",
+                    "placeholder": "Enter Payment Terms Label"
+                },
+                "name": "payment_terms_label"
+            },
+            {
+                "meta": {
+                    "description": "Date on which the invoice is due",
+                    "displayName": "Due Date",
+                    "displayType": "date",
+                    "placeholder": "Select Due Date"
+                },
+                "name": "due_date"
+            },
+            {
+                "meta": {
+                    "description": "Discount applied to the invoice (percentage or amount)",
+                    "displayName": "Discount",
+                    "displayType": "number",
+                    "placeholder": "Enter Discount"
+                },
+                "name": "discount"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "Check if discount is exclusive of tax",
+                    "displayName": "Is Discount Before Tax",
+                    "displayType": "radio"
+                },
+                "name": "is_discount_before_tax"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Entity Level",
+                            "value": "entity_level"
+                        },
+                        {
+                            "label": "Item Level",
+                            "value": "item_level"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Type of discount and supported values [entity_level, item_level]",
+                    "displayName": "Discount Type",
+                    "displayType": "select",
+                    "placeholder": "Select Discount Type"
+                },
+                "name": "discount_type"
+            },
+            {
+                "meta": {
+                    "value": "false",
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "To check if discount is inclusive of tax, and supported values [true, false]",
+                    "displayName": "Is Inclusive Tax",
+                    "displayType": "radio"
+                },
+                "name": "is_inclusive_tax",
+                "htmlProps": {
+                    "allowDynamic": true
+                }
+            },
+            {
+                "meta": {
+                    "description": "Exchange-Rate for the currency",
+                    "displayName": "Exchange Rate",
+                    "displayType": "number",
+                    "placeholder": "Enter Exchange Rate"
+                },
+                "name": "exchange_rate"
+            },
+            {
+                "meta": {
+                    "description": "ID of the invoice from which the invoice is created",
+                    "displayName": "Invoiced Estimate ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Invoiced Estimate ID"
+                },
+                "name": "invoiced_estimate_id"
+            },
+            {
+                "meta": {
+                    "description": "Name of the sales person associated with the invoice",
+                    "displayName": "Salesperson Name",
+                    "displayType": "text",
+                    "placeholder": "Enter Salesperson Name"
+                },
+                "name": "salesperson_name"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "invoice",
+                                        "operation": "invoice.create",
+                                        "loadOptionsMethod": "getItems"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "name",
+                                    "valueKey": "item_id"
+                                },
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "The ID of the item included in the invoice",
+                                "displayName": "Product ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter Product ID"
+                            },
+                            "name": "product_id"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "invoice",
+                                        "operation": "invoice.create",
+                                        "loadOptionsMethod": "getProjects"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "project_name",
+                                    "valueKey": "project_id"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Unique ID of the project associated to an invoice",
+                                "displayName": "Project ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter Project ID"
+                            },
+                            "name": "project_id"
+                        },
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "zoho_billing",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "invoice",
+                                        "operation": "invoice.create",
+                                        "loadOptionsMethod": "getExpenses"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "account_name",
+                                    "valueKey": "expense_id"
+                                },
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Unique ID of the expenses associated",
+                                "displayName": "Expense ID",
+                                "displayType": "autocomplete",
+                                "placeholder": "Enter Expense ID"
+                            },
+                            "name": "expense_id"
+                        },
+                        {
+                            "meta": {
+                                "value": "goods",
+                                "options": [
+                                    {
+                                        "label": "Goods",
+                                        "value": "goods"
+                                    },
+                                    {
+                                        "label": "Service",
+                                        "value": "service"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Product type for UK Edition, and supported values [goods, service]",
+                                "displayName": "Product Type",
+                                "displayType": "select",
+                                "placeholder": "Enter Product Type"
+                            },
+                            "name": "product_type"
+                        },
+                        {
+                            "meta": {
+                                "description": "Description of the payment made for the invoice",
+                                "displayName": "Description",
+                                "displayType": "text",
+                                "placeholder": "Enter Description"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "description": "The order of the line item",
+                                "displayName": "Item Order",
+                                "displayType": "number",
+                                "placeholder": "Enter Item Order"
+                            },
+                            "name": "item_order"
+                        },
+                        {
+                            "meta": {
+                                "description": "Price of the item included in the invoice",
+                                "displayName": "Price",
+                                "displayType": "text",
+                                "placeholder": "Enter Price"
+                            },
+                            "name": "price"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true
+                                },
+                                "description": "Quantity of the item included in the invoice",
+                                "displayName": "Quantity",
+                                "displayType": "number",
+                                "placeholder": "Enter Quantity"
+                            },
+                            "name": "quantity"
+                        },
+                        {
+                            "meta": {
+                                "description": "Unit of the line item",
+                                "displayName": "Unit",
+                                "displayType": "text",
+                                "placeholder": "Enter Unit (e.g. kgs, Nos)"
+                            },
+                            "name": "unit"
+                        },
+                        {
+                            "meta": {
+                                "description": "Discount applied to the invoice item",
+                                "displayName": "Discount",
+                                "displayType": "number",
+                                "placeholder": "Enter Discount"
+                            },
+                            "name": "discount"
+                        },
+                        {
+                            "meta": {
+                                "description": "Tax ID to associate with this item",
+                                "displayName": "Tax ID",
+                                "displayType": "text",
+                                "placeholder": "Enter Tax ID"
+                            },
+                            "name": "tax_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "ID of the TDS tax (Mexico only)",
+                                "displayName": "TDS Tax ID",
+                                "displayType": "text",
+                                "placeholder": "Enter TDS Tax ID"
+                            },
+                            "name": "tds_tax_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "The name of the tax",
+                                "displayName": "Tax Name",
+                                "displayType": "text",
+                                "placeholder": "Enter Tax Name"
+                            },
+                            "name": "tax_name"
+                        },
+                        {
+                            "meta": {
+                                "description": "The type of the tax",
+                                "displayName": "Tax Type",
+                                "displayType": "text",
+                                "placeholder": "Enter Tax Type"
+                            },
+                            "name": "tax_type"
+                        },
+                        {
+                            "meta": {
+                                "description": "The percentage of tax levied",
+                                "displayName": "Tax Percentage",
+                                "displayType": "number",
+                                "placeholder": "Enter Tax Percentage"
+                            },
+                            "name": "tax_percentage"
+                        },
+                        {
+                            "meta": {
+                                "description": "Cost of an item included in the invoice",
+                                "displayName": "Item Total",
+                                "displayType": "number",
+                                "placeholder": "Enter Item Total"
+                            },
+                            "name": "item_total"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Line items of an invoice",
+                    "displayName": "Invoice Items",
+                    "displayType": "array"
+                },
+                "name": "invoice_items"
+            },
+            {
+                "meta": {
+                    "description": "Customized email content",
+                    "displayName": "Custom Body",
+                    "displayType": "textarea",
+                    "placeholder": "Enter Custom Email Content"
+                },
+                "name": "custom_body"
+            },
+            {
+                "meta": {
+                    "description": "Customized Subject line",
+                    "displayName": "Custom Subject",
+                    "displayType": "text",
+                    "placeholder": "Enter Custom Subject"
+                },
+                "name": "custom_subject"
+            },
+            {
+                "meta": {
+                    "description": "The notes added below expressing gratitude",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter Notes"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "description": "The terms added below",
+                    "displayName": "Terms",
+                    "displayType": "textarea",
+                    "placeholder": "Enter Terms"
+                },
+                "name": "terms"
+            },
+            {
+                "meta": {
+                    "description": "Shipping charges applied to the invoice",
+                    "displayName": "Shipping Charge",
+                    "displayType": "number",
+                    "placeholder": "Enter Shipping Charge"
+                },
+                "name": "shipping_charge"
+            },
+            {
+                "meta": {
+                    "description": "Adjustments made to the invoice",
+                    "displayName": "Adjustment",
+                    "displayType": "number",
+                    "placeholder": "Enter Adjustment"
+                },
+                "name": "adjustment"
+            },
+            {
+                "meta": {
+                    "description": "Customize the adjustment description",
+                    "displayName": "Adjustment Description",
+                    "displayType": "text",
+                    "placeholder": "Enter Adjustment Description"
+                },
+                "name": "adjustment_description"
+            },
+            {
+                "meta": {
+                    "description": "ID of the tax authority (US, Canada only)",
+                    "displayName": "Tax Authority ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Tax Authority ID"
+                },
+                "name": "tax_authority_id"
+            },
+            {
+                "meta": {
+                    "description": "Unique Tax Exemption ID",
+                    "displayName": "Tax Exemption ID",
+                    "displayType": "text",
+                    "placeholder": "Enter Tax Exemption ID"
+                },
+                "name": "tax_exemption_id"
+            },
+            {
+                "meta": {
+                    "description": "Reason for the adjustment made to the invoice",
+                    "displayName": "Reason",
+                    "displayType": "text",
+                    "placeholder": "Enter Reason"
+                },
+                "name": "reason"
+            }
+        ]
+    }
+}

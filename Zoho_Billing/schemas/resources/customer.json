@@ -1,0 +1,1222 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Customer",
+                        "value": "customer.create",
+                        "description": "Create a new customer in Zoho Billing."
+                    },
+                    {
+                        "label": "Find Customer",
+                        "value": "customer.find",
+                        "description": "Find a customer in Zoho Billing."
+                    },
+                    {
+                        "label": "Update Customer",
+                        "value": "customer.update",
+                        "description": "Update a customer in Zoho Billing."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "customer",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getOrganizations": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.zohoapis.in/billing/v1/organizations",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.organizations}}"
+            }
+        },
+        "parameters": []
+    },
+    "find": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/customers",
+            "method": "get",
+            "headers": {
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customer",
+                            "operation": "customer.find",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/customers",
+            "body": {
+                "email": "{{parameters.email}}",
+                "notes": "{{parameters.notes}}",
+                "phone": "{{parameters.phone}}",
+                "skype": "{{parameters.skype}}",
+                "gst_no": "{{parameters.gst_no}}",
+                "mobile": "{{parameters.mobile}}",
+                "tax_id": "{{parameters.tax_id}}",
+                "twitter": "{{parameters.twitter}}",
+                "website": "{{parameters.website}}",
+                "facebook": "{{parameters.facebook}}",
+                "last_name": "{{parameters.last_name}}",
+                "department": "{{parameters.department}}",
+                "first_name": "{{parameters.first_name}}",
+                "is_taxable": "{{parameters.is_taxable}}",
+                "salutation": "{{parameters.salutation}}",
+                "tax_reg_no": "{{parameters.tax_reg_no}}",
+                "tax_regime": "{{parameters.tax_regime}}",
+                "tds_tax_id": "{{parameters.tds_tax_id}}",
+                "vat_reg_no": "{{parameters.vat_reg_no}}",
+                "designation": "{{parameters.designation}}",
+                "company_name": "{{parameters.company_name}}",
+                "display_name": "{{parameters.display_name}}",
+                "ach_supported": "{{parameters.ach_supported}}",
+                "currency_code": "{{parameters.currency_code}}",
+                "gst_treatment": "{{parameters.gst_treatment}}",
+                "payment_terms": "{{parameters.payment_terms}}",
+                "tax_treatment": "{{parameters.tax_treatment}}",
+                "vat_treatment": "{{parameters.vat_treatment}}",
+                "billing_address": "{{parameters.billing_address}}",
+                "shipping_address": "{{parameters.shipping_address}}",
+                "tax_authority_id": "{{parameters.tax_authority_id}}",
+                "tax_exemption_id": "{{parameters.tax_exemption_id}}",
+                "default_templates": "{{parameters.default_templates}}",
+                "is_portal_enabled": "{{parameters.is_portal_enabled}}",
+                "is_tds_registered": "{{parameters.is_tds_registered}}",
+                "tax_authority_name": "{{parameters.tax_authority_name}}",
+                "tax_exemption_code": "{{parameters.tax_exemption_code}}",
+                "payment_terms_label": "{{parameters.payment_terms_label}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customer",
+                            "operation": "customer.create",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the customer which will be displayed in the interface and invoices",
+                    "displayName": "Display Name",
+                    "displayType": "text",
+                    "placeholder": "Enter customer display name"
+                },
+                "name": "display_name"
+            },
+            {
+                "meta": {
+                    "description": "Salutation of the customer",
+                    "displayName": "Salutation",
+                    "displayType": "text",
+                    "placeholder": "Enter salutation (Mr/Ms/Dr etc.)"
+                },
+                "name": "salutation"
+            },
+            {
+                "meta": {
+                    "description": "First name of the customer",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "description": "Last name of the customer",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Email address of the customer",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter email address"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "description": "Registered name of the company the customer represents",
+                    "displayName": "Company Name",
+                    "displayType": "text",
+                    "placeholder": "Enter company name"
+                },
+                "name": "company_name"
+            },
+            {
+                "meta": {
+                    "description": "Customer's landline or fixed-line number",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "description": "Customer's mobile phone number",
+                    "displayName": "Mobile",
+                    "displayType": "text",
+                    "placeholder": "Enter mobile number"
+                },
+                "name": "mobile"
+            },
+            {
+                "meta": {
+                    "description": "Customer's department",
+                    "displayName": "Department",
+                    "displayType": "text",
+                    "placeholder": "Enter department"
+                },
+                "name": "department"
+            },
+            {
+                "meta": {
+                    "description": "Customer's designation",
+                    "displayName": "Designation",
+                    "displayType": "text",
+                    "placeholder": "Enter designation"
+                },
+                "name": "designation"
+            },
+            {
+                "meta": {
+                    "description": "Customer's website if any",
+                    "displayName": "Website",
+                    "displayType": "url",
+                    "placeholder": "https://example.com"
+                },
+                "name": "website"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Attention of the customer's billing address",
+                                "displayName": "Attention",
+                                "displayType": "text",
+                                "placeholder": "Enter attention"
+                            },
+                            "name": "attention"
+                        },
+                        {
+                            "meta": {
+                                "description": "Street of the customer's billing address",
+                                "displayName": "Street",
+                                "displayType": "text",
+                                "placeholder": "Enter street address"
+                            },
+                            "name": "street"
+                        },
+                        {
+                            "meta": {
+                                "description": "City of the customer's billing address",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "description": "State of the customer's billing address",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "description": "Zip code of the customer's billing address",
+                                "displayName": "Zip Code",
+                                "displayType": "text",
+                                "placeholder": "Enter zip code"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "description": "Country of the customer's billing address",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        },
+                        {
+                            "meta": {
+                                "description": "State Code of the Customer's billing address",
+                                "displayName": "State Code",
+                                "displayType": "text",
+                                "placeholder": "Enter state code"
+                            },
+                            "name": "state_code"
+                        },
+                        {
+                            "meta": {
+                                "description": "Fax number for the customer's billing address",
+                                "displayName": "Fax",
+                                "displayType": "text",
+                                "placeholder": "Enter fax number"
+                            },
+                            "name": "fax"
+                        }
+                    ],
+                    "description": "Customer's billing address",
+                    "displayName": "Billing Address",
+                    "displayType": "object"
+                },
+                "name": "billing_address"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Attention of the customer's shipping address",
+                                "displayName": "Attention",
+                                "displayType": "text",
+                                "placeholder": "Enter attention"
+                            },
+                            "name": "attention"
+                        },
+                        {
+                            "meta": {
+                                "description": "Street of the customer's shipping address",
+                                "displayName": "Street",
+                                "displayType": "text",
+                                "placeholder": "Enter street address"
+                            },
+                            "name": "street"
+                        },
+                        {
+                            "meta": {
+                                "description": "City of the customer's shipping address",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "description": "State of the customer's shipping address",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "description": "Zip code of the customer's shipping address",
+                                "displayName": "Zip Code",
+                                "displayType": "text",
+                                "placeholder": "Enter zip code"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "description": "Country of the customer's shipping address",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        },
+                        {
+                            "meta": {
+                                "description": "State Code of the customer's shipping address",
+                                "displayName": "State Code",
+                                "displayType": "text",
+                                "placeholder": "Enter state code"
+                            },
+                            "name": "state_code"
+                        },
+                        {
+                            "meta": {
+                                "description": "Fax number of the customer's shipping address",
+                                "displayName": "Fax",
+                                "displayType": "text",
+                                "placeholder": "Enter fax number"
+                            },
+                            "name": "fax"
+                        }
+                    ],
+                    "description": "Customer's shipping address",
+                    "displayName": "Shipping Address",
+                    "displayType": "object"
+                },
+                "name": "shipping_address"
+            },
+            {
+                "meta": {
+                    "description": "Net payment term for the customer",
+                    "displayName": "Payment Terms",
+                    "displayType": "number",
+                    "placeholder": "Enter payment terms (in days)"
+                },
+                "name": "payment_terms"
+            },
+            {
+                "meta": {
+                    "description": "Text field of payment terms",
+                    "displayName": "Payment Terms Label",
+                    "displayType": "text",
+                    "placeholder": "Enter payment terms label"
+                },
+                "name": "payment_terms_label"
+            },
+            {
+                "meta": {
+                    "description": "Currency code for the customer's payments",
+                    "displayName": "Currency Code",
+                    "displayType": "text",
+                    "placeholder": "Enter currency code (e.g., USD)"
+                },
+                "name": "currency_code"
+            },
+            {
+                "meta": {
+                    "value": "false",
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "Whether ACH payment is supported for the customer",
+                    "displayName": "ACH Supported",
+                    "displayType": "radio"
+                },
+                "name": "ach_supported"
+            },
+            {
+                "meta": {
+                    "description": "Enter your Twitter profile username only (e.g., profile_name). Do not include the full URL (https://x.com/).",
+                    "displayName": "Twitter",
+                    "displayType": "text",
+                    "placeholder": "Enter Twitter profile"
+                },
+                "name": "twitter"
+            },
+            {
+                "meta": {
+                    "description": "Enter your Facebook profile username only (e.g., profile_name). Do not include the full URL (http://www.facebook.com/).",
+                    "displayName": "Facebook",
+                    "displayType": "text",
+                    "placeholder": "Enter Facebook profile"
+                },
+                "name": "facebook"
+            },
+            {
+                "meta": {
+                    "description": "Skype ID of the customer",
+                    "displayName": "Skype",
+                    "displayType": "text",
+                    "placeholder": "Enter Skype ID"
+                },
+                "name": "skype"
+            },
+            {
+                "meta": {
+                    "description": "A short note about the customer",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter notes about the customer"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "value": "false",
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "Enable client portal for the customer",
+                    "displayName": "Enable Portal",
+                    "displayType": "radio"
+                },
+                "name": "is_portal_enabled"
+            },
+            {
+                "meta": {
+                    "value": "false",
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "Whether the customer is registered for TDS",
+                    "displayName": "Is TDS Registered",
+                    "displayType": "radio"
+                },
+                "name": "is_tds_registered"
+            },
+            {
+                "meta": {
+                    "description": "GSTIN Number for the customer (India only)",
+                    "displayName": "GST Number",
+                    "displayType": "text",
+                    "placeholder": "Enter GSTIN Number"
+                },
+                "name": "gst_no"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Business GST",
+                            "value": "business_gst"
+                        },
+                        {
+                            "label": "Business None",
+                            "value": "business_none"
+                        },
+                        {
+                            "label": "Consumer",
+                            "value": "consumer"
+                        },
+                        {
+                            "label": "Overseas",
+                            "value": "overseas"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "GST Treatment for the customer (India only) and supported values [business_gst, business_none, consumer, overseas]",
+                    "displayName": "GST Treatment",
+                    "displayType": "select",
+                    "placeholder": "Select GST treatment"
+                },
+                "name": "gst_treatment"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Unique Id for invoice template",
+                                "displayName": "Invoice Template ID",
+                                "displayType": "text",
+                                "placeholder": "Enter invoice template ID"
+                            },
+                            "name": "invoice_template_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "Unique Id for credit note template",
+                                "displayName": "Credit Note Template ID",
+                                "displayType": "text",
+                                "placeholder": "Enter credit note template ID"
+                            },
+                            "name": "creditnote_template_id"
+                        }
+                    ],
+                    "description": "Default templates associated with the customer",
+                    "displayName": "Default Templates",
+                    "displayType": "object"
+                },
+                "name": "default_templates"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://www.zohoapis.in/billing/v1/customers/{{parameters.customer_id}}",
+            "body": {
+                "email": "{{parameters.email}}",
+                "notes": "{{parameters.notes}}",
+                "phone": "{{parameters.phone}}",
+                "skype": "{{parameters.skype}}",
+                "gst_no": "{{parameters.gst_no}}",
+                "mobile": "{{parameters.mobile}}",
+                "tax_id": "{{parameters.tax_id}}",
+                "twitter": "{{parameters.twitter}}",
+                "website": "{{parameters.website}}",
+                "facebook": "{{parameters.facebook}}",
+                "last_name": "{{parameters.last_name}}",
+                "department": "{{parameters.department}}",
+                "first_name": "{{parameters.first_name}}",
+                "is_taxable": "{{parameters.is_taxable}}",
+                "salutation": "{{parameters.salutation}}",
+                "tax_reg_no": "{{parameters.tax_reg_no}}",
+                "tax_regime": "{{parameters.tax_regime}}",
+                "tds_tax_id": "{{parameters.tds_tax_id}}",
+                "vat_reg_no": "{{parameters.vat_reg_no}}",
+                "designation": "{{parameters.designation}}",
+                "company_name": "{{parameters.company_name}}",
+                "display_name": "{{parameters.display_name}}",
+                "ach_supported": "{{parameters.ach_supported}}",
+                "currency_code": "{{parameters.currency_code}}",
+                "gst_treatment": "{{parameters.gst_treatment}}",
+                "payment_terms": "{{parameters.payment_terms}}",
+                "tax_treatment": "{{parameters.tax_treatment}}",
+                "vat_treatment": "{{parameters.vat_treatment}}",
+                "billing_address": "{{parameters.billing_address}}",
+                "shipping_address": "{{parameters.shipping_address}}",
+                "tax_authority_id": "{{parameters.tax_authority_id}}",
+                "tax_exemption_id": "{{parameters.tax_exemption_id}}",
+                "default_templates": "{{parameters.default_templates}}",
+                "is_portal_enabled": "{{parameters.is_portal_enabled}}",
+                "is_tds_registered": "{{parameters.is_tds_registered}}",
+                "tax_authority_name": "{{parameters.tax_authority_name}}",
+                "tax_exemption_code": "{{parameters.tax_exemption_code}}",
+                "payment_terms_label": "{{parameters.payment_terms_label}}"
+            },
+            "method": "put",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Zoho-oauthtoken {{secrets.access_token}}",
+                "X-com-zoho-subscriptions-organizationid": "{{parameters.organization_id}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customer",
+                            "operation": "customer.update",
+                            "loadOptionsMethod": "getOrganizations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "organization_id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Your Zoho Books Organization ID",
+                    "displayName": "Organization ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Organization ID"
+                },
+                "name": "organization_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "zoho_billing",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "customer",
+                            "operation": "customer.create",
+                            "loadOptionsMethod": "getCustomers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "display_name",
+                        "valueKey": "customer_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Customer ID of the customer for whom the credit note is raised",
+                    "displayName": "Customer ID",
+                    "displayType": "autocomplete",
+                    "placeholder": "Enter Customer ID"
+                },
+                "name": "customer_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the customer which will be displayed in the interface and invoices",
+                    "displayName": "Display Name",
+                    "displayType": "text",
+                    "placeholder": "Enter customer display name"
+                },
+                "name": "display_name"
+            },
+            {
+                "meta": {
+                    "description": "Salutation of the customer",
+                    "displayName": "Salutation",
+                    "displayType": "text",
+                    "placeholder": "Enter salutation (Mr/Ms/Dr etc.)"
+                },
+                "name": "salutation"
+            },
+            {
+                "meta": {
+                    "description": "First name of the customer",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "description": "Last name of the customer",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Email address of the customer",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter email address"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "description": "Registered name of the company the customer represents",
+                    "displayName": "Company Name",
+                    "displayType": "text",
+                    "placeholder": "Enter company name"
+                },
+                "name": "company_name"
+            },
+            {
+                "meta": {
+                    "description": "Customer's landline or fixed-line number",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "description": "Customer's mobile phone number",
+                    "displayName": "Mobile",
+                    "displayType": "text",
+                    "placeholder": "Enter mobile number"
+                },
+                "name": "mobile"
+            },
+            {
+                "meta": {
+                    "description": "Customer's department",
+                    "displayName": "Department",
+                    "displayType": "text",
+                    "placeholder": "Enter department"
+                },
+                "name": "department"
+            },
+            {
+                "meta": {
+                    "description": "Customer's designation",
+                    "displayName": "Designation",
+                    "displayType": "text",
+                    "placeholder": "Enter designation"
+                },
+                "name": "designation"
+            },
+            {
+                "meta": {
+                    "description": "Customer's website if any",
+                    "displayName": "Website",
+                    "displayType": "url",
+                    "placeholder": "https://example.com"
+                },
+                "name": "website"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Attention of the customer's billing address",
+                                "displayName": "Attention",
+                                "displayType": "text",
+                                "placeholder": "Enter attention"
+                            },
+                            "name": "attention"
+                        },
+                        {
+                            "meta": {
+                                "description": "Street of the customer's billing address",
+                                "displayName": "Street",
+                                "displayType": "text",
+                                "placeholder": "Enter street address"
+                            },
+                            "name": "street"
+                        },
+                        {
+                            "meta": {
+                                "description": "City of the customer's billing address",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "description": "State of the customer's billing address",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "description": "Zip code of the customer's billing address",
+                                "displayName": "Zip Code",
+                                "displayType": "text",
+                                "placeholder": "Enter zip code"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "description": "Country of the customer's billing address",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        },
+                        {
+                            "meta": {
+                                "description": "State Code of the Customer's billing address",
+                                "displayName": "State Code",
+                                "displayType": "text",
+                                "placeholder": "Enter state code"
+                            },
+                            "name": "state_code"
+                        },
+                        {
+                            "meta": {
+                                "description": "Fax number for the customer's billing address",
+                                "displayName": "Fax",
+                                "displayType": "text",
+                                "placeholder": "Enter fax number"
+                            },
+                            "name": "fax"
+                        }
+                    ],
+                    "description": "Customer's billing address",
+                    "displayName": "Billing Address",
+                    "displayType": "object"
+                },
+                "name": "billing_address"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Attention of the customer's shipping address",
+                                "displayName": "Attention",
+                                "displayType": "text",
+                                "placeholder": "Enter attention"
+                            },
+                            "name": "attention"
+                        },
+                        {
+                            "meta": {
+                                "description": "Street of the customer's shipping address",
+                                "displayName": "Street",
+                                "displayType": "text",
+                                "placeholder": "Enter street address"
+                            },
+                            "name": "street"
+                        },
+                        {
+                            "meta": {
+                                "description": "City of the customer's shipping address",
+                                "displayName": "City",
+                                "displayType": "text",
+                                "placeholder": "Enter city"
+                            },
+                            "name": "city"
+                        },
+                        {
+                            "meta": {
+                                "description": "State of the customer's shipping address",
+                                "displayName": "State",
+                                "displayType": "text",
+                                "placeholder": "Enter state"
+                            },
+                            "name": "state"
+                        },
+                        {
+                            "meta": {
+                                "description": "Zip code of the customer's shipping address",
+                                "displayName": "Zip Code",
+                                "displayType": "text",
+                                "placeholder": "Enter zip code"
+                            },
+                            "name": "zip"
+                        },
+                        {
+                            "meta": {
+                                "description": "Country of the customer's shipping address",
+                                "displayName": "Country",
+                                "displayType": "text",
+                                "placeholder": "Enter country"
+                            },
+                            "name": "country"
+                        },
+                        {
+                            "meta": {
+                                "description": "State Code of the customer's shipping address",
+                                "displayName": "State Code",
+                                "displayType": "text",
+                                "placeholder": "Enter state code"
+                            },
+                            "name": "state_code"
+                        },
+                        {
+                            "meta": {
+                                "description": "Fax number of the customer's shipping address",
+                                "displayName": "Fax",
+                                "displayType": "text",
+                                "placeholder": "Enter fax number"
+                            },
+                            "name": "fax"
+                        }
+                    ],
+                    "description": "Customer's shipping address",
+                    "displayName": "Shipping Address",
+                    "displayType": "object"
+                },
+                "name": "shipping_address"
+            },
+            {
+                "meta": {
+                    "description": "Net payment term for the customer",
+                    "displayName": "Payment Terms",
+                    "displayType": "number",
+                    "placeholder": "Enter payment terms (in days)"
+                },
+                "name": "payment_terms"
+            },
+            {
+                "meta": {
+                    "description": "Text field of payment terms",
+                    "displayName": "Payment Terms Label",
+                    "displayType": "text",
+                    "placeholder": "Enter payment terms label"
+                },
+                "name": "payment_terms_label"
+            },
+            {
+                "meta": {
+                    "description": "Currency code for the customer's payments",
+                    "displayName": "Currency Code",
+                    "displayType": "text",
+                    "placeholder": "Enter currency code (e.g., USD)"
+                },
+                "name": "currency_code"
+            },
+            {
+                "meta": {
+                    "value": "false",
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "Whether ACH payment is supported for the customer",
+                    "displayName": "ACH Supported",
+                    "displayType": "radio"
+                },
+                "name": "ach_supported"
+            },
+            {
+                "meta": {
+                    "description": "Twitter profile of the customer",
+                    "displayName": "Twitter",
+                    "displayType": "text",
+                    "placeholder": "Enter Twitter profile"
+                },
+                "name": "twitter"
+            },
+            {
+                "meta": {
+                    "description": "Facebook profile of the customer",
+                    "displayName": "Facebook",
+                    "displayType": "text",
+                    "placeholder": "Enter Facebook profile"
+                },
+                "name": "facebook"
+            },
+            {
+                "meta": {
+                    "description": "Skype ID of the customer",
+                    "displayName": "Skype",
+                    "displayType": "text",
+                    "placeholder": "Enter Skype ID"
+                },
+                "name": "skype"
+            },
+            {
+                "meta": {
+                    "description": "A short note about the customer",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Enter notes about the customer"
+                },
+                "name": "notes"
+            },
+            {
+                "meta": {
+                    "value": "false",
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "Enable client portal for the customer",
+                    "displayName": "Enable Portal",
+                    "displayType": "radio"
+                },
+                "name": "is_portal_enabled"
+            },
+            {
+                "meta": {
+                    "value": "false",
+                    "options": [
+                        {
+                            "label": "Yes",
+                            "value": "true"
+                        },
+                        {
+                            "label": "No",
+                            "value": "false"
+                        }
+                    ],
+                    "description": "Whether the customer is registered for TDS",
+                    "displayName": "Is TDS Registered",
+                    "displayType": "radio"
+                },
+                "name": "is_tds_registered"
+            },
+            {
+                "meta": {
+                    "description": "GSTIN Number for the customer (India only)",
+                    "displayName": "GST Number",
+                    "displayType": "text",
+                    "placeholder": "Enter GSTIN Number"
+                },
+                "name": "gst_no"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Business GST",
+                            "value": "business_gst"
+                        },
+                        {
+                            "label": "Business None",
+                            "value": "business_none"
+                        },
+                        {
+                            "label": "Consumer",
+                            "value": "consumer"
+                        },
+                        {
+                            "label": "Overseas",
+                            "value": "overseas"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "GST Treatment for the customer (India only) and supported values [business_gst, business_none, consumer, overseas]",
+                    "displayName": "GST Treatment",
+                    "displayType": "select",
+                    "placeholder": "Select GST treatment"
+                },
+                "name": "gst_treatment"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Unique Id for invoice template",
+                                "displayName": "Invoice Template ID",
+                                "displayType": "text",
+                                "placeholder": "Enter invoice template ID"
+                            },
+                            "name": "invoice_template_id"
+                        },
+                        {
+                            "meta": {
+                                "description": "Unique Id for credit note template",
+                                "displayName": "Credit Note Template ID",
+                                "displayType": "text",
+                                "placeholder": "Enter credit note template ID"
+                            },
+                            "name": "creditnote_template_id"
+                        }
+                    ],
+                    "description": "Default templates associated with the customer",
+                    "displayName": "Default Templates",
+                    "displayType": "object"
+                },
+                "name": "default_templates"
+            }
+        ]
+    }
+}
