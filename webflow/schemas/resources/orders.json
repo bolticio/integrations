@@ -68,10 +68,23 @@
                         "label": "Fulfill Order",
                         "value": "orders.fulfill",
                         "description": "Mark a selected order as fulfilled."
+                    },
+                    {
+                        "label": "Unfulfill Order",
+                        "value": "orders.unfulfill",
+                        "description": "Mark a selected order as unfulfilled."
+                    },
+                    {
+                        "label": "Refund Order",
+                        "value": "orders.refund",
+                        "description": "Mark a selected order as refunded."
                     }
                 ],
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
                 },
                 "description": "Select the order operation you want to perform.",
                 "displayName": "Operation",
@@ -115,7 +128,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the order.",
                     "displayName": "Site",
@@ -152,7 +168,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Order is required"
+                        }
                     },
                     "description": "Select the order you want to retrieve.",
                     "displayName": "Order",
@@ -225,7 +244,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site whose orders you want to list.",
                     "displayName": "Site",
@@ -338,7 +360,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the order.",
                     "displayName": "Site",
@@ -375,7 +400,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Order is required"
+                        }
                     },
                     "description": "Select the order you want to update.",
                     "displayName": "Order",
@@ -509,7 +537,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the order.",
                     "displayName": "Site",
@@ -546,7 +577,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Order is required"
+                        }
                     },
                     "description": "Select the order you want to fulfill.",
                     "displayName": "Order",
@@ -586,6 +620,210 @@
                     }
                 },
                 "name": "send_order_fulfilled_email"
+            }
+        ]
+    },
+    "unfulfill": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/orders/{{parameters.order_id}}/unfulfill",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.unfulfill",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the order.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.unfulfill",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "orders",
+                            "operation": "orders.unfulfill",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "orderId",
+                        "valueKey": "orderId",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Order is required"
+                        }
+                    },
+                    "description": "Select the order you want to mark as unfulfilled.",
+                    "displayName": "Order",
+                    "displayType": "select",
+                    "placeholder": "Select an order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.unfulfill",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "refund": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/orders/{{parameters.order_id}}/refund",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.refund",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the order.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.refund",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "orders",
+                            "operation": "orders.refund",
+                            "loadOptionsMethod": "getOrders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "orderId",
+                        "valueKey": "orderId",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Order is required"
+                        }
+                    },
+                    "description": "Select the order you want to refund.",
+                    "displayName": "Order",
+                    "displayType": "select",
+                    "placeholder": "Select an order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.refund",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_id"
             }
         ]
     }

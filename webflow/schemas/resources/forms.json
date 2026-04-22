@@ -73,13 +73,21 @@
                         "description": "Retrieve a selected form submission."
                     },
                     {
+                        "label": "Update Form Submission",
+                        "value": "forms.update_submission",
+                        "description": "Update hidden fields on a selected form submission."
+                    },
+                    {
                         "label": "Delete Form Submission",
                         "value": "forms.delete_submission",
                         "description": "Delete a selected form submission."
                     }
                 ],
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
                 },
                 "description": "Select the form operation you want to perform.",
                 "displayName": "Operation",
@@ -164,7 +172,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site whose forms you want to list.",
                     "displayName": "Site",
@@ -218,7 +229,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the submission.",
                     "displayName": "Site",
@@ -255,7 +269,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
                     },
                     "description": "Select the form that contains the submission.",
                     "displayName": "Form",
@@ -297,7 +314,10 @@
                         "condition": "{{parameters.form_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form Submission is required"
+                        }
                     },
                     "description": "Select the submission you want to retrieve.",
                     "displayName": "Form Submission",
@@ -309,6 +329,10 @@
                                 "field": "operation",
                                 "value": "forms.get_submission",
                                 "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
                             },
                             {
                                 "field": "form_id",
@@ -358,7 +382,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the submission.",
                     "displayName": "Site",
@@ -395,7 +422,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
                     },
                     "description": "Select the form that contains the submission.",
                     "displayName": "Form",
@@ -437,7 +467,10 @@
                         "condition": "{{parameters.form_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form Submission is required"
+                        }
                     },
                     "description": "Select the submission you want to delete.",
                     "displayName": "Form Submission",
@@ -449,6 +482,10 @@
                                 "field": "operation",
                                 "value": "forms.delete_submission",
                                 "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
                             },
                             {
                                 "field": "form_id",
@@ -507,7 +544,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the form.",
                     "displayName": "Site",
@@ -544,7 +584,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
                     },
                     "description": "Select the form whose submissions you want to list.",
                     "displayName": "Form",
@@ -602,7 +645,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the form.",
                     "displayName": "Site",
@@ -639,7 +685,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
                     },
                     "description": "Select the form whose schema you want to retrieve.",
                     "displayName": "Form",
@@ -660,6 +709,234 @@
                     }
                 },
                 "name": "form_id"
+            }
+        ]
+    },
+    "update_submission": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/form_submissions/{{parameters.form_submission_id}}",
+            "body": {
+                "formSubmissionData": "{{parameters.form_submission_data}}"
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.update_submission",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the submission.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update_submission",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "forms",
+                            "operation": "forms.update_submission",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "Select the form that contains the submission.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update_submission",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "form_id": "{{parameters.form_id}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "forms",
+                            "operation": "forms.update_submission",
+                            "loadOptionsMethod": "getFormSubmissions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.form_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form Submission is required"
+                        }
+                    },
+                    "description": "Select the submission you want to update.",
+                    "displayName": "Form Submission",
+                    "displayType": "select",
+                    "placeholder": "Select a submission",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update_submission",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "form_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_submission_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field key is required"
+                                    }
+                                },
+                                "description": "Existing hidden field name defined on the form. Do not use visible field labels like Name or Email.",
+                                "displayName": "Key",
+                                "displayType": "text",
+                                "placeholder": "tracking_id"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field value is required"
+                                    }
+                                },
+                                "description": "New value for that hidden field.",
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "abc123"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Submission data is required"
+                        }
+                    },
+                    "description": "Hidden field key-value pairs to update on the submission. Keys must be existing hidden field names on the form.",
+                    "displayName": "Submission Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add hidden field key-value pairs",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update_submission",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "form_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_submission_data"
             }
         ]
     }

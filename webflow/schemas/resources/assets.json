@@ -63,10 +63,28 @@
                         "label": "Delete Asset",
                         "value": "assets.delete",
                         "description": "Delete a selected asset."
+                    },
+                    {
+                        "label": "Create Asset Folder",
+                        "value": "assets.create_folder",
+                        "description": "Create an asset folder in a site."
+                    },
+                    {
+                        "label": "Get Asset Folder",
+                        "value": "assets.get_folder",
+                        "description": "Retrieve details for a specific asset folder."
+                    },
+                    {
+                        "label": "List Asset Folders",
+                        "value": "assets.list_folders",
+                        "description": "List asset folders for a selected site."
                     }
                 ],
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
                 },
                 "description": "Select the asset operation you want to perform.",
                 "displayName": "Operation",
@@ -76,6 +94,35 @@
             "name": "operation"
         }
     ],
+    "getAssetFolders": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/asset_folders",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.assetFolders}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.pagination.limit}} + {{response.data.pagination.offset}}"
+                },
+                "type": "offset",
+                "default": {
+                    "limit": 100,
+                    "offset": 0
+                },
+                "condition": "{{response.data.pagination.offset}} < {{response.data.pagination.total}}"
+            }
+        }
+    },
     "get": {
         "definition": {
             "url": "https://api.webflow.com/v2/assets/{{parameters.asset_id}}",
@@ -110,7 +157,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the asset.",
                     "displayName": "Site",
@@ -147,7 +197,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Asset is required"
+                        }
                     },
                     "description": "Select the asset you want to retrieve.",
                     "displayName": "Asset",
@@ -208,7 +261,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the asset.",
                     "displayName": "Site",
@@ -245,7 +301,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Asset is required"
+                        }
                     },
                     "description": "Select the asset you want to delete.",
                     "displayName": "Asset",
@@ -315,7 +374,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site whose assets you want to list.",
                     "displayName": "Site",
@@ -332,6 +394,311 @@
                     }
                 },
                 "name": "site_id"
+            }
+        ]
+    },
+    "list_folders": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/asset_folders",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.assetFolders}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.pagination.limit}} + {{response.data.pagination.offset}}"
+                },
+                "type": "offset",
+                "default": {
+                    "limit": 100,
+                    "offset": 0
+                },
+                "condition": "{{response.data.pagination.offset}} < {{response.data.pagination.total}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "assets",
+                            "operation": "assets.list_folders",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site whose asset folders you want to list.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "assets.list_folders",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            }
+        ]
+    },
+    "create_folder": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/asset_folders",
+            "body": {
+                "displayName": "{{parameters.display_name}}",
+                "parentFolder": "{{parameters.parent_folder}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "assets",
+                            "operation": "assets.create_folder",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site in which to create the asset folder.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "assets.create_folder",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Folder Name is required"
+                        }
+                    },
+                    "description": "Display name for the new asset folder.",
+                    "displayName": "Folder Name",
+                    "displayType": "text",
+                    "placeholder": "Marketing Assets",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "assets.create_folder",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "display_name"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "assets",
+                            "operation": "assets.create_folder",
+                            "loadOptionsMethod": "getAssetFolders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "description": "Optional. Select a parent folder to nest the new folder under.",
+                    "displayName": "Parent Folder",
+                    "displayType": "select",
+                    "placeholder": "Select parent folder (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "assets.create_folder",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "parent_folder"
+            }
+        ]
+    },
+    "get_folder": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/asset_folders/{{parameters.asset_folder_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "assets",
+                            "operation": "assets.get_folder",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the asset folder.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "assets.get_folder",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "assets",
+                            "operation": "assets.get_folder",
+                            "loadOptionsMethod": "getAssetFolders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Asset Folder is required"
+                        }
+                    },
+                    "description": "Select the asset folder you want to retrieve.",
+                    "displayName": "Asset Folder",
+                    "displayType": "select",
+                    "placeholder": "Select an asset folder",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "assets.get_folder",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "asset_folder_id"
             }
         ]
     }

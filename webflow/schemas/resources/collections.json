@@ -21,24 +21,19 @@
             "meta": {
                 "options": [
                     {
-                        "label": "List Sites",
-                        "value": "sites.list",
-                        "description": "List all accessible Webflow sites."
+                        "label": "List Collections",
+                        "value": "collections.list",
+                        "description": "List collections for a selected site."
                     },
                     {
-                        "label": "Get Site",
-                        "value": "sites.get",
-                        "description": "Retrieve details for a specific site."
+                        "label": "Get Collection",
+                        "value": "collections.get",
+                        "description": "Retrieve a selected collection."
                     },
                     {
-                        "label": "Get Custom Domains",
-                        "value": "sites.custom_domains",
-                        "description": "List custom domains configured for a specific site."
-                    },
-                    {
-                        "label": "Publish Site",
-                        "value": "sites.publish",
-                        "description": "Publish a site to its domains and optional Webflow subdomain."
+                        "label": "Delete Collection",
+                        "value": "collections.delete",
+                        "description": "Delete a selected collection."
                     }
                 ],
                 "validation": {
@@ -47,7 +42,7 @@
                         "errorMsg": "Operation is required"
                     }
                 },
-                "description": "Select the site operation you want to perform.",
+                "description": "Select the collection operation you want to perform.",
                 "displayName": "Operation",
                 "displayType": "select",
                 "placeholder": "Select an operation"
@@ -55,9 +50,9 @@
             "name": "operation"
         }
     ],
-    "getCustomDomains": {
+    "getCollections": {
         "definition": {
-            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/custom_domains",
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/collections",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -68,21 +63,16 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.message}}"
                 },
-                "output": "{{response.data.customDomains}}"
+                "output": "{{response.data.collections}}"
             }
         }
     },
-    "publish": {
+    "get": {
         "definition": {
-            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/publish",
-            "body": {
-                "customDomains": "{{parameters.custom_domains}}",
-                "publishToWebflowSubdomain": "{{parameters.publish_to_webflow_subdomain}}"
-            },
-            "method": "post",
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}",
+            "method": "get",
             "headers": {
                 "Accept": "application/json",
-                "Content-Type": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
             },
             "response": {
@@ -101,8 +91,8 @@
                         "body": {
                             "name": "webflow",
                             "secret": "{{parameters.secret}}",
-                            "resource": "sites",
-                            "operation": "sites.publish",
+                            "resource": "collections",
+                            "operation": "collections.get",
                             "loadOptionsMethod": "getSites"
                         },
                         "method": "post",
@@ -116,7 +106,7 @@
                             "errorMsg": "Site is required"
                         }
                     },
-                    "description": "Select the site you want to publish.",
+                    "description": "Select the site that contains the collection.",
                     "displayName": "Site",
                     "displayType": "select",
                     "placeholder": "Select a site",
@@ -124,7 +114,7 @@
                         "conditions": [
                             {
                                 "field": "operation",
-                                "value": "sites.publish",
+                                "value": "collections.get",
                                 "operator": "EQUALS"
                             }
                         ]
@@ -140,50 +130,31 @@
                             "name": "webflow",
                             "secret": "{{parameters.secret}}",
                             "site_id": "{{parameters.site_id}}",
-                            "resource": "sites",
-                            "operation": "sites.publish",
-                            "loadOptionsMethod": "getCustomDomains"
+                            "resource": "collections",
+                            "operation": "collections.get",
+                            "loadOptionsMethod": "getCollections"
                         },
                         "method": "post",
                         "urlType": "options",
-                        "labelKey": "url",
+                        "labelKey": "displayName",
                         "valueKey": "id",
                         "condition": "{{parameters.site_id}}"
                     },
-                    "description": "Optional. Select specific custom domains to publish to. Leave empty to publish to all custom domains.",
-                    "displayName": "Custom Domains",
-                    "displayType": "multiselect",
-                    "placeholder": "Select custom domains",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "operation",
-                                "value": "sites.publish",
-                                "operator": "EQUALS"
-                            },
-                            {
-                                "field": "site_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "custom_domains"
-            },
-            {
-                "meta": {
-                    "htmlProps": {
-                        "allowDynamic": true
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
                     },
-                    "description": "Optional. Enable this to also publish to the default Webflow subdomain.",
-                    "displayName": "Publish To Webflow Subdomain",
-                    "displayType": "toggle",
-                    "placeholder": "Enable or disable subdomain publish",
+                    "description": "Select the collection you want to retrieve.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
                     "dependencies": {
                         "conditions": [
                             {
                                 "field": "operation",
-                                "value": "sites.publish",
+                                "value": "collections.get",
                                 "operator": "EQUALS"
                             },
                             {
@@ -193,13 +164,13 @@
                         ]
                     }
                 },
-                "name": "publish_to_webflow_subdomain"
+                "name": "collection_id"
             }
         ]
     },
-    "custom_domains": {
+    "list": {
         "definition": {
-            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/custom_domains",
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/collections",
             "method": "get",
             "headers": {
                 "Accept": "application/json",
@@ -210,7 +181,7 @@
                     "code": "{{response.status}}",
                     "message": "{{response.data.message}}"
                 },
-                "output": "{{response.data.customDomains}}"
+                "output": "{{response.data.collections}}"
             }
         },
         "parameters": [
@@ -221,8 +192,8 @@
                         "body": {
                             "name": "webflow",
                             "secret": "{{parameters.secret}}",
-                            "resource": "sites",
-                            "operation": "sites.custom_domains",
+                            "resource": "collections",
+                            "operation": "collections.list",
                             "loadOptionsMethod": "getSites"
                         },
                         "method": "post",
@@ -236,7 +207,7 @@
                             "errorMsg": "Site is required"
                         }
                     },
-                    "description": "Select the site whose custom domains you want to retrieve.",
+                    "description": "Select the site whose collections you want to list.",
                     "displayName": "Site",
                     "displayType": "select",
                     "placeholder": "Select a site",
@@ -244,7 +215,7 @@
                         "conditions": [
                             {
                                 "field": "operation",
-                                "value": "sites.custom_domains",
+                                "value": "collections.list",
                                 "operator": "EQUALS"
                             }
                         ]
@@ -254,10 +225,10 @@
             }
         ]
     },
-    "get": {
+    "delete": {
         "definition": {
-            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}",
-            "method": "get",
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}",
+            "method": "delete",
             "headers": {
                 "Accept": "application/json",
                 "Authorization": "Bearer {{secrets.access_token}}"
@@ -268,6 +239,9 @@
                     "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "let data = output; data='Collection has been deleted successfully!'; return data"
             }
         },
         "parameters": [
@@ -278,8 +252,8 @@
                         "body": {
                             "name": "webflow",
                             "secret": "{{parameters.secret}}",
-                            "resource": "sites",
-                            "operation": "sites.get",
+                            "resource": "collections",
+                            "operation": "collections.delete",
                             "loadOptionsMethod": "getSites"
                         },
                         "method": "post",
@@ -293,7 +267,7 @@
                             "errorMsg": "Site is required"
                         }
                     },
-                    "description": "Select the site you want to retrieve.",
+                    "description": "Select the site that contains the collection.",
                     "displayName": "Site",
                     "displayType": "select",
                     "placeholder": "Select a site",
@@ -301,32 +275,58 @@
                         "conditions": [
                             {
                                 "field": "operation",
-                                "value": "sites.get",
+                                "value": "collections.delete",
                                 "operator": "EQUALS"
                             }
                         ]
                     }
                 },
                 "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "collections",
+                            "operation": "collections.delete",
+                            "loadOptionsMethod": "getCollections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
+                    },
+                    "description": "Select the collection you want to delete.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "collections.delete",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
             }
         ]
-    },
-    "list": {
-        "definition": {
-            "url": "https://api.webflow.com/v2/sites",
-            "method": "get",
-            "headers": {
-                "Accept": "application/json",
-                "Authorization": "Bearer {{secrets.access_token}}"
-            },
-            "response": {
-                "error": {
-                    "code": "{{response.status}}",
-                    "message": "{{response.data.message}}"
-                },
-                "output": "{{response.data.sites}}"
-            }
-        },
-        "parameters": []
     }
 }

@@ -29,10 +29,28 @@
                         "label": "Get Product",
                         "value": "products.get",
                         "description": "Retrieve a selected product."
+                    },
+                    {
+                        "label": "Create Product",
+                        "value": "products.create",
+                        "description": "Create a new product."
+                    },
+                    {
+                        "label": "Update Product",
+                        "value": "products.update",
+                        "description": "Update an existing product."
+                    },
+                    {
+                        "label": "Update Product SKU",
+                        "value": "products.update_sku",
+                        "description": "Update a specific SKU of a product."
                     }
                 ],
                 "validation": {
-                    "required": true
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
                 },
                 "description": "Select the product operation you want to perform.",
                 "displayName": "Operation",
@@ -42,6 +60,26 @@
             "name": "operation"
         }
     ],
+    "getProductSkus": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/products/{{parameters.product_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.skus}}"
+            },
+            "transform": {
+                "output": "return (Array.isArray(output)?output:[]).map((x)=>{const id=x&&x.id?x.id:null;const fieldData=x&&x.fieldData?x.fieldData:(x&&x.field_data?x.field_data:{});const skuValues=fieldData&&fieldData['sku-values']&&typeof fieldData['sku-values']==='object'?Object.values(fieldData['sku-values']).filter((v)=>v!=null&&String(v).trim()!=='').join(' / '):null;const displayName=fieldData&&fieldData.name?fieldData.name:(x&&x.name?x.name:(x&&x.displayName?x.displayName:(skuValues||(fieldData&&fieldData.slug?fieldData.slug:id))));return id?{id,displayName}:null;}).filter(Boolean);"
+            }
+        }
+    },
     "getProductsForOptions": {
         "definition": {
             "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/products",
@@ -121,7 +159,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site whose products you want to list.",
                     "displayName": "Site",
@@ -175,7 +216,10 @@
                         "valueKey": "id"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
                     },
                     "description": "Select the site that contains the product.",
                     "displayName": "Site",
@@ -212,7 +256,10 @@
                         "condition": "{{parameters.site_id}}"
                     },
                     "validation": {
-                        "required": true
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product is required"
+                        }
                     },
                     "description": "Select the product you want to retrieve.",
                     "displayName": "Product",
@@ -233,6 +280,834 @@
                     }
                 },
                 "name": "product_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/products",
+            "body": {
+                "sku": {
+                    "fieldData": {
+                        "name": "{{parameters.sku_name}}",
+                        "slug": "{{parameters.sku_slug}}",
+                        "price": {
+                            "unit": "{{parameters.sku_price_unit}}",
+                            "value": "{{parameters.sku_price_value}}"
+                        }
+                    }
+                },
+                "product": {
+                    "fieldData": "{{parameters.product_field_data}}"
+                },
+                "publishStatus": "{{parameters.publish_status}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "products",
+                            "operation": "products.create",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site in which to create the product.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Product name is required"
+                                    }
+                                },
+                                "description": "Product display name.",
+                                "displayName": "Name",
+                                "displayType": "text",
+                                "placeholder": "New Product"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Product slug is required"
+                                    }
+                                },
+                                "description": "URL slug for the product.",
+                                "displayName": "Slug",
+                                "displayType": "text",
+                                "placeholder": "new-product"
+                            },
+                            "name": "slug"
+                        },
+                        {
+                            "meta": {
+                                "description": "Optional. Product description (HTML allowed).",
+                                "displayName": "Description",
+                                "displayType": "textarea",
+                                "placeholder": "Describe the product"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Optional. Whether this product requires shipping.",
+                                "displayName": "Shippable",
+                                "displayType": "toggle",
+                                "placeholder": "Requires shipping"
+                            },
+                            "name": "shippable"
+                        },
+                        {
+                            "meta": {
+                                "description": "Optional. Tax category reference ID.",
+                                "displayName": "Tax Category",
+                                "displayType": "text",
+                                "placeholder": "standard-taxable"
+                            },
+                            "name": "tax-category"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product Field Data is required"
+                        }
+                    },
+                    "description": "Structured product field data.",
+                    "displayName": "Product Field Data",
+                    "displayType": "object",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_field_data"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "SKU name is required"
+                        }
+                    },
+                    "description": "Display name for the default SKU.",
+                    "displayName": "SKU Name",
+                    "displayType": "text",
+                    "placeholder": "Default SKU",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "SKU slug is required"
+                        }
+                    },
+                    "description": "URL slug for the SKU.",
+                    "displayName": "SKU Slug",
+                    "displayType": "text",
+                    "placeholder": "default-sku",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_slug"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Price value is required"
+                        }
+                    },
+                    "description": "Price value in the smallest currency unit (for example, cents).",
+                    "displayName": "SKU Price Value",
+                    "displayType": "number",
+                    "placeholder": "1000",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_price_value"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Currency unit is required"
+                        }
+                    },
+                    "description": "ISO currency code.",
+                    "displayName": "SKU Price Currency",
+                    "displayType": "text",
+                    "placeholder": "USD",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_price_unit"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Staging",
+                            "value": "staging"
+                        },
+                        {
+                            "label": "Live",
+                            "value": "live"
+                        }
+                    ],
+                    "description": "Optional. Publish status for the new product.",
+                    "displayName": "Publish Status",
+                    "displayType": "select",
+                    "placeholder": "Select publish status",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "publish_status"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/products/{{parameters.product_id}}",
+            "body": {
+                "product": {
+                    "fieldData": "{{parameters.product_field_data}}"
+                },
+                "publishStatus": "{{parameters.publish_status}}"
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "products",
+                            "operation": "products.update",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the product.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "products",
+                            "operation": "products.update",
+                            "loadOptionsMethod": "getProductsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product is required"
+                        }
+                    },
+                    "description": "Select the product you want to update.",
+                    "displayName": "Product",
+                    "displayType": "select",
+                    "placeholder": "Select a product",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "description": "Optional. Updated product name.",
+                                "displayName": "Name",
+                                "displayType": "text",
+                                "placeholder": "Updated product name"
+                            },
+                            "name": "name"
+                        },
+                        {
+                            "meta": {
+                                "description": "Optional. Updated URL slug.",
+                                "displayName": "Slug",
+                                "displayType": "text",
+                                "placeholder": "updated-slug"
+                            },
+                            "name": "slug"
+                        },
+                        {
+                            "meta": {
+                                "description": "Optional. Updated description (HTML allowed).",
+                                "displayName": "Description",
+                                "displayType": "textarea",
+                                "placeholder": "Updated description"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "description": "Optional. Whether this product requires shipping.",
+                                "displayName": "Shippable",
+                                "displayType": "toggle",
+                                "placeholder": "Requires shipping"
+                            },
+                            "name": "shippable"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product Field Data is required"
+                        }
+                    },
+                    "description": "Structured product fields to update.",
+                    "displayName": "Product Field Data",
+                    "displayType": "object",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "product_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_field_data"
+            },
+            {
+                "meta": {
+                    "value": "",
+                    "options": [
+                        {
+                            "label": "Staging",
+                            "value": "staging"
+                        },
+                        {
+                            "label": "Live",
+                            "value": "live"
+                        }
+                    ],
+                    "description": "Optional. Publish status to apply to the update.",
+                    "displayName": "Publish Status",
+                    "displayType": "select",
+                    "placeholder": "Publish status",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "product_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "publish_status"
+            }
+        ]
+    },
+    "update_sku": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/products/{{parameters.product_id}}/skus/{{parameters.sku_id}}",
+            "body": {
+                "sku": {
+                    "fieldData": {
+                        "name": "{{parameters.sku_name}}",
+                        "slug": "{{parameters.sku_slug}}",
+                        "price": {
+                            "unit": "{{parameters.sku_price_unit}}",
+                            "value": "{{parameters.sku_price_value}}"
+                        }
+                    }
+                }
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "products",
+                            "operation": "products.update_sku",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the product.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update_sku",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "products",
+                            "operation": "products.update_sku",
+                            "loadOptionsMethod": "getProductsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product is required"
+                        }
+                    },
+                    "description": "Select the product that contains the SKU.",
+                    "displayName": "Product",
+                    "displayType": "select",
+                    "placeholder": "Select a product",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update_sku",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "products",
+                            "operation": "products.update_sku",
+                            "product_id": "{{parameters.product_id}}",
+                            "loadOptionsMethod": "getProductSkus"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.product_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "SKU is required"
+                        }
+                    },
+                    "description": "Select the SKU you want to update.",
+                    "displayName": "SKU",
+                    "displayType": "select",
+                    "placeholder": "Select a SKU",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update_sku",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "product_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated SKU display name.",
+                    "displayName": "SKU Name",
+                    "displayType": "text",
+                    "placeholder": "Updated SKU",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update_sku",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "product_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sku_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated URL slug.",
+                    "displayName": "SKU Slug",
+                    "displayType": "text",
+                    "placeholder": "updated-sku",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update_sku",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "product_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sku_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_slug"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated base price in the smallest currency unit.",
+                    "displayName": "SKU Price Value",
+                    "displayType": "number",
+                    "placeholder": "2000",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update_sku",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "product_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sku_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_price_value"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Currency code for the updated base price.",
+                    "displayName": "SKU Price Currency",
+                    "displayType": "text",
+                    "placeholder": "USD",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update_sku",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "product_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sku_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku_price_unit"
             }
         ]
     }

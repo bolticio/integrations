@@ -1,0 +1,142 @@
+{
+    "getUsers": {
+        "definition": {
+            "qs": {
+                "fields": "participants{id,username,name}"
+            },
+            "url": "https://graph.instagram.com/v21.0/me/conversations",
+            "method": "get",
+            "headers": {
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "var list = output; if (list && list.data) list = list.data; var counts = {}; var res = []; function unwrap(x) { while (x && x.d) { x = x.d; } return x; } function getId(x) { x = unwrap(x); return x ? (x.id || x.resourceName) : null; } function countUser(x) { var id = getId(x); if (!id) return; counts[id] = (counts[id] || 0) + 1; } function addUser(x) { x = unwrap(x); if (!x) return; var id = x.id || x.resourceName; if (!id || counts[id] > 1) return; var name = (x && x.names && x.names[0]) ? x.names[0].displayName : (x.name || null); var username = x.username || null; res.push({ id: id, label: name || username || id, username: username, name: name }); } for (var i = 0; i < (list || []).length; i++) { var item = unwrap(list[i]); var participants = item && item.participants ? unwrap(item.participants) : null; var people = participants && participants.data ? participants.data : participants; if (Array.isArray(people)) { for (var j = 0; j < people.length; j++) { countUser(people[j]); } } else { countUser(item); } } for (var k = 0; k < (list || []).length; k++) { var row = unwrap(list[k]); var rowParticipants = row && row.participants ? unwrap(row.participants) : null; var rowPeople = rowParticipants && rowParticipants.data ? rowParticipants.data : rowParticipants; if (Array.isArray(rowPeople)) { for (var l = 0; l < rowPeople.length; l++) { addUser(rowPeople[l]); } } else { addUser(row); } } return res;"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Send Text Message",
+                        "value": "message.send",
+                        "description": "Send a direct message to a user in an existing Instagram Messenger conversation."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the messaging action you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select a messaging operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "message",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "send": {
+        "definition": {
+            "url": "https://graph.instagram.com/v21.0/me/messages",
+            "body": {
+                "message": {
+                    "text": "{{parameters.text}}"
+                },
+                "recipient": {
+                    "id": "{{parameters.recipient_id}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error.code}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "instagram",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "message",
+                            "operation": "message.send",
+                            "loadOptionsMethod": "getUsers"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "label",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the Instagram Messenger user you want to message. Only users from existing conversations are available here. For dynamic input enter recipient id.",
+                    "displayName": "Recipient",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a recipient from conversations",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "message",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "message.send",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "recipient_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the message text you want to send to the selected recipient.",
+                    "displayName": "Message",
+                    "displayType": "textarea",
+                    "placeholder": "Type your message"
+                },
+                "name": "text"
+            }
+        ]
+    }
+}

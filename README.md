@@ -101,6 +101,7 @@ integration-name/
 - [hubspot](./hubspot/)
 - [hugging_face](./hugging_face/)
 - [instagram](./instagram/)
+- [instagram_messenger](./instagram_messenger/)
 - [interakt](./interakt/)
 - [Intercom](./Intercom/)
 - [jenkins](./jenkins/)

@@ -1,0 +1,527 @@
+{
+    "getItems": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.items}}"
+            },
+            "transform": {
+                "output": "return (Array.isArray(output)?output:[]).map((x)=>{const id=x&&x.id?x.id:null;const fieldData=x&&x.fieldData?x.fieldData:(x&&x.field_data?x.field_data:{});const displayName=fieldData&&fieldData.name?fieldData.name:(x&&x.name?x.name:(x&&x.displayName?x.displayName:(fieldData&&fieldData.slug?fieldData.slug:id)));return id?{id,displayName}:null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.pagination.limit}} + {{response.data.pagination.offset}}"
+                },
+                "type": "offset",
+                "default": {
+                    "limit": 100,
+                    "offset": 0
+                },
+                "condition": "{{response.data.pagination.offset}} < {{response.data.pagination.total}}"
+            }
+        }
+    },
+    "getSites": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.sites}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Get Item Inventory",
+                        "value": "inventory.get",
+                        "description": "Retrieve the current inventory levels for a SKU item."
+                    },
+                    {
+                        "label": "Update Item Inventory",
+                        "value": "inventory.update",
+                        "description": "Update the current inventory levels for a SKU item."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the inventory operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation"
+            },
+            "name": "operation"
+        }
+    ],
+    "getCollections": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/sites/{{parameters.site_id}}/collections",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.collections}}"
+            },
+            "transform": {
+                "output": "return (Array.isArray(output)?output:[]).filter((x)=>{const slug=x&&x.slug?String(x.slug).toLowerCase():'';const singularName=x&&x.singularName?String(x.singularName).toLowerCase():'';const displayName=x&&x.displayName?String(x.displayName).toLowerCase():'';return slug==='sku'||singularName==='sku'||displayName==='skus';});"
+            }
+        }
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/{{parameters.item_id}}/inventory",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "inventory",
+                            "operation": "inventory.get",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the SKU item.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "inventory",
+                            "operation": "inventory.get",
+                            "loadOptionsMethod": "getCollections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
+                    },
+                    "description": "Select the SKU collection that contains the item.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.get",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "inventory",
+                            "operation": "inventory.get",
+                            "collection_id": "{{parameters.collection_id}}",
+                            "loadOptionsMethod": "getItems"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.collection_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "SKU Item is required"
+                        }
+                    },
+                    "description": "Select the SKU item whose inventory you want to retrieve.",
+                    "displayName": "SKU Item",
+                    "displayType": "select",
+                    "placeholder": "Select an item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.get",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "item_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/{{parameters.item_id}}/inventory",
+            "body": {
+                "quantity": "{{parameters.quantity}}",
+                "inventoryType": "{{parameters.inventory_type}}",
+                "updateQuantity": "{{parameters.update_quantity}}"
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "inventory",
+                            "operation": "inventory.update",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the SKU item.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "inventory",
+                            "operation": "inventory.update",
+                            "loadOptionsMethod": "getCollections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
+                    },
+                    "description": "Select the SKU collection that contains the item.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "inventory",
+                            "operation": "inventory.update",
+                            "collection_id": "{{parameters.collection_id}}",
+                            "loadOptionsMethod": "getItems"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.collection_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "SKU Item is required"
+                        }
+                    },
+                    "description": "Select the SKU item whose inventory you want to update.",
+                    "displayName": "SKU Item",
+                    "displayType": "select",
+                    "placeholder": "Select an item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "item_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Infinite",
+                            "value": "infinite"
+                        },
+                        {
+                            "label": "Finite",
+                            "value": "finite"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Inventory Type is required"
+                        }
+                    },
+                    "description": "Inventory type for the SKU. Select Finite to track a specific quantity.",
+                    "displayName": "Inventory Type",
+                    "displayType": "select",
+                    "placeholder": "Select inventory type",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "item_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "inventory_type"
+            },
+            {
+                "meta": {
+                    "description": "Use this to add or subtract from the current quantity. Enter a positive number to increment or a negative number to decrement.",
+                    "displayName": "Adjust Quantity",
+                    "displayType": "number",
+                    "placeholder": "Enter a positive or negative number",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "item_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "inventory_type",
+                                "value": "finite",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "update_quantity"
+            },
+            {
+                "meta": {
+                    "description": "Use this to set the exact inventory quantity. Leave blank if you are using Adjust Quantity instead.",
+                    "displayName": "Set Quantity",
+                    "displayType": "number",
+                    "placeholder": "Enter quantity",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "inventory.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "item_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "inventory_type",
+                                "value": "finite",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "quantity"
+            }
+        ]
+    }
+}
