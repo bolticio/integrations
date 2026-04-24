@@ -1,0 +1,306 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Model Versions",
+                        "value": "model_versions.list",
+                        "description": "Retrieves a list of available model versions."
+                    },
+                    {
+                        "label": "Get a Model Version",
+                        "value": "model_versions.get",
+                        "description": "Retrieves a single model version."
+                    },
+                    {
+                        "label": "Delete a Model Version",
+                        "value": "model_versions.delete",
+                        "description": "Deletes a single owned model version."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the operation you want to perform on Model Versions.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "model_versions",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "get": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}/versions/{{parameters.version_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The username or organization that owns the model.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Version ID is required"
+                        }
+                    },
+                    "description": "The ID of the model version to retrieve.",
+                    "displayName": "Version ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the version ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "version_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}/versions/{{parameters.version_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return { message: 'Model version has been deleted successfully' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The username or organization that owns the model.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Version ID is required"
+                        }
+                    },
+                    "description": "The ID of the model version to delete.",
+                    "displayName": "Version ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the version ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "version_id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}/versions",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {},
+                "type": "url",
+                "default": {
+                    "next_url": null
+                },
+                "next_url": "{{response.data.next}}",
+                "condition": "{{response.data.next}} != null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The username or organization that owns the model.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "model_versions.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            }
+        ]
+    }
+}

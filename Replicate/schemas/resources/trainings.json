@@ -1,0 +1,372 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create a Training",
+                        "value": "trainings.create",
+                        "description": "Creates a new fine-tuning training using a model version."
+                    },
+                    {
+                        "label": "List Trainings",
+                        "value": "trainings.list",
+                        "description": "Retrieves a paginated list of trainings you have created."
+                    },
+                    {
+                        "label": "Get a Training",
+                        "value": "trainings.get",
+                        "description": "Retrieves a single training by ID."
+                    },
+                    {
+                        "label": "Cancel a Training",
+                        "value": "trainings.cancel",
+                        "description": "Cancels a training that is currently running."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the operation you want to perform on Trainings.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "trainings",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "list": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/trainings",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {},
+                "type": "url",
+                "default": {
+                    "next_url": null
+                },
+                "next_url": "{{response.data.next}}",
+                "condition": "{{response.data.next}} != null"
+            }
+        },
+        "parameters": []
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}/versions/{{parameters.version_id}}/trainings",
+            "body": {
+                "input": "{{parameters.input}}",
+                "webhook": "{{parameters.webhook}}",
+                "destination": "{{parameters.destination}}",
+                "webhook_events_filter": "{{parameters.webhook_events_filter}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (typeof body.input !== 'string') { return body; } const trimmedInput = body.input.trim(); if (trimmedInput.startsWith('{{') && trimmedInput.endsWith('}}')) { return body; } if (!trimmedInput) { throw new Error('Input must be a valid JSON object.'); } const parsedInput = JSON.parse(trimmedInput); if (!parsedInput || Array.isArray(parsedInput) || typeof parsedInput !== 'object') { throw new Error('Input must be a JSON object.'); } return { ...body, input: parsedInput };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The owner of the base model version to train.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the base model to train.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. sdxl",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Version ID is required"
+                        }
+                    },
+                    "description": "The ID of the base model version to train.",
+                    "displayName": "Version ID",
+                    "displayType": "text",
+                    "placeholder": "e.g. da77bc59ee60423279fd632efb4795ab731d9e3ca9705d977b4e6e46...",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "version_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Destination is required"
+                        }
+                    },
+                    "description": "The model to push the trained version to, in owner/model format. The model must already exist.",
+                    "displayName": "Destination",
+                    "displayType": "text",
+                    "placeholder": "owner/model-name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "destination"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Input is required"
+                        }
+                    },
+                    "description": "Training input parameters as a JSON object. Keys depend on the trainable model.",
+                    "displayName": "Input",
+                    "displayType": "code",
+                    "placeholder": "{ \"train_data\": \"https://example.com/training.zip\" }",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "input"
+            },
+            {
+                "meta": {
+                    "description": "Optional. An HTTPS URL to receive a POST when the training completes.",
+                    "displayName": "Webhook URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/webhook",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Start",
+                            "value": "start"
+                        },
+                        {
+                            "label": "Output",
+                            "value": "output"
+                        },
+                        {
+                            "label": "Logs",
+                            "value": "logs"
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "completed"
+                        }
+                    ],
+                    "description": "Optional. Filter which lifecycle events trigger the webhook.",
+                    "displayName": "Webhook Events Filter",
+                    "displayType": "multiselect",
+                    "placeholder": "Select events",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook_events_filter"
+            }
+        ]
+    },
+    "cancel": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/trainings/{{parameters.training_id}}/cancel",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Training ID is required"
+                        }
+                    },
+                    "description": "The ID of the training to cancel.",
+                    "displayName": "Training ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the training ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.cancel",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "training_id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/trainings/{{parameters.training_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Training ID is required"
+                        }
+                    },
+                    "description": "The ID of the training to retrieve.",
+                    "displayName": "Training ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the training ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "trainings.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "training_id"
+            }
+        ]
+    }
+}

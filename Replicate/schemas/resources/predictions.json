@@ -1,0 +1,300 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Predictions",
+                        "value": "predictions.list",
+                        "description": "Retrieves a list of created predictions."
+                    },
+                    {
+                        "label": "Get a Prediction",
+                        "value": "predictions.get",
+                        "description": "Retrieves a single prediction."
+                    },
+                    {
+                        "label": "Create a Prediction",
+                        "value": "predictions.create",
+                        "description": "Creates a completion for a selected model version."
+                    },
+                    {
+                        "label": "Cancel a Prediction",
+                        "value": "predictions.cancel",
+                        "description": "Cancels a single prediction."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the operation you want to perform on Predictions.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "predictions",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "cancel": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/predictions/{{parameters.prediction_id}}/cancel",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prediction ID is required"
+                        }
+                    },
+                    "description": "The ID of the prediction to cancel.",
+                    "displayName": "Prediction ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the prediction ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "predictions.cancel",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "prediction_id"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/predictions",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {},
+                "type": "url",
+                "default": {
+                    "next_url": null
+                },
+                "next_url": "{{response.data.next}}",
+                "condition": "{{response.data.next}} != null"
+            }
+        },
+        "parameters": []
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/predictions",
+            "body": {
+                "input": "{{parameters.input}}",
+                "version": "{{parameters.version}}",
+                "webhook": "{{parameters.webhook}}",
+                "webhook_events_filter": "{{parameters.webhook_events_filter}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (typeof body.input !== 'string') { return body; } const trimmedInput = body.input.trim(); if (trimmedInput.startsWith('{{') && trimmedInput.endsWith('}}')) { return body; } if (!trimmedInput) { throw new Error('Input must be a valid JSON object.'); } const parsedInput = JSON.parse(trimmedInput); if (!parsedInput || Array.isArray(parsedInput) || typeof parsedInput !== 'object') { throw new Error('Input must be a JSON object.'); } return { ...body, input: parsedInput };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model version is required"
+                        }
+                    },
+                    "description": "The ID of the model version to run.",
+                    "displayName": "Model Version",
+                    "displayType": "text",
+                    "placeholder": "e.g. 5c7d5dc6dd8bf75c1acaa8565735e7986bc5b66206b55cca93cb72c9bf15ccaa",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "predictions.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "version"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Input is required"
+                        }
+                    },
+                    "description": "The model's input as a JSON object. Keys and values depend on the model.",
+                    "displayName": "Input",
+                    "displayType": "code",
+                    "placeholder": "{ \"prompt\": \"A beautiful landscape\" }",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "predictions.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "input"
+            },
+            {
+                "meta": {
+                    "description": "Optional. An HTTPS URL to receive a POST request when the prediction completes.",
+                    "displayName": "Webhook URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/webhook",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "predictions.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Start",
+                            "value": "start"
+                        },
+                        {
+                            "label": "Output",
+                            "value": "output"
+                        },
+                        {
+                            "label": "Logs",
+                            "value": "logs"
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "completed"
+                        }
+                    ],
+                    "description": "Optional. Filter which events trigger the webhook. Defaults to all events.",
+                    "displayName": "Webhook Events Filter",
+                    "displayType": "multiselect",
+                    "placeholder": "Select events",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "predictions.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook_events_filter"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/predictions/{{parameters.prediction_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Prediction ID is required"
+                        }
+                    },
+                    "description": "The ID of the prediction to retrieve.",
+                    "displayName": "Prediction ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the prediction ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "predictions.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "prediction_id"
+            }
+        ]
+    }
+}

@@ -1,0 +1,169 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Make API Call",
+                        "value": "custom.custom_api",
+                        "description": "Performs an arbitrary authorized API call to Replicate."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the custom API operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "custom",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL(){var u=(typeof parameters!=='undefined'&&parameters&&parameters.base_url!=null)?parameters.base_url:'{{parameters.base_url}}';u=String(u).trim().replace(/\\s+/g,'').replace(/^\\\"|\\\"$/g,'');if(!u)throw new Error('Invalid base_url');return u;}return transformURL();",
+                "error": "if (error.code == 'undefined') { return { message: 'Invalid URL: the provided value is not a valid HTTP/HTTPS URL', code: 400 }; } return error;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Method is required"
+                        }
+                    },
+                    "description": "The HTTP method to use for the request.",
+                    "displayName": "Method",
+                    "displayType": "select",
+                    "placeholder": "Select HTTP method"
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Base URL is required"
+                        }
+                    },
+                    "description": "The full URL of the Replicate API endpoint.",
+                    "displayName": "Base URL",
+                    "displayType": "url",
+                    "placeholder": "e.g. https://api.replicate.com/v1/predictions"
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "Optional query string parameters to append to the URL.",
+                    "displayName": "Query String",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add query string key-value pairs"
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The JSON payload body of the HTTP request.",
+                    "displayName": "Body",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON body (optional)"
+                },
+                "name": "body"
+            }
+        ]
+    }
+}

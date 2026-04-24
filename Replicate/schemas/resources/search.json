@@ -1,0 +1,100 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Search Models, Collections, and Docs",
+                        "value": "search.search",
+                        "description": "Search public models, collections, and docs using a text query (beta)."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the operation you want to perform on Search.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "search",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "search": {
+        "definition": {
+            "qs": {
+                "limit": "{{parameters.limit}}",
+                "query": "{{parameters.query}}"
+            },
+            "url": "https://api.replicate.com/v1/search",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Search query is required"
+                        }
+                    },
+                    "description": "The text query to search for models, collections, and docs.",
+                    "displayName": "Search Query",
+                    "displayType": "text",
+                    "placeholder": "e.g. image upscaling",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "search.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "query"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Maximum number of results to return (1–50, defaults to 20).",
+                    "displayName": "Limit",
+                    "displayType": "number",
+                    "placeholder": "20",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "search.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "limit"
+            }
+        ]
+    }
+}

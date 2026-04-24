@@ -1,0 +1,996 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Get a Model",
+                        "value": "models.get",
+                        "description": "Retrieves a single model by owner and name."
+                    },
+                    {
+                        "label": "Create a Model",
+                        "value": "models.create",
+                        "description": "Creates a new model under your account."
+                    },
+                    {
+                        "label": "Update Model Metadata",
+                        "value": "models.update",
+                        "description": "Updates metadata fields on an existing model."
+                    },
+                    {
+                        "label": "Delete a Model",
+                        "value": "models.delete",
+                        "description": "Deletes a private model that has no versions."
+                    },
+                    {
+                        "label": "Create Prediction Using Model",
+                        "value": "models.create_prediction",
+                        "description": "Runs an official model directly without specifying a version."
+                    },
+                    {
+                        "label": "Get Model README",
+                        "value": "models.get_readme",
+                        "description": "Retrieves the README for a model in Markdown format."
+                    },
+                    {
+                        "label": "List Model Examples",
+                        "value": "models.list_examples",
+                        "description": "Retrieves a list of example predictions for a model."
+                    },
+                    {
+                        "label": "Search Public Models",
+                        "value": "models.search",
+                        "description": "Search public models using a plain-text query (QUERY method)."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the operation you want to perform on Models.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "models",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "create_prediction": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}/predictions",
+            "body": {
+                "input": "{{parameters.input}}",
+                "webhook": "{{parameters.webhook}}",
+                "webhook_events_filter": "{{parameters.webhook_events_filter}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (typeof body.input !== 'string') { return body; } const trimmedInput = body.input.trim(); if (trimmedInput.startsWith('{{') && trimmedInput.endsWith('}}')) { return body; } if (!trimmedInput) { throw new Error('Input must be a valid JSON object.'); } const parsedInput = JSON.parse(trimmedInput); if (!parsedInput || Array.isArray(parsedInput) || typeof parsedInput !== 'object') { throw new Error('Input must be a JSON object.'); } return { ...body, input: parsedInput };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The owner of the official model to run.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the official model to run.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Input is required"
+                        }
+                    },
+                    "description": "The model's input as a JSON object. Keys depend on the specific model.",
+                    "displayName": "Input",
+                    "displayType": "code",
+                    "placeholder": "{ \"prompt\": \"A beautiful landscape\" }",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "input"
+            },
+            {
+                "meta": {
+                    "description": "Optional. An HTTPS URL to receive a POST when the prediction completes.",
+                    "displayName": "Webhook URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/webhook",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Start",
+                            "value": "start"
+                        },
+                        {
+                            "label": "Output",
+                            "value": "output"
+                        },
+                        {
+                            "label": "Logs",
+                            "value": "logs"
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "completed"
+                        }
+                    ],
+                    "description": "Optional. Filter which lifecycle events trigger the webhook.",
+                    "displayName": "Webhook Events Filter",
+                    "displayType": "multiselect",
+                    "placeholder": "Select events",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook_events_filter"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}",
+            "body": {
+                "readme": "{{parameters.readme}}",
+                "paper_url": "{{parameters.paper_url}}",
+                "github_url": "{{parameters.github_url}}",
+                "description": "{{parameters.description}}",
+                "license_url": "{{parameters.license_url}}",
+                "weights_url": "{{parameters.weights_url}}",
+                "cover_image_url": "{{parameters.cover_image_url}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The username or organization that owns the model.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model to update.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A short description of what the model does.",
+                    "displayName": "Description",
+                    "displayType": "text",
+                    "placeholder": "Updated model description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "markdown",
+                        "fullscreen": true
+                    },
+                    "description": "Optional. Markdown readme content for the model.",
+                    "displayName": "README",
+                    "displayType": "code",
+                    "placeholder": "# My Model\n\nMarkdown content here...",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "readme"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A link to the model's source code on GitHub.",
+                    "displayName": "GitHub URL",
+                    "displayType": "url",
+                    "placeholder": "https://github.com/owner/repo",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "github_url"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A link to the research paper associated with the model.",
+                    "displayName": "Paper URL",
+                    "displayType": "url",
+                    "placeholder": "https://arxiv.org/abs/...",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "paper_url"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A URL to the model weights file.",
+                    "displayName": "Weights URL",
+                    "displayType": "url",
+                    "placeholder": "https://huggingface.co/...",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "weights_url"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A link to the model's license.",
+                    "displayName": "License URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/license",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "license_url"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A URL to an image used as the model's cover.",
+                    "displayName": "Cover Image URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/image.png",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "cover_image_url"
+            }
+        ]
+    },
+    "get_readme": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}/readme",
+            "method": "get",
+            "headers": {
+                "Accept": "text/plain",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The username or organization that owns the model.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.get_readme",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.get_readme",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The owner of the model to delete. Must be a private model you own with no versions.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-username",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model to delete.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-model",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            }
+        ]
+    },
+    "list_examples": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}/examples",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {},
+                "type": "url",
+                "default": {
+                    "next_url": null
+                },
+                "next_url": "{{response.data.next}}",
+                "condition": "{{response.data.next}} != null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The username or organization that owns the model.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.list_examples",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.list_examples",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models/{{parameters.model_owner}}/{{parameters.model_name}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model owner is required"
+                        }
+                    },
+                    "description": "The username or organization that owns the model.",
+                    "displayName": "Model Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. stability-ai",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. stable-diffusion",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model_name"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models",
+            "body": {
+                "name": "{{parameters.name}}",
+                "owner": "{{parameters.owner}}",
+                "hardware": "{{parameters.hardware}}",
+                "paper_url": "{{parameters.paper_url}}",
+                "github_url": "{{parameters.github_url}}",
+                "visibility": "{{parameters.visibility}}",
+                "description": "{{parameters.description}}",
+                "license_url": "{{parameters.license_url}}",
+                "cover_image_url": "{{parameters.cover_image_url}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Owner is required"
+                        }
+                    },
+                    "description": "The username or organization that will own the model.",
+                    "displayName": "Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-username",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model name is required"
+                        }
+                    },
+                    "description": "The name of the model. Must be lowercase letters, numbers, and hyphens.",
+                    "displayName": "Model Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-model",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Hardware is required"
+                        }
+                    },
+                    "description": "The SKU for the hardware used to run the model. Use the List Hardware endpoint to get available SKUs.",
+                    "displayName": "Hardware",
+                    "displayType": "text",
+                    "placeholder": "e.g. gpu-a40-small",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "hardware"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Public",
+                            "value": "public"
+                        },
+                        {
+                            "label": "Private",
+                            "value": "private"
+                        }
+                    ],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Visibility is required"
+                        }
+                    },
+                    "description": "Whether the model is publicly visible or private.",
+                    "displayName": "Visibility",
+                    "displayType": "select",
+                    "placeholder": "Select visibility",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "visibility"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A short description of what the model does.",
+                    "displayName": "Description",
+                    "displayType": "text",
+                    "placeholder": "Brief description of the model",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A link to the model's source code on GitHub.",
+                    "displayName": "GitHub URL",
+                    "displayType": "url",
+                    "placeholder": "https://github.com/owner/repo",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "github_url"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A link to the research paper associated with the model.",
+                    "displayName": "Paper URL",
+                    "displayType": "url",
+                    "placeholder": "https://arxiv.org/abs/...",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "paper_url"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A link to the model's license.",
+                    "displayName": "License URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/license",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "license_url"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A URL to an image used as the model's cover.",
+                    "displayName": "Cover Image URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/image.png",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "cover_image_url"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/models",
+            "body": "{{parameters.query}}",
+            "method": "query",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "text/plain",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {},
+                "type": "url",
+                "default": {
+                    "next_url": null
+                },
+                "next_url": "{{response.data.next}}",
+                "condition": "{{response.data.next}} != null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Search query is required"
+                        }
+                    },
+                    "description": "Plain-text search query to find matching public models.",
+                    "displayName": "Search Query",
+                    "displayType": "text",
+                    "placeholder": "e.g. image generation",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "models.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "query"
+            }
+        ]
+    }
+}

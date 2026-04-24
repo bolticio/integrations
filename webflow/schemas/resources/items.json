@@ -58,9 +58,19 @@
                         "description": "List items for a selected collection."
                     },
                     {
+                        "label": "List Live Items",
+                        "value": "items.listLive",
+                        "description": "List the currently published (live) items for a selected collection."
+                    },
+                    {
                         "label": "Get Item",
                         "value": "items.get",
                         "description": "Retrieve a selected collection item."
+                    },
+                    {
+                        "label": "Get Live Item",
+                        "value": "items.getLive",
+                        "description": "Retrieve the currently published (live) version of a collection item."
                     },
                     {
                         "label": "Create Item",
@@ -68,9 +78,19 @@
                         "description": "Create a new item in a collection."
                     },
                     {
+                        "label": "Create Live Item",
+                        "value": "items.createLive",
+                        "description": "Create and publish a new item in a collection in one step."
+                    },
+                    {
                         "label": "Update Item",
                         "value": "items.update",
                         "description": "Update an existing collection item."
+                    },
+                    {
+                        "label": "Update Live Item",
+                        "value": "items.updateLive",
+                        "description": "Update and publish a collection item in one step."
                     },
                     {
                         "label": "Publish Item",
@@ -81,6 +101,11 @@
                         "label": "Delete Item",
                         "value": "items.delete",
                         "description": "Delete an existing collection item."
+                    },
+                    {
+                        "label": "Delete Live Item",
+                        "value": "items.deleteLive",
+                        "description": "Unpublish and delete the live version of a collection item."
                     }
                 ],
                 "validation": {
@@ -119,10 +144,10 @@
     },
     "update": {
         "definition": {
-            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/{{parameters.item_id}}",
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items",
             "body": {
+                "items": "{{parameters.items}}",
                 "isDraft": "{{parameters.is_draft}}",
-                "fieldData": "{{parameters.field_data}}",
                 "isArchived": "{{parameters.is_archived}}"
             },
             "method": "patch",
@@ -144,6 +169,9 @@
                     "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody() { const source = (typeof body !== 'undefined' && body) ? body : {}; function parseMaybeJson(value) { if (typeof value !== 'string') { return value; } const trimmed = value.trim(); if (!trimmed) { return value; } if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) { try { return JSON.parse(trimmed); } catch (e) {} } return value; } function normalizeObject(value) { const parsedValue = parseMaybeJson(value); return parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue) ? parsedValue : {}; } function normalizeKeyValue(value) { const parsedValue = parseMaybeJson(value); if (!parsedValue) { return {}; } if (Array.isArray(parsedValue)) { return parsedValue.reduce(function(acc, item) { if (item && item.key !== undefined && item.key !== null && item.key !== '') { acc[item.key] = item.value; } return acc; }, {}); } if (typeof parsedValue === 'object') { return parsedValue; } return {}; } function normalizeBoolean(value) { if (value === 'true') { return true; } if (value === 'false') { return false; } return value; } const isDraft = normalizeBoolean(source.isDraft); const isArchived = normalizeBoolean(source.isArchived); const hasDraft = isDraft !== undefined && isDraft !== '' && isDraft !== null; const hasArchived = isArchived !== undefined && isArchived !== '' && isArchived !== null; function mapItemEntry(entry) { const obj = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {}; const fieldData = Object.assign({}, normalizeKeyValue(obj.extra_field_data), normalizeObject(obj.field_data)); const result = {}; if (obj.item_id !== undefined && obj.item_id !== null && obj.item_id !== '') { result.id = obj.item_id; } if (obj.cms_locale_id !== undefined && obj.cms_locale_id !== null && obj.cms_locale_id !== '') { result.cmsLocaleId = obj.cms_locale_id; } if (hasDraft) { result.isDraft = isDraft; } if (hasArchived) { result.isArchived = isArchived; } result.fieldData = fieldData; return result; } const parsedItems = parseMaybeJson(source.items); const itemEntries = Array.isArray(parsedItems) ? parsedItems : (parsedItems && typeof parsedItems === 'object' ? [parsedItems] : []); const mappedItems = itemEntries.map(mapItemEntry).filter(function(e) { return e && e.id; }); return { items: mappedItems }; } return transformBody();"
             }
         },
         "parameters": [
@@ -231,83 +259,148 @@
             },
             {
                 "meta": {
-                    "config": {
-                        "url": "integrations/options",
-                        "body": {
-                            "name": "webflow",
-                            "secret": "{{parameters.secret}}",
-                            "resource": "items",
-                            "operation": "items.update",
-                            "collection_id": "{{parameters.collection_id}}",
-                            "loadOptionsMethod": "getItems"
-                        },
-                        "method": "post",
-                        "urlType": "options",
-                        "labelKey": "displayName",
-                        "valueKey": "id",
-                        "condition": "{{parameters.collection_id}}"
-                    },
-                    "validation": {
-                        "required": true,
-                        "requiredDetail": {
-                            "errorMsg": "Item is required"
-                        }
-                    },
-                    "description": "Select the item you want to update.",
-                    "displayName": "Item",
-                    "displayType": "select",
-                    "placeholder": "Select an item",
-                    "dependencies": {
-                        "conditions": [
-                            {
-                                "field": "operation",
-                                "value": "items.update",
-                                "operator": "EQUALS"
-                            },
-                            {
-                                "field": "site_id",
-                                "operator": "NOT_EMPTY"
-                            },
-                            {
-                                "field": "collection_id",
-                                "operator": "NOT_EMPTY"
-                            }
-                        ]
-                    }
-                },
-                "name": "item_id"
-            },
-            {
-                "meta": {
                     "children": [
                         {
                             "meta": {
-                                "description": "Optional. Update the item name.",
-                                "displayName": "Name",
-                                "displayType": "text",
-                                "placeholder": "Updated name"
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "webflow",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "items",
+                                        "operation": "items.update",
+                                        "collection_id": "{{parameters.collection_id}}",
+                                        "loadOptionsMethod": "getItems"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "displayName",
+                                    "valueKey": "id",
+                                    "condition": "{{parameters.collection_id}}"
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Item is required"
+                                    }
+                                },
+                                "description": "Select the item you want to update.",
+                                "displayName": "Item",
+                                "displayType": "select",
+                                "placeholder": "Select an item",
+                                "dependencies": {
+                                    "conditions": [
+                                        {
+                                            "field": "operation",
+                                            "value": "items.update",
+                                            "operator": "EQUALS"
+                                        },
+                                        {
+                                            "field": "site_id",
+                                            "operator": "NOT_EMPTY"
+                                        },
+                                        {
+                                            "field": "collection_id",
+                                            "operator": "NOT_EMPTY"
+                                        }
+                                    ]
+                                }
                             },
-                            "name": "name"
+                            "name": "item_id"
                         },
                         {
                             "meta": {
-                                "description": "Optional. Update the URL slug.",
-                                "displayName": "Slug",
-                                "displayType": "text",
-                                "placeholder": "updated-slug"
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "description": "Optional. Update the item name.",
+                                            "displayName": "Name",
+                                            "displayType": "text",
+                                            "placeholder": "Updated name"
+                                        },
+                                        "name": "name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Optional. Update the URL slug.",
+                                            "displayName": "Slug",
+                                            "displayType": "text",
+                                            "placeholder": "updated-slug"
+                                        },
+                                        "name": "slug"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field Data is required"
+                                    }
+                                },
+                                "description": "Structured fields to update on the item.",
+                                "displayName": "Field Data",
+                                "displayType": "object"
                             },
-                            "name": "slug"
+                            "name": "field_data"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field key is required"
+                                                }
+                                            },
+                                            "description": "Collection field API key, for example color or blog.",
+                                            "displayName": "Key",
+                                            "displayType": "text",
+                                            "placeholder": "color"
+                                        },
+                                        "name": "key"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field value is required"
+                                                }
+                                            },
+                                            "description": "Value for that collection field.",
+                                            "displayName": "Value",
+                                            "displayType": "text",
+                                            "placeholder": "red"
+                                        },
+                                        "name": "value"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowAdd": true,
+                                    "allowDynamic": true
+                                },
+                                "description": "Optional additional fieldData entries to send with the item, matching your Webflow collection field API keys.",
+                                "displayName": "Extra Field Data",
+                                "displayType": "keyvalue",
+                                "placeholder": "Add extra fieldData key-value pairs"
+                            },
+                            "name": "extra_field_data"
                         }
                     ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Field Data is required"
+                            "errorMsg": "At least one item is required"
                         }
                     },
-                    "description": "Structured fields to update on the item.",
-                    "displayName": "Field Data",
-                    "displayType": "object",
+                    "description": "One or more items to update. Each entry takes its own Field Data (name, slug) and optional Extra Field Data (additional collection fields).",
+                    "displayName": "Items",
+                    "displayType": "array",
                     "dependencies": {
                         "conditions": [
                             {
@@ -326,10 +419,11 @@
                         ]
                     }
                 },
-                "name": "field_data"
+                "name": "items"
             },
             {
                 "meta": {
+                    "value": false,
                     "htmlProps": {
                         "allowDynamic": true
                     },
@@ -359,6 +453,7 @@
             },
             {
                 "meta": {
+                    "value": false,
                     "htmlProps": {
                         "allowDynamic": true
                     },
@@ -390,6 +485,10 @@
     },
     "list": {
         "definition": {
+            "qs": {
+                "name": "{{parameters.name}}",
+                "slug": "{{parameters.slug}}"
+            },
             "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items",
             "method": "get",
             "headers": {
@@ -498,6 +597,58 @@
                     }
                 },
                 "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Filter items whose name matches the given value.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. My Item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.list",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Filter items whose slug matches the given value.",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.list",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
             }
         ]
     },
@@ -957,11 +1108,12 @@
     },
     "create": {
         "definition": {
-            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items",
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/bulk",
             "body": {
+                "items": "{{parameters.items}}",
                 "isDraft": "{{parameters.is_draft}}",
-                "fieldData": "{{parameters.field_data}}",
-                "isArchived": "{{parameters.is_archived}}"
+                "isArchived": "{{parameters.is_archived}}",
+                "cmsLocaleIds": "{{parameters.cms_locale_ids}}"
             },
             "method": "post",
             "filters": {
@@ -982,6 +1134,9 @@
                     "message": "{{response.data.message}}"
                 },
                 "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody() { const source = (typeof body !== 'undefined' && body) ? body : {}; function parseMaybeJson(value) { if (typeof value !== 'string') { return value; } const trimmed = value.trim(); if (!trimmed) { return value; } if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) { try { return JSON.parse(trimmed); } catch (e) {} } return value; } function normalizeObject(value) { const parsedValue = parseMaybeJson(value); return parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue) ? parsedValue : {}; } function normalizeKeyValue(value) { const parsedValue = parseMaybeJson(value); if (!parsedValue) { return {}; } if (Array.isArray(parsedValue)) { return parsedValue.reduce(function(acc, item) { if (item && item.key !== undefined && item.key !== null && item.key !== '') { acc[item.key] = item.value; } return acc; }, {}); } if (typeof parsedValue === 'object') { return parsedValue; } return {}; } function normalizeStringArray(value) { const parsedValue = parseMaybeJson(value); if (!parsedValue) { return []; } if (Array.isArray(parsedValue)) { return parsedValue.map(function(v) { return typeof v === 'string' ? v.trim() : v; }).filter(function(v) { return v !== undefined && v !== null && v !== ''; }); } if (typeof parsedValue === 'string') { return parsedValue.split(',').map(function(v) { return v.trim(); }).filter(function(v) { return v !== ''; }); } return []; } function normalizeBoolean(value) { if (value === 'true') { return true; } if (value === 'false') { return false; } return value; } function mergeItemEntry(entry) { const obj = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {}; return Object.assign({}, normalizeKeyValue(obj.extra_field_data), normalizeObject(obj.field_data)); } const parsedItems = parseMaybeJson(source.items); let fieldData; if (Array.isArray(parsedItems)) { const merged = parsedItems.map(mergeItemEntry); if (parsedItems.length === 1) { fieldData = merged[0] || {}; } else if (parsedItems.length > 1) { fieldData = merged; } else { fieldData = {}; } } else if (parsedItems && typeof parsedItems === 'object') { fieldData = mergeItemEntry(parsedItems); } else { fieldData = {}; } const nextBody = { fieldData: fieldData }; const isDraft = normalizeBoolean(source.isDraft); const isArchived = normalizeBoolean(source.isArchived); if (isDraft !== undefined && isDraft !== '' && isDraft !== null) { nextBody.isDraft = isDraft; } if (isArchived !== undefined && isArchived !== '' && isArchived !== null) { nextBody.isArchived = isArchived; } const cmsLocaleIds = normalizeStringArray(source.cmsLocaleIds); if (cmsLocaleIds.length > 0) { nextBody.cmsLocaleIds = cmsLocaleIds; } return nextBody; } return transformBody();"
             }
         },
         "parameters": [
@@ -1072,44 +1227,109 @@
                     "children": [
                         {
                             "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Name is required"
+                                                }
+                                            },
+                                            "description": "Item name. Required for most collections.",
+                                            "displayName": "Name",
+                                            "displayType": "text",
+                                            "placeholder": "New Item"
+                                        },
+                                        "name": "name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Slug is required"
+                                                }
+                                            },
+                                            "description": "URL slug. Required for most collections.",
+                                            "displayName": "Slug",
+                                            "displayType": "text",
+                                            "placeholder": "new-item"
+                                        },
+                                        "name": "slug"
+                                    }
+                                ],
                                 "validation": {
                                     "required": true,
                                     "requiredDetail": {
-                                        "errorMsg": "Name is required"
+                                        "errorMsg": "Field Data is required"
                                     }
                                 },
-                                "description": "Item name. Required for most collections.",
-                                "displayName": "Name",
-                                "displayType": "text",
-                                "placeholder": "New Item"
+                                "description": "Structured item field data with the core CMS fields.",
+                                "displayName": "Field Data",
+                                "displayType": "object"
                             },
-                            "name": "name"
+                            "name": "field_data"
                         },
                         {
                             "meta": {
-                                "validation": {
-                                    "required": true,
-                                    "requiredDetail": {
-                                        "errorMsg": "Slug is required"
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field key is required"
+                                                }
+                                            },
+                                            "description": "Collection field API key, for example color or post-body.",
+                                            "displayName": "Key",
+                                            "displayType": "text",
+                                            "placeholder": "color"
+                                        },
+                                        "name": "key"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field value is required"
+                                                }
+                                            },
+                                            "description": "Value for that collection field.",
+                                            "displayName": "Value",
+                                            "displayType": "text",
+                                            "placeholder": "red"
+                                        },
+                                        "name": "value"
                                     }
+                                ],
+                                "htmlProps": {
+                                    "allowAdd": true,
+                                    "allowDynamic": true
                                 },
-                                "description": "URL slug. Required for most collections.",
-                                "displayName": "Slug",
-                                "displayType": "text",
-                                "placeholder": "new-item"
+                                "description": "Optional additional fieldData entries to send with the item, matching your Webflow collection field API keys.",
+                                "displayName": "Extra Field Data",
+                                "displayType": "keyvalue",
+                                "placeholder": "Add extra fieldData key-value pairs"
                             },
-                            "name": "slug"
+                            "name": "extra_field_data"
                         }
                     ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
-                            "errorMsg": "Field Data is required"
+                            "errorMsg": "At least one item is required"
                         }
                     },
-                    "description": "Structured item field data with the core CMS fields.",
-                    "displayName": "Field Data",
-                    "displayType": "object",
+                    "description": "One or more items to create. Each entry takes its own Field Data (name, slug) and optional Extra Field Data (additional collection fields).",
+                    "displayName": "Items",
+                    "displayType": "array",
                     "dependencies": {
                         "conditions": [
                             {
@@ -1128,10 +1348,11 @@
                         ]
                     }
                 },
-                "name": "field_data"
+                "name": "items"
             },
             {
                 "meta": {
+                    "value": false,
                     "htmlProps": {
                         "allowDynamic": true
                     },
@@ -1161,6 +1382,7 @@
             },
             {
                 "meta": {
+                    "value": false,
                     "htmlProps": {
                         "allowDynamic": true
                     },
@@ -1173,6 +1395,1079 @@
                             {
                                 "field": "operation",
                                 "value": "items.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "is_archived"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Comma-separated CMS locale IDs, or a JSON array. If set, the items are created in each of these locales. Leave blank for the primary locale only.",
+                    "displayName": "CMS Locale IDs",
+                    "displayType": "text",
+                    "placeholder": "locale-id-1, locale-id-2",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "cms_locale_ids"
+            }
+        ]
+    },
+    "createlive": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/live",
+            "body": {
+                "items": "{{parameters.items}}",
+                "isDraft": "{{parameters.is_draft}}",
+                "isArchived": "{{parameters.is_archived}}",
+                "cmsLocaleId": "{{parameters.cms_locale_id}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody() { const source = (typeof body !== 'undefined' && body) ? body : {}; function parseMaybeJson(value) { if (typeof value !== 'string') { return value; } const trimmed = value.trim(); if (!trimmed) { return value; } if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) { try { return JSON.parse(trimmed); } catch (e) {} } return value; } function normalizeObject(value) { const parsedValue = parseMaybeJson(value); return parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue) ? parsedValue : {}; } function normalizeKeyValue(value) { const parsedValue = parseMaybeJson(value); if (!parsedValue) { return {}; } if (Array.isArray(parsedValue)) { return parsedValue.reduce(function(acc, item) { if (item && item.key !== undefined && item.key !== null && item.key !== '') { acc[item.key] = item.value; } return acc; }, {}); } if (typeof parsedValue === 'object') { return parsedValue; } return {}; } function normalizeBoolean(value) { if (value === 'true') { return true; } if (value === 'false') { return false; } return value; } function mergeItemEntry(entry) { const obj = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {}; return Object.assign({}, normalizeKeyValue(obj.extra_field_data), normalizeObject(obj.field_data)); } const parsedItems = parseMaybeJson(source.items); const itemEntries = Array.isArray(parsedItems) ? parsedItems : (parsedItems && typeof parsedItems === 'object' ? [parsedItems] : []); const merged = itemEntries.map(mergeItemEntry).filter(function(e) { return e && Object.keys(e).length > 0; }); const isDraft = normalizeBoolean(source.isDraft); const isArchived = normalizeBoolean(source.isArchived); const cmsLocaleId = source.cmsLocaleId; const hasLocale = cmsLocaleId !== undefined && cmsLocaleId !== '' && cmsLocaleId !== null; let nextBody; if (merged.length > 1) { const bulkItems = merged.map(function(fd) { const entry = { fieldData: fd }; if (hasLocale) { entry.cmsLocaleId = cmsLocaleId; } return entry; }); nextBody = { items: bulkItems }; } else { nextBody = { fieldData: merged[0] || {} }; if (hasLocale) { nextBody.cmsLocaleId = cmsLocaleId; } } if (isDraft !== undefined && isDraft !== '' && isDraft !== null) { nextBody.isDraft = isDraft; } if (isArchived !== undefined && isArchived !== '' && isArchived !== null) { nextBody.isArchived = isArchived; } return nextBody; } return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "items",
+                            "operation": "items.createLive",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the collection.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.createLive",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "items",
+                            "operation": "items.createLive",
+                            "loadOptionsMethod": "getCollections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
+                    },
+                    "description": "Select the collection in which to create and publish the item.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.createLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Name is required"
+                                                }
+                                            },
+                                            "description": "Item name. Required for most collections.",
+                                            "displayName": "Name",
+                                            "displayType": "text",
+                                            "placeholder": "New Item"
+                                        },
+                                        "name": "name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Slug is required"
+                                                }
+                                            },
+                                            "description": "URL slug. Required for most collections.",
+                                            "displayName": "Slug",
+                                            "displayType": "text",
+                                            "placeholder": "new-item"
+                                        },
+                                        "name": "slug"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field Data is required"
+                                    }
+                                },
+                                "description": "Structured item field data with the core CMS fields.",
+                                "displayName": "Field Data",
+                                "displayType": "object"
+                            },
+                            "name": "field_data"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field key is required"
+                                                }
+                                            },
+                                            "description": "Collection field API key, for example color or post-body.",
+                                            "displayName": "Key",
+                                            "displayType": "text",
+                                            "placeholder": "color"
+                                        },
+                                        "name": "key"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field value is required"
+                                                }
+                                            },
+                                            "description": "Value for that collection field.",
+                                            "displayName": "Value",
+                                            "displayType": "text",
+                                            "placeholder": "red"
+                                        },
+                                        "name": "value"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowAdd": true,
+                                    "allowDynamic": true
+                                },
+                                "description": "Optional additional fieldData entries to send with the item, matching your Webflow collection field API keys.",
+                                "displayName": "Extra Field Data",
+                                "displayType": "keyvalue",
+                                "placeholder": "Add extra fieldData key-value pairs"
+                            },
+                            "name": "extra_field_data"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one item is required"
+                        }
+                    },
+                    "description": "One or more items to create and publish. Each entry takes its own Field Data (name, slug) and optional Extra Field Data (additional collection fields).",
+                    "displayName": "Items",
+                    "displayType": "array",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.createLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "items"
+            },
+            {
+                "meta": {
+                    "description": "Optional. The identifier of the CMS locale for this item. Leave blank for the primary locale.",
+                    "displayName": "CMS Locale ID",
+                    "displayType": "text",
+                    "placeholder": "e.g. 653ad57de882f528b32e810e",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.createLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "cms_locale_id"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Create the item as a draft (unpublished).",
+                    "displayName": "Is Draft",
+                    "displayType": "toggle",
+                    "placeholder": "Enable draft state",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.createLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "is_draft"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Create the item as archived.",
+                    "displayName": "Is Archived",
+                    "displayType": "toggle",
+                    "placeholder": "Enable archived state",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.createLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "is_archived"
+            }
+        ]
+    },
+    "getlive": {
+        "definition": {
+            "qs": {
+                "cmsLocaleId": "{{parameters.cms_locale_id}}"
+            },
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/{{parameters.item_id}}/live",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "items",
+                            "operation": "items.getLive",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the item.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.getLive",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "items",
+                            "operation": "items.getLive",
+                            "loadOptionsMethod": "getCollections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
+                    },
+                    "description": "Select the collection that contains the item.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.getLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "items",
+                            "operation": "items.getLive",
+                            "collection_id": "{{parameters.collection_id}}",
+                            "loadOptionsMethod": "getItems"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.collection_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Item is required"
+                        }
+                    },
+                    "description": "Select the live item you want to retrieve.",
+                    "displayName": "Item",
+                    "displayType": "select",
+                    "placeholder": "Select an item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.getLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "item_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. The identifier of the CMS locale to fetch. Leave blank for the primary locale.",
+                    "displayName": "CMS Locale ID",
+                    "displayType": "text",
+                    "placeholder": "e.g. 653ad57de882f528b32e810e",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.getLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "cms_locale_id"
+            }
+        ]
+    },
+    "listlive": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.name}}",
+                "slug": "{{parameters.slug}}",
+                "cmsLocaleId": "{{parameters.cms_locale_id}}"
+            },
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/live",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.items}}"
+            },
+            "pagination": {
+                "qs": {
+                    "limit": 100,
+                    "offset": "{{response.data.pagination.limit}} + {{response.data.pagination.offset}}"
+                },
+                "type": "offset",
+                "default": {
+                    "limit": 100,
+                    "offset": 0
+                },
+                "condition": "{{response.data.pagination.offset}} < {{response.data.pagination.total}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "items",
+                            "operation": "items.listLive",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the collection.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.listLive",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "items",
+                            "operation": "items.listLive",
+                            "loadOptionsMethod": "getCollections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
+                    },
+                    "description": "Select the collection whose live items you want to list.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.listLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. The identifier of the CMS locale to filter by. Leave blank for the primary locale.",
+                    "displayName": "CMS Locale ID",
+                    "displayType": "text",
+                    "placeholder": "e.g. 653ad57de882f528b32e810e",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.listLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "cms_locale_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Filter items whose name matches the given value.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. My Item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.listLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Filter items whose slug matches the given value.",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.listLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
+            }
+        ]
+    },
+    "updatelive": {
+        "definition": {
+            "url": "https://api.webflow.com/v2/collections/{{parameters.collection_id}}/items/live",
+            "body": {
+                "items": "{{parameters.items}}",
+                "isDraft": "{{parameters.is_draft}}",
+                "isArchived": "{{parameters.is_archived}}"
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody() { const source = (typeof body !== 'undefined' && body) ? body : {}; function parseMaybeJson(value) { if (typeof value !== 'string') { return value; } const trimmed = value.trim(); if (!trimmed) { return value; } if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) { try { return JSON.parse(trimmed); } catch (e) {} } return value; } function normalizeObject(value) { const parsedValue = parseMaybeJson(value); return parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue) ? parsedValue : {}; } function normalizeKeyValue(value) { const parsedValue = parseMaybeJson(value); if (!parsedValue) { return {}; } if (Array.isArray(parsedValue)) { return parsedValue.reduce(function(acc, item) { if (item && item.key !== undefined && item.key !== null && item.key !== '') { acc[item.key] = item.value; } return acc; }, {}); } if (typeof parsedValue === 'object') { return parsedValue; } return {}; } function normalizeBoolean(value) { if (value === 'true') { return true; } if (value === 'false') { return false; } return value; } const isDraft = normalizeBoolean(source.isDraft); const isArchived = normalizeBoolean(source.isArchived); const hasDraft = isDraft !== undefined && isDraft !== '' && isDraft !== null; const hasArchived = isArchived !== undefined && isArchived !== '' && isArchived !== null; function mapItemEntry(entry) { const obj = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {}; const fieldData = Object.assign({}, normalizeKeyValue(obj.extra_field_data), normalizeObject(obj.field_data)); const result = {}; if (obj.item_id !== undefined && obj.item_id !== null && obj.item_id !== '') { result.id = obj.item_id; } if (obj.cms_locale_id !== undefined && obj.cms_locale_id !== null && obj.cms_locale_id !== '') { result.cmsLocaleId = obj.cms_locale_id; } if (hasDraft) { result.isDraft = isDraft; } if (hasArchived) { result.isArchived = isArchived; } result.fieldData = fieldData; return result; } const parsedItems = parseMaybeJson(source.items); const itemEntries = Array.isArray(parsedItems) ? parsedItems : (parsedItems && typeof parsedItems === 'object' ? [parsedItems] : []); const mappedItems = itemEntries.map(mapItemEntry).filter(function(e) { return e && e.id; }); return { items: mappedItems }; } return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "items",
+                            "operation": "items.updateLive",
+                            "loadOptionsMethod": "getSites"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Site is required"
+                        }
+                    },
+                    "description": "Select the site that contains the item.",
+                    "displayName": "Site",
+                    "displayType": "select",
+                    "placeholder": "Select a site",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.updateLive",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "site_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "webflow",
+                            "secret": "{{parameters.secret}}",
+                            "site_id": "{{parameters.site_id}}",
+                            "resource": "items",
+                            "operation": "items.updateLive",
+                            "loadOptionsMethod": "getCollections"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.site_id}}"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Collection is required"
+                        }
+                    },
+                    "description": "Select the collection that contains the item.",
+                    "displayName": "Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.updateLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "config": {
+                                    "url": "integrations/options",
+                                    "body": {
+                                        "name": "webflow",
+                                        "secret": "{{parameters.secret}}",
+                                        "resource": "items",
+                                        "operation": "items.updateLive",
+                                        "collection_id": "{{parameters.collection_id}}",
+                                        "loadOptionsMethod": "getItems"
+                                    },
+                                    "method": "post",
+                                    "urlType": "options",
+                                    "labelKey": "displayName",
+                                    "valueKey": "id",
+                                    "condition": "{{parameters.collection_id}}"
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Item is required"
+                                    }
+                                },
+                                "description": "Select the live item you want to update.",
+                                "displayName": "Item",
+                                "displayType": "select",
+                                "placeholder": "Select an item",
+                                "dependencies": {
+                                    "conditions": [
+                                        {
+                                            "field": "operation",
+                                            "value": "items.updateLive",
+                                            "operator": "EQUALS"
+                                        },
+                                        {
+                                            "field": "site_id",
+                                            "operator": "NOT_EMPTY"
+                                        },
+                                        {
+                                            "field": "collection_id",
+                                            "operator": "NOT_EMPTY"
+                                        }
+                                    ]
+                                }
+                            },
+                            "name": "item_id"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "description": "Optional. Update the item name.",
+                                            "displayName": "Name",
+                                            "displayType": "text",
+                                            "placeholder": "Updated name"
+                                        },
+                                        "name": "name"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Optional. Update the URL slug.",
+                                            "displayName": "Slug",
+                                            "displayType": "text",
+                                            "placeholder": "updated-slug"
+                                        },
+                                        "name": "slug"
+                                    }
+                                ],
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field Data is required"
+                                    }
+                                },
+                                "description": "Structured fields to update on the item.",
+                                "displayName": "Field Data",
+                                "displayType": "object"
+                            },
+                            "name": "field_data"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field key is required"
+                                                }
+                                            },
+                                            "description": "Collection field API key, for example color or post-body.",
+                                            "displayName": "Key",
+                                            "displayType": "text",
+                                            "placeholder": "color"
+                                        },
+                                        "name": "key"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field value is required"
+                                                }
+                                            },
+                                            "description": "Value for that collection field.",
+                                            "displayName": "Value",
+                                            "displayType": "text",
+                                            "placeholder": "red"
+                                        },
+                                        "name": "value"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowAdd": true,
+                                    "allowDynamic": true
+                                },
+                                "description": "Optional additional fieldData entries to send with the item, matching your Webflow collection field API keys.",
+                                "displayName": "Extra Field Data",
+                                "displayType": "keyvalue",
+                                "placeholder": "Add extra fieldData key-value pairs"
+                            },
+                            "name": "extra_field_data"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one item is required"
+                        }
+                    },
+                    "description": "One or more items to update. Each entry takes its own Field Data (name, slug) and optional Extra Field Data (additional collection fields).",
+                    "displayName": "Items",
+                    "displayType": "array",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.updateLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "items"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Set the draft state of the item.",
+                    "displayName": "Is Draft",
+                    "displayType": "toggle",
+                    "placeholder": "Toggle draft state",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.updateLive",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "site_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "is_draft"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Set the archived state of the item.",
+                    "displayName": "Is Archived",
+                    "displayType": "toggle",
+                    "placeholder": "Toggle archived state",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "items.updateLive",
                                 "operator": "EQUALS"
                             },
                             {

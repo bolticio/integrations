@@ -1,0 +1,699 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create a Deployment",
+                        "value": "deployments.create",
+                        "description": "Creates a new deployment for a model version."
+                    },
+                    {
+                        "label": "List Deployments",
+                        "value": "deployments.list",
+                        "description": "Retrieves a paginated list of your deployments."
+                    },
+                    {
+                        "label": "Get a Deployment",
+                        "value": "deployments.get",
+                        "description": "Retrieves a single deployment by owner and name."
+                    },
+                    {
+                        "label": "Update a Deployment",
+                        "value": "deployments.update",
+                        "description": "Updates the configuration of an existing deployment."
+                    },
+                    {
+                        "label": "Delete a Deployment",
+                        "value": "deployments.delete",
+                        "description": "Deletes a deployment that has been offline for 15+ minutes."
+                    },
+                    {
+                        "label": "Create Prediction via Deployment",
+                        "value": "deployments.create_prediction",
+                        "description": "Runs a model using a specific deployment."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the operation you want to perform on Deployments.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "deployments",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "create_prediction": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/deployments/{{parameters.deployment_owner}}/{{parameters.deployment_name}}/predictions",
+            "body": {
+                "input": "{{parameters.input}}",
+                "webhook": "{{parameters.webhook}}",
+                "webhook_events_filter": "{{parameters.webhook_events_filter}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "if (typeof body.input !== 'string') { return body; } const trimmedInput = body.input.trim(); if (trimmedInput.startsWith('{{') && trimmedInput.endsWith('}}')) { return body; } if (!trimmedInput) { throw new Error('Input must be a valid JSON object.'); } const parsedInput = JSON.parse(trimmedInput); if (!parsedInput || Array.isArray(parsedInput) || typeof parsedInput !== 'object') { throw new Error('Input must be a JSON object.'); } return { ...body, input: parsedInput };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment owner is required"
+                        }
+                    },
+                    "description": "The owner of the deployment to run.",
+                    "displayName": "Deployment Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-username",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment name is required"
+                        }
+                    },
+                    "description": "The name of the deployment to run.",
+                    "displayName": "Deployment Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-app-deployment",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Input is required"
+                        }
+                    },
+                    "description": "The model's input as a JSON object.",
+                    "displayName": "Input",
+                    "displayType": "code",
+                    "placeholder": "{ \"prompt\": \"A beautiful landscape\" }",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "input"
+            },
+            {
+                "meta": {
+                    "description": "Optional. An HTTPS URL to receive a POST when the prediction completes.",
+                    "displayName": "Webhook URL",
+                    "displayType": "url",
+                    "placeholder": "https://example.com/webhook",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Start",
+                            "value": "start"
+                        },
+                        {
+                            "label": "Output",
+                            "value": "output"
+                        },
+                        {
+                            "label": "Logs",
+                            "value": "logs"
+                        },
+                        {
+                            "label": "Completed",
+                            "value": "completed"
+                        }
+                    ],
+                    "description": "Optional. Filter which lifecycle events trigger the webhook.",
+                    "displayName": "Webhook Events Filter",
+                    "displayType": "multiselect",
+                    "placeholder": "Select events",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create_prediction",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "webhook_events_filter"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/deployments",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data.results}}"
+            },
+            "pagination": {
+                "qs": {},
+                "type": "url",
+                "default": {
+                    "next_url": null
+                },
+                "next_url": "{{response.data.next}}",
+                "condition": "{{response.data.next}} != null"
+            }
+        },
+        "parameters": []
+    },
+    "update": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/deployments/{{parameters.deployment_owner}}/{{parameters.deployment_name}}",
+            "body": {
+                "version": "{{parameters.version}}",
+                "hardware": "{{parameters.hardware}}",
+                "max_instances": "{{parameters.max_instances}}",
+                "min_instances": "{{parameters.min_instances}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment owner is required"
+                        }
+                    },
+                    "description": "The owner of the deployment to update.",
+                    "displayName": "Deployment Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-username",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment name is required"
+                        }
+                    },
+                    "description": "The name of the deployment to update.",
+                    "displayName": "Deployment Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-app-deployment",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. A new model version ID to deploy.",
+                    "displayName": "Version ID",
+                    "displayType": "text",
+                    "placeholder": "e.g. 5c7d5dc6dd8bf75c...",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "version"
+            },
+            {
+                "meta": {
+                    "description": "Optional. The SKU of the hardware to change to.",
+                    "displayName": "Hardware",
+                    "displayType": "text",
+                    "placeholder": "e.g. gpu-a40-large",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "hardware"
+            },
+            {
+                "meta": {
+                    "description": "Optional. New minimum number of instances to keep running.",
+                    "displayName": "Min Instances",
+                    "displayType": "number",
+                    "placeholder": "0",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "min_instances"
+            },
+            {
+                "meta": {
+                    "description": "Optional. New maximum number of instances to scale up to.",
+                    "displayName": "Max Instances",
+                    "displayType": "number",
+                    "placeholder": "5",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "max_instances"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/deployments/{{parameters.deployment_owner}}/{{parameters.deployment_name}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment owner is required"
+                        }
+                    },
+                    "description": "The owner of the deployment to delete. Must have been offline for 15+ minutes.",
+                    "displayName": "Deployment Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-username",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment name is required"
+                        }
+                    },
+                    "description": "The name of the deployment to delete.",
+                    "displayName": "Deployment Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-app-deployment",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_name"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/deployments/{{parameters.deployment_owner}}/{{parameters.deployment_name}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment owner is required"
+                        }
+                    },
+                    "description": "The owner of the deployment.",
+                    "displayName": "Deployment Owner",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-username",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_owner"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment name is required"
+                        }
+                    },
+                    "description": "The name of the deployment.",
+                    "displayName": "Deployment Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-app-deployment",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "deployment_name"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.replicate.com/v1/deployments",
+            "body": {
+                "name": "{{parameters.name}}",
+                "model": "{{parameters.model}}",
+                "version": "{{parameters.version}}",
+                "hardware": "{{parameters.hardware}}",
+                "max_instances": "{{parameters.max_instances}}",
+                "min_instances": "{{parameters.min_instances}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.detail}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deployment name is required"
+                        }
+                    },
+                    "description": "A name for this deployment.",
+                    "displayName": "Deployment Name",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-app-deployment",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Model is required"
+                        }
+                    },
+                    "description": "The full model path in owner/model format.",
+                    "displayName": "Model",
+                    "displayType": "text",
+                    "placeholder": "owner/model-name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "model"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Version ID is required"
+                        }
+                    },
+                    "description": "The 64-character model version ID to deploy.",
+                    "displayName": "Version ID",
+                    "displayType": "text",
+                    "placeholder": "e.g. 5c7d5dc6dd8bf75c...",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "version"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Hardware is required"
+                        }
+                    },
+                    "description": "The SKU of the hardware to run the deployment on.",
+                    "displayName": "Hardware",
+                    "displayType": "text",
+                    "placeholder": "e.g. gpu-a40-small",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "hardware"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Min instances is required"
+                        }
+                    },
+                    "description": "The minimum number of instances to keep running at all times.",
+                    "displayName": "Min Instances",
+                    "displayType": "number",
+                    "placeholder": "0",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "min_instances"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Max instances is required"
+                        }
+                    },
+                    "description": "The maximum number of instances to scale up to.",
+                    "displayName": "Max Instances",
+                    "displayType": "number",
+                    "placeholder": "5",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "deployments.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "max_instances"
+            }
+        ]
+    }
+}
