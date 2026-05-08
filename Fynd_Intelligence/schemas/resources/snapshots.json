@@ -27,6 +27,29 @@
             "name": "operation"
         }
     ],
+    "getDashboards": {
+        "definition": {
+            "url": "https://api.intelligence.fynd.com/___/internal/analytics/dashboards",
+            "body": {
+                "company_id": "{{secrets.company_id}}",
+                "product_line": "COMMERCE"
+            },
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const dashboards = output && output.data && output.data.result ? output.data.result : output && output.result ? output.result : output; if (!Array.isArray(dashboards)) return []; return dashboards.map(dashboard => ({ name: dashboard.name || dashboard.title || dashboard.slug || dashboard.value, value: dashboard.value || dashboard.slug || dashboard.dashboard_id || dashboard.id })).filter(dashboard => dashboard.name && dashboard.value);"
+            }
+        }
+    },
     "share_snapshot_via_email": {
         "definition": {
             "url": "https://api.intelligence.fynd.com/service/panel/snapshots/v1.0/snapshot/jobs",
@@ -77,17 +100,35 @@
             },
             {
                 "meta": {
-                    "value": "fc-company-dashboard",
+                    "value": "",
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "secret": "{{parameters.secret}}",
+                            "resource": "snapshots",
+                            "operation": "snapshots.share_snapshot_via_email",
+                            "product_line": "COMMERCE",
+                            "loadOptionsMethod": "getDashboards"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "value"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
                     "validation": {
                         "required": true,
                         "requiredDetail": {
                             "errorMsg": "Dashboard ID is required"
                         }
                     },
-                    "description": "Dashboard identifier to capture snapshot for.",
-                    "displayName": "Dashboard ID",
-                    "displayType": "text",
-                    "placeholder": "Enter dashboard ID (e.g., fc-company-dashboard)"
+                    "description": "Select the dashboard to generate a snapshot.",
+                    "displayName": "Dashboard",
+                    "displayType": "select",
+                    "placeholder": "Select a dashboard"
                 },
                 "name": "dashboard_id"
             },
