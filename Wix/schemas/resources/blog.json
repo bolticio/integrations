@@ -1,0 +1,1051 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Posts",
+                        "value": "blog.posts_list",
+                        "description": "Retrieves a list of published blog posts."
+                    },
+                    {
+                        "label": "Get a Post",
+                        "value": "blog.posts_get",
+                        "description": "Returns a published blog post by ID."
+                    },
+                    {
+                        "label": "Query Posts",
+                        "value": "blog.posts_query",
+                        "description": "Searches blog posts by filter, sort, and paging."
+                    },
+                    {
+                        "label": "Get Post by Slug",
+                        "value": "blog.posts_get_by_slug",
+                        "description": "Returns a published blog post by its URL slug."
+                    },
+                    {
+                        "label": "Get Post Metrics",
+                        "value": "blog.posts_metrics",
+                        "description": "Returns engagement metrics for a published blog post."
+                    },
+                    {
+                        "label": "Create Draft Post",
+                        "value": "blog.draft_create",
+                        "description": "Creates a new draft blog post."
+                    },
+                    {
+                        "label": "List Draft Posts",
+                        "value": "blog.draft_list",
+                        "description": "Retrieves a list of draft blog posts."
+                    },
+                    {
+                        "label": "Get Draft Post",
+                        "value": "blog.draft_get",
+                        "description": "Returns a draft blog post by ID."
+                    },
+                    {
+                        "label": "Update Draft Post",
+                        "value": "blog.draft_update",
+                        "description": "Updates an existing draft blog post."
+                    },
+                    {
+                        "label": "Delete Draft Post",
+                        "value": "blog.draft_delete",
+                        "description": "Deletes a draft blog post."
+                    },
+                    {
+                        "label": "Query Draft Posts",
+                        "value": "blog.draft_query",
+                        "description": "Searches draft blog posts by filter, sort, and paging."
+                    },
+                    {
+                        "label": "Publish Draft Post",
+                        "value": "blog.draft_publish",
+                        "description": "Publishes an existing draft blog post."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the blog operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "blog",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getPostsForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/posts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.posts}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.posts)?output.posts:[]);return list.map((x)=>{const id=x&&x.id?x.id:null;const displayName=x&&x.title?x.title:id;return id?Object.assign({},x,{displayName}):null;}).filter(Boolean);"
+            }
+        }
+    },
+    "getDraftPostsForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/draft-posts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.draftPosts}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.draftPosts)?output.draftPosts:[]);return list.map((x)=>{const id=x&&x.id?x.id:null;const displayName=x&&x.title?x.title:id;return id?Object.assign({},x,{displayName}):null;}).filter(Boolean);"
+            }
+        }
+    },
+    "posts_metrics": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/posts/{{parameters.post_id}}/metrics",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.metrics}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "blog",
+                            "operation": "blog.posts_metrics",
+                            "loadOptionsMethod": "getPostsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Post ID is required"
+                        }
+                    },
+                    "description": "Select the blog post to retrieve metrics for.",
+                    "displayName": "Post",
+                    "displayType": "select",
+                    "placeholder": "Select a post",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.posts_metrics",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "post_id"
+            }
+        ]
+    },
+    "draft_create": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/draft-posts",
+            "body": {
+                "draftPost": {
+                    "slug": "{{parameters.slug}}",
+                    "title": "{{parameters.title}}",
+                    "tagIds": "{{parameters.tag_ids}}",
+                    "excerpt": "{{parameters.excerpt}}",
+                    "featured": "{{parameters.featured}}",
+                    "memberId": "{{parameters.member_id}}",
+                    "categoryIds": "{{parameters.category_ids}}",
+                    "richContent": "{{parameters.rich_content}}",
+                    "commentingEnabled": "{{parameters.commenting_enabled}}"
+                }
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.draftPost}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const draft = (out && out.draftPost) ? { ...out.draftPost } : {}; if (typeof draft.featured === 'string') { const t = draft.featured.trim().toLowerCase(); draft.featured = t === 'true'; } if (typeof draft.commentingEnabled === 'string') { const t = draft.commentingEnabled.trim().toLowerCase(); draft.commentingEnabled = t === 'true'; } ['categoryIds','tagIds'].forEach(function(k){ const v = draft[k]; if (typeof v === 'string') { const t = v.trim(); if (!t || isTemplate(t)) { delete draft[k]; } else { try { const p = JSON.parse(t); if (Array.isArray(p)) { draft[k] = p.map(String); } else { draft[k] = t.split(',').map(function(s){return s.trim();}).filter(Boolean); } } catch (e) { draft[k] = t.split(',').map(function(s){return s.trim();}).filter(Boolean); } } } }); if (typeof draft.richContent === 'string') { const t = draft.richContent.trim(); if (!t || isTemplate(t)) { delete draft.richContent; } else { const p = JSON.parse(t); if (!p || typeof p !== 'object') { throw new Error('Rich Content must be a JSON object.'); } draft.richContent = p; } } out.draftPost = draft; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Title is required"
+                        }
+                    },
+                    "description": "The title of the draft post.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter post title",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Short summary of the post.",
+                    "displayName": "Excerpt",
+                    "displayType": "textarea",
+                    "placeholder": "Enter a short excerpt",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "excerpt"
+            },
+            {
+                "meta": {
+                    "description": "Optional. URL slug for the post.",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-first-post",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Whether the post should be marked as featured.",
+                    "displayName": "Featured",
+                    "displayType": "toggle",
+                    "placeholder": "Mark as featured",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "featured"
+            },
+            {
+                "meta": {
+                    "value": true,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Whether commenting is enabled on the post.",
+                    "displayName": "Commenting Enabled",
+                    "displayType": "toggle",
+                    "placeholder": "Enable commenting",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "commenting_enabled"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Author Member ID is required"
+                        }
+                    },
+                    "description": "ID of the site member authoring the post (post owner). Required by Wix to create a draft.",
+                    "displayName": "Author Member ID",
+                    "displayType": "text",
+                    "placeholder": "Enter member ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "member_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Comma-separated list or JSON array of category IDs.",
+                    "displayName": "Category IDs",
+                    "displayType": "text",
+                    "placeholder": "id1,id2 or [\"id1\",\"id2\"]",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "category_ids"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Comma-separated list or JSON array of tag IDs.",
+                    "displayName": "Tag IDs",
+                    "displayType": "text",
+                    "placeholder": "id1,id2 or [\"id1\",\"id2\"]",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "tag_ids"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. Rich content body of the post in Wix Ricos JSON format.",
+                    "displayName": "Rich Content",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON rich content (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "rich_content"
+            }
+        ]
+    },
+    "draft_list": {
+        "definition": {
+            "qs": {},
+            "url": "https://www.wixapis.com/blog/v3/draft-posts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.draftPosts}}"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.offset": "{{response.data.metaData.offset}} + {{response.data.metaData.count}}"
+                },
+                "type": "offset",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.offset": 0
+                },
+                "condition": "{{response.data.metaData.offset}} < {{response.data.metaData.total}}"
+            }
+        },
+        "parameters": []
+    },
+    "posts_get_by_slug": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/posts/slugs/{{parameters.slug}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.post}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Slug is required"
+                        }
+                    },
+                    "description": "The URL slug of the blog post to retrieve.",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "e.g. my-first-post",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.posts_get_by_slug",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
+            }
+        ]
+    },
+    "posts_get": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/posts/{{parameters.post_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.post}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "blog",
+                            "operation": "blog.posts_get",
+                            "loadOptionsMethod": "getPostsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Post ID is required"
+                        }
+                    },
+                    "description": "Select the blog post to retrieve.",
+                    "displayName": "Post",
+                    "displayType": "select",
+                    "placeholder": "Select a post",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.posts_get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "post_id"
+            }
+        ]
+    },
+    "posts_list": {
+        "definition": {
+            "qs": {
+                "sort": "{{parameters.sort}}"
+            },
+            "url": "https://www.wixapis.com/blog/v3/posts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.posts}}"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.offset": "{{response.data.metaData.offset}} + {{response.data.metaData.count}}"
+                },
+                "type": "offset",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.offset": 0
+                },
+                "condition": "{{response.data.metaData.offset}} < {{response.data.metaData.total}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Published Date (Descending)",
+                            "value": "PUBLISHED_DATE_DESC"
+                        },
+                        {
+                            "label": "Published Date (Ascending)",
+                            "value": "PUBLISHED_DATE_ASC"
+                        },
+                        {
+                            "label": "Title (Ascending)",
+                            "value": "TITLE_ASC"
+                        },
+                        {
+                            "label": "Title (Descending)",
+                            "value": "TITLE_DESC"
+                        }
+                    ],
+                    "description": "Optional. Sort order for the returned posts.",
+                    "displayName": "Sort",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.posts_list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort"
+            }
+        ]
+    },
+    "posts_query": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/posts/query",
+            "body": {
+                "query": {
+                    "sort": [
+                        {
+                            "order": "{{parameters.sort_order}}",
+                            "fieldName": "{{parameters.sort_field}}"
+                        }
+                    ],
+                    "filter": "{{parameters.filter}}",
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.posts}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const query = (out && out.query) ? { ...out.query } : {}; if (typeof query.filter === 'string') { const trimmed = query.filter.trim(); if (!trimmed || isTemplate(trimmed)) { delete query.filter; } else { const parsed = JSON.parse(trimmed); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Filter must be a JSON object.'); } query.filter = parsed; } } if (Array.isArray(query.sort)) { query.sort = query.sort.filter(function (s) { if (!s) return false; const fn = s.fieldName != null ? String(s.fieldName).trim() : ''; const ord = s.order != null ? String(s.order).trim() : ''; if (!fn || !ord) return false; if (isTemplate(fn) || isTemplate(ord)) return false; return true; }); if (query.sort.length === 0) { delete query.sort; } } out.query = query; return out;"
+            },
+            "pagination": {
+                "body": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON filter object to narrow results. Example: {\"title\": {\"$startsWith\": \"How\"}}",
+                    "displayName": "Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON filter (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.posts_query",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "First Published Date",
+                            "value": "firstPublishedDate"
+                        },
+                        {
+                            "label": "Last Published Date",
+                            "value": "lastPublishedDate"
+                        },
+                        {
+                            "label": "Title",
+                            "value": "title"
+                        },
+                        {
+                            "label": "Slug",
+                            "value": "slug"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Field to sort posts by.",
+                    "displayName": "Sort By",
+                    "displayType": "select",
+                    "placeholder": "Select sort field",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.posts_query",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_field"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "DESC"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Sort order.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.posts_query",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    },
+    "draft_get": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/draft-posts/{{parameters.draft_post_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.draftPost}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "blog",
+                            "operation": "blog.draft_get",
+                            "loadOptionsMethod": "getDraftPostsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Draft post ID is required"
+                        }
+                    },
+                    "description": "Select the draft post to retrieve.",
+                    "displayName": "Draft Post",
+                    "displayType": "select",
+                    "placeholder": "Select a draft post",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "draft_post_id"
+            }
+        ]
+    },
+    "draft_query": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/draft-posts/query",
+            "body": {
+                "query": {
+                    "sort": [
+                        {
+                            "order": "{{parameters.sort_order}}",
+                            "fieldName": "{{parameters.sort_field}}"
+                        }
+                    ],
+                    "filter": "{{parameters.filter}}",
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.draftPosts}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const query = (out && out.query) ? { ...out.query } : {}; if (typeof query.filter === 'string') { const trimmed = query.filter.trim(); if (!trimmed || isTemplate(trimmed)) { delete query.filter; } else { const parsed = JSON.parse(trimmed); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Filter must be a JSON object.'); } query.filter = parsed; } } if (Array.isArray(query.sort)) { query.sort = query.sort.filter(function (s) { if (!s) return false; const fn = s.fieldName != null ? String(s.fieldName).trim() : ''; const ord = s.order != null ? String(s.order).trim() : ''; if (!fn || !ord) return false; if (isTemplate(fn) || isTemplate(ord)) return false; return true; }); if (query.sort.length === 0) { delete query.sort; } } out.query = query; return out;"
+            },
+            "pagination": {
+                "body": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON filter object to narrow results. Example: {\"status\": {\"$eq\": \"UNPUBLISHED\"}}",
+                    "displayName": "Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON filter (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_query",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Edited Date",
+                            "value": "editedDate"
+                        },
+                        {
+                            "label": "Title",
+                            "value": "title"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Field to sort drafts by.",
+                    "displayName": "Sort By",
+                    "displayType": "select",
+                    "placeholder": "Select sort field",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_query",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_field"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "DESC"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Sort order.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_query",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    },
+    "draft_delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/blog/v3/draft-posts/{{parameters.draft_post_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'draft post has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "blog",
+                            "operation": "blog.draft_delete",
+                            "loadOptionsMethod": "getDraftPostsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Draft post ID is required"
+                        }
+                    },
+                    "description": "Select the draft post to delete.",
+                    "displayName": "Draft Post",
+                    "displayType": "select",
+                    "placeholder": "Select a draft post",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "blog.draft_delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "draft_post_id"
+            }
+        ]
+    }
+}

@@ -1,0 +1,1220 @@
+{
+    "getForms": {
+        "definition": {
+            "qs": {
+                "q": "mimeType='application/vnd.google-apps.form' and trashed=false",
+                "fields": "files(id,name,mimeType),nextPageToken"
+            },
+            "url": "https://www.googleapis.com/drive/v3/files",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.files}}"
+            },
+            "transform": {
+                "output": "const files=Array.isArray(output)?output:(output&&Array.isArray(output.files)?output.files:[]);return files.map((x)=>{const id=x&&x.id?x.id:null;const label=x&&x.name?x.name:id;return id?{...x,name:label,displayName:label}:null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "qs": {
+                    "pageSize": 100,
+                    "pageToken": "{{response.data.nextPageToken}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "pageSize": 100,
+                    "pageToken": null
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Search Forms",
+                        "value": "forms.search",
+                        "description": "Retrieves a list of forms filtered by criteria."
+                    },
+                    {
+                        "label": "Create a Form",
+                        "value": "forms.create",
+                        "description": "Creates a new form."
+                    },
+                    {
+                        "label": "Get a Form",
+                        "value": "forms.get",
+                        "description": "Retrieves an existing form by its ID."
+                    },
+                    {
+                        "label": "Update a Form",
+                        "value": "forms.update",
+                        "description": "Updates an existing form by its ID."
+                    },
+                    {
+                        "label": "Move a Form to Trash",
+                        "value": "forms.trash",
+                        "description": "Removes a form and moves it to trash."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the form operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "forms",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "trash": {
+        "definition": {
+            "qs": {
+                "fields": "id,name,trashed",
+                "supportsAllDrives": true
+            },
+            "url": "https://www.googleapis.com/drive/v3/files/{{parameters.form_id}}",
+            "body": {
+                "trashed": true
+            },
+            "method": "patch",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return { name: output && (output.name || output.id), trashed: true, message: 'Form moved to trash successfully.' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.trash",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "The form to move to trash.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.trash",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "qs": {
+                "q": "mimeType='application/vnd.google-apps.form' and trashed={{parameters.trashed}}",
+                "fields": "files(id,name,mimeType,createdTime,modifiedTime,owners,webViewLink,trashed),nextPageToken",
+                "orderBy": "{{parameters.order_by}}"
+            },
+            "url": "https://www.googleapis.com/drive/v3/files",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.files}}"
+            },
+            "pagination": {
+                "qs": {
+                    "pageSize": 100,
+                    "pageToken": "{{response.data.nextPageToken}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "pageSize": 100,
+                    "pageToken": null
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Modified Time (newest first)",
+                            "value": "modifiedTime desc"
+                        },
+                        {
+                            "label": "Modified Time (oldest first)",
+                            "value": "modifiedTime"
+                        },
+                        {
+                            "label": "Created Time (newest first)",
+                            "value": "createdTime desc"
+                        },
+                        {
+                            "label": "Created Time (oldest first)",
+                            "value": "createdTime"
+                        },
+                        {
+                            "label": "Name (A-Z)",
+                            "value": "name"
+                        },
+                        {
+                            "label": "Name (Z-A)",
+                            "value": "name desc"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Sort order for the result set.",
+                    "displayName": "Order By",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_by"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Choose whether to search active forms or forms in trash.",
+                    "displayName": "Trashed",
+                    "displayType": "toggle",
+                    "placeholder": "Choose whether to search active forms or forms in trash",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "trashed"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://forms.googleapis.com/v1/forms/{{parameters.form_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.get",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "The form whose details you want to retrieve.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://forms.googleapis.com/v1/forms/{{parameters.form_id}}:batchUpdate",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody(){var title=(typeof parameters!=='undefined'&&parameters&&parameters.title!=null)?parameters.title:'{{parameters.title}}';var description=(typeof parameters!=='undefined'&&parameters&&parameters.description!=null)?parameters.description:'{{parameters.description}}';var rawItems=(typeof parameters!=='undefined'&&parameters&&parameters.items!=null)?parameters.items:'{{parameters.items}}';if(typeof rawItems==='string'){var trimmedItems=rawItems.trim();if(!trimmedItems||trimmedItems==='undefined'||trimmedItems==='null'||trimmedItems==='{{parameters.items}}'){rawItems=null;}else{try{rawItems=JSON.parse(trimmedItems);}catch(e){rawItems=null;}}}title=String(title||'').trim();description=String(description||'').trim();function buildItem(item){var result={title:item.title||''};if(item.description)result.description=item.description;var kind=item.kind||'question';var qs=item.question_settings||{};var is=item.image_settings||{};var vs=item.video_settings||{};if(kind==='page_break'){result.pageBreakItem={};}else if(kind==='text'){result.textItem={};}else if(kind==='image'){result.imageItem={image:{sourceUri:is.url||'',properties:{alignment:is.alignment||'LEFT'}}};}else if(kind==='video'){result.videoItem={video:{youtubeUri:vs.video_url||'',properties:{alignment:vs.video_alignment||'LEFT'}}};}else{var qt=qs.question_type||'short_answer';var question={required:!!qs.required};if(qt==='short_answer'||qt==='paragraph'){question.textQuestion={paragraph:qt==='paragraph'};}else if(qt==='multiple_choice'||qt==='checkboxes'||qt==='dropdown'){var typeMap={multiple_choice:'RADIO',checkboxes:'CHECKBOX',dropdown:'DROP_DOWN'};var opts=Array.isArray(qs.options)?qs.options.filter(Boolean).map(function(o){return{value:o&&o.option_value?String(o.option_value):String(o)};}):[];question.choiceQuestion={type:typeMap[qt],options:opts};}else if(qt==='linear_scale'){question.scaleQuestion={low:Number(qs.scale_low!=null?qs.scale_low:1),high:Number(qs.scale_high!=null?qs.scale_high:5),lowLabel:qs.scale_low_label||'',highLabel:qs.scale_high_label||''};}else if(qt==='date'){question.dateQuestion={includeTime:!!qs.include_time,includeYear:qs.include_year!==false};}else if(qt==='time'){question.timeQuestion={duration:!!qs.duration};}result.questionItem={question:question};}return result;}var requests=[];var infoFields={};var maskParts=[];if(title&&title!=='undefined'){infoFields.title=title;maskParts.push('title');}if(description&&description!=='undefined'){infoFields.description=description;maskParts.push('description');}if(maskParts.length>0){requests.push({updateFormInfo:{info:infoFields,updateMask:maskParts.join(',')}});}if(Array.isArray(rawItems)&&rawItems.length>0){rawItems.forEach(function(item,index){requests.push({createItem:{item:buildItem(item),location:{index:index}}});});}if(requests.length===0)throw new Error('Provide at least one of: title, description, or items');return{includeFormInResponse:true,requests:requests};}return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.update",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "The form to update.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            },
+            {
+                "meta": {
+                    "description": "New title for the form. Leave blank to keep existing title.",
+                    "displayName": "Title",
+                    "displayType": "text",
+                    "placeholder": "Enter new form title",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "description": "New description shown beneath the form title. Leave blank to keep existing description.",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter new form description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Item title is required"
+                                    }
+                                },
+                                "description": "Title of this item shown to respondents.",
+                                "displayName": "Title",
+                                "displayType": "text",
+                                "placeholder": "Enter item title"
+                            },
+                            "name": "title"
+                        },
+                        {
+                            "meta": {
+                                "displayName": "Description",
+                                "displayType": "textarea",
+                                "placeholder": "Enter item description (optional)"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Question",
+                                        "value": "question"
+                                    },
+                                    {
+                                        "label": "Page Break",
+                                        "value": "page_break"
+                                    },
+                                    {
+                                        "label": "Text / Section Header",
+                                        "value": "text"
+                                    },
+                                    {
+                                        "label": "Image",
+                                        "value": "image"
+                                    },
+                                    {
+                                        "label": "Video",
+                                        "value": "video"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Item type is required"
+                                    }
+                                },
+                                "description": "Type of form item.",
+                                "displayName": "Type",
+                                "displayType": "select",
+                                "placeholder": "Select item type"
+                            },
+                            "name": "kind"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Short Answer",
+                                                    "value": "short_answer"
+                                                },
+                                                {
+                                                    "label": "Paragraph",
+                                                    "value": "paragraph"
+                                                },
+                                                {
+                                                    "label": "Multiple Choice",
+                                                    "value": "multiple_choice"
+                                                },
+                                                {
+                                                    "label": "Checkboxes",
+                                                    "value": "checkboxes"
+                                                },
+                                                {
+                                                    "label": "Dropdown",
+                                                    "value": "dropdown"
+                                                },
+                                                {
+                                                    "label": "Linear Scale",
+                                                    "value": "linear_scale"
+                                                },
+                                                {
+                                                    "label": "Date",
+                                                    "value": "date"
+                                                },
+                                                {
+                                                    "label": "Time",
+                                                    "value": "time"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Type of question presented to respondents.",
+                                            "displayName": "Question Type",
+                                            "displayType": "select",
+                                            "placeholder": "Select question type"
+                                        },
+                                        "name": "question_type"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Whether respondents must answer this question.",
+                                            "displayName": "Required",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "required"
+                                    },
+                                    {
+                                        "meta": {
+                                            "children": [
+                                                {
+                                                    "meta": {
+                                                        "validation": {
+                                                            "required": true,
+                                                            "requiredDetail": {
+                                                                "errorMsg": "Option text is required"
+                                                            }
+                                                        },
+                                                        "displayName": "Option",
+                                                        "displayType": "text",
+                                                        "placeholder": "Enter option text"
+                                                    },
+                                                    "name": "option_value"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowAdd": true
+                                            },
+                                            "description": "Answer choices for Multiple Choice, Checkboxes, or Dropdown questions.",
+                                            "displayName": "Options",
+                                            "displayType": "array"
+                                        },
+                                        "name": "options"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Minimum value of the linear scale (0 or 1). Applies only when Question Type is Linear Scale.",
+                                            "displayName": "Scale Low",
+                                            "displayType": "number",
+                                            "placeholder": "1"
+                                        },
+                                        "name": "scale_low"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Maximum value of the linear scale (2–10). Applies only when Question Type is Linear Scale.",
+                                            "displayName": "Scale High",
+                                            "displayType": "number",
+                                            "placeholder": "5"
+                                        },
+                                        "name": "scale_high"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Optional label for the low end of the scale. Applies only when Question Type is Linear Scale.",
+                                            "displayName": "Low Label",
+                                            "displayType": "text",
+                                            "placeholder": "e.g. Not likely"
+                                        },
+                                        "name": "scale_low_label"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Optional label for the high end of the scale. Applies only when Question Type is Linear Scale.",
+                                            "displayName": "High Label",
+                                            "displayType": "text",
+                                            "placeholder": "e.g. Very likely"
+                                        },
+                                        "name": "scale_high_label"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Include a time field alongside the date. Applies only when Question Type is Date.",
+                                            "displayName": "Include Time",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "include_time"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Include the year in the date question. Applies only when Question Type is Date.",
+                                            "displayName": "Include Year",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "include_year"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Collect a duration (HH:MM:SS) instead of a time of day. Applies only when Question Type is Time.",
+                                            "displayName": "Duration",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "duration"
+                                    }
+                                ],
+                                "description": "Settings for question items. Applies only when Type is Question.",
+                                "displayName": "Question Settings",
+                                "displayType": "object"
+                            },
+                            "name": "question_settings"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "description": "URL of the image to embed.",
+                                            "displayName": "URL",
+                                            "displayType": "text",
+                                            "placeholder": "https://example.com/image.png"
+                                        },
+                                        "name": "url"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Left",
+                                                    "value": "LEFT"
+                                                },
+                                                {
+                                                    "label": "Center",
+                                                    "value": "CENTER"
+                                                },
+                                                {
+                                                    "label": "Right",
+                                                    "value": "RIGHT"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Horizontal alignment of the image.",
+                                            "displayName": "Alignment",
+                                            "displayType": "select",
+                                            "placeholder": "Select alignment"
+                                        },
+                                        "name": "alignment"
+                                    }
+                                ],
+                                "description": "Settings for image items. Applies only when Type is Image.",
+                                "displayName": "Image Settings",
+                                "displayType": "object"
+                            },
+                            "name": "image_settings"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "description": "YouTube video URL to embed.",
+                                            "displayName": "URL",
+                                            "displayType": "text",
+                                            "placeholder": "https://youtu.be/..."
+                                        },
+                                        "name": "video_url"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Left",
+                                                    "value": "LEFT"
+                                                },
+                                                {
+                                                    "label": "Center",
+                                                    "value": "CENTER"
+                                                },
+                                                {
+                                                    "label": "Right",
+                                                    "value": "RIGHT"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Horizontal alignment of the video.",
+                                            "displayName": "Alignment",
+                                            "displayType": "select",
+                                            "placeholder": "Select alignment"
+                                        },
+                                        "name": "video_alignment"
+                                    }
+                                ],
+                                "description": "Settings for video items. Applies only when Type is Video.",
+                                "displayName": "Video Settings",
+                                "displayType": "object"
+                            },
+                            "name": "video_settings"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "Form items to add via createItem requests. Supports questions, page breaks, and text/section headers.",
+                    "displayName": "Items",
+                    "displayType": "array",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "items"
+            }
+        ]
+    },
+    "create": {
+        "definition": [
+            {
+                "url": "https://forms.googleapis.com/v1/forms",
+                "body": {
+                    "info": {
+                        "title": "{{parameters.title}}",
+                        "documentTitle": "{{parameters.document_title}}"
+                    }
+                },
+                "method": "post",
+                "filters": {
+                    "body": {
+                        "allowEmptyValue": false,
+                        "allowEmptyObject": false
+                    }
+                },
+                "headers": {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.error.message}}"
+                    }
+                }
+            },
+            {
+                "url": "https://forms.googleapis.com/v1/forms/{{responses[0].data.formId}}:batchUpdate",
+                "body": {},
+                "method": "post",
+                "headers": {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer {{secrets.access_token}}"
+                },
+                "response": {
+                    "error": {
+                        "code": "{{response.status}}",
+                        "message": "{{response.data.error.message}}"
+                    },
+                    "output": "{{response.data}}"
+                },
+                "transform": {
+                    "body": "function transformBody(){var title=(typeof parameters!=='undefined'&&parameters&&parameters.title!=null)?parameters.title:'{{parameters.title}}';var description=(typeof parameters!=='undefined'&&parameters&&parameters.description!=null)?parameters.description:'{{parameters.description}}';var rawItems=(typeof parameters!=='undefined'&&parameters&&parameters.items!=null)?parameters.items:'{{parameters.items}}';if(typeof rawItems==='string'){var trimmedItems=rawItems.trim();if(!trimmedItems||trimmedItems==='undefined'||trimmedItems==='null'||trimmedItems==='{{parameters.items}}'){rawItems=null;}else{try{rawItems=JSON.parse(trimmedItems);}catch(e){rawItems=null;}}}title=String(title||'').trim();description=String(description||'').trim();function buildItem(item){var result={title:item.title||''};if(item.description)result.description=item.description;var kind=item.kind||'question';var qs=item.question_settings||{};var is=item.image_settings||{};var vs=item.video_settings||{};if(kind==='page_break'){result.pageBreakItem={};}else if(kind==='text'){result.textItem={};}else if(kind==='image'){result.imageItem={image:{sourceUri:is.url||'',properties:{alignment:is.alignment||'LEFT'}}};}else if(kind==='video'){result.videoItem={video:{youtubeUri:vs.video_url||'',properties:{alignment:vs.video_alignment||'LEFT'}}};}else{var qt=qs.question_type||'short_answer';var question={required:!!qs.required};if(qt==='short_answer'||qt==='paragraph'){question.textQuestion={paragraph:qt==='paragraph'};}else if(qt==='multiple_choice'||qt==='checkboxes'||qt==='dropdown'){var typeMap={multiple_choice:'RADIO',checkboxes:'CHECKBOX',dropdown:'DROP_DOWN'};var opts=Array.isArray(qs.options)?qs.options.filter(Boolean).map(function(o){return{value:o&&o.option_value?String(o.option_value):String(o)};}):[];question.choiceQuestion={type:typeMap[qt],options:opts};}else if(qt==='linear_scale'){question.scaleQuestion={low:Number(qs.scale_low!=null?qs.scale_low:1),high:Number(qs.scale_high!=null?qs.scale_high:5),lowLabel:qs.scale_low_label||'',highLabel:qs.scale_high_label||''};}else if(qt==='date'){question.dateQuestion={includeTime:!!qs.include_time,includeYear:qs.include_year!==false};}else if(qt==='time'){question.timeQuestion={duration:!!qs.duration};}result.questionItem={question:question};}return result;}var requests=[];var infoFields={};var maskParts=[];if(title&&title!=='undefined'){infoFields.title=title;maskParts.push('title');}if(description&&description!=='undefined'){infoFields.description=description;maskParts.push('description');}if(maskParts.length>0){requests.push({updateFormInfo:{info:infoFields,updateMask:maskParts.join(',')}});}if(Array.isArray(rawItems)&&rawItems.length>0){rawItems.forEach(function(item,index){requests.push({createItem:{item:buildItem(item),location:{index:index}}});});}if(requests.length===0)throw new Error('Provide at least one of: title, description, or items');return{includeFormInResponse:true,requests:requests};}return transformBody();"
+                }
+            }
+        ],
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form title is required"
+                        }
+                    },
+                    "description": "Title displayed at the top of the form.",
+                    "displayName": "Form Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the form title shown to respondents",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "description": "Optional title used for the form document in Google Drive. Defaults to the form title when empty.",
+                    "displayName": "Document Title",
+                    "displayType": "text",
+                    "placeholder": "Enter the Drive document title (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "document_title"
+            },
+            {
+                "meta": {
+                    "description": "Description shown beneath the form title.",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter form description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Item title is required"
+                                    }
+                                },
+                                "description": "Title of this item shown to respondents.",
+                                "displayName": "Title",
+                                "displayType": "text",
+                                "placeholder": "Enter item title"
+                            },
+                            "name": "title"
+                        },
+                        {
+                            "meta": {
+                                "displayName": "Description",
+                                "displayType": "textarea",
+                                "placeholder": "Enter item description (optional)"
+                            },
+                            "name": "description"
+                        },
+                        {
+                            "meta": {
+                                "options": [
+                                    {
+                                        "label": "Question",
+                                        "value": "question"
+                                    },
+                                    {
+                                        "label": "Page Break",
+                                        "value": "page_break"
+                                    },
+                                    {
+                                        "label": "Text / Section Header",
+                                        "value": "text"
+                                    },
+                                    {
+                                        "label": "Image",
+                                        "value": "image"
+                                    },
+                                    {
+                                        "label": "Video",
+                                        "value": "video"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Item type is required"
+                                    }
+                                },
+                                "description": "Type of form item.",
+                                "displayName": "Type",
+                                "displayType": "select",
+                                "placeholder": "Select item type"
+                            },
+                            "name": "kind"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Short Answer",
+                                                    "value": "short_answer"
+                                                },
+                                                {
+                                                    "label": "Paragraph",
+                                                    "value": "paragraph"
+                                                },
+                                                {
+                                                    "label": "Multiple Choice",
+                                                    "value": "multiple_choice"
+                                                },
+                                                {
+                                                    "label": "Checkboxes",
+                                                    "value": "checkboxes"
+                                                },
+                                                {
+                                                    "label": "Dropdown",
+                                                    "value": "dropdown"
+                                                },
+                                                {
+                                                    "label": "Linear Scale",
+                                                    "value": "linear_scale"
+                                                },
+                                                {
+                                                    "label": "Date",
+                                                    "value": "date"
+                                                },
+                                                {
+                                                    "label": "Time",
+                                                    "value": "time"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Type of question presented to respondents.",
+                                            "displayName": "Question Type",
+                                            "displayType": "select",
+                                            "placeholder": "Select question type"
+                                        },
+                                        "name": "question_type"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Whether respondents must answer this question.",
+                                            "displayName": "Required",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "required"
+                                    },
+                                    {
+                                        "meta": {
+                                            "children": [
+                                                {
+                                                    "meta": {
+                                                        "validation": {
+                                                            "required": true,
+                                                            "requiredDetail": {
+                                                                "errorMsg": "Option text is required"
+                                                            }
+                                                        },
+                                                        "displayName": "Option",
+                                                        "displayType": "text",
+                                                        "placeholder": "Enter option text"
+                                                    },
+                                                    "name": "option_value"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowAdd": true
+                                            },
+                                            "description": "Answer choices for Multiple Choice, Checkboxes, or Dropdown questions.",
+                                            "displayName": "Options",
+                                            "displayType": "array"
+                                        },
+                                        "name": "options"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Minimum value of the linear scale (0 or 1). Applies only when Question Type is Linear Scale.",
+                                            "displayName": "Scale Low",
+                                            "displayType": "number",
+                                            "placeholder": "1"
+                                        },
+                                        "name": "scale_low"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Maximum value of the linear scale (2–10). Applies only when Question Type is Linear Scale.",
+                                            "displayName": "Scale High",
+                                            "displayType": "number",
+                                            "placeholder": "5"
+                                        },
+                                        "name": "scale_high"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Optional label for the low end of the scale. Applies only when Question Type is Linear Scale.",
+                                            "displayName": "Low Label",
+                                            "displayType": "text",
+                                            "placeholder": "e.g. Not likely"
+                                        },
+                                        "name": "scale_low_label"
+                                    },
+                                    {
+                                        "meta": {
+                                            "description": "Optional label for the high end of the scale. Applies only when Question Type is Linear Scale.",
+                                            "displayName": "High Label",
+                                            "displayType": "text",
+                                            "placeholder": "e.g. Very likely"
+                                        },
+                                        "name": "scale_high_label"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Include a time field alongside the date. Applies only when Question Type is Date.",
+                                            "displayName": "Include Time",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "include_time"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Include the year in the date question. Applies only when Question Type is Date.",
+                                            "displayName": "Include Year",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "include_year"
+                                    },
+                                    {
+                                        "meta": {
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Collect a duration (HH:MM:SS) instead of a time of day. Applies only when Question Type is Time.",
+                                            "displayName": "Duration",
+                                            "displayType": "toggle"
+                                        },
+                                        "name": "duration"
+                                    }
+                                ],
+                                "description": "Settings for question items. Applies only when Type is Question.",
+                                "displayName": "Question Settings",
+                                "displayType": "object"
+                            },
+                            "name": "question_settings"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "description": "URL of the image to embed.",
+                                            "displayName": "URL",
+                                            "displayType": "text",
+                                            "placeholder": "https://example.com/image.png"
+                                        },
+                                        "name": "url"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Left",
+                                                    "value": "LEFT"
+                                                },
+                                                {
+                                                    "label": "Center",
+                                                    "value": "CENTER"
+                                                },
+                                                {
+                                                    "label": "Right",
+                                                    "value": "RIGHT"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Horizontal alignment of the image.",
+                                            "displayName": "Alignment",
+                                            "displayType": "select",
+                                            "placeholder": "Select alignment"
+                                        },
+                                        "name": "alignment"
+                                    }
+                                ],
+                                "description": "Settings for image items. Applies only when Type is Image.",
+                                "displayName": "Image Settings",
+                                "displayType": "object"
+                            },
+                            "name": "image_settings"
+                        },
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "description": "YouTube video URL to embed.",
+                                            "displayName": "URL",
+                                            "displayType": "text",
+                                            "placeholder": "https://youtu.be/..."
+                                        },
+                                        "name": "video_url"
+                                    },
+                                    {
+                                        "meta": {
+                                            "options": [
+                                                {
+                                                    "label": "Left",
+                                                    "value": "LEFT"
+                                                },
+                                                {
+                                                    "label": "Center",
+                                                    "value": "CENTER"
+                                                },
+                                                {
+                                                    "label": "Right",
+                                                    "value": "RIGHT"
+                                                }
+                                            ],
+                                            "htmlProps": {
+                                                "allowDynamic": true
+                                            },
+                                            "description": "Horizontal alignment of the video.",
+                                            "displayName": "Alignment",
+                                            "displayType": "select",
+                                            "placeholder": "Select alignment"
+                                        },
+                                        "name": "video_alignment"
+                                    }
+                                ],
+                                "description": "Settings for video items. Applies only when Type is Video.",
+                                "displayName": "Video Settings",
+                                "displayType": "object"
+                            },
+                            "name": "video_settings"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "Form items to add via createItem requests. Supports questions, page breaks, and text/section headers.",
+                    "displayName": "Items",
+                    "displayType": "array",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "items"
+            }
+        ]
+    }
+}

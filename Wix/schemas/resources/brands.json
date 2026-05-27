@@ -1,0 +1,623 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Search Brands",
+                        "value": "brands.search",
+                        "description": "Searches for brands by filter parameter."
+                    },
+                    {
+                        "label": "Get all brands",
+                        "value": "brands.get_all",
+                        "description": "Returns all brands."
+                    },
+                    {
+                        "label": "Get a Brand",
+                        "value": "brands.get",
+                        "description": "Returns the data of a specified brand."
+                    },
+                    {
+                        "label": "Create a Brand",
+                        "value": "brands.create",
+                        "description": "Creates a new brand."
+                    },
+                    {
+                        "label": "Update a Brand",
+                        "value": "brands.update",
+                        "description": "Updates an existing brand."
+                    },
+                    {
+                        "label": "Delete a Brand",
+                        "value": "brands.delete",
+                        "description": "Deletes a brand."
+                    },
+                    {
+                        "label": "Bulk Delete Brands",
+                        "value": "brands.bulk_delete",
+                        "description": "Deletes multiple brands in a single request."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the brand operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "brands",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getBrandsForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/brands/query",
+            "body": {
+                "query": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.brands}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.brands)?output.brands:[]);return list.map((x)=>{const id=x&&x.id?x.id:null;const displayName=x&&x.name?x.name:id;return id?Object.assign({},x,{displayName}):null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "body": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        }
+    },
+    "bulk_delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/bulk/brands/delete",
+            "body": {
+                "brandIds": "{{parameters.brand_ids}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const ids = body && body.brandIds; const idList = Array.isArray(ids) ? ids.filter(function (x) { return x != null && String(x).trim(); }).map(String) : (typeof ids === 'string' && ids.trim() ? ids.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : []); if (!idList.length) { throw new Error('Select at least one brand to delete.'); } return { brandIds: idList };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "brands",
+                            "operation": "brands.bulk_delete",
+                            "loadOptionsMethod": "getBrandsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Select at least one brand"
+                        }
+                    },
+                    "description": "Select one or more brands to delete.",
+                    "displayName": "Brands",
+                    "displayType": "multiselect",
+                    "placeholder": "Select brands",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.bulk_delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "brand_ids"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/brands/query",
+            "body": {
+                "query": {
+                    "sort": [
+                        {
+                            "order": "{{parameters.sort_order}}",
+                            "fieldName": "name"
+                        }
+                    ],
+                    "filter": "{{parameters.filter}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.brands}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const query = (out && out.query) ? { ...out.query } : {}; if (typeof query.filter === 'string') { const trimmed = query.filter.trim(); if (!trimmed || isTemplate(trimmed)) { delete query.filter; } else { const parsed = JSON.parse(trimmed); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Filter must be a JSON object.'); } query.filter = parsed; } } if (Array.isArray(query.sort)) { query.sort = query.sort.filter(function (s) { if (!s) return false; const fn = s.fieldName != null ? String(s.fieldName).trim() : ''; const ord = s.order != null ? String(s.order).trim() : ''; if (!fn || !ord) return false; if (isTemplate(fn) || isTemplate(ord)) return false; return true; }); if (query.sort.length === 0) { delete query.sort; } } out.query = query; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON filter object to narrow results. Example: {\"name\": {\"$startsWith\": \"Nike\"}}",
+                    "displayName": "Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON filter (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending (A → Z)",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending (Z → A)",
+                            "value": "DESC"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Sort brands by name in ascending or descending order.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/brands/{{parameters.brand_id}}",
+            "body": {
+                "brand": {
+                    "id": "{{parameters.brand_id}}",
+                    "name": "{{parameters.name}}",
+                    "revision": "{{parameters.revision}}"
+                }
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.brand}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "brands",
+                            "operation": "brands.update",
+                            "loadOptionsMethod": "getBrandsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Brand ID is required"
+                        }
+                    },
+                    "description": "Select the brand to update.",
+                    "displayName": "Brand",
+                    "displayType": "select",
+                    "placeholder": "Select a brand",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "brand_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Revision is required"
+                        }
+                    },
+                    "description": "The brand's current revision (returned from Get/Search). Required by Wix V3 to prevent conflicting updates.",
+                    "displayName": "Revision",
+                    "displayType": "text",
+                    "placeholder": "e.g. 1",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "revision"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated brand name.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter updated name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/brands/{{parameters.brand_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.brand}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "brands",
+                            "operation": "brands.get",
+                            "loadOptionsMethod": "getBrandsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Brand ID is required"
+                        }
+                    },
+                    "description": "Select the brand to retrieve.",
+                    "displayName": "Brand",
+                    "displayType": "select",
+                    "placeholder": "Select a brand",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "brand_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/brands/{{parameters.brand_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'brand has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "brands",
+                            "operation": "brands.delete",
+                            "loadOptionsMethod": "getBrandsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Brand ID is required"
+                        }
+                    },
+                    "description": "Select the brand to delete.",
+                    "displayName": "Brand",
+                    "displayType": "select",
+                    "placeholder": "Select a brand",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "brand_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/brands",
+            "body": {
+                "brand": {
+                    "name": "{{parameters.name}}"
+                }
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.brand}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Brand name is required"
+                        }
+                    },
+                    "description": "The name of the new brand.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter brand name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "brands.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            }
+        ]
+    },
+    "get_all": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/brands/query",
+            "body": {
+                "query": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.brands}}"
+            },
+            "pagination": {
+                "body": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": []
+    }
+}

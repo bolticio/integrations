@@ -1,0 +1,1355 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Data Collections",
+                        "value": "cms.collections_list",
+                        "description": "Retrieves a list of CMS data collections."
+                    },
+                    {
+                        "label": "Get a Data Collection",
+                        "value": "cms.collections_get",
+                        "description": "Returns the schema and metadata of a specified data collection."
+                    },
+                    {
+                        "label": "Get a Data Item",
+                        "value": "cms.items_get",
+                        "description": "Returns a single data item from a collection."
+                    },
+                    {
+                        "label": "Update a Data Item",
+                        "value": "cms.items_update",
+                        "description": "Updates an existing data item."
+                    },
+                    {
+                        "label": "Delete a Data Item",
+                        "value": "cms.items_delete",
+                        "description": "Deletes a data item."
+                    },
+                    {
+                        "label": "Save a Data Item",
+                        "value": "cms.items_save",
+                        "description": "Creates a data item in a collection."
+                    },
+                    {
+                        "label": "Bulk Save Data Items",
+                        "value": "cms.items_bulk_save",
+                        "description": "Inserts or updates multiple data items in a collection."
+                    },
+                    {
+                        "label": "Bulk Remove Data Items",
+                        "value": "cms.items_bulk_remove",
+                        "description": "Removes multiple data items from a collection."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the CMS operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "cms",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "collections_create": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/collections",
+            "body": {
+                "collection": {
+                    "id": "{{parameters.collection_id}}",
+                    "fields": "{{parameters.fields}}",
+                    "displayName": "{{parameters.display_name}}"
+                }
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.collection}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const collection = (out && out.collection) ? { ...out.collection } : {}; if (typeof collection.fields === 'string') { const t = collection.fields.trim(); if (!t || isTemplate(t)) { delete collection.fields; } else { const parsed = JSON.parse(t); if (!Array.isArray(parsed)) { throw new Error('Fields must be a JSON array.'); } collection.fields = parsed; } } out.collection = collection; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Unique identifier for the new data collection.",
+                    "displayName": "Data Collection ID",
+                    "displayType": "text",
+                    "placeholder": "e.g. MyCollection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Display name is required"
+                        }
+                    },
+                    "description": "Human-readable display name for the data collection.",
+                    "displayName": "Display Name",
+                    "displayType": "text",
+                    "placeholder": "Enter display name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "display_name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON array of field schemas. Example: [{\"key\":\"title\",\"displayName\":\"Title\",\"type\":\"TEXT\"}]",
+                    "displayName": "Fields",
+                    "displayType": "code",
+                    "placeholder": "Enter fields JSON array (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "fields"
+            }
+        ]
+    },
+    "collections_delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/collections/{{parameters.collection_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'data collection has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.collections_delete",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection to delete.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            }
+        ]
+    },
+    "collections_update": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/collections/{{parameters.collection_id}}",
+            "body": {
+                "collection": {
+                    "id": "{{parameters.collection_id}}",
+                    "fields": "{{parameters.fields}}",
+                    "displayName": "{{parameters.display_name}}"
+                }
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.collection}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const collection = (out && out.collection) ? { ...out.collection } : {}; if (typeof collection.fields === 'string') { const t = collection.fields.trim(); if (!t || isTemplate(t)) { delete collection.fields; } else { const parsed = JSON.parse(t); if (!Array.isArray(parsed)) { throw new Error('Fields must be a JSON array.'); } collection.fields = parsed; } } out.collection = collection; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.collections_update",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection to update.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated display name.",
+                    "displayName": "Display Name",
+                    "displayType": "text",
+                    "placeholder": "Enter updated display name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "display_name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON array of field schemas. Example: [{\"key\":\"title\",\"displayName\":\"Title\",\"type\":\"TEXT\"}]",
+                    "displayName": "Fields",
+                    "displayType": "code",
+                    "placeholder": "Enter fields JSON array (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "fields"
+            }
+        ]
+    },
+    "getItemsForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/items/query",
+            "body": {
+                "query": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                },
+                "dataCollectionId": "{{parameters.collection_id}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.dataItems}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.dataItems)?output.dataItems:[]);return list.map((x)=>{const id=x&&x.id?x.id:null;const data=(x&&x.data)?x.data:{};const displayName=data.title||data.name||data.displayName||id;return id?Object.assign({},x,{displayName}):null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "body": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 2,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 2,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        }
+    },
+    "getCollectionsForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/collections",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.collections}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.collections)?output.collections:[]);return list.map((x)=>{const id=x&&x.id?x.id:null;const displayName=(x&&(x.displayName||x.defaultDisplayName))?(x.displayName||x.defaultDisplayName):id;return id?Object.assign({},x,{displayName}):null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.offset": "{{response.data.pagingMetadata.offset}} + {{response.data.pagingMetadata.count}}"
+                },
+                "type": "offset",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.offset": 0
+                },
+                "condition": "{{response.data.pagingMetadata.offset}} < {{response.data.pagingMetadata.total}}"
+            }
+        }
+    },
+    "collections_get": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/collections/{{parameters.collection_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.collection}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.collections_get",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection to retrieve.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.collections_get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            }
+        ]
+    },
+    "items_get": {
+        "definition": {
+            "qs": {
+                "dataCollectionId": "{{parameters.collection_id}}"
+            },
+            "url": "https://www.wixapis.com/wix-data/v2/items/{{parameters.item_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.dataItem}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_get",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection that contains the item.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_get",
+                            "collection_id": "{{parameters.collection_id}}",
+                            "loadOptionsMethod": "getItemsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Item is required"
+                        }
+                    },
+                    "description": "Select the data item to retrieve. Select a Data Collection first.",
+                    "displayName": "Data Item",
+                    "displayType": "select",
+                    "placeholder": "Select a data item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_get",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "item_id"
+            }
+        ]
+    },
+    "items_update": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/items/{{parameters.item_id}}",
+            "body": {
+                "patch": {
+                    "dataItemId": "{{parameters.item_id}}",
+                    "fieldModifications": "{{parameters.data}}"
+                },
+                "dataCollectionId": "{{parameters.collection_id}}"
+            },
+            "method": "patch",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.dataItem}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const patch = (out && out.patch) ? { ...out.patch } : {}; const raw = patch.fieldModifications; let mods = []; if (Array.isArray(raw)) { mods = raw.map(function (p) { if (!p) return null; const k = p.key != null ? String(p.key).trim() : (p.fieldPath != null ? String(p.fieldPath).trim() : (p.field != null ? String(p.field).trim() : '')); if (!k || isTemplate(k)) return null; let v = (p.value !== undefined) ? p.value : p.set; if (typeof v === 'string') { const t = v.trim(); if (isTemplate(t)) return null; v = t; } return { fieldPath: k, action: 'SET_FIELD', setFieldOptions: { value: v } }; }).filter(Boolean); } else if (raw && typeof raw === 'object') { mods = Object.keys(raw).map(function (k) { return { fieldPath: k, action: 'SET_FIELD', setFieldOptions: { value: raw[k] } }; }); } if (mods.length === 0) { throw new Error('At least one field to update is required.'); } patch.fieldModifications = mods; out.patch = patch; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_update",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection that contains the item.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_update",
+                            "collection_id": "{{parameters.collection_id}}",
+                            "loadOptionsMethod": "getItemsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Item is required"
+                        }
+                    },
+                    "description": "Select the data item to update. Select a Data Collection first.",
+                    "displayName": "Data Item",
+                    "displayType": "select",
+                    "placeholder": "Select a data item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "item_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field key is required"
+                                    }
+                                },
+                                "description": "Data collection field key, for example title or price.",
+                                "displayName": "Key",
+                                "displayType": "text",
+                                "placeholder": "title"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field value is required"
+                                    }
+                                },
+                                "description": "Value for that collection field.",
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "Hello"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one data field is required"
+                        }
+                    },
+                    "description": "Field values for the data item, keyed by your collection's field API keys.",
+                    "displayName": "Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add data field key-value pairs",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "data"
+            }
+        ]
+    },
+    "collections_list": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/collections",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.collections}}"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.offset": "{{response.data.pagingMetadata.offset}} + {{response.data.pagingMetadata.count}}"
+                },
+                "type": "offset",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.offset": 0
+                },
+                "condition": "{{response.data.pagingMetadata.offset}} < {{response.data.pagingMetadata.total}}"
+            }
+        },
+        "parameters": []
+    },
+    "items_save": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/items/save",
+            "body": {
+                "dataItem": {
+                    "data": "{{parameters.data}}"
+                },
+                "dataCollectionId": "{{parameters.collection_id}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.dataItem}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const dataItem = (out && out.dataItem) ? { ...out.dataItem } : {}; const raw = dataItem.data; let dataObj = null; if (Array.isArray(raw)) { dataObj = {}; raw.forEach(function (p) { if (!p) return; const k = p.key != null ? String(p.key).trim() : ''; if (!k || isTemplate(k)) return; let v = p.value; if (typeof v === 'string') { const t = v.trim(); if (isTemplate(t)) return; v = t; } dataObj[k] = v; }); } else if (raw && typeof raw === 'object') { dataObj = raw; } else if (typeof raw === 'string') { const t = raw.trim(); if (t && !isTemplate(t)) { const parsed = JSON.parse(t); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Data must be a JSON object.'); } dataObj = parsed; } } if (dataObj && Object.keys(dataObj).length > 0) { dataItem.data = dataObj; } else { delete dataItem.data; } if (dataItem.id !== undefined) { if (typeof dataItem.id === 'string') { const t = dataItem.id.trim(); if (!t || isTemplate(t)) { delete dataItem.id; } } } out.dataItem = dataItem; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_save",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection to save the item into.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_save",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field key is required"
+                                    }
+                                },
+                                "description": "Data collection field key, for example title or price.",
+                                "displayName": "Key",
+                                "displayType": "text",
+                                "placeholder": "title"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Field value is required"
+                                    }
+                                },
+                                "description": "Value for that collection field.",
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "Hello"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one data field is required"
+                        }
+                    },
+                    "description": "Field values for the data item, keyed by your collection's field API keys.",
+                    "displayName": "Data",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add data field key-value pairs",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_save",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "data"
+            }
+        ]
+    },
+    "items_delete": {
+        "definition": {
+            "qs": {
+                "dataCollectionId": "{{parameters.collection_id}}"
+            },
+            "url": "https://www.wixapis.com/wix-data/v2/items/{{parameters.item_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'data item has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_delete",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection that contains the item.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_delete",
+                            "collection_id": "{{parameters.collection_id}}",
+                            "loadOptionsMethod": "getItemsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Item is required"
+                        }
+                    },
+                    "description": "Select the data item to delete. Select a Data Collection first.",
+                    "displayName": "Data Item",
+                    "displayType": "select",
+                    "placeholder": "Select a data item",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_delete",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "item_id"
+            }
+        ]
+    },
+    "items_bulk_save": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/bulk/items/save",
+            "body": {
+                "dataItems": "{{parameters.items}}",
+                "dataCollectionId": "{{parameters.collection_id}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody() { const source = (typeof body !== 'undefined' && body) ? body : {}; function isTemplate(value) { return typeof value === 'string' && value.indexOf('{{') !== -1; } function parseMaybeJson(value) { if (typeof value !== 'string') { return value; } const trimmed = value.trim(); if (!trimmed || isTemplate(trimmed)) { return value; } if ((trimmed.charAt(0) === '{' && trimmed.charAt(trimmed.length - 1) === '}') || (trimmed.charAt(0) === '[' && trimmed.charAt(trimmed.length - 1) === ']')) { try { return JSON.parse(trimmed); } catch (e) {} } return value; } function normalizeKeyValue(value) { const parsedValue = parseMaybeJson(value); if (!parsedValue) { return {}; } if (Array.isArray(parsedValue)) { return parsedValue.reduce(function (acc, item) { if (!item) { return acc; } const key = item.key !== undefined && item.key !== null ? String(item.key).trim() : ''; if (key && !isTemplate(key)) { acc[key] = item.value; } return acc; }, {}); } if (typeof parsedValue === 'object') { return parsedValue; } return {}; } function cleanString(value) { if (value === undefined || value === null) { return undefined; } const text = String(value).trim(); if (!text || isTemplate(text)) { return undefined; } return text; } function mapItemEntry(entry) { const obj = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {}; const data = Object.assign({}, normalizeKeyValue(obj.data), normalizeKeyValue(obj.extra_data)); const result = {}; const id = cleanString(obj.item_id !== undefined ? obj.item_id : obj.id); if (id !== undefined) { result.id = id; } result.data = data; return result; } const parsedItems = parseMaybeJson(source.dataItems); const itemEntries = Array.isArray(parsedItems) ? parsedItems : (parsedItems && typeof parsedItems === 'object' ? [parsedItems] : []); const mappedItems = itemEntries.map(mapItemEntry).filter(function (item) { return item && item.data && Object.keys(item.data).length > 0; }); if (!mappedItems.length) { throw new Error('At least one data item is required.'); } return { dataCollectionId: source.dataCollectionId, dataItems: mappedItems }; } return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_bulk_save",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection to save the items into.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_bulk_save",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "children": [
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field key is required"
+                                                }
+                                            },
+                                            "description": "Data collection field key, for example title or price.",
+                                            "displayName": "Key",
+                                            "displayType": "text",
+                                            "placeholder": "title"
+                                        },
+                                        "name": "key"
+                                    },
+                                    {
+                                        "meta": {
+                                            "validation": {
+                                                "required": true,
+                                                "requiredDetail": {
+                                                    "errorMsg": "Field value is required"
+                                                }
+                                            },
+                                            "description": "Value for that collection field.",
+                                            "displayName": "Value",
+                                            "displayType": "text",
+                                            "placeholder": "Hello"
+                                        },
+                                        "name": "value"
+                                    }
+                                ],
+                                "htmlProps": {
+                                    "allowAdd": true,
+                                    "allowDynamic": true
+                                },
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "At least one data field is required"
+                                    }
+                                },
+                                "description": "Field values for this data item, keyed by your collection's field API keys.",
+                                "displayName": "Data",
+                                "displayType": "keyvalue",
+                                "placeholder": "Add data field key-value pairs"
+                            },
+                            "name": "data"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true,
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one data item is required"
+                        }
+                    },
+                    "description": "One or more data items to save. Providing a Data Item ID updates or creates that ID; leaving it blank creates a new item.",
+                    "displayName": "Items",
+                    "displayType": "array",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_bulk_save",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "items"
+            }
+        ]
+    },
+    "items_bulk_remove": {
+        "definition": {
+            "url": "https://www.wixapis.com/wix-data/v2/bulk/items/remove",
+            "body": {
+                "dataItemIds": "{{parameters.item_ids}}",
+                "dataCollectionId": "{{parameters.collection_id}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody() { const source = (typeof body !== 'undefined' && body) ? body : {}; function isTemplate(value) { return typeof value === 'string' && value.indexOf('{{') !== -1; } function parseMaybeJson(value) { if (typeof value !== 'string') { return value; } const trimmed = value.trim(); if (!trimmed || isTemplate(trimmed)) { return value; } if ((trimmed.charAt(0) === '[' && trimmed.charAt(trimmed.length - 1) === ']') || (trimmed.charAt(0) === '{' && trimmed.charAt(trimmed.length - 1) === '}')) { try { return JSON.parse(trimmed); } catch (e) {} } return value; } function normalizeStringArray(value) { const parsedValue = parseMaybeJson(value); if (Array.isArray(parsedValue)) { return parsedValue.map(function (item) { return item === undefined || item === null ? '' : String(item).trim(); }).filter(function (item) { return item && !isTemplate(item); }); } if (typeof parsedValue === 'string') { return parsedValue.split(',').map(function (item) { return item.trim(); }).filter(function (item) { return item && !isTemplate(item); }); } return []; } const itemIds = normalizeStringArray(source.dataItemIds); if (!itemIds.length) { throw new Error('Select at least one data item to remove.'); } return { dataCollectionId: source.dataCollectionId, dataItemIds: itemIds }; } return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_bulk_remove",
+                            "loadOptionsMethod": "getCollectionsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Data Collection ID is required"
+                        }
+                    },
+                    "description": "Select the data collection that contains the items.",
+                    "displayName": "Data Collection",
+                    "displayType": "select",
+                    "placeholder": "Select a data collection",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_bulk_remove",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "collection_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "cms",
+                            "operation": "cms.items_bulk_remove",
+                            "collection_id": "{{parameters.collection_id}}",
+                            "loadOptionsMethod": "getItemsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Select at least one data item"
+                        }
+                    },
+                    "description": "Select one or more data items to remove. Select a Data Collection first.",
+                    "displayName": "Data Items",
+                    "displayType": "multiselect",
+                    "placeholder": "Select data items",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "cms.items_bulk_remove",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "collection_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "item_ids"
+            }
+        ]
+    }
+}

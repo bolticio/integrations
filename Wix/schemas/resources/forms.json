@@ -1,0 +1,684 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Forms",
+                        "value": "forms.list",
+                        "description": "Retrieves a list of forms."
+                    },
+                    {
+                        "label": "Get a Form",
+                        "value": "forms.get",
+                        "description": "Returns the data of a specified form."
+                    },
+                    {
+                        "label": "Update a Form",
+                        "value": "forms.update",
+                        "description": "Updates an existing form."
+                    },
+                    {
+                        "label": "Delete a Form",
+                        "value": "forms.delete",
+                        "description": "Deletes a form."
+                    },
+                    {
+                        "label": "Get Form Summary",
+                        "value": "forms.summary",
+                        "description": "Returns a summary of a specified form."
+                    },
+                    {
+                        "label": "Get Form Submissions",
+                        "value": "forms.get_submissions",
+                        "description": "Retrieves submissions for a specified form."
+                    },
+                    {
+                        "label": "Get Form Submission",
+                        "value": "forms.get_submission",
+                        "description": "Returns a specified form submission by ID."
+                    },
+                    {
+                        "label": "Delete Form Submission",
+                        "value": "forms.delete_submission",
+                        "description": "Deletes a specified form submission by ID."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the form operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "forms",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getFormsForOptions": {
+        "definition": {
+            "qs": {
+                "namespace": "wix.form_app.form"
+            },
+            "url": "https://www.wixapis.com/form-schema-service/v4/forms",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.forms}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.forms)?output.forms:[]);return list.map((x)=>{const id=x&&x.id?x.id:null;const props=(x&&x.properties)?x.properties:{};const displayName=props.name||x&&x.name||x&&x.title||id;return id?Object.assign({},x,{displayName}):null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.cursor": null
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        }
+    },
+    "summary": {
+        "definition": {
+            "url": "https://www.wixapis.com/form-schema-service/v4/forms/{{parameters.form_id}}/summary",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.summary",
+                            "loadOptionsMethod": "getFormsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "Select the form to summarize.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.summary",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://www.wixapis.com/form-schema-service/v4/forms/{{parameters.form_id}}",
+            "body": {
+                "form": "{{parameters.form}}"
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.form}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); if (typeof out.form === 'string') { const t = out.form.trim(); if (!t || isTemplate(t)) { delete out.form; } else { const parsed = JSON.parse(t); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Form must be a JSON object.'); } out.form = parsed; } } return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.update",
+                            "loadOptionsMethod": "getFormsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "Select the form to update.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form payload is required"
+                        }
+                    },
+                    "description": "JSON object containing the form fields to update. Tip: run Get a Form first and edit only the fields you want to change.",
+                    "displayName": "Form Payload",
+                    "displayType": "code",
+                    "placeholder": "Enter form JSON payload",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "namespace": "wix.form_app.form"
+            },
+            "url": "https://www.wixapis.com/form-schema-service/v4/forms",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.forms}}"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.cursor": null
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": []
+    },
+    "delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/form-schema-service/v4/forms/{{parameters.form_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'form has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.delete",
+                            "loadOptionsMethod": "getFormsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "Select the form to delete.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.wixapis.com/form-schema-service/v4/forms/{{parameters.form_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.form}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.get",
+                            "loadOptionsMethod": "getFormsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "Select the form to retrieve.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            }
+        ]
+    },
+    "get_submissions": {
+        "definition": {
+            "url": "https://www.wixapis.com/form-submission-service/v4/submissions/namespace/query",
+            "body": {
+                "query": {
+                    "sort": [
+                        {
+                            "order": "{{parameters.sort_order}}",
+                            "fieldName": "{{parameters.sort_field}}"
+                        }
+                    ],
+                    "filter": {
+                        "formId": "{{parameters.form_id}}",
+                        "namespace": "wix.form_app.form"
+                    },
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.submissions}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const query = (out && out.query) ? { ...out.query } : {}; if (Array.isArray(query.sort)) { query.sort = query.sort.filter(function (s) { if (!s) return false; const fn = s.fieldName != null ? String(s.fieldName).trim() : ''; const ord = s.order != null ? String(s.order).trim() : ''; if (!fn || !ord) return false; if (isTemplate(fn) || isTemplate(ord)) return false; return true; }); if (query.sort.length === 0) { delete query.sort; } } out.query = query; return out;",
+                "output": "let submissions = output; if (typeof submissions === 'string') { try { submissions = JSON.parse(submissions); } catch (e) { submissions = []; } } if (!Array.isArray(submissions)) submissions = []; return submissions.map(s => ({ ...s, created_at: s?.updatedDate || s?._updatedDate || s?.createdDate || s?._createdDate || s?.submittedDate || null })).filter(s => !!s.created_at);"
+            },
+            "pagination": {
+                "body": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "forms",
+                            "operation": "forms.get_submissions",
+                            "loadOptionsMethod": "getFormsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form ID is required"
+                        }
+                    },
+                    "description": "Select a form from the list, or paste a Form ID directly. Forms appear after they receive at least one submission.",
+                    "displayName": "Form",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a form or enter Form ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "forms",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "forms.get_submissions",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Updated Date",
+                            "value": "updatedDate"
+                        },
+                        {
+                            "label": "Created Date",
+                            "value": "createdDate"
+                        }
+                    ],
+                    "description": "Optional. Field to sort submissions by.",
+                    "displayName": "Sort By",
+                    "displayType": "select",
+                    "placeholder": "Select sort field",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.get_submissions",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_field"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "DESC"
+                        }
+                    ],
+                    "description": "Optional. Sort order for submissions.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.get_submissions",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    },
+    "get_submission": {
+        "definition": {
+            "url": "https://www.wixapis.com/form-submission-service/v4/submissions/{{parameters.submission_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.submission}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Submission ID is required"
+                        }
+                    },
+                    "description": "The ID of the form submission to retrieve.",
+                    "displayName": "Submission ID",
+                    "displayType": "text",
+                    "placeholder": "Enter submission ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.get_submission",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "submission_id"
+            }
+        ]
+    },
+    "delete_submission": {
+        "definition": {
+            "url": "https://www.wixapis.com/form-submission-service/v4/submissions/{{parameters.submission_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'submission has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "",
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Submission ID is required"
+                        }
+                    },
+                    "description": "The ID of the form submission to delete.",
+                    "displayName": "Submission ID",
+                    "displayType": "text",
+                    "placeholder": "Enter submission ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "forms.delete_submission",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "submission_id"
+            }
+        ]
+    }
+}

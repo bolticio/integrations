@@ -1,0 +1,196 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Make an API Call",
+                        "value": "custom.custom_api",
+                        "description": "Performs an arbitrary authorized API call."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Perform an arbitrary authorized API call to any Google Forms, Drive, or Sheets endpoint.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "custom",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "custom_api": {
+        "definition": {
+            "qs": "{{parameters.query_params}}",
+            "url": "{{parameters.base_url}}",
+            "body": "{{parameters.body}}",
+            "method": "{{parameters.method}}",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL(){var u=(typeof parameters!=='undefined'&&parameters&&parameters.base_url!=null)?parameters.base_url:'{{parameters.base_url}}';u=String(u).trim().replace(/\\s+/g,'').replace(/^\\\"|\\\"$/g,'');if(!u)throw new Error('Invalid base_url');return u;}return transformURL();",
+                "error": "if (error.code == 'undefined') { return { message: 'Invalid URL: the provided value is not a valid HTTP/HTTPS URL', code: 400 }; } return error;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "get",
+                    "options": [
+                        {
+                            "label": "GET",
+                            "value": "get"
+                        },
+                        {
+                            "label": "POST",
+                            "value": "post"
+                        },
+                        {
+                            "label": "PUT",
+                            "value": "put"
+                        },
+                        {
+                            "label": "PATCH",
+                            "value": "patch"
+                        },
+                        {
+                            "label": "DELETE",
+                            "value": "delete"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The HTTP method to use for the request.",
+                    "displayName": "Method",
+                    "displayType": "select",
+                    "placeholder": "Select HTTP method",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "custom.custom_api",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "method"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "The full URL of the Google API endpoint to call.",
+                    "displayName": "Base URL",
+                    "displayType": "url",
+                    "placeholder": "Eg. https://forms.googleapis.com/v1/forms/{formId}",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "custom.custom_api",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "base_url"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Key is required"
+                                    }
+                                },
+                                "displayName": "key",
+                                "displayType": "text"
+                            },
+                            "name": "key"
+                        },
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "value",
+                                "displayType": "text"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "description": "Optional. Query string parameters to send with the request.",
+                    "displayName": "Query String",
+                    "displayType": "keyvalue",
+                    "placeholder": "Add query string key-value pairs",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "custom.custom_api",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "query_params"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "The JSON payload body for POST/PUT/PATCH requests.",
+                    "displayName": "Body",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON body (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "custom.custom_api",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "body"
+            }
+        ]
+    }
+}

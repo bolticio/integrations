@@ -1,0 +1,723 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Contacts",
+                        "value": "contacts.list",
+                        "description": "Lists contacts in the site."
+                    },
+                    {
+                        "label": "Get a Contact",
+                        "value": "contacts.get",
+                        "description": "Returns the data of a specified contact."
+                    },
+                    {
+                        "label": "Create a Contact",
+                        "value": "contacts.create",
+                        "description": "Creates a new contact. At least one of name, email, or phone is required."
+                    },
+                    {
+                        "label": "Update a Contact",
+                        "value": "contacts.update",
+                        "description": "Updates an existing contact."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the contact operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "contacts",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getContactsForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/contacts/v4/contacts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contacts}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.contacts)?output.contacts:[]);return list.map((c)=>{const id=c&&c.id?c.id:null;const info=c&&c.info?c.info:{};const name=info.name||{};const extended=info.extendedFields&&info.extendedFields.items?info.extendedFields.items:{};const first=name.first?String(name.first).trim():'';const last=name.last?String(name.last).trim():'';const fullName=[first,last].filter(Boolean).join(' ');const displayByFirst=extended['contacts.displayByFirstName']?String(extended['contacts.displayByFirstName']).trim():'';const email=(c&&c.primaryInfo&&c.primaryInfo.email)||(info.emails&&Array.isArray(info.emails.items)&&info.emails.items[0]?info.emails.items[0].email:null);const phone=(c&&c.primaryInfo&&c.primaryInfo.phone)||(info.phones&&Array.isArray(info.phones.items)&&info.phones.items[0]?info.phones.items[0].phone:null);const displayName=fullName||displayByFirst||email||phone||id;return id?Object.assign({},c,{displayName}):null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.offset": "{{response.data.pagingMetadata.offset}} + {{response.data.pagingMetadata.count}}"
+                },
+                "type": "offset",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.offset": 0
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        }
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.wixapis.com/contacts/v4/contacts/{{parameters.contact_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contact}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contacts",
+                            "operation": "contacts.get",
+                            "loadOptionsMethod": "getContactsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Contact ID is required"
+                        }
+                    },
+                    "description": "Select the contact to retrieve.",
+                    "displayName": "Contact",
+                    "displayType": "select",
+                    "placeholder": "Select a contact",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "contact_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.wixapis.com/contacts/v4/contacts",
+            "body": {
+                "info": {
+                    "name": {
+                        "last": "{{parameters.last_name}}",
+                        "first": "{{parameters.first_name}}"
+                    },
+                    "emails": {
+                        "items": [
+                            {
+                                "tag": "{{parameters.email_tag}}",
+                                "email": "{{parameters.email}}"
+                            }
+                        ]
+                    },
+                    "phones": {
+                        "items": [
+                            {
+                                "tag": "{{parameters.phone_tag}}",
+                                "phone": "{{parameters.phone}}"
+                            }
+                        ]
+                    }
+                }
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contact}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "description": "Optional. Contact's first name.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Contact's last name.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Email is required"
+                        }
+                    },
+                    "description": "Contact's email address.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter email address",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "value": "MAIN",
+                    "options": [
+                        {
+                            "label": "Main",
+                            "value": "MAIN"
+                        },
+                        {
+                            "label": "Home",
+                            "value": "HOME"
+                        },
+                        {
+                            "label": "Work",
+                            "value": "WORK"
+                        },
+                        {
+                            "label": "Other",
+                            "value": "OTHER"
+                        }
+                    ],
+                    "description": "Optional. Tag for the email address.",
+                    "displayName": "Email Tag",
+                    "displayType": "select",
+                    "placeholder": "Select email tag",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "email_tag"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Phone number is required"
+                        }
+                    },
+                    "description": "Contact's phone number.",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "value": "MAIN",
+                    "options": [
+                        {
+                            "label": "Main",
+                            "value": "MAIN"
+                        },
+                        {
+                            "label": "Home",
+                            "value": "HOME"
+                        },
+                        {
+                            "label": "Mobile",
+                            "value": "MOBILE"
+                        },
+                        {
+                            "label": "Work",
+                            "value": "WORK"
+                        },
+                        {
+                            "label": "Other",
+                            "value": "OTHER"
+                        }
+                    ],
+                    "description": "Optional. Tag for the phone number.",
+                    "displayName": "Phone Tag",
+                    "displayType": "select",
+                    "placeholder": "Select phone tag",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "phone_tag"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://www.wixapis.com/contacts/v4/contacts/{{parameters.contact_id}}",
+            "body": {
+                "info": {
+                    "name": {
+                        "last": "{{parameters.last_name}}",
+                        "first": "{{parameters.first_name}}"
+                    },
+                    "emails": {
+                        "items": [
+                            {
+                                "tag": "{{parameters.email_tag}}",
+                                "email": "{{parameters.email}}"
+                            }
+                        ]
+                    },
+                    "phones": {
+                        "items": [
+                            {
+                                "tag": "{{parameters.phone_tag}}",
+                                "phone": "{{parameters.phone}}"
+                            }
+                        ]
+                    }
+                },
+                "revision": "{{parameters.revision}}"
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contact}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contacts",
+                            "operation": "contacts.update",
+                            "loadOptionsMethod": "getContactsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Contact ID is required"
+                        }
+                    },
+                    "description": "Select the contact to update.",
+                    "displayName": "Contact",
+                    "displayType": "select",
+                    "placeholder": "Select a contact",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "contact_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Revision is required"
+                        }
+                    },
+                    "description": "The contact's current revision (returned from Get/List). Required by Wix to prevent conflicting updates.",
+                    "displayName": "Revision",
+                    "displayType": "text",
+                    "placeholder": "e.g. 1",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "revision"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Contact's first name.",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "first_name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Contact's last name.",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "last_name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Contact's email address.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter email address",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "value": "MAIN",
+                    "options": [
+                        {
+                            "label": "Main",
+                            "value": "MAIN"
+                        },
+                        {
+                            "label": "Home",
+                            "value": "HOME"
+                        },
+                        {
+                            "label": "Work",
+                            "value": "WORK"
+                        },
+                        {
+                            "label": "Other",
+                            "value": "OTHER"
+                        }
+                    ],
+                    "description": "Optional. Tag for the email address.",
+                    "displayName": "Email Tag",
+                    "displayType": "select",
+                    "placeholder": "Select email tag",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "email_tag"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Contact's phone number.",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "value": "MAIN",
+                    "options": [
+                        {
+                            "label": "Main",
+                            "value": "MAIN"
+                        },
+                        {
+                            "label": "Home",
+                            "value": "HOME"
+                        },
+                        {
+                            "label": "Mobile",
+                            "value": "MOBILE"
+                        },
+                        {
+                            "label": "Work",
+                            "value": "WORK"
+                        },
+                        {
+                            "label": "Other",
+                            "value": "OTHER"
+                        }
+                    ],
+                    "description": "Optional. Tag for the phone number.",
+                    "displayName": "Phone Tag",
+                    "displayType": "select",
+                    "placeholder": "Select phone tag",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "phone_tag"
+            }
+        ]
+    },
+    "list": {
+        "definition": {
+            "qs": {
+                "sort.order": "{{parameters.sort_order}}",
+                "sort.fieldName": "{{parameters.sort_field}}"
+            },
+            "url": "https://www.wixapis.com/contacts/v4/contacts",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contacts}}"
+            },
+            "pagination": {
+                "qs": {
+                    "paging.limit": 100,
+                    "paging.offset": "{{response.data.pagingMetadata.offset}} + {{response.data.pagingMetadata.count}}"
+                },
+                "type": "offset",
+                "default": {
+                    "paging.limit": 100,
+                    "paging.offset": 0
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Created Date",
+                            "value": "createdDate"
+                        },
+                        {
+                            "label": "Updated Date",
+                            "value": "updatedDate"
+                        },
+                        {
+                            "label": "First Name",
+                            "value": "info.name.first"
+                        },
+                        {
+                            "label": "Last Name",
+                            "value": "info.name.last"
+                        }
+                    ],
+                    "description": "Optional. Field to sort contacts by.",
+                    "displayName": "Sort By",
+                    "displayType": "select",
+                    "placeholder": "Select sort field",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_field"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "DESC"
+                        }
+                    ],
+                    "description": "Optional. Sort order.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "contacts.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    }
+}

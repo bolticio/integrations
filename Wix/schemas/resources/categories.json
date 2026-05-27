@@ -1,0 +1,897 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Search Categories",
+                        "value": "categories.search",
+                        "description": "Searches for categories by filter parameter."
+                    },
+                    {
+                        "label": "Get all categories",
+                        "value": "categories.get_all",
+                        "description": "Returns all categories."
+                    },
+                    {
+                        "label": "Get a Category",
+                        "value": "categories.get",
+                        "description": "Returns the data of a specified category."
+                    },
+                    {
+                        "label": "Create a Category",
+                        "value": "categories.create",
+                        "description": "Creates a new category."
+                    },
+                    {
+                        "label": "Update a Category",
+                        "value": "categories.update",
+                        "description": "Updates an existing category."
+                    },
+                    {
+                        "label": "Delete a Category",
+                        "value": "categories.delete",
+                        "description": "Deletes a category."
+                    },
+                    {
+                        "label": "Add Products to a Category",
+                        "value": "categories.add_products",
+                        "description": "Adds the products to a specified category."
+                    },
+                    {
+                        "label": "Remove Products from Categories",
+                        "value": "categories.delete_products",
+                        "description": "Removes the products from specified categories."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the category operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "categories",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getCategoriesForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/categories/v1/categories/search",
+            "body": {
+                "search": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                },
+                "treeReference": {
+                    "appNamespace": "@wix/stores"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.categories}}"
+            },
+            "transform": {
+                "output": "const list = Array.isArray(output) ? output : (output && Array.isArray(output.categories) ? output.categories : []); return list.filter(c => c && c.id).map(c => Object.assign({}, c, { displayName: c.name || c.id }));"
+            },
+            "pagination": {
+                "body": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        }
+    },
+    "add_products": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/bulk/products/add-to-categories-by-filter",
+            "body": {
+                "filter": "{{parameters.filter}}",
+                "categoryIds": "{{parameters.category_ids}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const out = { ...body }; if (typeof out.categoryIds === 'string') { const trimmed = out.categoryIds.trim(); if (trimmed.startsWith('[')) { out.categoryIds = JSON.parse(trimmed); } else if (trimmed) { out.categoryIds = [trimmed]; } } if (typeof out.filter === 'string') { const trimmedFilter = out.filter.trim(); if (!trimmedFilter) { throw new Error('Filter must be a valid JSON object.'); } const parsedFilter = JSON.parse(trimmedFilter); if (!parsedFilter || Array.isArray(parsedFilter) || typeof parsedFilter !== 'object') { throw new Error('Filter must be a JSON object.'); } out.filter = parsedFilter; } return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "categories",
+                            "operation": "categories.add_products",
+                            "loadOptionsMethod": "getCategoriesForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one category is required (max 5)"
+                        }
+                    },
+                    "description": "Select up to 5 categories to add the matched products to.",
+                    "displayName": "Categories",
+                    "displayType": "multiselect",
+                    "placeholder": "Select categories",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.add_products",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "category_ids"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Filter is required"
+                        }
+                    },
+                    "description": "Wix Query Language filter selecting which products to add. Example: {\"id\":{\"$in\":[\"product-id-1\",\"product-id-2\"]}} to target specific products.",
+                    "displayName": "Product Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter a JSON filter, e.g. {\"id\":{\"$in\":[\"product-id-1\"]}}",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.add_products",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            }
+        ]
+    },
+    "delete_products": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/bulk/products/remove-from-categories-by-filter",
+            "body": {
+                "filter": "{{parameters.filter}}",
+                "categoryIds": "{{parameters.category_ids}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const out = { ...body }; if (typeof out.categoryIds === 'string') { const trimmed = out.categoryIds.trim(); if (trimmed.startsWith('[')) { out.categoryIds = JSON.parse(trimmed); } else if (trimmed) { out.categoryIds = [trimmed]; } } if (typeof out.filter === 'string') { const trimmedFilter = out.filter.trim(); if (!trimmedFilter) { throw new Error('Filter must be a valid JSON object.'); } const parsedFilter = JSON.parse(trimmedFilter); if (!parsedFilter || Array.isArray(parsedFilter) || typeof parsedFilter !== 'object') { throw new Error('Filter must be a JSON object.'); } out.filter = parsedFilter; } return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "categories",
+                            "operation": "categories.delete_products",
+                            "loadOptionsMethod": "getCategoriesForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one category is required (max 5)"
+                        }
+                    },
+                    "description": "Select up to 5 categories to remove the matched products from.",
+                    "displayName": "Categories",
+                    "displayType": "multiselect",
+                    "placeholder": "Select categories",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.delete_products",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "category_ids"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Filter is required"
+                        }
+                    },
+                    "description": "Wix Query Language filter selecting which products to remove from the chosen categories. Example: {\"id\":{\"$in\":[\"product-id-1\",\"product-id-2\"]}} to target specific products.",
+                    "displayName": "Product Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter a JSON filter, e.g. {\"id\":{\"$in\":[\"product-id-1\"]}}",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.delete_products",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "url": "https://www.wixapis.com/categories/v1/categories/search",
+            "body": {
+                "search": {
+                    "sort": [
+                        {
+                            "order": "{{parameters.sort_order}}",
+                            "fieldName": "name"
+                        }
+                    ],
+                    "filter": "{{parameters.filter}}"
+                },
+                "treeReference": {
+                    "appNamespace": "@wix/stores"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.categories}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const search = (out && out.search) ? { ...out.search } : {}; if (typeof search.filter === 'string') { const trimmed = search.filter.trim(); if (!trimmed || isTemplate(trimmed)) { delete search.filter; } else { const parsed = JSON.parse(trimmed); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Filter must be a JSON object.'); } search.filter = parsed; } } if (Array.isArray(search.sort)) { search.sort = search.sort.filter(function (s) { if (!s) return false; const fn = s.fieldName != null ? String(s.fieldName).trim() : ''; const ord = s.order != null ? String(s.order).trim() : ''; if (!fn || !ord) return false; if (isTemplate(fn) || isTemplate(ord)) return false; return true; }); if (search.sort.length === 0) { delete search.sort; } } if (search.cursorPaging) { const c = search.cursorPaging.cursor; if (c === undefined || c === null || c === '' || (typeof c === 'string' && (isTemplate(c) || c.trim().toLowerCase() === 'undefined' || c.trim().toLowerCase() === 'null'))) { delete search.cursorPaging.cursor; } } out.search = search; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON filter object to narrow results. Example: {\"name\": {\"$startsWith\": \"Summer\"}}",
+                    "displayName": "Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON filter (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending (A → Z)",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending (Z → A)",
+                            "value": "DESC"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Sort categories by name in ascending or descending order.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://www.wixapis.com/categories/v1/categories/{{parameters.category_id}}",
+            "body": {
+                "category": {
+                    "name": "{{parameters.name}}",
+                    "slug": "{{parameters.slug}}",
+                    "visible": "{{parameters.visible}}",
+                    "revision": "{{parameters.revision}}",
+                    "description": "{{parameters.description}}"
+                },
+                "treeReference": {
+                    "appNamespace": "@wix/stores"
+                }
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.category}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "categories",
+                            "operation": "categories.update",
+                            "loadOptionsMethod": "getCategoriesForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Category ID is required"
+                        }
+                    },
+                    "description": "Select the category to update.",
+                    "displayName": "Category",
+                    "displayType": "select",
+                    "placeholder": "Select a category",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "category_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Revision is required"
+                        }
+                    },
+                    "description": "Current revision number of the category. Get the latest revision by running 'Get a Category' first — Wix uses this for optimistic concurrency.",
+                    "displayName": "Revision",
+                    "displayType": "text",
+                    "placeholder": "e.g. 2",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "revision"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated name for the category.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter updated name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated description for the category.",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter updated description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Updated category visibility.",
+                    "displayName": "Visible",
+                    "displayType": "toggle",
+                    "placeholder": "Category visibility",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "visible"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated URL-friendly slug for the category.",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "e.g. summer-sale",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "qs": {
+                "treeReference.appNamespace": "@wix/stores"
+            },
+            "url": "https://www.wixapis.com/categories/v1/categories/{{parameters.category_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return { message: 'Category has been deleted successfully!' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "categories",
+                            "operation": "categories.delete",
+                            "loadOptionsMethod": "getCategoriesForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Category ID is required"
+                        }
+                    },
+                    "description": "Select the category to delete.",
+                    "displayName": "Category",
+                    "displayType": "select",
+                    "placeholder": "Select a category",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "category_id"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.wixapis.com/categories/v1/categories",
+            "body": {
+                "category": {
+                    "name": "{{parameters.name}}",
+                    "slug": "{{parameters.slug}}",
+                    "visible": "{{parameters.visible}}",
+                    "description": "{{parameters.description}}"
+                },
+                "treeReference": {
+                    "appNamespace": "@wix/stores"
+                }
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.category}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Category name is required"
+                        }
+                    },
+                    "description": "The name of the new category.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter category name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Description for the new category.",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter category description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Whether the category is visible to site visitors.",
+                    "displayName": "Visible",
+                    "displayType": "toggle",
+                    "placeholder": "Category visibility",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "visible"
+            },
+            {
+                "meta": {
+                    "description": "Optional. URL-friendly slug for the category. If omitted, Wix generates one from the category name.",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "e.g. summer-sale",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "qs": {
+                "treeReference.appNamespace": "@wix/stores"
+            },
+            "url": "https://www.wixapis.com/categories/v1/categories/{{parameters.category_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return (output && output.category) ? output.category : output;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "categories",
+                            "operation": "categories.get",
+                            "loadOptionsMethod": "getCategoriesForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Category ID is required"
+                        }
+                    },
+                    "description": "Select the category to retrieve.",
+                    "displayName": "Category",
+                    "displayType": "select",
+                    "placeholder": "Select a category",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "categories.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "category_id"
+            }
+        ]
+    },
+    "get_all": {
+        "definition": {
+            "url": "https://www.wixapis.com/categories/v1/categories/search",
+            "body": {
+                "search": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                },
+                "treeReference": {
+                    "appNamespace": "@wix/stores"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.categories}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); if (out.search && out.search.cursorPaging) { const c = out.search.cursorPaging.cursor; if (c === undefined || c === null || c === '' || (typeof c === 'string' && (isTemplate(c) || c.trim().toLowerCase() === 'undefined' || c.trim().toLowerCase() === 'null'))) { delete out.search.cursorPaging.cursor; } } return out;"
+            },
+            "pagination": {
+                "body": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": []
+    }
+}

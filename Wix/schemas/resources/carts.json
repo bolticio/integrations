@@ -1,0 +1,128 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Get a Cart",
+                        "value": "carts.get",
+                        "description": "Returns the data of a specified cart."
+                    },
+                    {
+                        "label": "Delete a Cart",
+                        "value": "carts.delete",
+                        "description": "Deletes a cart."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the cart operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "carts",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "get": {
+        "definition": {
+            "url": "https://www.wixapis.com/ecom/v1/carts/{{parameters.cart_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.cart}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Cart ID is required"
+                        }
+                    },
+                    "description": "The ID of the cart to retrieve.",
+                    "displayName": "Cart ID",
+                    "displayType": "text",
+                    "placeholder": "Enter cart ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "carts.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "cart_id"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/ecom/v1/carts/{{parameters.cart_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'cart has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Cart ID is required"
+                        }
+                    },
+                    "description": "The ID of the cart to delete.",
+                    "displayName": "Cart ID",
+                    "displayType": "text",
+                    "placeholder": "Enter cart ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "carts.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "cart_id"
+            }
+        ]
+    }
+}

@@ -1,0 +1,887 @@
+{
+    "getSheets": {
+        "definition": {
+            "qs": {
+                "fields": "sheets(properties(title,sheetId))"
+            },
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/{{parameters.spreadsheet_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.sheets}}"
+            },
+            "transform": {
+                "output": "const sheets=Array.isArray(output)?output:(output&&Array.isArray(output.sheets)?output.sheets:(output?[output]:[]));return sheets.map((x)=>{const title=x&&x.properties&&x.properties.title?x.properties.title:null;return title?{...x,id:title,title:title,displayName:title}:null;}).filter(Boolean);"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Search Responses in Google Sheets",
+                        "value": "sheets_responses.search",
+                        "description": "Returns responses matching the given criteria in the Google Sheets table."
+                    },
+                    {
+                        "label": "Search Responses in Google Sheets (Advanced)",
+                        "value": "sheets_responses.search_advanced",
+                        "description": "Returns results matching the given criteria in the Google Sheets table using the Google Charts Query Language."
+                    },
+                    {
+                        "label": "Add a Response in Google Sheets",
+                        "value": "sheets_responses.add",
+                        "description": "Appends a new response to the bottom of the Google Sheets table."
+                    },
+                    {
+                        "label": "Update a Response in Google Sheets",
+                        "value": "sheets_responses.update",
+                        "description": "Updates a response in the Google Sheets table."
+                    },
+                    {
+                        "label": "Delete a Response in Google Sheets",
+                        "value": "sheets_responses.delete",
+                        "description": "Deletes a specific response from the bottom of the Google Sheets table."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the legacy Google Sheets response operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "sheets_responses",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getSpreadsheets": {
+        "definition": {
+            "qs": {
+                "q": "mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+                "fields": "files(id,name),nextPageToken",
+                "pageSize": 100
+            },
+            "url": "https://www.googleapis.com/drive/v3/files",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.files}}"
+            },
+            "transform": {
+                "output": "const files=Array.isArray(output)?output:(output&&Array.isArray(output.files)?output.files:[]);return files.map((x)=>{const id=x&&x.id?x.id:null;const label=x&&x.name?x.name:id;return id?{...x,name:label,displayName:label}:null;}).filter(Boolean);"
+            }
+        }
+    },
+    "search_advanced": {
+        "definition": {
+            "qs": {
+                "tq": "{{parameters.query}}",
+                "tqx": "out:json",
+                "sheet": "{{parameters.sheet_name}}"
+            },
+            "url": "https://docs.google.com/spreadsheets/d/{{parameters.spreadsheet_id}}/gviz/tq",
+            "method": "get",
+            "headers": {
+                "Accept": "text/plain",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "const raw = typeof output === 'string' ? output : JSON.stringify(output); const match = raw.match(/google\\.visualization\\.Query\\.setResponse\\(([\\s\\S]+?)\\);?\\s*$/); if (!match) return []; let parsed; try { parsed = JSON.parse(match[1]); } catch(e) { return []; } if (!parsed) return []; if (parsed.status === 'error') { const errors = Array.isArray(parsed.errors) ? parsed.errors : []; const message = errors.map((e) => e && (e.detailed_message || e.message || e.reason)).filter(Boolean).join('; ') || 'Google Sheets query failed'; throw new Error(message); } if (!parsed.table) return []; const cols = parsed.table.cols || []; const rows = parsed.table.rows || []; return rows.map((r) => { const obj = {}; cols.forEach((c, i) => { const key = c.label || c.id || ('col' + i); const cell = r.c && r.c[i]; obj[key] = cell && cell.v != null ? cell.v : ''; }); return obj; });"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.search_advanced",
+                            "loadOptionsMethod": "getSpreadsheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Spreadsheet is required"
+                        }
+                    },
+                    "description": "The Google Sheets spreadsheet that stores the form responses.",
+                    "displayName": "Spreadsheet",
+                    "displayType": "select",
+                    "placeholder": "Select a spreadsheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search_advanced",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "spreadsheet_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.search_advanced",
+                            "spreadsheet_id": "{{parameters.spreadsheet_id}}",
+                            "loadOptionsMethod": "getSheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.spreadsheet_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Sheet is required"
+                        }
+                    },
+                    "description": "The sheet (tab) within the spreadsheet to query.",
+                    "displayName": "Sheet",
+                    "displayType": "select",
+                    "placeholder": "Select a sheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search_advanced",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sheet_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Query is required"
+                        }
+                    },
+                    "description": "Use the Google Charts Query Language. For Google Sheets, reference columns by letter identifiers (A, B, C); header labels such as E-mail are labels, not identifiers.",
+                    "displayName": "Query",
+                    "displayType": "textarea",
+                    "placeholder": "select * where B = '11111111'",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search_advanced",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sheet_name",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "query"
+            }
+        ]
+    },
+    "add": {
+        "definition": {
+            "qs": {
+                "insertDataOption": "INSERT_ROWS",
+                "valueInputOption": "USER_ENTERED"
+            },
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/{{parameters.spreadsheet_id}}/values/{{parameters.sheet_name}}:append",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL(){var spreadsheetId=(typeof parameters!=='undefined'&&parameters&&parameters.spreadsheet_id!=null)?parameters.spreadsheet_id:'{{parameters.spreadsheet_id}}';var sheetName=(typeof parameters!=='undefined'&&parameters&&parameters.sheet_name!=null)?parameters.sheet_name:'{{parameters.sheet_name}}';spreadsheetId=String(spreadsheetId||'').trim();sheetName=String(sheetName||'').trim();if(!spreadsheetId||spreadsheetId==='undefined')throw new Error('Spreadsheet ID is required');if(!sheetName||sheetName==='undefined')throw new Error('Sheet is required');if(sheetName.charAt(0)!==\"'\"){sheetName=\"'\"+sheetName.replace(/'/g,\"''\")+\"'\";}return 'https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(spreadsheetId)+'/values/'+encodeURIComponent(sheetName)+':append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS';}return transformURL();",
+                "body": "function transformBody(){var values=(typeof parameters!=='undefined'&&parameters&&parameters.values!=null)?parameters.values:'{{parameters.values}}';if(typeof values==='string'){try{values=JSON.parse(values);}catch(e){values=[{value:values}];}}if(!Array.isArray(values)){values=values?[values]:[];}var row=values.map(function(item){if(item&&typeof item==='object'&&item.value!==undefined)return item.value;return item;}).filter(function(value){return value!==undefined&&value!==null;});if(!row.length)throw new Error('At least one cell value is required');return {values:[row]};}return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.add",
+                            "loadOptionsMethod": "getSpreadsheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Spreadsheet is required"
+                        }
+                    },
+                    "description": "The Google Sheets spreadsheet to append to.",
+                    "displayName": "Spreadsheet",
+                    "displayType": "select",
+                    "placeholder": "Select a spreadsheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.add",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "spreadsheet_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.add",
+                            "spreadsheet_id": "{{parameters.spreadsheet_id}}",
+                            "loadOptionsMethod": "getSheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.spreadsheet_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Sheet is required"
+                        }
+                    },
+                    "description": "The sheet (tab) to append the row to.",
+                    "displayName": "Sheet",
+                    "displayType": "select",
+                    "placeholder": "Select a sheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.add",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sheet_name"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "Cell value"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one cell value is required"
+                        }
+                    },
+                    "description": "Cell values for the new row, in column order.",
+                    "displayName": "Row Values",
+                    "displayType": "array",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.add",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sheet_name",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "values"
+            }
+        ]
+    },
+    "search": {
+        "definition": {
+            "qs": {
+                "valueRenderOption": "FORMATTED_VALUE",
+                "dateTimeRenderOption": "FORMATTED_STRING"
+            },
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/{{parameters.spreadsheet_id}}/values/{{parameters.sheet_name}}!{{parameters.range}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL(){var spreadsheetId=(typeof parameters!=='undefined'&&parameters&&parameters.spreadsheet_id!=null)?parameters.spreadsheet_id:'{{parameters.spreadsheet_id}}';var sheetName=(typeof parameters!=='undefined'&&parameters&&parameters.sheet_name!=null)?parameters.sheet_name:'{{parameters.sheet_name}}';var range=(typeof parameters!=='undefined'&&parameters&&parameters.range!=null)?parameters.range:'{{parameters.range}}';spreadsheetId=String(spreadsheetId||'').trim();sheetName=String(sheetName||'').trim();range=String(range||'').trim();if(!spreadsheetId||spreadsheetId==='undefined')throw new Error('Spreadsheet ID is required');if(!sheetName||sheetName==='undefined')throw new Error('Sheet is required');if(!range||range==='undefined')throw new Error('Cell range is required');if(range.indexOf('!')>-1)range=range.slice(range.indexOf('!')+1).trim();sheetName=\"'\"+sheetName.replace(/'/g,\"''\")+\"'\";var sheetRange=sheetName+'!'+range;return 'https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(spreadsheetId)+'/values/'+encodeURIComponent(sheetRange)+'?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING';}return transformURL();",
+                "output": "function clean(v){if(v==null)return'';v=String(v).trim();if(!v||v==='undefined'||v==='null'||/^\\{\\{.*\\}\\}$/.test(v))return'';return v;}function readParam(name,fallback){if(typeof parameters!=='undefined'&&parameters&&parameters[name]!=null)return clean(parameters[name]);if(typeof input!=='undefined'&&input&&input[name]!=null)return clean(input[name]);if(typeof params!=='undefined'&&params&&params[name]!=null)return clean(params[name]);return clean(fallback);}function norm(v){return String(v||'').trim().toLowerCase();}const rows=Array.isArray(output&&output.values)?output.values:(Array.isArray(output&&output.data&&output.data.values)?output.data.values:(Array.isArray(output)?output:[]));if(rows.length===0)return[];const headers=(rows[0]||[]).map((h)=>String(h||'').trim());const filterColumn=readParam('filter_column','{{parameters.filter_column}}');const filterValue=readParam('filter_value','{{parameters.filter_value}}');const rawMax=readParam('max_results','{{parameters.max_results}}');const max=rawMax?Number(rawMax):0;let filterIndex=-1;if(filterColumn){filterIndex=headers.findIndex((h)=>h===filterColumn);if(filterIndex<0)filterIndex=headers.findIndex((h)=>norm(h)===norm(filterColumn));if(filterIndex<0)throw new Error('Filter column \"'+filterColumn+'\" was not found. Available columns: '+headers.filter(Boolean).join(', '));}const needle=filterValue.toLowerCase();const results=[];for(let i=1;i<rows.length;i++){const row=rows[i]||[];const obj={__row:i+1};headers.forEach((h,idx)=>{obj[h||('col'+idx)]=row[idx]!=null?row[idx]:'';});if(filterIndex>=0){const cell=String(row[filterIndex]!=null?row[filterIndex]:'').toLowerCase();if(!cell.includes(needle))continue;}results.push(obj);if(max&&results.length>=max)break;}return results;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.search",
+                            "loadOptionsMethod": "getSpreadsheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Spreadsheet is required"
+                        }
+                    },
+                    "description": "The Google Sheets spreadsheet that stores the form responses.",
+                    "displayName": "Spreadsheet",
+                    "displayType": "select",
+                    "placeholder": "Select a spreadsheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "spreadsheet_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.search",
+                            "spreadsheet_id": "{{parameters.spreadsheet_id}}",
+                            "loadOptionsMethod": "getSheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.spreadsheet_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Sheet is required"
+                        }
+                    },
+                    "description": "The sheet (tab) within the spreadsheet that contains the responses.",
+                    "displayName": "Sheet",
+                    "displayType": "select",
+                    "placeholder": "Select a sheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "sheet_name"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Cell range is required"
+                        }
+                    },
+                    "description": "A1 notation cell range within the selected sheet. Include the header row.",
+                    "displayName": "Cell Range",
+                    "displayType": "text",
+                    "placeholder": "A1:Z1000",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sheet_name",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "range"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Header name of the column to filter on (case-sensitive).",
+                    "displayName": "Filter Column",
+                    "displayType": "text",
+                    "placeholder": "e.g. Email Address",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sheet_name",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter_column"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Returns rows where Filter Column contains this substring (case-insensitive).",
+                    "displayName": "Filter Value",
+                    "displayType": "text",
+                    "placeholder": "Substring to match",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sheet_name",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter_value"
+            },
+            {
+                "meta": {
+                    "description": "Maximum number of matching rows to return. Leave blank for all matches.",
+                    "displayName": "Max Results",
+                    "displayType": "number",
+                    "placeholder": "100",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.search",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "sheet_name",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "max_results"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/{{parameters.spreadsheet_id}}/values/{{parameters.range}}:clear",
+            "body": {},
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL(){var spreadsheetId=(typeof parameters!=='undefined'&&parameters&&parameters.spreadsheet_id!=null)?parameters.spreadsheet_id:'{{parameters.spreadsheet_id}}';var range=(typeof parameters!=='undefined'&&parameters&&parameters.range!=null)?parameters.range:'{{parameters.range}}';spreadsheetId=String(spreadsheetId||'').trim();range=String(range||'').trim();if(!spreadsheetId||spreadsheetId==='undefined')throw new Error('Spreadsheet ID is required');if(!range||range==='undefined')throw new Error('A1 range is required');var bang=range.indexOf('!');if(bang>-1){var sheet=range.slice(0,bang).trim();var cells=range.slice(bang+1).trim();if(sheet.charAt(0)!==\"'\"){sheet=\"'\"+sheet.replace(/'/g,\"''\")+\"'\";}range=sheet+'!'+cells;}return 'https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(spreadsheetId)+'/values/'+encodeURIComponent(range)+':clear';}return transformURL();",
+                "output": "return { clearedRange: output && output.clearedRange, message: 'Response row cleared successfully.' };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.delete",
+                            "loadOptionsMethod": "getSpreadsheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Spreadsheet is required"
+                        }
+                    },
+                    "description": "The Google Sheets spreadsheet that stores the response to delete.",
+                    "displayName": "Spreadsheet",
+                    "displayType": "select",
+                    "placeholder": "Select a spreadsheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "spreadsheet_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "A1 range is required"
+                        }
+                    },
+                    "description": "A1 notation range of the row to clear.",
+                    "displayName": "A1 Range",
+                    "displayType": "text",
+                    "placeholder": "Form Responses 1!A2:Z2",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.delete",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "range"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "qs": {
+                "valueInputOption": "USER_ENTERED"
+            },
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/{{parameters.spreadsheet_id}}/values/{{parameters.range}}",
+            "body": {},
+            "method": "put",
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "url": "function transformURL(){var spreadsheetId=(typeof parameters!=='undefined'&&parameters&&parameters.spreadsheet_id!=null)?parameters.spreadsheet_id:'{{parameters.spreadsheet_id}}';var range=(typeof parameters!=='undefined'&&parameters&&parameters.range!=null)?parameters.range:'{{parameters.range}}';spreadsheetId=String(spreadsheetId||'').trim();range=String(range||'').trim();if(!spreadsheetId||spreadsheetId==='undefined')throw new Error('Spreadsheet ID is required');if(!range||range==='undefined')throw new Error('A1 range is required');var bang=range.indexOf('!');if(bang>-1){var sheet=range.slice(0,bang).trim();var cells=range.slice(bang+1).trim();if(sheet.charAt(0)!==\"'\"){sheet=\"'\"+sheet.replace(/'/g,\"''\")+\"'\";}range=sheet+'!'+cells;}return 'https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(spreadsheetId)+'/values/'+encodeURIComponent(range)+'?valueInputOption=USER_ENTERED';}return transformURL();",
+                "body": "function transformBody(){var values=(typeof parameters!=='undefined'&&parameters&&parameters.values!=null)?parameters.values:'{{parameters.values}}';if(typeof values==='string'){try{values=JSON.parse(values);}catch(e){values=[{value:values}];}}if(!Array.isArray(values)){values=values?[values]:[];}var row=values.map(function(item){if(item&&typeof item==='object'&&item.value!==undefined)return item.value;return item;}).filter(function(value){return value!==undefined&&value!==null;});if(!row.length)throw new Error('At least one cell value is required');return {values:[row]};}return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "sheets_responses",
+                            "operation": "sheets_responses.update",
+                            "loadOptionsMethod": "getSpreadsheets"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Spreadsheet is required"
+                        }
+                    },
+                    "description": "The Google Sheets spreadsheet that stores the response to update.",
+                    "displayName": "Spreadsheet",
+                    "displayType": "select",
+                    "placeholder": "Select a spreadsheet",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "spreadsheet_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "A1 range is required"
+                        }
+                    },
+                    "description": "A1 notation range of the row (or cells) to update.",
+                    "displayName": "A1 Range",
+                    "displayType": "text",
+                    "placeholder": "Form Responses 1!A2:E2",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "range"
+            },
+            {
+                "meta": {
+                    "children": [
+                        {
+                            "meta": {
+                                "validation": {
+                                    "required": true,
+                                    "requiredDetail": {
+                                        "errorMsg": "Value is required"
+                                    }
+                                },
+                                "displayName": "Value",
+                                "displayType": "text",
+                                "placeholder": "Cell value"
+                            },
+                            "name": "value"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowAdd": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one cell value is required"
+                        }
+                    },
+                    "description": "Cell values to write into the range, in column order.",
+                    "displayName": "Row Values",
+                    "displayType": "array",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "sheets_responses.update",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "spreadsheet_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "values"
+            }
+        ]
+    }
+}

@@ -1,0 +1,292 @@
+{
+    "getForms": {
+        "definition": {
+            "qs": {
+                "q": "mimeType='application/vnd.google-apps.form' and trashed=false",
+                "fields": "files(id,name,mimeType),nextPageToken"
+            },
+            "url": "https://www.googleapis.com/drive/v3/files",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.files}}"
+            },
+            "transform": {
+                "output": "const files=Array.isArray(output)?output:(output&&Array.isArray(output.files)?output.files:[]);return files.map((x)=>{const id=x&&x.id?x.id:null;const label=x&&x.name?x.name:id;return id?{...x,name:label,displayName:label}:null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "qs": {
+                    "pageSize": 100,
+                    "pageToken": "{{response.data.nextPageToken}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "pageSize": 100,
+                    "pageToken": null
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "List Responses",
+                        "value": "responses.list",
+                        "description": "Retrieves a list of responses."
+                    },
+                    {
+                        "label": "Get a Response",
+                        "value": "responses.get",
+                        "description": "Retrieves the details of a response by its ID."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the response operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "responses",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getResponses": {
+        "definition": {
+            "qs": {},
+            "url": "https://forms.googleapis.com/v1/forms/{{parameters.form_id}}/responses",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.responses}}"
+            },
+            "transform": {
+                "output": "const responses=Array.isArray(output)?output:(output&&Array.isArray(output.responses)?output.responses:[]);return responses.map((x,index)=>{const id=x&&x.responseId?x.responseId:(x&&x.id?x.id:null);const label='Response '+(index+1);return id?{...x,id:id,displayName:label}:null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "qs": {
+                    "pageSize": 100,
+                    "pageToken": "{{response.data.nextPageToken}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "pageSize": 100,
+                    "pageToken": null
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        }
+    },
+    "list": {
+        "definition": {
+            "qs": {},
+            "url": "https://forms.googleapis.com/v1/forms/{{parameters.form_id}}/responses",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data.responses}}"
+            },
+            "pagination": {
+                "qs": {
+                    "pageSize": 100,
+                    "pageToken": "{{response.data.nextPageToken}}"
+                },
+                "type": "cursor",
+                "default": {
+                    "pageSize": 100,
+                    "pageToken": null
+                },
+                "condition": "{{response.data.nextPageToken}} != null"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "responses",
+                            "operation": "responses.list",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "The form whose responses you want to list.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "responses.list",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://forms.googleapis.com/v1/forms/{{parameters.form_id}}/responses/{{parameters.response_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "responses",
+                            "operation": "responses.get",
+                            "loadOptionsMethod": "getForms"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Form is required"
+                        }
+                    },
+                    "description": "The form that contains the response.",
+                    "displayName": "Form",
+                    "displayType": "select",
+                    "placeholder": "Select a form",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "responses.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "form_id"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "google_forms",
+                            "secret": "{{parameters.secret}}",
+                            "form_id": "{{parameters.form_id}}",
+                            "resource": "responses",
+                            "operation": "responses.get",
+                            "loadOptionsMethod": "getResponses"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id",
+                        "condition": "{{parameters.form_id}}"
+                    },
+                    "options": [],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Response is required"
+                        }
+                    },
+                    "description": "The response to retrieve.",
+                    "displayName": "Response",
+                    "displayType": "select",
+                    "placeholder": "Select a response",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "responses.get",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "form_id",
+                                "operator": "NOT_EMPTY"
+                            }
+                        ]
+                    }
+                },
+                "name": "response_id"
+            }
+        ]
+    }
+}

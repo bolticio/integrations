@@ -1,0 +1,427 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Search Orders",
+                        "value": "orders.search",
+                        "description": "Searches for orders by filter parameter."
+                    },
+                    {
+                        "label": "Get an Order",
+                        "value": "orders.get",
+                        "description": "Returns the data of a specified order."
+                    },
+                    {
+                        "label": "Cancel an Order",
+                        "value": "orders.cancel",
+                        "description": "Cancels an order and optionally restocks the items."
+                    },
+                    {
+                        "label": "List Invoices by Order IDs",
+                        "value": "orders.list_invoices_by_ids",
+                        "description": "Retrieves invoice IDs associated with the specified orders."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the order operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "orders",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getOrdersForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/ecom/v1/orders/search",
+            "body": {
+                "search": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.orders}}"
+            },
+            "transform": {
+                "output": "const list=Array.isArray(output)?output:(output&&Array.isArray(output.orders)?output.orders:[]);return list.map((o)=>{const id=o&&o.id?o.id:null;const number=o&&o.number?String(o.number):'';const email=o&&o.buyerInfo&&o.buyerInfo.email?o.buyerInfo.email:'';const status=o&&o.status?o.status:'';const displayName=[number?('#'+number):'',email,status].filter(Boolean).join(' - ')||id;return id?Object.assign({},o,{displayName}):null;}).filter(Boolean);"
+            }
+        }
+    },
+    "search": {
+        "definition": {
+            "url": "https://www.wixapis.com/ecom/v1/orders/search",
+            "body": {
+                "search": {
+                    "sort": [
+                        {
+                            "order": "{{parameters.sort_order}}",
+                            "fieldName": "{{parameters.sort_field}}"
+                        }
+                    ],
+                    "filter": "{{parameters.filter}}",
+                    "cursorPaging": {
+                        "limit": 1
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.orders}}"
+            },
+            "transform": {
+                "body": "const search = (body && body.search) ? { ...body.search } : {}; if (typeof search.filter === 'string') { const trimmed = search.filter.trim(); if (!trimmed) { delete search.filter; } else { const parsed = JSON.parse(trimmed); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Filter must be a JSON object.'); } search.filter = parsed; } } if (Array.isArray(search.sort)) { search.sort = search.sort.filter(function (s) { return s && s.fieldName && String(s.fieldName).trim(); }); if (search.sort.length === 0) { delete search.sort; } } if (search.cursorPaging) { const paging = { ...search.cursorPaging }; if (typeof paging.limit === 'string') { const trimmedLimit = paging.limit.trim(); paging.limit = trimmedLimit ? Number(trimmedLimit) : undefined; } if (paging.limit === undefined || Number.isNaN(paging.limit)) { delete paging.limit; } if (typeof paging.cursor === 'string' && !paging.cursor.trim()) { delete paging.cursor; } if (Object.keys(paging).length === 0) { delete search.cursorPaging; } else { search.cursorPaging = paging; } } return { search: search };"
+            },
+            "pagination": {
+                "body": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 1,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 1,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON filter object to narrow results. Example: {\"status\": {\"$eq\": \"APPROVED\"}}",
+                    "displayName": "Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON filter (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Created Date",
+                            "value": "createdDate"
+                        },
+                        {
+                            "label": "Updated Date",
+                            "value": "updatedDate"
+                        },
+                        {
+                            "label": "Order Number",
+                            "value": "number"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Field to sort orders by.",
+                    "displayName": "Sort By",
+                    "displayType": "select",
+                    "placeholder": "Select sort field",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_field"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "DESC"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Sort order.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v2/orders/{{parameters.order_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.order}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Order ID is required"
+                        }
+                    },
+                    "description": "Enter the ID of the order to retrieve.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the order ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_id"
+            }
+        ]
+    },
+    "cancel": {
+        "definition": {
+            "url": "https://www.wixapis.com/ecom/v1/orders/{{parameters.order_id}}/cancel",
+            "body": {
+                "restockItems": "{{parameters.restock_items}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.order}}"
+            },
+            "transform": {
+                "body": "const out = { ...body }; if (typeof out.restockItems === 'string') { const trimmed = out.restockItems.trim().toLowerCase(); out.restockItems = trimmed === 'true'; } return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Order ID is required"
+                        }
+                    },
+                    "description": "Enter the ID of the order to cancel.",
+                    "displayName": "Order ID",
+                    "displayType": "text",
+                    "placeholder": "Enter the order ID",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.cancel",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_id"
+            },
+            {
+                "meta": {
+                    "value": false,
+                    "readOnly": false,
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "disabled": false
+                    },
+                    "description": "Whether to return the items to inventory when the order is canceled.",
+                    "displayName": "Restock Items",
+                    "displayType": "toggle",
+                    "placeholder": "Enable to restock items on cancel",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "orders.cancel",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "restock_items"
+            }
+        ]
+    },
+    "list_invoices_by_ids": {
+        "definition": {
+            "url": "https://www.wixapis.com/ecom/v1/invoices/list-by-ids",
+            "body": {
+                "orderIds": "{{parameters.order_ids}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const ids = body && body.orderIds; const orderIds = Array.isArray(ids) ? ids.filter(function (x) { return x != null && String(x).trim(); }).map(String) : (typeof ids === 'string' && ids.trim() ? ids.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : []); if (!orderIds.length) { throw new Error('Enter at least one order ID.'); } return { orderIds: orderIds };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "orders",
+                            "operation": "orders.list_invoices_by_ids",
+                            "loadOptionsMethod": "getOrdersForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "options": [],
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "At least one order ID is required"
+                        }
+                    },
+                    "description": "Select one or more orders to retrieve associated invoice IDs for.",
+                    "displayName": "Order IDs",
+                    "displayType": "multiselect",
+                    "placeholder": "Select orders",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "secret",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "resource",
+                                "value": "orders",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "operation",
+                                "value": "orders.list_invoices_by_ids",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "order_ids"
+            }
+        ]
+    }
+}

@@ -1,0 +1,961 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Search Products",
+                        "value": "products.search",
+                        "description": "Searches for products by filter parameter."
+                    },
+                    {
+                        "label": "Get All Products",
+                        "value": "products.get_all",
+                        "description": "Returns all products."
+                    },
+                    {
+                        "label": "Get a Product",
+                        "value": "products.get",
+                        "description": "Returns the data of a specified product."
+                    },
+                    {
+                        "label": "Get a Product by Slug",
+                        "value": "products.get_by_slug",
+                        "description": "Returns the data of a product by its URL slug."
+                    },
+                    {
+                        "label": "Create a Product",
+                        "value": "products.create",
+                        "description": "Creates a new product."
+                    },
+                    {
+                        "label": "Update a Product",
+                        "value": "products.update",
+                        "description": "Updates an existing product."
+                    },
+                    {
+                        "label": "Delete a Product",
+                        "value": "products.delete",
+                        "description": "Deletes a product."
+                    },
+                    {
+                        "label": "Bulk Delete Products",
+                        "value": "products.bulk_delete",
+                        "description": "Deletes multiple products in a single request."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the product operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "products",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "getProductsForOptions": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products/query",
+            "body": {
+                "query": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.products}}"
+            },
+            "transform": {
+                "output": "return (Array.isArray(output)?output:[]).map((x)=>{const id=x&&x.id?x.id:null;const displayName=x&&x.name?x.name:(x&&x.displayName?x.displayName:(x&&x.slug?x.slug:id));return id?{id,displayName}:null;}).filter(Boolean);"
+            },
+            "pagination": {
+                "body": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "query": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        }
+    },
+    "search": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products/search",
+            "body": {
+                "search": {
+                    "sort": [
+                        {
+                            "order": "{{parameters.sort_order}}",
+                            "fieldName": "{{parameters.sort_field}}"
+                        }
+                    ],
+                    "filter": "{{parameters.filter}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.products}}"
+            },
+            "transform": {
+                "body": "const isTemplate = function (v) { return typeof v === 'string' && v.indexOf('{{') !== -1; }; const out = JSON.parse(JSON.stringify(body || {})); const search = (out && out.search) ? { ...out.search } : {}; if (typeof search.filter === 'string') { const trimmed = search.filter.trim(); if (!trimmed || isTemplate(trimmed)) { delete search.filter; } else { const parsed = JSON.parse(trimmed); if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') { throw new Error('Filter must be a JSON object.'); } search.filter = parsed; } } if (Array.isArray(search.sort)) { search.sort = search.sort.filter(function (s) { if (!s) return false; const fn = s.fieldName != null ? String(s.fieldName).trim() : ''; const ord = s.order != null ? String(s.order).trim() : ''; if (!fn || !ord) return false; if (isTemplate(fn) || isTemplate(ord)) return false; return true; }); if (search.sort.length === 0) { delete search.sort; } } out.search = search; return out;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md",
+                        "language": "json",
+                        "fullscreen": true,
+                        "showSuggestions": true
+                    },
+                    "description": "Optional. JSON filter object to narrow results. Example: {\"name\": {\"$startsWith\": \"Blue\"}}",
+                    "displayName": "Filter",
+                    "displayType": "code",
+                    "placeholder": "Enter JSON filter (optional)",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "filter"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Name",
+                            "value": "name"
+                        },
+                        {
+                            "label": "Created Date",
+                            "value": "createdDate"
+                        },
+                        {
+                            "label": "Updated Date",
+                            "value": "updatedDate"
+                        },
+                        {
+                            "label": "Numeric ID",
+                            "value": "numericId"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Field to sort products by. Wix only allows sorting by certain fields.",
+                    "displayName": "Sort By",
+                    "displayType": "select",
+                    "placeholder": "Select sort field",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_field"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Ascending",
+                            "value": "ASC"
+                        },
+                        {
+                            "label": "Descending",
+                            "value": "DESC"
+                        }
+                    ],
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional. Sort order.",
+                    "displayName": "Sort Order",
+                    "displayType": "select",
+                    "placeholder": "Select sort order",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.search",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sort_order"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products",
+            "body": {
+                "product": {
+                    "name": "{{parameters.name}}",
+                    "slug": "{{parameters.slug}}",
+                    "visible": "{{parameters.visible}}",
+                    "productType": "{{parameters.product_type}}",
+                    "variantsInfo": {
+                        "variants": [
+                            {
+                                "price": {
+                                    "actualPrice": {
+                                        "amount": "{{parameters.price}}"
+                                    }
+                                },
+                                "stock": {
+                                    "trackInventory": false,
+                                    "inventoryStatus": "IN_STOCK"
+                                },
+                                "physicalProperties": {
+                                    "weight": "{{parameters.weight}}"
+                                }
+                            }
+                        ]
+                    },
+                    "plainDescription": "{{parameters.description}}",
+                    "physicalProperties": {
+                        "weight": "{{parameters.weight}}"
+                    }
+                }
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.product}}"
+            },
+            "transform": {
+                "body": "const product = body && body.product ? { ...body.product } : {}; if (product.variantsInfo && Array.isArray(product.variantsInfo.variants)) { product.variantsInfo = { ...product.variantsInfo, variants: product.variantsInfo.variants.map(function (v) { const variant = { ...v }; if (variant.price && variant.price.actualPrice && variant.price.actualPrice.amount !== undefined && variant.price.actualPrice.amount !== null && variant.price.actualPrice.amount !== '') { variant.price = { ...variant.price, actualPrice: { ...variant.price.actualPrice, amount: String(variant.price.actualPrice.amount) } }; } return variant; }) }; } return { product: product };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product name is required"
+                        }
+                    },
+                    "description": "The name of the new product.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter product name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "value": "PHYSICAL",
+                    "options": [
+                        {
+                            "label": "Physical",
+                            "value": "PHYSICAL"
+                        },
+                        {
+                            "label": "Digital",
+                            "value": "DIGITAL"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Type of product — physical or digital.",
+                    "displayName": "Product Type",
+                    "displayType": "select",
+                    "placeholder": "Select product type",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_type"
+            },
+            {
+                "meta": {
+                    "description": "Required for physical products. Weight in your store's default weight unit.",
+                    "displayName": "Weight",
+                    "displayType": "number",
+                    "placeholder": "0.00",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            },
+                            {
+                                "field": "product_type",
+                                "value": "PHYSICAL",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "weight"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Product description (HTML allowed).",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Describe the product",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "value": true,
+                    "description": "Optional. Whether the product is visible in the store.",
+                    "displayName": "Visible",
+                    "displayType": "toggle",
+                    "placeholder": "Product visibility",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "visible"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Price is required"
+                        }
+                    },
+                    "description": "Base price of the product (e.g. 10.00).",
+                    "displayName": "Price",
+                    "displayType": "number",
+                    "placeholder": "10.00",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "price"
+            },
+            {
+                "meta": {
+                    "description": "Optional. URL-friendly slug for the product page.",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "e.g. blue-t-shirt",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.create",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
+            }
+        ]
+    },
+    "update": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products/{{parameters.product_id}}",
+            "body": {
+                "product": {
+                    "name": "{{parameters.name}}",
+                    "visible": "{{parameters.visible}}",
+                    "revision": "{{parameters.revision}}",
+                    "variantsInfo": {
+                        "variants": [
+                            {
+                                "sku": "{{parameters.sku}}",
+                                "price": {
+                                    "actualPrice": {
+                                        "amount": "{{parameters.price}}"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "plainDescription": "{{parameters.description}}"
+                }
+            },
+            "method": "patch",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.product}}"
+            },
+            "transform": {
+                "body": "const product = body && body.product ? { ...body.product } : {}; if (product.variantsInfo && Array.isArray(product.variantsInfo.variants)) { product.variantsInfo = { ...product.variantsInfo, variants: product.variantsInfo.variants.map(function (v) { const variant = { ...v }; if (variant.price && variant.price.actualPrice && variant.price.actualPrice.amount !== undefined && variant.price.actualPrice.amount !== null && variant.price.actualPrice.amount !== '') { variant.price = { ...variant.price, actualPrice: { ...variant.price.actualPrice, amount: String(variant.price.actualPrice.amount) } }; } return variant; }) }; } return { product: product };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "products",
+                            "operation": "products.update",
+                            "loadOptionsMethod": "getProductsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product ID is required"
+                        }
+                    },
+                    "description": "Select the product to update.",
+                    "displayName": "Product",
+                    "displayType": "select",
+                    "placeholder": "Select a product",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Revision is required"
+                        }
+                    },
+                    "description": "The product's current revision (returned from Get/Search). Required by Wix V3 to prevent conflicting updates.",
+                    "displayName": "Revision",
+                    "displayType": "text",
+                    "placeholder": "e.g. 1",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "revision"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated product name.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Enter updated name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated description (HTML allowed).",
+                    "displayName": "Description",
+                    "displayType": "textarea",
+                    "placeholder": "Enter updated description",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "description"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated base price.",
+                    "displayName": "Price",
+                    "displayType": "number",
+                    "placeholder": "0.00",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "price"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated SKU.",
+                    "displayName": "SKU",
+                    "displayType": "text",
+                    "placeholder": "Enter updated SKU",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "sku"
+            },
+            {
+                "meta": {
+                    "description": "Optional. Updated product visibility.",
+                    "displayName": "Visible",
+                    "displayType": "toggle",
+                    "placeholder": "Product visibility",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.update",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "visible"
+            }
+        ]
+    },
+    "delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products/{{parameters.product_id}}",
+            "method": "delete",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "output": "return 'product has been deleted successfully';"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "products",
+                            "operation": "products.delete",
+                            "loadOptionsMethod": "getProductsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product ID is required"
+                        }
+                    },
+                    "description": "Select the product to delete.",
+                    "displayName": "Product",
+                    "displayType": "select",
+                    "placeholder": "Select a product",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_id"
+            }
+        ]
+    },
+    "get": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products/{{parameters.product_id}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.product}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "products",
+                            "operation": "products.get",
+                            "loadOptionsMethod": "getProductsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Product ID is required"
+                        }
+                    },
+                    "description": "Select the product to retrieve.",
+                    "displayName": "Product",
+                    "displayType": "select",
+                    "placeholder": "Select a product",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.get",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_id"
+            }
+        ]
+    },
+    "get_by_slug": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products/slug/{{parameters.slug}}",
+            "method": "get",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.product}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Slug is required"
+                        }
+                    },
+                    "description": "The product's URL slug (e.g. \"blue-t-shirt\").",
+                    "displayName": "Slug",
+                    "displayType": "text",
+                    "placeholder": "Enter product slug",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.get_by_slug",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "slug"
+            }
+        ]
+    },
+    "bulk_delete": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/bulk/products/delete",
+            "body": {
+                "productIds": "{{parameters.product_ids}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const ids = body && body.productIds; const idList = Array.isArray(ids) ? ids.filter(function (x) { return x != null && String(x).trim(); }).map(String) : (typeof ids === 'string' && ids.trim() ? ids.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : []); if (!idList.length) { throw new Error('Select at least one product to delete.'); } return { productIds: idList };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "wix",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "products",
+                            "operation": "products.bulk_delete",
+                            "loadOptionsMethod": "getProductsForOptions"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "displayName",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Select at least one product"
+                        }
+                    },
+                    "description": "Select one or more products to delete.",
+                    "displayName": "Products",
+                    "displayType": "multiselect",
+                    "placeholder": "Select products",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "products.bulk_delete",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "product_ids"
+            }
+        ]
+    },
+    "get_all": {
+        "definition": {
+            "url": "https://www.wixapis.com/stores/v3/products/search",
+            "body": {
+                "search": {
+                    "cursorPaging": {
+                        "limit": 100
+                    }
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "wix-site-id": "{{secrets.site_id}}",
+                "Content-Type": "application/json",
+                "Authorization": "{{secrets.api_key}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.products}}"
+            },
+            "pagination": {
+                "body": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": "{{response.data.pagingMetadata.cursors.next}}"
+                        }
+                    }
+                },
+                "type": "body",
+                "default": {
+                    "search": {
+                        "cursorPaging": {
+                            "limit": 100,
+                            "cursor": null
+                        }
+                    }
+                },
+                "condition": "{{response.data.pagingMetadata.hasNext}} == true"
+            }
+        },
+        "parameters": []
+    }
+}
