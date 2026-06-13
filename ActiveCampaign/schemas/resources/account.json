@@ -1,0 +1,263 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Account",
+                        "value": "account.create",
+                        "description": "Create a new Account."
+                    },
+                    {
+                        "label": "Add Contact to Account",
+                        "value": "account.add_contact_to_account",
+                        "description": "Add Contact to an Account."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "account",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "loadAccounts": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/accounts?limit=20&offset=0",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.accounts}}"
+            }
+        }
+    },
+    "loadContacts": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contacts",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contacts}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/accounts",
+            "body": {
+                "account": {
+                    "city": "{{parameters.city}}",
+                    "name": "{{parameters.name}}",
+                    "phone": "{{parameters.phone}}",
+                    "state": "{{parameters.state}}",
+                    "country": "{{parameters.country}}",
+                    "address1": "{{parameters.address1}}",
+                    "accountUrl": "{{parameters.accountUrl}}",
+                    "postalCode": "{{parameters.postalCode}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.account}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Account name is required"
+                        }
+                    },
+                    "description": "Name of the account",
+                    "displayName": "Account Name",
+                    "displayType": "text",
+                    "placeholder": "Enter company name"
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "description": "Company website",
+                    "displayName": "Website",
+                    "displayType": "text",
+                    "placeholder": "https://company.com"
+                },
+                "name": "accountUrl"
+            },
+            {
+                "meta": {
+                    "description": "Company phone number",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "description": "Street address",
+                    "displayName": "Address",
+                    "displayType": "text",
+                    "placeholder": "Enter address"
+                },
+                "name": "address1"
+            },
+            {
+                "meta": {
+                    "description": "Company City",
+                    "displayName": "City",
+                    "displayType": "text",
+                    "placeholder": "Enter city"
+                },
+                "name": "city"
+            },
+            {
+                "meta": {
+                    "description": "Company State",
+                    "displayName": "State",
+                    "displayType": "text",
+                    "placeholder": "Enter state"
+                },
+                "name": "state"
+            },
+            {
+                "meta": {
+                    "description": "Company postal code",
+                    "displayName": "Postal Code",
+                    "displayType": "text",
+                    "placeholder": "Enter postal code"
+                },
+                "name": "postalCode"
+            },
+            {
+                "meta": {
+                    "description": "Company Country",
+                    "displayName": "Country",
+                    "displayType": "text",
+                    "placeholder": "Enter country"
+                },
+                "name": "country"
+            }
+        ]
+    },
+    "add_contact_to_account": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/accountContacts",
+            "body": {
+                "accountContact": {
+                    "account": "{{parameters.accountId}}",
+                    "contact": "{{parameters.contactId}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.accountContact}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "add_contact_to_account",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "email",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a contact to link",
+                    "displayName": "Contact Email",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a contact"
+                },
+                "name": "contactId"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "account",
+                            "operation": "add_contact_to_account",
+                            "loadOptionsMethod": "loadAccounts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select an account to link",
+                    "displayName": "Account Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select an account"
+                },
+                "name": "accountId"
+            }
+        ]
+    }
+}

@@ -1,0 +1,319 @@
+{
+    "loadDeals": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/deals",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.deals}}"
+            }
+        }
+    },
+    "loadStages": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/dealStages?filters[dealGroup]={{parameters.pipelineId}}",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.dealStages}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Deal",
+                        "value": "deal.create",
+                        "description": "Create a New Deal."
+                    },
+                    {
+                        "label": "Add Note to Deal",
+                        "value": "deal.add_note_to_deal",
+                        "description": "Add Note to a Deal."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "deal",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "loadContacts": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contacts",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contacts}}"
+            }
+        }
+    },
+    "loadPipelines": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/dealGroups",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.dealGroups}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/deals",
+            "body": {
+                "deal": {
+                    "stage": "{{parameters.stage}}",
+                    "title": "{{parameters.title}}",
+                    "value": "{{parameters.value}}",
+                    "contact": "{{parameters.contactId}}",
+                    "currency": "{{parameters.currency || 'usd'}}",
+                    "pipeline": "{{parameters.pipeline}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.deal}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Deal title is required"
+                        }
+                    },
+                    "description": "Title of the deal",
+                    "displayName": "Deal Title",
+                    "displayType": "text",
+                    "placeholder": "Enter deal title"
+                },
+                "name": "title"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deal",
+                            "operation": "create",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "email",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a contact",
+                    "displayName": "Contact Email",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a contact"
+                },
+                "name": "contactId"
+            },
+            {
+                "meta": {
+                    "description": "Value of the deal",
+                    "displayName": "Deal Value",
+                    "displayType": "text",
+                    "placeholder": "Enter deal value"
+                },
+                "name": "value"
+            },
+            {
+                "meta": {
+                    "description": "Currency (e.g. usd, inr)",
+                    "displayName": "Currency",
+                    "displayType": "text",
+                    "placeholder": "usd"
+                },
+                "name": "currency"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deal",
+                            "operation": "create",
+                            "loadOptionsMethod": "loadPipelines"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select pipeline",
+                    "displayName": "Pipeline",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select pipeline"
+                },
+                "name": "pipeline"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deal",
+                            "operation": "create",
+                            "pipelineId": "{{parameters.pipeline}}",
+                            "loadOptionsMethod": "loadStages"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select stage",
+                    "displayName": "Stage",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select stage"
+                },
+                "name": "stage"
+            }
+        ]
+    },
+    "add_note_to_deal": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/notes",
+            "body": {
+                "note": {
+                    "note": "{{parameters.note}}",
+                    "relid": "{{parameters.dealId}}",
+                    "reltype": "Deal"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.note}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "deal",
+                            "operation": "add_note_to_deal",
+                            "loadOptionsMethod": "loadDeals"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "title",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a deal",
+                    "displayName": "Deal",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a deal"
+                },
+                "name": "dealId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Note is required"
+                        }
+                    },
+                    "description": "Note content",
+                    "displayName": "Note",
+                    "displayType": "text",
+                    "placeholder": "Enter note"
+                },
+                "name": "note"
+            }
+        ]
+    }
+}

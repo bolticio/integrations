@@ -61,6 +61,7 @@ integration-name/
 
 ## 📖 Index
 <!-- INTEGRATIONS_INDEX:START -->
+- [ActiveCampaign](./ActiveCampaign/)
 - [adobe_commerce](./adobe_commerce/)
 - [aipim_webhook](./aipim_webhook/)
 - [aircall](./aircall/)
@@ -80,6 +81,7 @@ integration-name/
 - [copilot](./copilot/)
 - [copilot_tool_definition](./copilot_tool_definition/)
 - [Discord](./Discord/)
+- [Dropbox](./Dropbox/)
 - [facebook](./facebook/)
 - [Fathom](./Fathom/)
 - [Firecrawl](./Firecrawl/)

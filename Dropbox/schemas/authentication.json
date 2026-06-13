@@ -1,0 +1,240 @@
+{
+    "oauth2": {
+        "token": {
+            "url": "https://api.dropboxapi.com/oauth2/token",
+            "body": {
+                "code": "{{code}}",
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "authorization_code",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "client_secret": "{{secrets.client_secret}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "refresh": {
+            "url": "https://api.dropboxapi.com/oauth2/token",
+            "body": {
+                "client_id": "{{secrets.client_id}}",
+                "grant_type": "refresh_token",
+                "client_secret": "{{secrets.client_secret}}",
+                "refresh_token": "{{secrets.refresh_token}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.error}}",
+                    "message": "{{response.data.error}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "validate": {
+            "url": "https://api.dropboxapi.com/2/check/user",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "authorize": {
+            "qs": {
+                "client_id": "{{secrets.client_id}}",
+                "redirect_uri": "{{secrets.redirect_uri}}",
+                "response_type": "code",
+                "token_access_type": "offline"
+            },
+            "url": "https://www.dropbox.com/oauth2/authorize",
+            "method": "get",
+            "response": {
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "v1/dropbox/oauth2/callback",
+                    "displayName": "redirect_uri",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "redirect_uri"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "variant": "contained"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Please Connect To Dropbox Account"
+                        }
+                    },
+                    "description": "Connect To Dropbox Account",
+                    "displayName": "Connect To Dropbox Account",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expires_in",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "expiry_date",
+                                "operator": "EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "small",
+                        "style": {
+                            "color": "#ffffff",
+                            "backgroundColor": "#28A745"
+                        },
+                        "variant": "contained"
+                    },
+                    "description": "Account connected successfully",
+                    "displayName": "Dropbox Account Connected",
+                    "displayType": "button",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "refresh_token",
+                                "operator": "NOT_EMPTY"
+                            },
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "oauth2_connected"
+            },
+            {
+                "meta": {
+                    "displayName": "Refresh Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "refresh_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Access Token",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "access_token"
+            },
+            {
+                "meta": {
+                    "displayName": "Expiry Date",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expiry_date"
+            },
+            {
+                "meta": {
+                    "displayName": "Expires In",
+                    "displayType": "hidden",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "type",
+                                "value": "oauth2",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "expires_in"
+            }
+        ]
+    },
+    "parameters": [
+        {
+            "meta": {
+                "value": "oauth2",
+                "options": [
+                    {
+                        "label": "OAuth2",
+                        "value": "oauth2"
+                    }
+                ],
+                "displayName": "Authentication Type",
+                "displayType": "hidden"
+            },
+            "name": "type"
+        }
+    ]
+}

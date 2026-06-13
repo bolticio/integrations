@@ -1,0 +1,322 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Folder",
+                        "value": "folder.create",
+                        "description": "Create a new Folder."
+                    },
+                    {
+                        "label": "Share Folder",
+                        "value": "folder.shareFolder",
+                        "description": "Share an Existing Folder."
+                    },
+                    {
+                        "label": "Add Member To Folder",
+                        "value": "folder.addMemberToFolder",
+                        "description": "Add Member To an Existing Folder."
+                    },
+                    {
+                        "label": "Find Folder or File",
+                        "value": "folder.findFolder",
+                        "description": "Find an Existing Folder or File."
+                    },
+                    {
+                        "label": "Delete Folder",
+                        "value": "folder.deleteFolder",
+                        "description": "Delete an Existing Folder."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "folder",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "loadSharedFolders": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/sharing/list_folders",
+            "body": {
+                "limit": 100
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data.entries}}"
+            }
+        }
+    },
+    "create": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/files/create_folder_v2",
+            "body": {
+                "path": "{{parameters.folder_path}}",
+                "autorename": "false"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "/",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the full path of the folder (must start with /)",
+                    "displayName": "Folder Path",
+                    "displayType": "text",
+                    "placeholder": "/new-folder"
+                },
+                "name": "folder_path"
+            }
+        ]
+    },
+    "sharefolder": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/sharing/share_folder",
+            "body": {
+                "path": "{{parameters.folder_path}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Folder path is required"
+                        }
+                    },
+                    "description": "Enter the full path of the folder to share",
+                    "displayName": "Folder Path",
+                    "displayType": "text",
+                    "placeholder": "/my-folder"
+                },
+                "name": "folder_path"
+            }
+        ]
+    },
+    "findfolder": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/files/search_v2",
+            "body": {
+                "query": "{{parameters.query}}",
+                "options": {
+                    "file_status": "active",
+                    "filename_only": true
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Folder name is required"
+                        }
+                    },
+                    "description": "Search folder by name",
+                    "displayName": "Folder Name",
+                    "displayType": "text",
+                    "placeholder": "Enter folder name"
+                },
+                "name": "query"
+            }
+        ]
+    },
+    "deletefolder": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/files/delete_v2",
+            "body": {
+                "path": "{{parameters.file_path}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error_summary}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Folder path is required"
+                        }
+                    },
+                    "description": "Enter the full path of the folder to delete",
+                    "displayName": "Folder Path",
+                    "displayType": "text",
+                    "placeholder": "/folder/file"
+                },
+                "name": "file_path"
+            }
+        ]
+    },
+    "addmembertofolder": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/sharing/add_folder_member",
+            "body": {
+                "quiet": false,
+                "members": [
+                    {
+                        "member": {
+                            ".tag": "email",
+                            "email": "{{parameters.email}}"
+                        },
+                        "access_level": "{{parameters.access_level}}"
+                    }
+                ],
+                "shared_folder_id": "{{parameters.shared_folder_id}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "Dropbox",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "folder",
+                            "operation": "addMemberToFolder",
+                            "loadOptionsMethod": "loadSharedFolders"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "shared_folder_id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a shared folder",
+                    "displayName": "Shared Folder",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a folder"
+                },
+                "name": "shared_folder_id"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Email is required"
+                        }
+                    },
+                    "description": "Email of the user to add",
+                    "displayName": "Member Email",
+                    "displayType": "email",
+                    "placeholder": "Enter email address"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Editor",
+                            "value": "editor"
+                        },
+                        {
+                            "label": "Viewer",
+                            "value": "viewer"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Permission level for the member",
+                    "displayName": "Access Level",
+                    "displayType": "select",
+                    "placeholder": "Access level of user"
+                },
+                "name": "access_level"
+            }
+        ]
+    }
+}

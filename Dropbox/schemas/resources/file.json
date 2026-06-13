@@ -1,0 +1,273 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Text File",
+                        "value": "file.create",
+                        "description": "Create a new Text File."
+                    },
+                    {
+                        "label": "Share File",
+                        "value": "file.shareFileLink",
+                        "description": "Share an Existing File."
+                    },
+                    {
+                        "label": "Copy File",
+                        "value": "file.copyFile",
+                        "description": "Copy an Existing File."
+                    },
+                    {
+                        "label": "Delete File",
+                        "value": "file.deleteFile",
+                        "description": "Delete an Existing File."
+                    },
+                    {
+                        "label": "Move File",
+                        "value": "file.moveFile",
+                        "description": "Move an Existing File to New Location."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "file",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "sharefilelink": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings",
+            "body": {
+                "path": "{{parameters.file_path}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error_summary}}"
+                },
+                "output": "{{response.data.url}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "File path is required"
+                        }
+                    },
+                    "description": "Enter the full path of the file",
+                    "displayName": "File Path",
+                    "displayType": "text",
+                    "placeholder": "/my-folder/file.pdf"
+                },
+                "name": "file_path"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "https://content.dropboxapi.com/2/files/upload",
+            "body": "{{parameters.fileContent}}",
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/octet-stream",
+                "Authorization": "Bearer {{secrets.access_token}}",
+                "Dropbox-API-Arg": "{\"path\": \"{{parameters.fileName}}.txt\", \"mode\": \"add\", \"autorename\": true}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const text = body; const finalContent = typeof text === 'object' ? Object.values(text).join('') : text; return finalContent;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "/",
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Name of the text file",
+                    "displayName": "File Name",
+                    "displayType": "text",
+                    "placeholder": "Enter file name must start with / (without .txt)"
+                },
+                "name": "fileName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Content of the file",
+                    "displayName": "File Content",
+                    "displayType": "textarea",
+                    "placeholder": "Enter text content"
+                },
+                "name": "fileContent"
+            }
+        ]
+    },
+    "copyfile": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/files/copy_v2",
+            "body": {
+                "to_path": "{{parameters.to_path}}",
+                "from_path": "{{parameters.from_path}}",
+                "autorename": "true"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error_summary}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Path of the file to copy",
+                    "displayName": "Source Path",
+                    "displayType": "text",
+                    "placeholder": "/folder/file.txt"
+                },
+                "name": "from_path"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Destination path for copied file",
+                    "displayName": "Destination Path",
+                    "displayType": "text",
+                    "placeholder": "/folder2/file.txt"
+                },
+                "name": "to_path"
+            }
+        ]
+    },
+    "deletefile": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/files/delete_v2",
+            "body": {
+                "path": "{{parameters.file_path}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error_summary}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "File path is required"
+                        }
+                    },
+                    "description": "Enter the full path of the file to delete",
+                    "displayName": "File Path",
+                    "displayType": "text",
+                    "placeholder": "/folder/file.txt"
+                },
+                "name": "file_path"
+            }
+        ]
+    },
+    "movefile": {
+        "definition": {
+            "url": "https://api.dropboxapi.com/2/files/move_v2",
+            "body": {
+                "to_path": "{{parameters.destination_folder}}",
+                "from_path": "{{parameters.from_path}}"
+            },
+            "method": "post",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {{secrets.access_token}}"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.error_summary}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "const from = body.from_path; const folder = body.to_path; const fileName = from.split('/').pop(); return { from_path: from, to_path: `${folder}/${fileName}`, autorename: true };"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Path of the file to move",
+                    "displayName": "Source Path",
+                    "displayType": "text",
+                    "placeholder": "/folder/file.txt"
+                },
+                "name": "from_path"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Folder where file should be moved",
+                    "displayName": "Destination Folder",
+                    "displayType": "text",
+                    "placeholder": "/backup"
+                },
+                "name": "destination_folder"
+            }
+        ]
+    }
+}

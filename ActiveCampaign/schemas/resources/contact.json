@@ -1,0 +1,573 @@
+{
+    "loadLists": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/lists",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.lists}}"
+            }
+        }
+    },
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Create Contact",
+                        "value": "contact.create",
+                        "description": "Create a new Contact."
+                    },
+                    {
+                        "label": "Delete Contact",
+                        "value": "contact.delete",
+                        "description": "Delete an existing Contact."
+                    },
+                    {
+                        "label": "Add Contact Note",
+                        "value": "contact.addNote",
+                        "description": "Add Note to a Contact."
+                    },
+                    {
+                        "label": "Add Contact to Automation",
+                        "value": "contact.add_contact_to_automation",
+                        "description": "Add a Contact to Automation."
+                    },
+                    {
+                        "label": "Update Contact Subscription",
+                        "value": "contact.update_contact_subscription",
+                        "description": "Update Contact by Subscribing or Unsubscribing."
+                    },
+                    {
+                        "label": "Update Contact",
+                        "value": "contact.update_contact",
+                        "description": "Update an Existing Contact."
+                    }
+                ],
+                "validation": {
+                    "required": true
+                },
+                "description": "Select the operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "contact",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "loadContacts": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contacts",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contacts}}"
+            }
+        }
+    },
+    "loadAutomations": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/automations",
+            "method": "get",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.automations}}"
+            }
+        }
+    },
+    "delete": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contacts/{{parameters.contactId}}",
+            "method": "delete",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "delete",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "email",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a contact to delete",
+                    "displayName": "Contact Email",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a contact"
+                },
+                "name": "contactId"
+            }
+        ]
+    },
+    "create": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contact/sync",
+            "body": {
+                "contact": {
+                    "email": "{{parameters.email}}",
+                    "phone": "{{parameters.phone}}",
+                    "lastName": "{{parameters.lastName}}",
+                    "firstName": "{{parameters.firstName}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.data.code}}",
+                    "message": "{{response.data}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the email of the contact you want to create.",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter the email of the contact"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the firstName of the contact you want to create.",
+                    "displayName": "firstName",
+                    "displayType": "text",
+                    "placeholder": "Enter the firstName of the contact"
+                },
+                "name": "firstName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the lastName of the contact you want to create.",
+                    "displayName": "lastName",
+                    "displayType": "text",
+                    "placeholder": "Enter the lastName of the contact"
+                },
+                "name": "lastName"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Enter the phone number for the contact you want to create.",
+                    "displayName": "phone",
+                    "displayType": "text",
+                    "placeholder": "Enter the phone number"
+                },
+                "name": "phone"
+            }
+        ]
+    },
+    "addnote": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/notes",
+            "body": {
+                "note": {
+                    "note": "{{parameters.note}}",
+                    "relid": "{{parameters.contactId}}",
+                    "reltype": "Subscriber"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.note}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "add_note",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "email",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a contact to add note",
+                    "displayName": "Contact Email",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a contact"
+                },
+                "name": "contactId"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Note is required"
+                        }
+                    },
+                    "description": "Note content to add to contact",
+                    "displayName": "Note",
+                    "displayType": "text",
+                    "placeholder": "Enter note"
+                },
+                "name": "note"
+            }
+        ]
+    },
+    "add_contact_to_automation": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contactAutomations",
+            "body": {
+                "contactAutomation": {
+                    "contact": "{{parameters.contactId}}",
+                    "automation": "{{parameters.automationId}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contactAutomation}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "add_contact_to_automation",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "email",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select a contact",
+                    "displayName": "Contact Email",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select a contact"
+                },
+                "name": "contactId"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "add_contact_to_automation",
+                            "loadOptionsMethod": "loadAutomations"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select an automation",
+                    "displayName": "Automation Name",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select an automation"
+                },
+                "name": "automationId"
+            }
+        ]
+    },
+    "update_contact_subscription": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contactLists",
+            "body": {
+                "contactList": {
+                    "list": "{{parameters.listId}}",
+                    "status": "{{parameters.action}}",
+                    "contact": "{{parameters.contactId}}"
+                }
+            },
+            "method": "post",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contactList}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "update_contact_subscription",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "email",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the contact",
+                    "displayName": "Contact",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select contact"
+                },
+                "name": "contactId"
+            },
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "update_contact_subscription",
+                            "loadOptionsMethod": "loadLists"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "name",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the list",
+                    "displayName": "List",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select list"
+                },
+                "name": "listId"
+            },
+            {
+                "meta": {
+                    "options": [
+                        {
+                            "label": "Subscribe",
+                            "value": "1"
+                        },
+                        {
+                            "label": "Unsubscribe",
+                            "value": "2"
+                        }
+                    ],
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Choose whether to subscribe or unsubscribe the contact",
+                    "displayName": "Action",
+                    "displayType": "select",
+                    "placeholder": "Select an action"
+                },
+                "name": "action"
+            }
+        ]
+    },
+    "update_contact": {
+        "definition": {
+            "url": "{{secrets.api_url}}/api/3/contacts/{{parameters.contactId}}",
+            "body": {
+                "contact": {
+                    "email": "{{parameters.email}}",
+                    "phone": "{{parameters.phone}}",
+                    "lastName": "{{parameters.lastName}}",
+                    "firstName": "{{parameters.firstName}}"
+                }
+            },
+            "method": "put",
+            "headers": {
+                "Api-Token": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.contact}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "config": {
+                        "url": "integrations/options",
+                        "body": {
+                            "name": "ActiveCampaign",
+                            "secret": "{{parameters.secret}}",
+                            "resource": "contact",
+                            "operation": "update_contact",
+                            "loadOptionsMethod": "loadContacts"
+                        },
+                        "method": "post",
+                        "urlType": "options",
+                        "labelKey": "email",
+                        "valueKey": "id"
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Select the contact to update",
+                    "displayName": "Contact",
+                    "displayType": "autocomplete",
+                    "placeholder": "Select contact"
+                },
+                "name": "contactId"
+            },
+            {
+                "meta": {
+                    "description": "Update first name",
+                    "displayName": "First Name",
+                    "displayType": "text",
+                    "placeholder": "Enter first name"
+                },
+                "name": "firstName"
+            },
+            {
+                "meta": {
+                    "description": "Update last name",
+                    "displayName": "Last Name",
+                    "displayType": "text",
+                    "placeholder": "Enter last name"
+                },
+                "name": "lastName"
+            },
+            {
+                "meta": {
+                    "description": "Update email address",
+                    "displayName": "Email",
+                    "displayType": "text",
+                    "placeholder": "Enter email"
+                },
+                "name": "email"
+            },
+            {
+                "meta": {
+                    "description": "Update phone number (must be string)",
+                    "displayName": "Phone",
+                    "displayType": "text",
+                    "placeholder": "Enter phone number"
+                },
+                "name": "phone"
+            }
+        ]
+    }
+}
