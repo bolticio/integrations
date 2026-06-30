@@ -109,6 +109,7 @@ integration-name/
 - [Intercom](./Intercom/)
 - [jenkins](./jenkins/)
 - [jira](./jira/)
+- [Kaleyra](./Kaleyra/)
 - [keka](./keka/)
 - [Line](./Line/)
 - [linkedin](./linkedin/)

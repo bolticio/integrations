@@ -1,0 +1,1578 @@
+{
+    "parameters": [
+        {
+            "meta": {
+                "options": [
+                    {
+                        "label": "Click-to-Call",
+                        "value": "voice.click_to_call",
+                        "description": "Connect two users through a Kaleyra bridge call."
+                    },
+                    {
+                        "label": "Click-to-Call Status",
+                        "value": "voice.click_to_call_status",
+                        "description": "Fetch click-to-call records by call ID, date range, number, or page."
+                    },
+                    {
+                        "label": "Get Call Details",
+                        "value": "voice.get_call_details",
+                        "description": "Fetch incoming forwarded call details."
+                    },
+                    {
+                        "label": "Blacklist a Number",
+                        "value": "voice.blacklist_number",
+                        "description": "Blacklist a phone number for Voice calls."
+                    },
+                    {
+                        "label": "Undo Number Blacklist",
+                        "value": "voice.undo_number_blacklist",
+                        "description": "Remove a phone number from the Voice blacklist."
+                    },
+                    {
+                        "label": "Create Call Follow Up",
+                        "value": "voice.create_call_follow_up",
+                        "description": "Create a scheduled call follow-up."
+                    },
+                    {
+                        "label": "Edit Call Follow Up",
+                        "value": "voice.edit_call_follow_up",
+                        "description": "Edit or delete an existing scheduled call follow-up."
+                    },
+                    {
+                        "label": "Get Call Follow Up Report",
+                        "value": "voice.get_call_follow_up_report",
+                        "description": "Fetch call follow-up reports."
+                    },
+                    {
+                        "label": "Health Status",
+                        "value": "voice.health_status",
+                        "description": "Check Kaleyra Voice API health status."
+                    },
+                    {
+                        "label": "Progressive Dialer Upload",
+                        "value": "voice.progressive_dialer_upload",
+                        "description": "Upload a single progressive dialer contact."
+                    },
+                    {
+                        "label": "Progressive Dialer Bulk Upload",
+                        "value": "voice.progressive_dialer_bulk_upload",
+                        "description": "Upload multiple progressive dialer contacts using JSON."
+                    },
+                    {
+                        "label": "Start OBD Call",
+                        "value": "voice.start_obd_call",
+                        "description": "Start outbound dialer calls using form parameters."
+                    },
+                    {
+                        "label": "Start OBD Call Using JSON",
+                        "value": "voice.obd_call_json",
+                        "description": "Start outbound dialer calls using a JSON payload."
+                    },
+                    {
+                        "label": "Check OBD Call Status",
+                        "value": "voice.check_obd_call_status",
+                        "description": "Check the status of an outbound dialer call."
+                    },
+                    {
+                        "label": "Check OBD Group Status",
+                        "value": "voice.check_obd_group_status",
+                        "description": "Check status for an outbound dialer group."
+                    }
+                ],
+                "validation": {
+                    "required": true,
+                    "requiredDetail": {
+                        "errorMsg": "Operation is required"
+                    }
+                },
+                "description": "Select the Kaleyra Voice operation you want to perform.",
+                "displayName": "Operation",
+                "displayType": "select",
+                "placeholder": "Select an operation",
+                "dependencies": {
+                    "conditions": [
+                        {
+                            "field": "resource",
+                            "value": "voice",
+                            "operator": "EQUALS"
+                        }
+                    ]
+                }
+            },
+            "name": "operation"
+        }
+    ],
+    "click_to_call": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "meta": "{{parameters.meta}}",
+                "delay": "{{parameters.delay}}",
+                "retry": "{{parameters.retry}}",
+                "caller": "{{parameters.caller}}",
+                "custom": "{{parameters.custom}}",
+                "format": "{{parameters.format}}",
+                "method": "dial.click2call",
+                "return": "{{parameters.return_call_id}}",
+                "callback": "{{parameters.callback}}",
+                "receiver": "{{parameters.receiver}}",
+                "caller_id": "{{parameters.caller_id}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Caller is required"
+                        }
+                    },
+                    "description": "First connection of the call.",
+                    "displayName": "Caller",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "caller"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Receiver is required"
+                        }
+                    },
+                    "description": "Second connection of the call.",
+                    "displayName": "Receiver",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "receiver"
+            },
+            {
+                "meta": {
+                    "description": "Optional retry count if the first connection does not answer. Maximum is 2.",
+                    "displayName": "Retry",
+                    "displayType": "number",
+                    "placeholder": "2",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "retry"
+            },
+            {
+                "meta": {
+                    "description": "Optional URL-encoded callback URL triggered when the first connection answers and when the call ends.",
+                    "displayName": "Callback URL",
+                    "displayType": "url",
+                    "placeholder": "https://callback.example.com/?caller={caller}",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "callback"
+            },
+            {
+                "meta": {
+                    "description": "Optional delay in seconds before initiating the call.",
+                    "displayName": "Delay",
+                    "displayType": "number",
+                    "placeholder": "0",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "delay"
+            },
+            {
+                "meta": {
+                    "value": "1",
+                    "options": [
+                        {
+                            "label": "No",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Yes",
+                            "value": "1"
+                        }
+                    ],
+                    "description": "Return the call ID in the API response.",
+                    "displayName": "Return Call ID",
+                    "displayType": "select",
+                    "placeholder": "Select return call id",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "return_call_id"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional caller ID number assigned to the account.",
+                    "displayName": "Caller ID",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "caller_id"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md"
+                    },
+                    "description": "Optional JSON metadata or additional parameters.",
+                    "displayName": "Meta",
+                    "displayType": "code",
+                    "placeholder": "{\"agent\":\"A1\"}",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "meta"
+            },
+            {
+                "meta": {
+                    "description": "Optional custom reference ID for the call.",
+                    "displayName": "Custom Reference",
+                    "displayType": "text",
+                    "placeholder": "CUSTOM123",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "custom"
+            }
+        ]
+    },
+    "get_call_details": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "id": "{{parameters.id}}",
+                "limit": "50",
+                "format": "{{parameters.format}}",
+                "method": "dial",
+                "todate": "{{parameters.todate}}",
+                "call_to": "{{parameters.call_to}}",
+                "fromdate": "{{parameters.fromdate}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "body": {
+                    "page": "{{pagination.page}} + 1",
+                    "limit": "50"
+                },
+                "type": "body",
+                "default": {
+                    "page": 1,
+                    "limit": 50
+                },
+                "condition": "{{response.data.data.length}} >= 50"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_details",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "description": "Optional start date for results. Kaleyra accepts YYYY/MM/DD or DD/MM/YYYY.",
+                    "displayName": "From Date",
+                    "displayType": "datetime",
+                    "placeholder": "2025/01/01",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_details",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "fromdate"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "description": "Optional end date for results. Kaleyra accepts YYYY/MM/DD or DD/MM/YYYY.",
+                    "displayName": "To Date",
+                    "displayType": "datetime",
+                    "placeholder": "2025/01/31",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_details",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "todate"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional called-to number filter.",
+                    "displayName": "Call To",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_details",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "call_to"
+            },
+            {
+                "meta": {
+                    "description": "Optional call ID to fetch a specific call record.",
+                    "displayName": "Call ID",
+                    "displayType": "text",
+                    "placeholder": "c2c_57XXXXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_details",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "undo_number_blacklist": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "action": "delete",
+                "format": "{{parameters.format}}",
+                "method": "block",
+                "number": "{{parameters.number}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.undo_number_blacklist",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Numbers are required"
+                        }
+                    },
+                    "description": "10 digit mobile number(s) that need to be removed from the blacklist. Use comma-separated values for multiple numbers.",
+                    "displayName": "Numbers",
+                    "displayType": "code",
+                    "placeholder": "7738550789,9876543210",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.undo_number_blacklist",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "number"
+            }
+        ]
+    },
+    "click_to_call_status": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "id": "{{parameters.id}}",
+                "limit": "50",
+                "format": "{{parameters.format}}",
+                "method": "dial.c2cstatus",
+                "todate": "{{parameters.todate}}",
+                "call_to": "{{parameters.call_to}}",
+                "fromdate": "{{parameters.fromdate}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "pagination": {
+                "body": {
+                    "page": "{{pagination.page}} + 1",
+                    "limit": "50"
+                },
+                "type": "body",
+                "default": {
+                    "page": 1,
+                    "limit": 50
+                },
+                "condition": "{{response.data.data.length}} >= 50"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call_status",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "description": "Optional start date for results. Kaleyra accepts YYYY/MM/DD or DD/MM/YYYY.",
+                    "displayName": "From Date",
+                    "displayType": "datetime",
+                    "placeholder": "2025/01/01",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call_status",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "fromdate"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "description": "Optional end date for results. Kaleyra accepts YYYY/MM/DD or DD/MM/YYYY.",
+                    "displayName": "To Date",
+                    "displayType": "datetime",
+                    "placeholder": "2025/01/31",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call_status",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "todate"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional called-to number filter.",
+                    "displayName": "Call To",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call_status",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "call_to"
+            },
+            {
+                "meta": {
+                    "description": "Optional call ID to fetch a specific call record.",
+                    "displayName": "Call ID",
+                    "displayType": "text",
+                    "placeholder": "c2c_57XXXXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.click_to_call_status",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "id"
+            }
+        ]
+    },
+    "blacklist_number": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "format": "{{parameters.format}}",
+                "method": "block",
+                "number": "{{parameters.number}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.blacklist_number",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Numbers are required"
+                        }
+                    },
+                    "description": "10 digit mobile number(s) that need to be blacklisted. Use comma-separated values for multiple numbers.",
+                    "displayName": "Numbers",
+                    "displayType": "code",
+                    "placeholder": "7735560789,9876543210",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.blacklist_number",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "number"
+            }
+        ]
+    },
+    "get_call_follow_up_report": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "format": "{{parameters.format}}",
+                "method": "followup.reports",
+                "number": "{{parameters.number}}",
+                "todate": "{{parameters.todate}}",
+                "follower": "{{parameters.follower}}",
+                "fromdate": "{{parameters.fromdate}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data.data}}"
+            },
+            "transform": {
+                "body": "function transformBody(){var source=(typeof body!=='undefined'&&body&&typeof body==='object')?body:{};var out={};function isTemplate(value){return typeof value==='string'&&value.indexOf('{{')!==-1;}function clean(value){if(value==null)return'';var text=String(value).trim();if(!text||text==='undefined'||text==='null'||isTemplate(text))return'';return text;}for(var key in source){var value=clean(source[key]);if(value)out[key]=value;}return out;}return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_follow_up_report",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional follower number filter.",
+                    "displayName": "Follower",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_follow_up_report",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "follower"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "description": "Optional follow-up number filter.",
+                    "displayName": "Number",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_follow_up_report",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "number"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "description": "Optional start date for results. Kaleyra accepts YYYY/MM/DD or DD/MM/YYYY.",
+                    "displayName": "From Date",
+                    "displayType": "datetime",
+                    "placeholder": "2025/01/01",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_follow_up_report",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "fromdate"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "description": "Optional end date for results. Kaleyra accepts YYYY/MM/DD or DD/MM/YYYY.",
+                    "displayName": "To Date",
+                    "displayType": "datetime",
+                    "placeholder": "2025/01/31",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.get_call_follow_up_report",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "todate"
+            }
+        ]
+    },
+    "progressive_dialer_bulk_upload": {
+        "definition": {
+            "qs": {
+                "name": "{{parameters.name}}",
+                "format": "{{parameters.format}}",
+                "method": "autodial.import"
+            },
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": "{{parameters.payload}}",
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "return typeof body==='string'?JSON.parse(body):body;"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.progressive_dialer_bulk_upload",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Campaign Name is required"
+                        }
+                    },
+                    "description": "Unique campaign name.",
+                    "displayName": "Campaign Name",
+                    "displayType": "text",
+                    "placeholder": "unique_name",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.progressive_dialer_bulk_upload",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Bulk Upload Payload is required"
+                        }
+                    },
+                    "description": "JSON payload containing a data array of progressive dialer contacts.",
+                    "displayName": "Bulk Upload Payload",
+                    "displayType": "code",
+                    "placeholder": "{\"data\":[{\"number\":\"97xxxxxxxx\",\"customname\":\"customvalue\"},{\"number\":\"80xxxxxxxx\",\"customname\":\"customvalue\"}]}",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.progressive_dialer_bulk_upload",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "payload"
+            }
+        ]
+    },
+    "obd_call_json": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/?method=voice.json&format={{parameters.format}}",
+            "body": {
+                "payload": "{{parameters.payload}}"
+            },
+            "method": "post",
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/json"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            },
+            "transform": {
+                "body": "function transformBody(){var payload=(typeof parameters!=='undefined'&&parameters&&parameters.payload!=null)?parameters.payload:(body&&body.payload!=null?body.payload:body);if(typeof payload==='string'){return JSON.parse(payload);}return payload;}return transformBody();"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "JSONP",
+                            "value": "jsonp"
+                        },
+                        {
+                            "label": "PHP",
+                            "value": "php"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.obd_call_json",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "size": "md"
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "OBD JSON Payload is required"
+                        }
+                    },
+                    "description": "Full JSON body for outbound dialer calls. Include play and call entries.",
+                    "displayName": "OBD JSON Payload",
+                    "displayType": "code",
+                    "placeholder": "{\"play\":\"123.sound\",\"call\":[{\"to\":\"9594152945\",\"meta\":{\"param1\":\"value1\",\"param2\":\"value2\"}},{\"to\":\"9870208616\",\"message\":\"Custom message\",\"meta\":{\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\"}}]}",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.obd_call_json",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "payload"
+            }
+        ]
+    },
+    "create_call_follow_up": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "name": "{{parameters.name}}",
+                "notes": "{{parameters.notes}}",
+                "phone": "{{parameters.phone}}",
+                "format": "{{parameters.format}}",
+                "method": "followup",
+                "ontime": "{{parameters.ontime}}",
+                "autocall": "{{parameters.autocall}}",
+                "follower": "{{parameters.follower}}"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.create_call_follow_up",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Phone is required"
+                        }
+                    },
+                    "description": "Follow-up phone number.",
+                    "displayName": "Phone",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.create_call_follow_up",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "phone"
+            },
+            {
+                "meta": {
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Name is required"
+                        }
+                    },
+                    "description": "Follow-up name.",
+                    "displayName": "Name",
+                    "displayType": "text",
+                    "placeholder": "Customer Follow Up",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.create_call_follow_up",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "name"
+            },
+            {
+                "meta": {
+                    "htmlProps": {
+                        "allowDynamic": true
+                    },
+                    "validation": {
+                        "required": true,
+                        "requiredDetail": {
+                            "errorMsg": "Follower is required"
+                        }
+                    },
+                    "description": "Follower phone number.",
+                    "displayName": "Follower",
+                    "displayType": "phone",
+                    "placeholder": "99XXXXXXXX",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.create_call_follow_up",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "follower"
+            },
+            {
+                "meta": {
+                    "readOnly": false,
+                    "htmlProps": {
+                        "format": "YYYY-MM-DD HH:mm:ss",
+                        "disabled": false,
+                        "timeSteps": {
+                            "hours": 1,
+                            "minutes": 5,
+                            "seconds": 5
+                        }
+                    },
+                    "validation": {
+                        "required": true
+                    },
+                    "description": "Date and time when the follow-up is scheduled.",
+                    "displayName": "On Time",
+                    "displayType": "datetime",
+                    "placeholder": "2025-01-31 10:30:00",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.create_call_follow_up",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "ontime"
+            },
+            {
+                "meta": {
+                    "value": "0",
+                    "options": [
+                        {
+                            "label": "No",
+                            "value": "0"
+                        },
+                        {
+                            "label": "Yes",
+                            "value": "1"
+                        }
+                    ],
+                    "description": "Initiate a follow-up call between follower and follow-up phone number at the scheduled time.",
+                    "displayName": "Auto Call",
+                    "displayType": "select",
+                    "placeholder": "Select auto call",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.create_call_follow_up",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "autocall"
+            },
+            {
+                "meta": {
+                    "description": "Optional notes for the follow-up call.",
+                    "displayName": "Notes",
+                    "displayType": "textarea",
+                    "placeholder": "Customer requested a call back.",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.create_call_follow_up",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "notes"
+            }
+        ]
+    },
+    "health_status": {
+        "definition": {
+            "url": "https://api-voice.kaleyra.com/v1/",
+            "body": {
+                "format": "{{parameters.format}}",
+                "method": "monitor"
+            },
+            "method": "post",
+            "filters": {
+                "body": {
+                    "allowEmptyArray": false,
+                    "allowEmptyValue": false,
+                    "allowEmptyObject": false
+                }
+            },
+            "headers": {
+                "Accept": "application/json",
+                "x-api-key": "{{secrets.api_key}}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "response": {
+                "error": {
+                    "code": "{{response.status}}",
+                    "message": "{{response.data.message}}"
+                },
+                "output": "{{response.data}}"
+            }
+        },
+        "parameters": [
+            {
+                "meta": {
+                    "value": "json",
+                    "options": [
+                        {
+                            "label": "JSON",
+                            "value": "json"
+                        },
+                        {
+                            "label": "XML",
+                            "value": "xml"
+                        },
+                        {
+                            "label": "Text",
+                            "value": "text"
+                        }
+                    ],
+                    "description": "Optional response format. JSON is used by default.",
+                    "displayName": "Response Format",
+                    "displayType": "select",
+                    "placeholder": "Select response format",
+                    "dependencies": {
+                        "conditions": [
+                            {
+                                "field": "operation",
+                                "value": "voice.health_status",
+                                "operator": "EQUALS"
+                            }
+                        ]
+                    }
+                },
+                "name": "format"
+            }
+        ]
+    }
+}
